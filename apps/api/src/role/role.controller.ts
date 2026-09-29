@@ -11,6 +11,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
 import { CreateRoleDto, UpdateRoleDto } from "@repo/shared/schemas/role.schema";
+import { Public } from "../auth/public.decorator";
 import { RoleService } from "./role.service";
 
 @ApiTags("Roles")
@@ -20,6 +21,7 @@ export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Get()
+  @Public()
   @ApiOperation({ summary: "Get all roles with pagination and relationships" })
   async findAll(
     @Query("page") page: string = "1",
@@ -38,6 +40,7 @@ export class RoleController {
   }
 
   @Get(":id")
+  @Public()
   @ApiOperation({ summary: "Get role by ID" })
   async findOne(@Param("id") id: string) {
     const role = await this.roleService.findOne(id);
