@@ -4,20 +4,18 @@
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-if (!API_URL) {
-  console.warn("VITE_API_URL is not defined in environment variables. Falling back to default.");
-}
-
 export const config = {
-  apiUrl: API_URL || "http://localhost:5000",
+  apiUrl: API_URL,
 };
 
 /**
  * Standard fetch wrapper that prepends the base API URL
  */
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
+  if (!config.apiUrl) {
+    throw new Error("VITE_API_URL belum dikonfigurasi.");
+  }
   const url = `${config.apiUrl}${endpoint}`;
-  console.log('Sending request to:', url);
   
   const headers = {
     'Content-Type': 'application/json',

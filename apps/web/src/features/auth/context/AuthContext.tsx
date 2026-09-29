@@ -7,6 +7,8 @@ export interface AuthContextType extends AuthState {
   logout: () => void;
 }
 
+// Context and provider intentionally share this module so feature imports stay concise.
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
