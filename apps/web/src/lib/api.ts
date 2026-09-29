@@ -13,15 +13,19 @@ export const config = {
 };
 
 /**
- * Standard fetch wrapper that prepends the base API URL
+ * Standard fetch wrapper that prepends the base API URL and attaches Authorization header
  */
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const url = `${config.apiUrl}${endpoint}`;
-  console.log('Sending request to:', url);
   
-  const headers = {
+  const token = typeof window !== 'undefined' 
+    ? (localStorage.getItem('access_token') || localStorage.getItem('token')) 
+    : null;
+
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers as Record<string, string>),
   };
 
   const response = await fetch(url, { ...options, headers });
@@ -33,3 +37,4 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
 
   return response.json();
 }
+

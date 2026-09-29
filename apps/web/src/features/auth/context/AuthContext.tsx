@@ -10,10 +10,13 @@ export interface AuthContextType extends AuthState {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
-    isLoading: false,
+  const [state, setState] = useState<AuthState>(() => {
+    const token = typeof window !== 'undefined' ? (localStorage.getItem('access_token') || localStorage.getItem('token')) : null;
+    return {
+      user: null,
+      isAuthenticated: Boolean(token),
+      isLoading: false,
+    };
   });
 
   const login = async (credentials: LoginCredentials) => {
@@ -32,6 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('token');
     setState({ user: null, isAuthenticated: false, isLoading: false });
   };
 
