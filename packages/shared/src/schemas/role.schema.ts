@@ -13,6 +13,11 @@ export const CreateRoleSchema = z.object({
     .optional()
     .nullable()
     .describe("Optional description of the role"),
+  permissionIds: z
+    .array(z.string().uuid())
+    .optional()
+    .default([])
+    .describe("List of permission UUIDs to assign to this role"),
 });
 
 export const UpdateRoleSchema = z.object({
@@ -28,6 +33,10 @@ export const UpdateRoleSchema = z.object({
     .optional()
     .nullable()
     .describe("Updated description of the role"),
+  permissionIds: z
+    .array(z.string().uuid())
+    .optional()
+    .describe("Updated list of permission UUIDs for this role"),
 });
 
 export class CreateRoleDto extends createZodDto(CreateRoleSchema) {}

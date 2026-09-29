@@ -3,8 +3,9 @@ import { indexRoute } from "./routes";
 import { rootRoute } from "./routes/__root";
 import { rolesRoute } from "./routes/roles";
 import { permissionsRoute } from "./routes/permissions";
+import { rolePermissionsRoute } from "./routes/role-permissions";
 
-const routeTree = rootRoute.addChildren([indexRoute, rolesRoute, permissionsRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, rolesRoute, permissionsRoute, rolePermissionsRoute]);
 
 export const router = createRouter({ routeTree });
 
