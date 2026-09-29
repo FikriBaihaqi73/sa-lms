@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Search, ShieldCheck, Moon, Sun, Filter } from 'lucide-react';
+import { Plus, Search, ShieldCheck, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -10,8 +10,6 @@ interface PermissionHeaderProps {
   onModuleChange: (module: string) => void;
   availableModules: string[];
   onOpenCreateModal: () => void;
-  isDarkMode: boolean;
-  onToggleTheme: () => void;
 }
 
 export const PermissionHeader: React.FC<PermissionHeaderProps> = ({
@@ -21,8 +19,6 @@ export const PermissionHeader: React.FC<PermissionHeaderProps> = ({
   onModuleChange,
   availableModules,
   onOpenCreateModal,
-  isDarkMode,
-  onToggleTheme,
 }) => {
   return (
     <div className="space-y-6">
@@ -45,21 +41,6 @@ export const PermissionHeader: React.FC<PermissionHeaderProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-3">
-          {/* Theme Switcher Button */}
-          <button
-            onClick={onToggleTheme}
-            type="button"
-            className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm"
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle theme"
-          >
-            {isDarkMode ? (
-              <Sun className="w-4 h-4 text-amber-400" />
-            ) : (
-              <Moon className="w-4 h-4 text-slate-700" />
-            )}
-          </button>
-
           {/* Add Permission Button */}
           <Button
             onClick={onOpenCreateModal}

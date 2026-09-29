@@ -14,6 +14,7 @@ import {
   UpdatePermissionDto,
 } from "@repo/shared/schemas/permission.schema";
 import { ZodValidationPipe } from "nestjs-zod";
+import { Public } from "../auth/public.decorator";
 import { PermissionService } from "./permission.service";
 
 @ApiTags("Permissions")
@@ -23,6 +24,7 @@ export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 
   @Get()
+  @Public()
   @ApiOperation({ summary: "Get all permissions" })
   async findAll() {
     const permissions = await this.permissionService.findAll();
@@ -33,6 +35,7 @@ export class PermissionController {
   }
 
   @Get(":id")
+  @Public()
   @ApiOperation({ summary: "Get permission by ID" })
   async findOne(@Param("id") id: string) {
     const permission = await this.permissionService.findOne(id);

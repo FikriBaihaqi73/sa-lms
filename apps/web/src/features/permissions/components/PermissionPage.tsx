@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   usePermissions,
   useCreatePermission,
@@ -14,30 +14,6 @@ import type { Permission } from '../types';
 import type { PermissionFormValues } from '../schemas/permissionSchema';
 
 export const PermissionPage: React.FC = () => {
-  // Theme state
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) return savedTheme === 'dark';
-      return document.documentElement.classList.contains('dark');
-    }
-    return false;
-  });
-
-  const toggleTheme = () => {
-    setIsDarkMode((prev) => !prev);
-  };
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
-
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedModule, setSelectedModule] = useState<string>('ALL');
@@ -147,7 +123,7 @@ export const PermissionPage: React.FC = () => {
           </div>
         )}
 
-        {/* Page Header with Controls & Theme Switcher */}
+        {/* Page Header with Controls */}
         <PermissionHeader
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -155,8 +131,6 @@ export const PermissionPage: React.FC = () => {
           onModuleChange={setSelectedModule}
           availableModules={availableModules}
           onOpenCreateModal={handleOpenCreate}
-          isDarkMode={isDarkMode}
-          onToggleTheme={toggleTheme}
         />
 
         {/* Stats Overview */}
