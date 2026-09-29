@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { RegisterSchema } from '@repo/shared/schemas/auth.schema';
@@ -34,8 +34,8 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 
   const {
     register,
+    control,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(FrontendRegisterSchema),
@@ -44,7 +44,7 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
     }
   });
 
-  const selectedRole = watch('role');
+  const selectedRole = useWatch({ control, name: 'role' });
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
