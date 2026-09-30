@@ -1,4 +1,4 @@
-import { BookOpenCheck, ChevronRight, GraduationCap, KeyRound, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { BookOpenCheck, ChevronRight, GraduationCap, KeyRound, LogOut, ShieldCheck, UserRound, Users } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { SkyToggle } from "@/components/ui/sky-toggle";
 
@@ -10,6 +10,7 @@ export function AppSidebar() {
         <div><p className="text-xs font-bold leading-none text-slate-900 dark:text-white">Sistem Academic</p><p className="mt-1 text-[10px] text-slate-500">Enterprise v1.0</p></div>
       </div>
       <nav className="space-y-1 p-3">
+        <Link to="/users" activeProps={{ className: "bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300" }} className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"><Users className="h-3.5 w-3.5" />Users Page<ChevronRight className="ml-auto h-3.5 w-3.5" /></Link>
         <Link to="/roles" activeProps={{ className: "bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300" }} className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"><ShieldCheck className="h-3.5 w-3.5" />Role Page<ChevronRight className="ml-auto h-3.5 w-3.5" /></Link>
         <Link to="/permissions" activeProps={{ className: "bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300" }} className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"><KeyRound className="h-3.5 w-3.5" />Permission Page<ChevronRight className="ml-auto h-3.5 w-3.5" /></Link>
         <Link to="/jenjang-institusi" activeProps={{ className: "bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300" }} className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"><GraduationCap className="h-3.5 w-3.5" />Jenjang institusi<ChevronRight className="ml-auto h-3.5 w-3.5" /></Link>
