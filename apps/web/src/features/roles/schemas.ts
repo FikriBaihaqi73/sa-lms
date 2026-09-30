@@ -5,5 +5,5 @@ export const roleFormSchema = z.object({
   description: z.string().max(1000, "Deskripsi maksimal 1000 karakter"),
   permissionIds: z
     .array(z.string())
-    .min(1, "Pilih minimal satu permission"),
+    .min(0),
 });

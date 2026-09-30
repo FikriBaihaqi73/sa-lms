@@ -57,6 +57,22 @@ body {
   color: hsl(var(--foreground));
 }
 
+.field {
+  width: 100%;
+  border: 1px solid #E2E6EE;
+  border-radius: 6px;
+  background: transparent;
+  padding: 0.625rem 0.75rem;
+  color: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  outline: none;
+}
+
+.field:focus { border-color: #2563EB; box-shadow: 0 0 0 2px rgb(37 99 235 / 12%); }
+.dark .field { border-color: #1E2A44; }
+.dark .field:focus { border-color: #3B82F6; box-shadow: 0 0 0 2px rgb(59 130 246 / 18%); }
+
 .sky-toggle {
   --sky-width: 72px;
   --sky-height: 32px;

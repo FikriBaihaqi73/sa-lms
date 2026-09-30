@@ -3,8 +3,9 @@ import { indexRoute } from "./routes";
 import { rootRoute } from "./routes/__root";
 import { rolesRoute } from "./routes/roles";
 import { permissionsRoute } from "./routes/permissions";
+import { institutionLevelsRoute } from "./routes/jenjang-institusi";
 
-const routeTree = rootRoute.addChildren([indexRoute, rolesRoute, permissionsRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, rolesRoute, permissionsRoute, institutionLevelsRoute]);
 
 export const router = createRouter({ routeTree });
 

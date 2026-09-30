@@ -35,21 +35,17 @@ export function RoleStatsCards({ roles, permissions }: RoleStatsCardsProps) {
   return (
     <section className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
       {cards.map(({ label, value, caption, icon: Icon }) => (
-        <Card key={label}>
-          <CardContent className="relative border-none p-4 shadow-none">
-            <span className="absolute right-4 top-4 rounded bg-blue-50 p-1 text-blue-700 dark:bg-blue-950 dark:text-blue-300"><Icon className="h-3.5 w-3.5" /></span>
-            <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
-            <p className="mt-2 text-2xl font-bold tracking-tight">{value}<span className="ml-1 text-[10px] font-normal text-slate-500">{label === "Active Roles" ? "definitions" : label === "Assigned Users" ? "accounts" : "capabilities"}</span></p>
-            <p className="mt-2 text-[10px] text-slate-500 dark:text-slate-400">{caption}</p>
+        <Card key={label} className="rounded-lg shadow-none">
+          <CardContent className="flex min-h-[96px] items-center gap-3 border-none p-3.5 shadow-none">
+            <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"><Icon className="size-5" strokeWidth={1.8} /></span>
+            <div><p className="font-mono text-2xl font-semibold leading-6 tabular-nums">{value}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{label}</p><p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">{caption}</p></div>
           </CardContent>
         </Card>
       ))}
-      <Card>
-        <CardContent className="relative border-none p-4 shadow-none">
-          <span className="absolute right-4 top-4 rounded bg-blue-50 p-1 text-blue-700 dark:bg-blue-950 dark:text-blue-300"><ShieldCheck className="h-3.5 w-3.5" /></span>
-          <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Security Guardrail</p>
-          <p className="mt-2 text-base font-bold text-slate-900 dark:text-white">PROTECTED</p>
-          <p className="mt-3 text-[10px] text-slate-500 dark:text-slate-400">Active user assignment lock active</p>
+      <Card className="rounded-lg shadow-none">
+        <CardContent className="flex min-h-[96px] items-center gap-3 border-none p-3.5 shadow-none">
+          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300"><ShieldCheck className="size-5" strokeWidth={1.8} /></span>
+          <div><p className="font-mono text-lg font-semibold">PROTECTED</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Security guardrail</p><p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">Active user assignment lock active</p></div>
         </CardContent>
       </Card>
     </section>
