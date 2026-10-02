@@ -1,10 +1,10 @@
-import React, { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { usePermissions } from "@/features/roles/hooks/usePermissions";
 import { useRoles } from "@/features/roles/hooks/useRoles";
 import { useUpdateRole } from "@/features/roles/hooks/useUpdateRole";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Search } from "lucide-react";
-import type { Permission, Role } from "@/features/roles/types";
+import type { Permission } from "@/features/roles/types";
 
 export function RolePermissionPage() {
   const permissionsQuery = usePermissions();
@@ -203,8 +203,10 @@ export function RolePermissionPage() {
                             </div>
                             <div className="min-w-0 flex-1 text-sm">
                               <div className="font-medium text-slate-900 dark:text-slate-100">{permission.name}</div>
-                              {permission.description && (
-                                <div className="mt-1 text-xs text-slate-500 leading-relaxed">{permission.description}</div>
+                              {(permission as { description?: string }).description && (
+                                <div className="mt-1 text-xs text-slate-500 leading-relaxed">
+                                  {(permission as { description?: string }).description}
+                                </div>
                               )}
                             </div>
                           </label>

@@ -16,10 +16,13 @@ import {
 } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
 
+import { useNavigate } from '@tanstack/react-router';
+
 type LoginFormValues = z.infer<typeof LoginSchema>;
 
 export function LoginForm({ onRegisterClick }: { onRegisterClick?: () => void }) {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -35,7 +38,7 @@ export function LoginForm({ onRegisterClick }: { onRegisterClick?: () => void })
     try {
       setError('');
       await login(data);
-      // NOTE: Handle redirect with TanStack Router after authentication
+      navigate({ to: '/nationalities' });
     } catch {
       setError('Invalid credentials or login failed');
     }
