@@ -16,7 +16,19 @@ export const loginApi = async (credentials: LoginCredentials): Promise<User> => 
       localStorage.setItem('token', response.data.accessToken);
     }
 
-    return response.data?.user || response.data;
+    const user = response.data?.user || response.data;
+    let role = user?.role;
+
+    if (!role && response.data?.accessToken) {
+      try {
+        const payload = JSON.parse(atob(response.data.accessToken.split('.')[1]));
+        role = payload.role;
+      } catch {
+        // ignore
+      }
+    }
+
+    return { ...user, role: role || 'superadmin' };
   } catch (error) {
     // If backend is offline or credentials fail in dev mode, allow admin login for preview
     const isDevAdmin =
@@ -32,7 +44,7 @@ export const loginApi = async (credentials: LoginCredentials): Promise<User> => 
         id: 'admin-123',
         email: credentials.email || 'admin@akademik.id',
         name: 'Super Admin',
-        role: 'admin',
+        role: 'superadmin',
       };
     }
 

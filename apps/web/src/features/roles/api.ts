@@ -81,12 +81,13 @@ export async function getRoles(totalPermissions: number): Promise<Role[]> {
   }
 }
 
-type RoleRequest = Pick<RoleFormValues, "name" | "description">;
+type RoleRequest = Pick<RoleFormValues, "name" | "description" | "permissionIds">;
 
 function toRoleRequest(values: RoleFormValues): RoleRequest {
   return {
     name: values.name.trim(),
     description: values.description.trim(),
+    permissionIds: values.permissionIds,
   };
 }
 

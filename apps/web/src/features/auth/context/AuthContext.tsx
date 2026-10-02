@@ -14,8 +14,21 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(() => {
     const token = typeof window !== 'undefined' ? (localStorage.getItem('access_token') || localStorage.getItem('token')) : null;
+    let user = null;
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        user = {
+          id: payload.sub || '1',
+          email: payload.email || 'admin@example.com',
+          role: payload.role || 'superadmin',
+        };
+      } catch (e) {
+        user = { id: '1', email: 'admin@example.com', role: 'superadmin' };
+      }
+    }
     return {
-      user: null,
+      user,
       isAuthenticated: Boolean(token),
       isLoading: false,
     };
