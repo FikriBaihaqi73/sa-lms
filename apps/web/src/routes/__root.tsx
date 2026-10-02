@@ -13,7 +13,6 @@ function RootLayout() {
   const navigate = useNavigate();
 
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
-
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !isAuthPage) {
       navigate({ to: "/login" });
