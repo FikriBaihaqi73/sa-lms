@@ -195,7 +195,7 @@ export function ActivityLogList() {
               <option value="csv">Export as CSV</option>
               <option value="json">Export as JSON</option>
             </Select>
-            <Button className="shrink-0" onClick={() => handleExport('csv')}>
+            <Button className="shrink-0 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white" onClick={() => handleExport('csv')}>
               <Download className="w-4 h-4 mr-2" /> Export
             </Button>
           </div>
@@ -354,7 +354,7 @@ export function ActivityLogList() {
             </div>
 
             <div className="flex items-end gap-2">
-              <Button onClick={handleApplyFilters} className="h-9 flex-1">
+              <Button onClick={handleApplyFilters} className="h-9 flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white">
                 Apply Filters
               </Button>
               <Button variant="outline" onClick={handleResetFilters} className="h-9 px-3" title="Reset Filters">
