@@ -2,6 +2,7 @@ import { createRouter } from "@tanstack/react-router";
 import { indexRoute } from "./routes";
 import { rootRoute } from "./routes/__root";
 import { rolesRoute } from "./routes/roles";
+import { activityLogsRoute } from "./routes/activity-logs";
 import { permissionsRoute } from "./routes/permissions";
 import { rolePermissionsRoute } from "./routes/role-permissions";
 import { institutionLevelsRoute } from "./routes/jenjang-institusi";
@@ -16,6 +17,7 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   rolesRoute,
   permissionsRoute,
+  activityLogsRoute,
   rolePermissionsRoute,
   institutionLevelsRoute,
   usersRoute,

@@ -6,7 +6,7 @@ import { ThemeProvider } from './components/theme-provider.tsx'
 import { AuthProvider } from './features/auth/context/AuthContext.tsx'
 import './index.css'
 import { router } from './router.tsx'
-
+  
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
