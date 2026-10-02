@@ -5,8 +5,20 @@ import { rolesRoute } from "./routes/roles";
 import { permissionsRoute } from "./routes/permissions";
 import { institutionLevelsRoute } from "./routes/jenjang-institusi";
 import { usersRoute } from "./routes/users";
+import { nationalitiesRoute } from "./routes/nationalities";
+import { loginRoute } from "./routes/login";
+import { registerRoute } from "./routes/register";
 
-const routeTree = rootRoute.addChildren([indexRoute, rolesRoute, permissionsRoute, institutionLevelsRoute, usersRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  registerRoute,
+  rolesRoute,
+  permissionsRoute,
+  institutionLevelsRoute,
+  usersRoute,
+  nationalitiesRoute,
+]);
 
 export const router = createRouter({ routeTree });
 
@@ -15,4 +27,3 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
-

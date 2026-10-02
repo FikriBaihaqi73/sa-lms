@@ -84,7 +84,25 @@ export function RolesPage() {
         <RoleFilterBar search={search} type={type} onSearchChange={setSearch} onTypeChange={setType} />
         {rolesQuery.isError || permissionsQuery.isError ? <div className="rounded-lg border border-destructive/40 bg-red-50 p-4 text-sm text-destructive dark:bg-red-950/30">{errorMessage(rolesQuery.error ?? permissionsQuery.error)}</div> : <RolesTable roles={filteredRoles} isLoading={rolesQuery.isPending || permissionsQuery.isPending} onEdit={setEditingRole} onDelete={setDeletingRole} onAdd={() => setIsAdding(true)} />}
       </div>
-      {notice && <div role="status" className={notice.kind === "success" ? "fixed bottom-5 right-5 z-[70] rounded-lg bg-blue-700 px-4 py-3 text-sm font-medium text-white shadow-lg" : "fixed bottom-5 right-5 z-[70] rounded-lg bg-destructive px-4 py-3 text-sm font-medium text-destructive-foreground shadow-lg"}>{notice.message}</div>}
+      {notice && (
+        <div
+          role="status"
+          className={
+            notice.kind === "success"
+              ? "fixed top-20 right-6 z-[100] flex items-center justify-between gap-4 rounded-xl bg-blue-700 px-4 py-3 text-sm font-medium text-white shadow-2xl border border-blue-600 animate-in fade-in slide-in-from-top-2"
+              : "fixed top-20 right-6 z-[100] flex items-center justify-between gap-4 rounded-xl bg-red-600 px-4 py-3 text-sm font-medium text-white shadow-2xl border border-red-500 animate-in fade-in slide-in-from-top-2"
+          }
+        >
+          <span>{notice.message}</span>
+          <button
+            type="button"
+            onClick={() => setNotice(null)}
+            className="rounded p-1 text-white/80 hover:bg-white/20 hover:text-white transition"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       {isAdding && <AddRoleDialog open permissions={permissions} isSaving={createMutation.isPending} onClose={() => setIsAdding(false)} onSave={saveNewRole} />}
       {editingRole && <EditRoleSheet key={editingRole.id} open role={editingRole} permissions={permissions} isSaving={updateMutation.isPending} onClose={() => setEditingRole(null)} onSave={saveEditedRole} />}
       <DeleteRoleDialog role={deletingRole} isDeleting={deleteMutation.isPending} onClose={() => setDeletingRole(null)} onConfirm={confirmDelete} />
