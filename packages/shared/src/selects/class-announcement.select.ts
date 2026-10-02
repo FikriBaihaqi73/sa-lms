@@ -11,7 +11,7 @@ export const classAnnouncementSelect = {
   title: true,
   content: true,
   class: {
-    select: classSelect,
+  select: classSelect,
   },
 } satisfies Prisma.ClassAnnouncementSelect;
 

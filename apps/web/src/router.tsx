@@ -10,6 +10,7 @@ import { usersRoute } from "./routes/users";
 import { nationalitiesRoute } from "./routes/nationalities";
 import { loginRoute } from "./routes/login";
 import { registerRoute } from "./routes/register";
+import { superadminSettingsRoute } from "./routes/superadmin-settings";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -22,6 +23,7 @@ const routeTree = rootRoute.addChildren([
   institutionLevelsRoute,
   usersRoute,
   nationalitiesRoute,
+  superadminSettingsRoute,
 ]);
 
 export const router = createRouter({ routeTree });
