@@ -38,6 +38,7 @@ export class RoleService {
     return this.roleRepository.create({
       name: dto.name,
       ...(dto.description ? { description: dto.description } : {}),
+      ...(dto.permissionIds ? { permissionIds: dto.permissionIds } : {}),
     });
   }
 
@@ -53,6 +54,9 @@ export class RoleService {
       ...(dto.name ? { name: dto.name } : {}),
       ...(dto.description !== undefined
         ? { description: dto.description ?? undefined }
+        : {}),
+      ...(dto.permissionIds !== undefined
+        ? { permissionIds: dto.permissionIds }
         : {}),
     });
   }

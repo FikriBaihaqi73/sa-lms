@@ -36,18 +36,17 @@ export async function getRoles(totalPermissions: number): Promise<Role[]> {
   return response.data.map((role) => toRole(role, totalPermissions));
 }
 
-type RoleRequest = Pick<RoleFormValues, "name" | "description">;
+type RoleRequest = Pick<RoleFormValues, "name" | "description" | "permissionIds">;
 
 function toRoleRequest(values: RoleFormValues): RoleRequest {
   return {
     name: values.name.trim(),
     description: values.description.trim(),
+    permissionIds: values.permissionIds,
   };
 }
 
 export async function createRole(values: RoleFormValues): Promise<void> {
-  // TODO: The current backend CreateRoleDto does not accept permissionIds.
-  // Keep this boundary explicit until a role-permissions assignment endpoint is added.
   await apiFetch("/roles", {
     method: "POST",
     body: JSON.stringify(toRoleRequest(values)),
@@ -55,7 +54,6 @@ export async function createRole(values: RoleFormValues): Promise<void> {
 }
 
 export async function updateRole(id: string, values: RoleFormValues): Promise<void> {
-  // TODO: The backend exposes PATCH and does not yet persist permissionIds.
   await apiFetch(`/roles/${id}`, {
     method: "PATCH",
     body: JSON.stringify(toRoleRequest(values)),

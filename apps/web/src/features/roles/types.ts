@@ -19,7 +19,7 @@ export interface Permission {
 export interface RoleFormValues {
   name: string;
   description: string;
-  permissionIds: string[];
+  permissionIds?: string[];
 }
 
 export type RoleTypeFilter = "all" | "system" | "custom";
