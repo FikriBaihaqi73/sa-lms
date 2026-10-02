@@ -4,11 +4,13 @@ import { type RoleEntity, roleSelect } from "#selects/role.select";
 export interface CreateRoleInput {
   name: string;
   description?: string | undefined;
+  permissionIds?: string[] | undefined;
 }
 
 export interface UpdateRoleInput {
   name?: string | undefined;
   description?: string | undefined;
+  permissionIds?: string[] | undefined;
 }
 
 export class RoleRepository {
@@ -19,6 +21,13 @@ export class RoleRepository {
       data: {
         name: data.name,
         description: data.description ?? null,
+        ...(data.permissionIds && data.permissionIds.length > 0 && {
+          rolePermissions: {
+            create: data.permissionIds.map((permissionId) => ({
+              permission: { connect: { id: permissionId } },
+            })),
+          },
+        }),
       },
       select: roleSelect,
     });
@@ -93,6 +102,14 @@ export class RoleRepository {
         }),
         ...(data.description !== undefined && {
           description: data.description,
+        }),
+        ...(data.permissionIds !== undefined && {
+          rolePermissions: {
+            deleteMany: {},
+            create: data.permissionIds.map((permissionId) => ({
+              permission: { connect: { id: permissionId } },
+            })),
+          },
         }),
       },
       select: roleSelect,
