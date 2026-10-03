@@ -12,6 +12,7 @@ import { religionsRoute } from "./routes/religions";
 import { gradesRoute } from "./routes/grades";
 import { loginRoute } from "./routes/login";
 import { registerRoute } from "./routes/register";
+import { employmentStatusesRoute } from "./routes/employment-statuses";
 import { superadminSettingsRoute } from "./routes/superadmin-settings";
 
 const routeTree = rootRoute.addChildren([
@@ -26,6 +27,7 @@ const routeTree = rootRoute.addChildren([
   institutionLevelsRoute,
   usersRoute,
   nationalitiesRoute,
+  employmentStatusesRoute,
   religionsRoute,
   superadminSettingsRoute,
 ]);
