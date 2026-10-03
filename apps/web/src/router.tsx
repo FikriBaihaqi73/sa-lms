@@ -8,9 +8,11 @@ import { rolePermissionsRoute } from "./routes/role-permissions";
 import { institutionLevelsRoute } from "./routes/jenjang-institusi";
 import { usersRoute } from "./routes/users";
 import { nationalitiesRoute } from "./routes/nationalities";
+import { gradesRoute } from "./routes/grades";
 import { loginRoute } from "./routes/login";
 import { registerRoute } from "./routes/register";
 import { employmentStatusesRoute } from "./routes/employment-statuses";
+import { superadminSettingsRoute } from "./routes/superadmin-settings";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -19,11 +21,13 @@ const routeTree = rootRoute.addChildren([
   rolesRoute,
   permissionsRoute,
   activityLogsRoute,
+  gradesRoute,
   rolePermissionsRoute,
   institutionLevelsRoute,
   usersRoute,
   nationalitiesRoute,
   employmentStatusesRoute,
+  superadminSettingsRoute,
 ]);
 
 export const router = createRouter({ routeTree });
