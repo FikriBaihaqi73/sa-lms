@@ -72,12 +72,12 @@ export function EmploymentStatusDialog({
             </span>
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                {isEditing ? 'Ubah Status Karyawan' : 'Tambah Status Karyawan'}
+                {isEditing ? 'Ubah Status Kepegawaian' : 'Tambah Status Kepegawaian'}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isEditing
-                  ? 'Perbarui data status karyawan yang sudah ada'
-                  : 'Tambahkan opsi status karyawan baru ke dalam sistem'}
+                  ? 'Perbarui data status kepegawaian yang sudah ada'
+                  : 'Tambahkan opsi status kepegawaian baru ke dalam sistem'}
               </p>
             </div>
           </div>
@@ -99,7 +99,7 @@ export function EmploymentStatusDialog({
             <Input
               id="name"
               {...register('name')}
-              placeholder="Contoh: Permanent, Contract, Freelance"
+              placeholder="Contoh: PNS, Dosen Tetap, Tendik"
               className="h-11"
             />
             {errors.name && (

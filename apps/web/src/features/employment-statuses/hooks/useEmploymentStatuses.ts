@@ -3,10 +3,11 @@ import type { EmploymentStatus } from '../types';
 import type { EmploymentStatusFormValues } from '../schemas/employmentStatusSchema';
 
 const INITIAL_DATA: EmploymentStatus[] = [
-  { id: '1', name: 'Permanent', description: 'Karyawan tetap dengan kontrak tidak terbatas waktu', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: '2', name: 'Contract', description: 'Karyawan kontrak dengan batas waktu tertentu', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: '3', name: 'Internship', description: 'Program magang untuk mahasiswa atau fresh graduate', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: '4', name: 'Freelance', description: 'Pekerja lepas berdasarkan project', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '1', name: 'PNS', description: 'Pegawai Negeri Sipil', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '2', name: 'Dosen Tetap Yayasan', description: 'Dosen tetap di bawah naungan yayasan', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '3', name: 'Dosen Luar Biasa (LB)', description: 'Dosen tidak tetap / paruh waktu', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '4', name: 'Tenaga Kependidikan (Tendik)', description: 'Staf administrasi dan operasional', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '5', name: 'Honorer', description: 'Pegawai honorer / kontrak', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
 
 let mockData = [...INITIAL_DATA];

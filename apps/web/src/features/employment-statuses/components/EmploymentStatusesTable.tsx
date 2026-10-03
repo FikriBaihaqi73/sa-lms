@@ -51,7 +51,7 @@ export function EmploymentStatusesTable({
               onSearchChange(e.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Cari status karyawan..."
+            placeholder="Cari status kepegawaian..."
             className="h-9 w-full pl-9"
           />
         </div>
@@ -79,7 +79,7 @@ export function EmploymentStatusesTable({
             ) : paginatedData.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                  {search ? 'Pencarian tidak ditemukan.' : 'Belum ada data status karyawan.'}
+                  {search ? 'Pencarian tidak ditemukan.' : 'Belum ada data status kepegawaian.'}
                 </td>
               </tr>
             ) : (

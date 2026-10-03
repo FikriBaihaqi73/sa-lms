@@ -28,7 +28,7 @@ export function DeleteEmploymentStatusDialog({
               <AlertTriangle className="size-5" />
             </span>
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              Hapus Status Karyawan
+              Hapus Status Kepegawaian
             </h2>
           </div>
           <button
@@ -43,7 +43,7 @@ export function DeleteEmploymentStatusDialog({
 
         <div className="p-6">
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Apakah Anda yakin ingin menghapus status karyawan{' '}
+            Apakah Anda yakin ingin menghapus status kepegawaian{' '}
             <span className="font-bold text-slate-900 dark:text-slate-100">
               {employmentStatus.name}
             </span>

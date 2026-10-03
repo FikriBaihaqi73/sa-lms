@@ -42,7 +42,7 @@ export function EmploymentStatusesPage() {
         description: values.description || undefined,
       });
       setIsAdding(false);
-      setNotice({ kind: 'success', message: 'Status karyawan berhasil ditambahkan.' });
+      setNotice({ kind: 'success', message: 'Status kepegawaian berhasil ditambahkan.' });
       employmentStatusesQuery.refresh();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
@@ -60,7 +60,7 @@ export function EmploymentStatusesPage() {
         },
       });
       setEditingItem(null);
-      setNotice({ kind: 'success', message: 'Status karyawan berhasil diperbarui.' });
+      setNotice({ kind: 'success', message: 'Status kepegawaian berhasil diperbarui.' });
       employmentStatusesQuery.refresh();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
@@ -72,7 +72,7 @@ export function EmploymentStatusesPage() {
     try {
       await deleteMutation.mutateAsync(deletingItem.id);
       setDeletingItem(null);
-      setNotice({ kind: 'success', message: 'Status karyawan berhasil dihapus.' });
+      setNotice({ kind: 'success', message: 'Status kepegawaian berhasil dihapus.' });
       employmentStatusesQuery.refresh();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
@@ -89,10 +89,10 @@ export function EmploymentStatusesPage() {
               <ShieldCheck className="size-3.5" /> Superadmin Portal
             </span>
             <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-              Status Karyawan (Employment Status)
+              Status Kepegawaian (Employment Status)
             </h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Kelola master data status karyawan referensi untuk profil pengguna atau staf.
+              Kelola master data status kepegawaian referensi untuk profil dosen dan tenaga kependidikan.
             </p>
           </div>
           <Button
