@@ -10,6 +10,7 @@ import { usersRoute } from "./routes/users";
 import { nationalitiesRoute } from "./routes/nationalities";
 import { loginRoute } from "./routes/login";
 import { registerRoute } from "./routes/register";
+import { employmentStatusesRoute } from "./routes/employment-statuses";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -22,6 +23,7 @@ const routeTree = rootRoute.addChildren([
   institutionLevelsRoute,
   usersRoute,
   nationalitiesRoute,
+  employmentStatusesRoute,
 ]);
 
 export const router = createRouter({ routeTree });
