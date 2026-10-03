@@ -8,6 +8,7 @@ import { rolePermissionsRoute } from "./routes/role-permissions";
 import { institutionLevelsRoute } from "./routes/jenjang-institusi";
 import { usersRoute } from "./routes/users";
 import { nationalitiesRoute } from "./routes/nationalities";
+import { academicStatusesRoute } from "./routes/academic-statuses";
 import { religionsRoute } from "./routes/religions";
 import { gradesRoute } from "./routes/grades";
 import { loginRoute } from "./routes/login";
@@ -27,6 +28,7 @@ const routeTree = rootRoute.addChildren([
   institutionLevelsRoute,
   usersRoute,
   nationalitiesRoute,
+  academicStatusesRoute,
   employmentStatusesRoute,
   religionsRoute,
   superadminSettingsRoute,
