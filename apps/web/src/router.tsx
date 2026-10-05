@@ -15,6 +15,7 @@ import { loginRoute } from "./routes/login";
 import { registerRoute } from "./routes/register";
 import { employmentStatusesRoute } from "./routes/employment-statuses";
 import { superadminSettingsRoute } from "./routes/superadmin-settings";
+import { specializationStatusesRoute } from "./routes/specialization-statuses";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -31,6 +32,7 @@ const routeTree = rootRoute.addChildren([
   academicStatusesRoute,
   employmentStatusesRoute,
   religionsRoute,
+  specializationStatusesRoute,
   superadminSettingsRoute,
 ]);
 
