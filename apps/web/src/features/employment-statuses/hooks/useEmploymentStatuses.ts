@@ -14,8 +14,8 @@ let mockData = [...INITIAL_DATA];
 
 export function useEmploymentStatuses() {
   const [data, setData] = useState<EmploymentStatus[]>(mockData);
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [isPending] = useState(false);
+  const [error] = useState<Error | null>(null);
 
   const refresh = useCallback(() => {
     setData([...mockData]);

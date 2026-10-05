@@ -46,7 +46,7 @@ export const UsersStats: React.FC<UsersStatsProps> = ({ users, meta }) => {
         <div className={iconClass}><ShieldCheck className="h-5 w-5" /></div>
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Scope Akses</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Superadmin Global</p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Settings Global</p>
           <CheckCircle2 className="mt-1 h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-label="Aktif" />
         </div>
       </div>

@@ -28,12 +28,12 @@ export const loginApi = async (credentials: LoginCredentials): Promise<User> => 
       }
     }
 
-    return { ...user, role: role || 'superadmin' };
+    return { ...user, role: role || 'settings' };
   } catch (error) {
     // If backend is offline or credentials fail in dev mode, allow admin login for preview
     const isDevAdmin =
       credentials.email.toLowerCase().includes('admin') ||
-      credentials.email === 'superadmin@akademik.id';
+      credentials.email === 'settings@akademik.id';
 
     if (isDevAdmin || import.meta.env.DEV) {
       const mockToken = `mock-admin-token-${Date.now()}`;
@@ -44,7 +44,7 @@ export const loginApi = async (credentials: LoginCredentials): Promise<User> => 
         id: 'admin-123',
         email: credentials.email || 'admin@akademik.id',
         name: 'Super Admin',
-        role: 'superadmin',
+        role: 'settings',
       };
     }
 

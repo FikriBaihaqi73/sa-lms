@@ -21,10 +21,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user = {
           id: payload.sub || '1',
           email: payload.email || 'admin@example.com',
-          role: payload.role || 'superadmin',
+          role: payload.role || 'settings',
         };
       } catch (e) {
-        user = { id: '1', email: 'admin@example.com', role: 'superadmin' };
+        user = { id: '1', email: 'admin@example.com', role: 'settings' };
       }
     }
     return {

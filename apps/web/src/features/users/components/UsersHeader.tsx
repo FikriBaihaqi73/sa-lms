@@ -20,7 +20,7 @@ export const UsersHeader: React.FC<UsersHeaderProps> = ({
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-600/10 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-400">
             <ShieldCheck className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            Superadmin Portal
+            Settings Portal
           </span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 md:text-3xl">
