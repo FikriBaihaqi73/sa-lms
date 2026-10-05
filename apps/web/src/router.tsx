@@ -20,6 +20,7 @@ import { settingsRouteDef } from "./routes/_settings/settings";
 
 import { loginRoute } from "./routes/login";
 import { registerRoute } from "./routes/register";
+import { specializationStatusesRoute } from "./routes/specialization-statuses";
 
 const settingsTree = settingsRoute.addChildren([
   rolesRoute,
@@ -34,6 +35,7 @@ const settingsTree = settingsRoute.addChildren([
   employmentStatusesRoute,
   religionsRoute,
   settingsRouteDef,
+  specializationStatusesRoute,
 ]);
 
 const userTree = userRoute.addChildren([
