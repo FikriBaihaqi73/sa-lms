@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
-import { SemesterRepository } from "@repo/shared/infrastructure/repository/semester.repository";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { AcademicYearRepository } from "@repo/shared/infrastructure/repository/academic-year.repository";
+import { SemesterRepository } from "@repo/shared/infrastructure/repository/semester.repository";
 import {
   CreateSemesterDto,
-  UpdateSemesterDto,
   FindAllSemesterDto,
+  UpdateSemesterDto,
 } from "@repo/shared/schemas/semester.schema";
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -15,7 +19,9 @@ export class SemesterService {
 
   constructor(private readonly prisma: PrismaService) {
     this.repository = new SemesterRepository(this.prisma.client);
-    this.academicYearRepository = new AcademicYearRepository(this.prisma.client);
+    this.academicYearRepository = new AcademicYearRepository(
+      this.prisma.client,
+    );
   }
 
   private async ensureAcademicYearExists(id: string) {
@@ -30,7 +36,7 @@ export class SemesterService {
 
   async create(dto: CreateSemesterDto) {
     await this.ensureAcademicYearExists(dto.academic_year_id);
-    
+
     return this.repository.create({
       academic_year_id: dto.academic_year_id,
       name: dto.name,
@@ -51,9 +57,11 @@ export class SemesterService {
       ...(query.page !== undefined && { page: query.page }),
       ...(query.limit !== undefined && { limit: query.limit }),
       ...(query.search ? { search: query.search } : {}),
-      ...(query.academic_year_id ? {
-        academic_year_id: query.academic_year_id,
-      } : {}),
+      ...(query.academic_year_id
+        ? {
+            academic_year_id: query.academic_year_id,
+          }
+        : {}),
     });
   }
 

@@ -7,6 +7,7 @@ describe("AttendanceStatusRepository", () => {
     create: jest.fn(),
     findFirst: jest.fn(),
     findMany: jest.fn(),
+    count: jest.fn(),
     update: jest.fn(),
   };
   const prisma = { attendanceStatuses } as unknown as PrismaClient;
@@ -51,9 +52,21 @@ describe("AttendanceStatusRepository", () => {
   it("lists only active statuses", async () => {
     const statuses = [{ id: "present-id", name: "Present" }];
     attendanceStatuses.findMany.mockResolvedValue(statuses);
+    attendanceStatuses.count.mockResolvedValue(statuses.length);
 
-    await expect(repository.findAll()).resolves.toEqual(statuses);
+    await expect(repository.findAll()).resolves.toEqual({
+      data: statuses,
+      meta: {
+        totalData: 1,
+        totalPages: 1,
+        currentPage: 1,
+        perPage: 10,
+      },
+    });
     expect(attendanceStatuses.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { deleted_at: null } }),
+    );
+    expect(attendanceStatuses.count).toHaveBeenCalledWith(
       expect.objectContaining({ where: { deleted_at: null } }),
     );
   });

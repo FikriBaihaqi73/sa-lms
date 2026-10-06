@@ -15,10 +15,13 @@ import {
   UpdateStudentGradeDto,
 } from "@repo/shared/schemas/student-grade.schema";
 import { ZodValidationPipe } from "nestjs-zod";
+import { Roles } from "../auth/roles.decorator";
 import { StudentGradeService } from "./student-grade.service";
 
 @ApiTags("Student Grades")
 @ApiBearerAuth("JWT-auth")
+// Student grades are open to every operational role; superadmin is excluded.
+@Roles("admin", "teacher", "student", "guardian")
 @Controller("student-grades")
 export class StudentGradeController {
   constructor(private readonly studentGradeService: StudentGradeService) {}

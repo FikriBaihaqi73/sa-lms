@@ -1,23 +1,18 @@
-import type { RegisterSchema } from '@repo/shared/schemas/auth.schema';
-import * as z from 'zod';
-import { apiFetch } from '@/lib/api';
+import type { RegisterSchema } from "@repo/shared/schemas/auth.schema";
+import type * as z from "zod";
+import { apiFetch } from "@/lib/api";
 
 type RegisterDto = z.infer<typeof RegisterSchema>;
 
 /**
- * Real API call for registering via the NestJS Backend with fallback for preview mode.
+ * Real API call for registering via the NestJS Backend.
+ * Errors (409 email in use, validation, server down) are surfaced to the
+ * form — never swallowed, otherwise the UI reports a fake success while
+ * no account was created.
  */
 export const registerApi = async (data: RegisterDto): Promise<void> => {
-  try {
-    await apiFetch('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn('Backend API offline during dev registration, returning mock success for preview.');
-      return;
-    }
-    throw error;
-  }
+	await apiFetch("/auth/register", {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
 };

@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { AuthRepository } from "@repo/shared/infrastructure/repository/auth.repository";
+import { ProfileRepository } from "@repo/shared/infrastructure/repository/profile.repository";
 import type { LoginDto, RegisterDto } from "@repo/shared/schemas/auth.schema";
 import * as bcrypt from "bcrypt";
 import { PrismaService } from "../prisma/prisma.service";
@@ -26,12 +27,14 @@ function isUniqueConstraintViolation(error: unknown): boolean {
 @Injectable()
 export class AuthService {
   private readonly authRepository: AuthRepository;
+  private readonly profileRepository: ProfileRepository;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {
     this.authRepository = new AuthRepository(this.prisma.client);
+    this.profileRepository = new ProfileRepository(this.prisma.client);
   }
 
   async register(dto: RegisterDto) {
@@ -66,6 +69,19 @@ export class AuthService {
           dto.institutionName as string,
           role.id,
         );
+      } else if (dto.role === "superadmin") {
+        const roleName = process.env.DEFAULT_SUPERADMIN_ROLE ?? "superadmin";
+        const role = await this.authRepository.findDefaultRole(roleName);
+        if (!role) {
+          throw new ServiceUnavailableException(
+            "Registration is temporarily unavailable (missing superadmin role)",
+          );
+        }
+
+        return await this.authRepository.registerSuperAdmin(
+          { email, password },
+          role.id,
+        );
       }
       throw new ConflictException("Invalid registration role");
     } catch (error) {
@@ -88,9 +104,14 @@ export class AuthService {
     }
 
     await this.authRepository.updateLastLogin(user.id);
+
+    const profile = await this.profileRepository.findByUserId(user.id);
+    const role = profile?.role?.name?.trim().toLowerCase() ?? null;
+
     const accessToken = await this.jwtService.signAsync({
       sub: user.id,
       email: user.email,
+      ...(role ? { role } : {}),
     });
     const updatedUser = await this.authRepository.updateAccessToken(
       user.id,
@@ -101,7 +122,16 @@ export class AuthService {
       accessToken,
       tokenType: "Bearer",
       expiresIn: 900,
-      user: updatedUser,
+      user: {
+        ...updatedUser,
+        ...(role
+          ? {
+              activeRole: role,
+              activeInstitutionId: profile?.institutionId ?? null,
+              activeProfileId: profile?.id ?? null,
+            }
+          : {}),
+      },
     };
   }
 

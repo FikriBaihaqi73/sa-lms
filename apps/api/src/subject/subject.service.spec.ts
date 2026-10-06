@@ -3,6 +3,10 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "../prisma/prisma.service";
 import { SubjectService } from "./subject.service";
 
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
+
 describe("SubjectService", () => {
   let service: SubjectService;
 
@@ -44,7 +48,9 @@ describe("SubjectService", () => {
     // but the easiest way is to mock Prisma directly.
     mockRepository.create = mockPrismaService.client.subject.create;
     mockRepository.findById = mockPrismaService.client.subject.findFirst;
-    mockRepository.findByCode = mockPrismaService.client.subject.findFirst;
+    // Separate fn: aliasing both to findFirst would make mockResolvedValue
+    // calls in the same test overwrite each other (findById vs findByCode).
+    mockRepository.findByCode = jest.fn();
     mockRepository.findAll = jest.fn().mockImplementation(async () => {
       const data = await mockPrismaService.client.subject.findMany();
       const total = await mockPrismaService.client.subject.count();

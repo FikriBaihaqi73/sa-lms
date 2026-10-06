@@ -12,7 +12,7 @@ model Grades {
   description  String?
 
   // relations
-  studentGrades StudentGrades[]
+  studentGrades StudentGrades[] 
 
   @@map("grades")
 }

@@ -6,8 +6,20 @@ async function main() {
 
   const rolesToSeed = [
     {
+      name: "superadmin",
+      description: "System Administrator",
+    },
+    {
       name: "admin",
       description: "Institution Administrator",
+    },
+    {
+      name: "teacher",
+      description: "Teacher User",
+    },
+    {
+      name: "guardian",
+      description: "Guardian User",
     },
     {
       name: "student",

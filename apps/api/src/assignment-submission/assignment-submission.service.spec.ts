@@ -3,6 +3,10 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "../prisma/prisma.service";
 import { AssignmentSubmissionService } from "./assignment-submission.service";
 
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
+
 describe("AssignmentSubmissionService", () => {
   let service: AssignmentSubmissionService;
 
