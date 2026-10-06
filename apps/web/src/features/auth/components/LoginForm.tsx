@@ -32,6 +32,10 @@ export function LoginForm({ onRegisterClick }: { onRegisterClick?: () => void })
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: 'admin@nexora.com',
+      password: 'password123',
+    },
   });
 
   const onSubmit = async (data: LoginFormValues) => {
