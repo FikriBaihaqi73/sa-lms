@@ -10,6 +10,10 @@ async function main() {
       description: "System Administrator",
     },
     {
+      name: "superadmin",
+      description: "System Owner / Super Administrator",
+    },
+    {
       name: "admin",
       description: "Institution Administrator",
     },
@@ -20,6 +24,10 @@ async function main() {
     {
       name: "guardian",
       description: "Guardian User",
+    },
+    {
+      name: "teacher",
+      description: "Teacher / Instructor",
     },
     {
       name: "student",

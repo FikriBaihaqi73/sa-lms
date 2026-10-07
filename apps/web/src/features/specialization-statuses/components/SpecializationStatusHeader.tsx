@@ -1,11 +1,11 @@
 import { Download, Plus, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface AcademicStatusHeaderProps {
+interface SpecializationStatusHeaderProps {
   onAdd: () => void;
 }
 
-export function AcademicStatusHeader({ onAdd }: AcademicStatusHeaderProps) {
+export function SpecializationStatusHeader({ onAdd }: SpecializationStatusHeaderProps) {
   return (
     <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
       <div className="max-w-2xl">
@@ -16,7 +16,7 @@ export function AcademicStatusHeader({ onAdd }: AcademicStatusHeaderProps) {
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Status Akademik Mahasiswa</h1>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400">
-            <span className="size-1.5 rounded-full bg-blue-600" /> Settings / Global Config
+            <span className="size-1.5 rounded-full bg-blue-600" /> Superadmin / Global Config
           </span>
         </div>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
