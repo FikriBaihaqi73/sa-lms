@@ -51,6 +51,16 @@ export class SettingsRepository {
     });
   }
 
+  async findByKey(settingKey: string): Promise<SettingEntity | null> {
+    return this.prisma.settings.findFirst({
+      where: {
+        settingKey,
+        deletedAt: null,
+      },
+      select: settingsSelect,
+    });
+  }
+
   async findAll(
     page: number,
     limit: number,

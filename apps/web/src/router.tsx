@@ -2,6 +2,7 @@ import { createRouter } from "@tanstack/react-router";
 import { rootRoute } from "./routes/__root";
 import { academicStatusesRoute } from "./routes/_settings/academic-statuses/index";
 import { activityLogsRoute } from "./routes/_settings/activity-logs";
+import { assignmentTypesRoute } from "./routes/_settings/assignment-types/index";
 import { attendanceStatusesRoute } from "./routes/_settings/attendance-statuses/index";
 import { employmentStatusesRoute } from "./routes/_settings/employment-statuses/index";
 import { gradesRoute } from "./routes/_settings/grades/index";
@@ -36,6 +37,7 @@ const settingsTree = settingsRoute.addChildren([
 	settingsRouteDef,
 	specializationStatusesRoute,
 	attendanceStatusesRoute,
+	assignmentTypesRoute,
 ]);
 
 const userTree = userRoute.addChildren([indexRoute]);
