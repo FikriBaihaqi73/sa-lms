@@ -5,8 +5,9 @@ async function main() {
   const prisma = getPrisma();
   console.log("Seeding users...");
 
-  // Default hash for 'password123' (bcrypt cost 10)
-  const defaultPasswordHash = "$2b$10$fVd1i9Ww6899hE84i5H.TOC9sPst6sU5U49uU2uA1U1Q1wE8E92K.";
+  // Default hash for 'password123' (bcrypt cost 10, verified with bcrypt.compare)
+  const defaultPasswordHash =
+    "$2b$10$Kfyik960ud5bgYIvzQnqj.5CPfOakYB0Y69Ta6JIoN5UqG6AQra66";
 
   // 1. Ensure at least one Institution exists
   let institution = await prisma.institution.findFirst();

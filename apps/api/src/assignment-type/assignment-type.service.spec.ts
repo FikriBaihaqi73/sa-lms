@@ -2,6 +2,10 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "../prisma/prisma.service";
 import { AssignmentTypeService } from "./assignment-type.service";
 
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
+
 describe("AssignmentTypeService", () => {
   let service: AssignmentTypeService;
 

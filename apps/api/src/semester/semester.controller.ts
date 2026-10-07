@@ -1,21 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
 } from "@nestjs/common";
-import { SemesterService } from "./semester.service";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ResponseHelper } from "@repo/shared/http/response";
 import {
   CreateSemesterDto,
-  UpdateSemesterDto,
   FindAllSemesterDto,
+  UpdateSemesterDto,
 } from "@repo/shared/schemas/semester.schema";
-import { ResponseHelper } from "@repo/shared/http/response";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { SemesterService } from "./semester.service";
 
 @ApiTags("Semester")
 @Controller("semesters")

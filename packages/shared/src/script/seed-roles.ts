@@ -14,6 +14,10 @@ async function main() {
       description: "Institution Administrator",
     },
     {
+      name: "guardian",
+      description: "Guardian User",
+    },
+    {
       name: "teacher",
       description: "Teacher / Instructor",
     },

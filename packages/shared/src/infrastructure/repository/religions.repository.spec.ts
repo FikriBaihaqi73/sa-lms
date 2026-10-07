@@ -7,6 +7,7 @@ describe("ReligionRepository", () => {
     create: jest.fn(),
     findFirst: jest.fn(),
     findMany: jest.fn(),
+    count: jest.fn(),
     update: jest.fn(),
   };
   const prisma = { religion } as unknown as PrismaClient;
@@ -47,9 +48,21 @@ describe("ReligionRepository", () => {
   it("lists only active religions", async () => {
     const results = [{ id: "religion-id", name: "Islam" }];
     religion.findMany.mockResolvedValue(results);
+    religion.count.mockResolvedValue(results.length);
 
-    await expect(repository.findAll()).resolves.toEqual(results);
+    await expect(repository.findAll()).resolves.toEqual({
+      data: results,
+      meta: {
+        totalData: 1,
+        totalPages: 1,
+        currentPage: 1,
+        perPage: 10,
+      },
+    });
     expect(religion.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { deleted_at: null } }),
+    );
+    expect(religion.count).toHaveBeenCalledWith(
       expect.objectContaining({ where: { deleted_at: null } }),
     );
   });

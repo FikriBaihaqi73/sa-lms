@@ -67,7 +67,14 @@ async function bootstrap() {
   const port =
     Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : 5001;
 
-  await app.listen(port, "localhost");
-  console.log(`Application is running on: http://localhost:${port}/api`);
+  // Bind tanpa host eksplisit -> Node memakai dual-stack ("::" dengan
+  // ipv6Only=false), sehingga endpoint terjangkau lewat 127.0.0.1 (IPv4)
+  // maupun ::1 (IPv6). Jika di-bind ke "localhost", Node hanya mengambil satu
+  // hasil resolusi (bisa jadi ::1 saja) dan browser yang me-resolve localhost
+  // ke IPv4 akan gagal dengan "Failed to fetch".
+  await app.listen(port);
+  console.log(
+    `Application is running on: http://localhost:${port}/api (dual-stack IPv4+IPv6)`,
+  );
 }
 bootstrap();

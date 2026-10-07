@@ -3,6 +3,10 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "../prisma/prisma.service";
 import { ProfileService } from "./profile.service";
 
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
+
 const mockPrismaService = {
   client: {},
 };

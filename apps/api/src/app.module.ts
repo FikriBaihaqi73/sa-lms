@@ -13,6 +13,7 @@ import { AttendanceModule } from "./attendance/attendance.module";
 import { AttendanceStatusModule } from "./attendance-status/attendance-status.module";
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
+import { RolesGuard } from "./auth/roles.guard";
 import { ClassModule } from "./class/class.module";
 import { ClassAnnouncementsModule } from "./class-announcements/class-announcements.module";
 import { ClassStudentModule } from "./class-student/class-student.module";
@@ -108,6 +109,10 @@ import { UserModule } from "./user/user.module";
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

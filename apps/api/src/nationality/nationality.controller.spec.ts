@@ -2,6 +2,10 @@ import { Test, type TestingModule } from "@nestjs/testing";
 import { NationalityController } from "./nationality.controller";
 import { NationalityService } from "./nationality.service";
 
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
+
 describe("NationalityController", () => {
   let controller: NationalityController;
 

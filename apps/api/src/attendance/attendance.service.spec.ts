@@ -90,7 +90,7 @@ describe("AttendanceService", () => {
       schedule_id: "schedule-id",
       student_id: "student-id",
       attendance_status_id: "status-id",
-      attendance_date: null,
+      attendance_date: undefined,
     });
     expect(update).toHaveBeenCalledWith("attendance-id", { notes: "Present" });
     expect(remove).toHaveBeenCalledWith("attendance-id");
