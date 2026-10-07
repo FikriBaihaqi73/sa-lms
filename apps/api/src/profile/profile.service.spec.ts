@@ -68,6 +68,17 @@ describe("ProfileService", () => {
     });
   });
 
+  describe("findByUserId", () => {
+    it("should return a profile if found by userId", async () => {
+      const mockResult = { id: "1", userId: "user-1" };
+      jest
+        .spyOn((service as any).profileRepository, "findByUserId")
+        .mockResolvedValue(mockResult);
+
+      expect(await service.findByUserId("user-1")).toBe(mockResult);
+    });
+  });
+
   describe("create", () => {
     it("should create a profile", async () => {
       const mockDto: any = {

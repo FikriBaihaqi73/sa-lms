@@ -9,6 +9,7 @@ import { gradesRoute } from "./routes/_settings/grades/index";
 import { institutionLevelsRoute } from "./routes/_settings/jenjang-institusi/index";
 import { nationalitiesRoute } from "./routes/_settings/nationalities/index";
 import { permissionsRoute } from "./routes/_settings/permissions/index";
+import { profileRoute } from "./routes/_settings/profile/index";
 import { religionsRoute } from "./routes/_settings/religions/index";
 import { rolePermissionsRoute } from "./routes/_settings/role-permissions/index";
 import { rolesRoute } from "./routes/_settings/roles/index";
@@ -38,6 +39,7 @@ const settingsTree = settingsRoute.addChildren([
 	specializationStatusesRoute,
 	attendanceStatusesRoute,
 	assignmentTypesRoute,
+	profileRoute,
 ]);
 
 const userTree = userRoute.addChildren([indexRoute]);

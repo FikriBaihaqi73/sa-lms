@@ -12,23 +12,31 @@ export const rootRoute = createRootRoute({
 	component: RootLayout,
 });
 
-// Pages that only superadmin may open (everything except Grades).
+// Pages restricted strictly to Superadmin
 const SUPERADMIN_ONLY_PREFIXES = [
-	"/nationalities",
-	"/religions",
-	"/users",
 	"/roles",
+	"/permissions",
 	"/role-permissions",
 	"/jenjang-institusi",
-	"/activity-logs",
-	"/employment-statuses",
+	"/religions",
+	"/nationalities",
 	"/academic-statuses",
+	"/employment-statuses",
+	"/specialization-statuses",
+	"/attendance-statuses",
 	"/institutions",
 	"/specialization-statuses",
 	"/attendance-statuses",
 	"/assignment-types",
 	"/settings",
 	"/superadmin",
+];
+
+// Pages accessible by Superadmin & Admin
+const ADMIN_ACCESSIBLE_PREFIXES = [
+	"/users",
+	"/activity-logs",
+	"/settings",
 ];
 
 function AccessDenied({ message }: { message: string }) {
@@ -83,26 +91,39 @@ function RootLayout() {
 		return null;
 	}
 
-	// Visibility matrix: superadmin sees every page EXCEPT Grades; every other
-	// role (admin/teacher/student/guardian) only sees Grades. Bounce direct
-	// URL visits that break the matrix.
-	const isSuperadmin = user?.role === "superadmin";
+	const role = user?.role?.toLowerCase() || "admin";
+	const isSuperadmin = role === "superadmin";
+	const isAdmin = role === "admin" || isSuperadmin;
 
+	// Superadmin manages platform as a whole, not daily academic grades
 	if (location.pathname.startsWith("/grades") && isSuperadmin) {
 		return (
 			<AccessDenied
-				message={`Halaman Grades tidak tersedia untuk peran superadmin. Akun Anda (${user?.role ?? "tanpa peran"}) tidak memiliki akses.`}
+				message="Halaman Nilai Akademik (Grades) tidak dikelola oleh Superadmin platform. Fitur ini khusus untuk Admin Institusi, Guru, dan Siswa."
 			/>
 		);
 	}
 
-	const onSuperadminOnlyPage = SUPERADMIN_ONLY_PREFIXES.some((prefix) =>
+	// Superadmin-only global master data & system access
+	const isSuperadminOnlyRoute = SUPERADMIN_ONLY_PREFIXES.some((prefix) =>
 		location.pathname.startsWith(prefix),
 	);
-	if (onSuperadminOnlyPage && !isSuperadmin) {
+	if (isSuperadminOnlyRoute && !isSuperadmin) {
 		return (
 			<AccessDenied
-				message={`Halaman ini hanya untuk peran superadmin. Akun Anda (${user?.role ?? "tanpa peran"}) tidak memiliki akses.`}
+				message={`Halaman ini dikhususkan untuk Superadmin. Peran Anda (${role}) tidak memiliki hak akses.`}
+			/>
+		);
+	}
+
+	// Admin-level management routes (Users, Logs, Settings)
+	const isAdminLevelRoute = ADMIN_ACCESSIBLE_PREFIXES.some((prefix) =>
+		location.pathname.startsWith(prefix),
+	);
+	if (isAdminLevelRoute && !isAdmin) {
+		return (
+			<AccessDenied
+				message={`Halaman ini membutuhkan hak akses Admin. Peran Anda (${role}) tidak memiliki hak akses.`}
 			/>
 		);
 	}

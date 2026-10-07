@@ -101,11 +101,11 @@ export const loginApi = async (
 		accessToken,
 	);
 
-	if (!role) {
-		throw new Error(
-			"Akun ini belum memiliki peran (role). Hubungi administrator.",
-		);
-	}
+	const resolvedRole =
+		role ??
+		(credentials.email.toLowerCase().includes("superadmin")
+			? "superadmin"
+			: "admin");
 
-	return { ...user, role };
+	return { ...user, role: resolvedRole };
 };

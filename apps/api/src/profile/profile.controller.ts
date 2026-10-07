@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
@@ -33,6 +34,38 @@ export class ProfileController {
   ) {
     const profiles = await this.profileService.findAll(page, limit, search);
     return ResponseHelper.success(profiles, "Profiles retrieved successfully");
+  }
+
+  @Get("me")
+  @ApiOperation({ summary: "Get current user profile" })
+  async getMyProfile(@Req() req: { user?: { sub: string } }) {
+    const userId = req.user?.sub;
+    if (!userId) {
+      return ResponseHelper.error("Unauthorized user", 401);
+    }
+    const profile = await this.profileService.findByUserId(userId);
+    return ResponseHelper.success(
+      profile,
+      "Current profile retrieved successfully",
+    );
+  }
+
+  @Patch("me")
+  @ApiOperation({ summary: "Update current user profile" })
+  async updateMyProfile(
+    @Req() req: { user?: { sub: string } },
+    @Body(new ZodValidationPipe()) updateProfileDto: UpdateProfileDto,
+  ) {
+    const userId = req.user?.sub;
+    if (!userId) {
+      return ResponseHelper.error("Unauthorized user", 401);
+    }
+    const profile = await this.profileService.findByUserId(userId);
+    if (!profile) {
+      return ResponseHelper.error("Profile not found", 404);
+    }
+    const updated = await this.profileService.update(profile.id, updateProfileDto);
+    return ResponseHelper.success(updated, "Profile updated successfully");
   }
 
   @Get(":id")

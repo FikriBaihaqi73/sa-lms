@@ -7,7 +7,7 @@ async function main() {
 
   // Default hash for 'password123' (bcrypt cost 10, verified with bcrypt.compare)
   const defaultPasswordHash =
-    "$2b$10$Kfyik960ud5bgYIvzQnqj.5CPfOakYB0Y69Ta6JIoN5UqG6AQra66";
+    "$2b$10$H49gujoPMq7BkVTdbI4/COa5ndHa/LTGgDpl2RoMapAOtKkFMblxC";
 
   // 1. Ensure at least one Institution exists
   let institution = await prisma.institution.findFirst();
