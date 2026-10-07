@@ -6,6 +6,7 @@ import {
 	Briefcase,
 	ChevronRight,
 	Church,
+	ClipboardCheck,
 	Globe,
 	GraduationCap,
 	KeyRound,
@@ -165,6 +166,18 @@ export function AppSidebar() {
 						>
 							<BookOpenCheck className="h-3.5 w-3.5" />
 							Academic Status
+							<ChevronRight className="ml-auto h-3.5 w-3.5" />
+						</Link>
+						<Link
+							to="/attendance-statuses"
+							activeProps={{
+								className:
+									"bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300 font-semibold",
+							}}
+							className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+						>
+							<ClipboardCheck className="h-3.5 w-3.5" />
+							Attendance Statuses
 							<ChevronRight className="ml-auto h-3.5 w-3.5" />
 						</Link>
 					</>
