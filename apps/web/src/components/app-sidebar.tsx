@@ -133,6 +133,15 @@ export function AppSidebar() {
           <ChevronRight className="ml-auto h-3.5 w-3.5" />
         </Link>
         <Link
+          to="/profile"
+          activeProps={{ className: "bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300 font-semibold" }}
+          className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <UserRound className="h-3.5 w-3.5" />
+          Profil Saya
+          <ChevronRight className="ml-auto h-3.5 w-3.5" />
+        </Link>
+        <Link
           to="/settings"
           activeProps={{ className: "bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300 font-semibold" }}
           className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -145,17 +154,19 @@ export function AppSidebar() {
 
       <div className="mt-auto border-t border-slate-200 p-3 dark:border-slate-700">
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-700 text-[10px] font-bold text-white">
-            SA
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[10px] font-semibold text-slate-800 dark:text-slate-100">
-              {user?.name || "Super Admin"}
-            </p>
-            <p className="truncate text-[9px] text-slate-500 dark:text-slate-400">
-              {user?.email || "admin@akademik.id"}
-            </p>
-          </div>
+          <Link to="/profile" className="flex flex-1 items-center gap-2 min-w-0 hover:opacity-80 transition">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-700 text-[10px] font-bold text-white">
+              SA
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[10px] font-semibold text-slate-800 dark:text-slate-100">
+                {user?.name || "Super Admin"}
+              </p>
+              <p className="truncate text-[9px] text-slate-500 dark:text-slate-400">
+                {user?.email || "admin@akademik.id"}
+              </p>
+            </div>
+          </Link>
           <button
             type="button"
             onClick={handleLogout}

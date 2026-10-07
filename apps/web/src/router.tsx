@@ -17,6 +17,7 @@ import { religionsRoute } from "./routes/_settings/religions";
 import { gradesRoute } from "./routes/_settings/grades";
 import { employmentStatusesRoute } from "./routes/_settings/employment-statuses";
 import { settingsRouteDef } from "./routes/_settings/settings";
+import { profileRoute } from "./routes/_settings/profile";
 
 import { loginRoute } from "./routes/login";
 import { registerRoute } from "./routes/register";
@@ -36,6 +37,7 @@ const settingsTree = settingsRoute.addChildren([
   religionsRoute,
   settingsRouteDef,
   specializationStatusesRoute,
+  profileRoute,
 ]);
 
 const userTree = userRoute.addChildren([

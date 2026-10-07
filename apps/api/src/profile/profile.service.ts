@@ -30,6 +30,32 @@ export class ProfileService {
     return profile;
   }
 
+  async findByUserId(userId: string) {
+    let profile = await this.profileRepository.findByUserId(userId);
+    if (!profile) {
+      const user = await this.prisma.client.users.findUnique({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new NotFoundException("User not found");
+      }
+      const defaultInstitution =
+        await this.prisma.client.institution.findFirst();
+      const defaultRole = await this.prisma.client.role.findFirst();
+
+      if (defaultInstitution && defaultRole) {
+        profile = await this.profileRepository.create({
+          userId: user.id,
+          roleId: defaultRole.id,
+          institutionId: defaultInstitution.id,
+          fullName: user.email.split("@")[0] || "Admin User",
+          email: user.email,
+        });
+      }
+    }
+    return profile;
+  }
+
   async create(dto: CreateProfileDto) {
     return this.profileRepository.create({
       userId: dto.userId,
