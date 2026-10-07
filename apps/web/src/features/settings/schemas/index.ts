@@ -1,5 +1,6 @@
-export { 
-  CreateSettingSchema, 
-  UpdateSettingSchema, 
-  SettingSearchSchema 
-} from '@repo/shared/schemas/setting.schema';
+export {
+	CreateSettingSchema,
+	SettingSearchSchema,
+	UpdateSettingSchema,
+} from "@repo/shared/schemas/setting.schema";
+export * from "./settingSchema";
