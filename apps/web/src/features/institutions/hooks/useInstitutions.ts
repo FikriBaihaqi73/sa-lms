@@ -5,6 +5,7 @@ import {
 	getInstitutionLevelsApi,
 	type ListInstitutionsParams,
 	listInstitutionsApi,
+	updateInstitutionApi,
 } from "../api/institutions";
 import type { CreateInstitutionInput, UpdateInstitutionInput } from "../types";
 
