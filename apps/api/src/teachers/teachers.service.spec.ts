@@ -8,6 +8,10 @@ import { TeachersService } from "./teachers.service";
 // Mock the TeacherRepository constructor
 jest.mock("@repo/shared/infrastructure/repository/teacher.repository");
 
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
+
 describe("TeachersService", () => {
   let service: TeachersService;
   let mockRepositoryInstance: jest.Mocked<TeacherRepository>;

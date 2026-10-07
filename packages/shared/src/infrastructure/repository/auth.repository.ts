@@ -116,4 +116,43 @@ export class AuthRepository {
       });
     });
   }
+
+  /**
+   * Registers a system superadmin. Profile.institutionId is required by the
+   * schema, so the profile is attached to a shared "System" institution that
+   * is created on first use (no migration needed).
+   */
+  async registerSuperAdmin(
+    userPayload: CreateAuthenticatedUserInput,
+    roleId: string,
+  ): Promise<UserEntity> {
+    return this.prisma.$transaction(async (tx: any) => {
+      const user = await tx.users.create({
+        data: { ...userPayload, is_active: true },
+      });
+
+      let institution = await tx.institution.findFirst({
+        where: { name: "System", deletedAt: null },
+      });
+      if (!institution) {
+        institution = await tx.institution.create({
+          data: { name: "System" },
+        });
+      }
+
+      await tx.profile.create({
+        data: {
+          userId: user.id,
+          institutionId: institution.id,
+          roleId,
+          fullName: "Super Admin",
+        },
+      });
+
+      return tx.users.findUniqueOrThrow({
+        where: { id: user.id },
+        select: userSelect,
+      });
+    });
+  }
 }

@@ -1,7 +1,11 @@
+import { BadRequestException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { SemesterService } from "./semester.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { SemesterService } from "./semester.service";
+
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
 
 describe("SemesterService", () => {
   let service: SemesterService;
