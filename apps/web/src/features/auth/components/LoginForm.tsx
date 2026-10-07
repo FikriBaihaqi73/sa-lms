@@ -35,16 +35,23 @@ export function LoginForm({
 		formState: { errors, isSubmitting },
 	} = useForm<LoginFormValues>({
 		resolver: zodResolver(LoginSchema),
+		defaultValues: {
+			email: "admin@nexora.com",
+			password: "password123",
+		},
 	});
 
 	const onSubmit = async (data: LoginFormValues) => {
 		try {
 			setError("");
 			const user = await login(data);
-			// Superadmin lands on the master-data pages; every other role only
-			// has Grades, so send them straight there.
 			navigate({
-				to: user.role === "superadmin" ? "/nationalities" : "/grades",
+				to:
+					user.role === "superadmin"
+						? "/users"
+						: user.role === "admin"
+							? "/users"
+							: "/grades",
 			});
 		} catch (err) {
 			// Surface the real reason (e.g. missing profile/role, backend down)
