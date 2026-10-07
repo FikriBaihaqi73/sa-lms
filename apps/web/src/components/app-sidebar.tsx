@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	Activity,
 	Award,
+	BookOpen,
 	BookOpenCheck,
 	Briefcase,
 	ChevronRight,
@@ -34,9 +35,9 @@ export function AppSidebar() {
 	const isStudentOrTeacher = role === "student" || role === "teacher" || role === "guardian";
 
 	return (
-		<aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
+		<aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
 			{/* Brand Header */}
-			<div className="flex h-16 items-center gap-2.5 border-b border-slate-200 px-5 dark:border-slate-800">
+			<div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-5 dark:border-slate-800">
 				<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white shadow-md">
 					<BookOpenCheck className="h-5 w-5" />
 				</span>
@@ -80,6 +81,7 @@ export function AppSidebar() {
 								<NavItem to="/academic-statuses" icon={BookOpenCheck} label="Academic Statuses" />
 								<NavItem to="/employment-statuses" icon={Briefcase} label="Employment Statuses" />
 								<NavItem to="/specialization-statuses" icon={BookOpenCheck} label="Specialization Statuses" />
+								<NavItem to="/assignment-types" icon={BookOpen} label="Assignment Types" />
 								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Attendance Statuses" />
 							</div>
 						</div>
@@ -155,7 +157,7 @@ export function AppSidebar() {
 			</nav>
 
 			{/* User Profile Footer */}
-			<div className="mt-auto border-t border-slate-200 p-3 dark:border-slate-800">
+			<div className="mt-auto shrink-0 border-t border-slate-200 p-3 dark:border-slate-800">
 				<div className="flex items-center gap-2">
 					<Link to="/profile" className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-80 transition">
 						<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
@@ -204,7 +206,7 @@ function NavItem({ to, icon: Icon, label }: { to: string; icon: any; label: stri
 export function AppTopbar() {
 	const { user } = useAuth();
 	return (
-		<header className="flex h-16 items-center justify-end gap-3 border-b border-slate-200 bg-white px-5 dark:border-slate-800 dark:bg-slate-900">
+		<header className="flex h-16 shrink-0 items-center justify-end gap-3 border-b border-slate-200 bg-white px-5 dark:border-slate-800 dark:bg-slate-900">
 			<SkyToggle />
 			<button
 				type="button"

@@ -1,95 +1,189 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateSettingSchema } from "../schemas";
-import type { CreateSettingInput } from "../types";
-import { useSettings, useCreateSetting } from "../hooks/useSettings";
+import { useMemo, useState } from "react";
+import {
+	useCreateSetting,
+	useDeleteSetting,
+	useSettings,
+	useUpdateSetting,
+} from "../hooks/useSettings";
+import type { SettingFormValues } from "../schemas/settingSchema";
+import type { Setting } from "../types";
+import { DeleteSettingDialog } from "./DeleteSettingDialog";
+import { SettingDialog } from "./SettingDialog";
+import { SettingsHeader } from "./SettingsHeader";
+import { SettingsStats } from "./SettingsStats";
+import { SettingsTable } from "./SettingsTable";
 
-const defaultValues: Partial<CreateSettingInput> = {
-  settingKey: "",
-  settingValue: "",
-  description: "",
-};
+function errorMessage(error: unknown): string {
+	if (error instanceof Error) return error.message;
+	return "Terjadi kesalahan. Silakan coba lagi.";
+}
 
 export function SettingsPage() {
-  const [page] = useState(1);
-  const { data: settingsData, isLoading } = useSettings({ page, limit: 10 });
-  const createMutation = useCreateSetting();
+	const [page, setPage] = useState(1);
+	const [limit] = useState(10);
+	const [search, setSearch] = useState("");
+	const [isAdding, setIsAdding] = useState(false);
+	const [editingItem, setEditingItem] = useState<Setting | null>(null);
+	const [deletingItem, setDeletingItem] = useState<Setting | null>(null);
+	const [notice, setNotice] = useState<{
+		kind: "success" | "error";
+		message: string;
+	} | null>(null);
 
-  const { register, handleSubmit, reset } = useForm<CreateSettingInput>({
-    defaultValues,
-    resolver: zodResolver(CreateSettingSchema),
-  });
+	const settingsQuery = useSettings({ page, limit, search });
+	const createMutation = useCreateSetting();
+	const updateMutation = useUpdateSetting();
+	const deleteMutation = useDeleteSetting();
 
-  const onSubmit = (data: CreateSettingInput) => {
-    createMutation.mutate(data, {
-      onSuccess: () => reset(),
-    });
-  };
+	const settings = useMemo(
+		() => settingsQuery.data?.data ?? [],
+		[settingsQuery.data?.data],
+	);
 
-  return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Settings Data Management</h1>
-        <p className="text-sm text-slate-500">Manage application settings and configuration.</p>
-      </div>
+	const meta = settingsQuery.data?.meta ?? {
+		total: settings.length,
+		page: 1,
+		limit: 10,
+		totalPages: 1,
+	};
 
-      <div className="bg-white p-6 rounded-xl border shadow-sm">
-        <h2 className="text-lg font-semibold mb-4">Add New Setting</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Setting Key</label>
-            <input
-              {...register("settingKey")}
-              className="w-full h-10 px-3 rounded-lg border focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g. MAX_USERS"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Setting Value</label>
-            <input
-              {...register("settingValue")}
-              className="w-full h-10 px-3 rounded-lg border focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g. 1000"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
-            <input
-              {...register("description")}
-              className="w-full h-10 px-3 rounded-lg border focus:ring-2 focus:ring-blue-500"
-              placeholder="Description..."
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={createMutation.isPending}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
-          >
-            {createMutation.isPending ? "Saving..." : "Save Setting"}
-          </button>
-        </form>
-      </div>
+	const handleCreate = async (values: SettingFormValues) => {
+		try {
+			await createMutation.mutateAsync({
+				settingKey: values.settingKey.trim(),
+				settingValue: values.settingValue || undefined,
+				description: values.description || undefined,
+			});
+			setIsAdding(false);
+			setNotice({
+				kind: "success",
+				message: `Pengaturan "${values.settingKey}" berhasil ditambahkan.`,
+			});
+		} catch (err) {
+			setNotice({ kind: "error", message: errorMessage(err) });
+		}
+	};
 
-      <div className="bg-white p-6 rounded-xl border shadow-sm">
-        <h2 className="text-lg font-semibold mb-4">Existing Settings</h2>
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : (
-          <div className="space-y-3">
-            {settingsData?.data.map((setting) => (
-              <div key={setting.id} className="p-4 border rounded-lg">
-                <p className="font-bold">{setting.settingKey}</p>
-                <p className="text-sm text-slate-600">Value: {setting.settingValue}</p>
-                <p className="text-sm text-slate-500">{setting.description}</p>
-              </div>
-            ))}
-            {settingsData?.data.length === 0 && (
-              <p className="text-sm text-slate-500">No settings found.</p>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+	const handleUpdate = async (values: SettingFormValues) => {
+		if (!editingItem) return;
+		try {
+			await updateMutation.mutateAsync({
+				id: editingItem.id,
+				input: {
+					settingValue: values.settingValue || undefined,
+					description: values.description || undefined,
+				},
+			});
+			setEditingItem(null);
+			setNotice({
+				kind: "success",
+				message: `Pengaturan "${editingItem.settingKey}" berhasil diperbarui.`,
+			});
+		} catch (err) {
+			setNotice({ kind: "error", message: errorMessage(err) });
+		}
+	};
+
+	const handleDelete = async () => {
+		if (!deletingItem) return;
+		try {
+			await deleteMutation.mutateAsync(deletingItem.id);
+			const keyName = deletingItem.settingKey;
+			setDeletingItem(null);
+			setNotice({
+				kind: "success",
+				message: `Pengaturan "${keyName}" berhasil dihapus.`,
+			});
+		} catch (err) {
+			setNotice({ kind: "error", message: errorMessage(err) });
+		}
+	};
+
+	return (
+		<main className="min-h-full bg-slate-50 p-4 text-slate-900 dark:bg-slate-900 dark:text-slate-50 sm:p-6 lg:p-8">
+			<div className="mx-auto max-w-7xl space-y-6">
+				<SettingsHeader onAdd={() => setIsAdding(true)} />
+
+				{/* Notice alert */}
+				{notice && (
+					<div
+						className={`flex items-center justify-between rounded-lg p-4 text-sm font-medium shadow-sm transition-all ${
+							notice.kind === "success"
+								? "border border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+								: "border border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+						}`}
+					>
+						<span>{notice.message}</span>
+						<button
+							type="button"
+							onClick={() => setNotice(null)}
+							className="text-xs font-semibold hover:underline"
+						>
+							Tutup
+						</button>
+					</div>
+				)}
+
+				{/* API error alert */}
+				{settingsQuery.isError && (
+					<div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
+						{errorMessage(settingsQuery.error)}
+					</div>
+				)}
+
+				<SettingsStats
+					settings={settings}
+					isLoading={settingsQuery.isPending}
+				/>
+
+				<SettingsTable
+					settings={settings}
+					isLoading={settingsQuery.isPending}
+					search={search}
+					onSearchChange={(val) => {
+						setSearch(val);
+						setPage(1);
+					}}
+					onEdit={(item) => setEditingItem(item)}
+					onDelete={(item) => setDeletingItem(item)}
+					page={meta.page}
+					totalPages={meta.totalPages}
+					totalData={meta.total}
+					onPageChange={(newPage) => setPage(newPage)}
+				/>
+			</div>
+
+			{/* Add dialog */}
+			{isAdding && (
+				<SettingDialog
+					open={isAdding}
+					isSaving={createMutation.isPending}
+					onClose={() => setIsAdding(false)}
+					onSave={handleCreate}
+				/>
+			)}
+
+			{/* Edit dialog */}
+			{editingItem && (
+				<SettingDialog
+					open={Boolean(editingItem)}
+					setting={editingItem}
+					isSaving={updateMutation.isPending}
+					onClose={() => setEditingItem(null)}
+					onSave={handleUpdate}
+				/>
+			)}
+
+			{/* Delete confirmation dialog */}
+			{deletingItem && (
+				<DeleteSettingDialog
+					open={Boolean(deletingItem)}
+					setting={deletingItem}
+					isDeleting={deleteMutation.isPending}
+					onClose={() => setDeletingItem(null)}
+					onConfirm={handleDelete}
+				/>
+			)}
+		</main>
+	);
 }

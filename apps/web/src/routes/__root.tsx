@@ -25,6 +25,10 @@ const SUPERADMIN_ONLY_PREFIXES = [
 	"/specialization-statuses",
 	"/attendance-statuses",
 	"/institutions",
+	"/specialization-statuses",
+	"/attendance-statuses",
+	"/assignment-types",
+	"/settings",
 	"/superadmin",
 ];
 
@@ -37,12 +41,12 @@ const ADMIN_ACCESSIBLE_PREFIXES = [
 
 function AccessDenied({ message }: { message: string }) {
 	return (
-		<div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+		<div className="flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-slate-900">
 			<AppSidebar />
-			<div className="min-w-0 flex-1">
+			<div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
 				<AppTopbar />
-				<main className="mx-auto max-w-2xl p-6">
-					<div className="rounded-xl border border-red-200 bg-white p-8 text-center shadow-sm dark:border-red-900/50 dark:bg-slate-900">
+				<main className="flex-1 overflow-y-auto p-6">
+					<div className="mx-auto max-w-2xl rounded-xl border border-red-200 bg-white p-8 text-center shadow-sm dark:border-red-900/50 dark:bg-slate-900">
 						<p className="text-lg font-bold text-slate-900 dark:text-slate-50">
 							403 — Akses ditolak
 						</p>
@@ -125,11 +129,13 @@ function RootLayout() {
 	}
 
 	return (
-		<div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+		<div className="flex h-screen w-full overflow-hidden bg-[#F1F5F9] dark:bg-[#0B1220]">
 			<AppSidebar />
-			<div className="min-w-0 flex-1">
+			<div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
 				<AppTopbar />
-				<Outlet />
+				<div className="flex-1 overflow-y-auto">
+					<Outlet />
+				</div>
 			</div>
 		</div>
 	);
