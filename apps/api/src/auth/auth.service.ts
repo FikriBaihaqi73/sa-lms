@@ -69,20 +69,9 @@ export class AuthService {
           dto.institutionName as string,
           role.id,
         );
-      } else if (dto.role === "superadmin") {
-        const roleName = process.env.DEFAULT_SUPERADMIN_ROLE ?? "superadmin";
-        const role = await this.authRepository.findDefaultRole(roleName);
-        if (!role) {
-          throw new ServiceUnavailableException(
-            "Registration is temporarily unavailable (missing superadmin role)",
-          );
-        }
-
-        return await this.authRepository.registerSuperAdmin(
-          { email, password },
-          role.id,
-        );
       }
+      // NOTE: superadmin accounts are provisioned via seed scripts only
+      // (seed-users.ts). Public registration for that role is disabled.
       throw new ConflictException("Invalid registration role");
     } catch (error) {
       if (isUniqueConstraintViolation(error)) {

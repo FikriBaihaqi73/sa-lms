@@ -71,10 +71,29 @@ describe("AuthService register", () => {
   const baseDto = {
     email: "New@Example.com",
     password: "secret123",
-    role: "superadmin",
+    role: "student",
   } as RegisterDto;
 
-  it("registers a superadmin and attaches it to the superadmin role", async () => {
+  it("registers a student without requiring any role lookup", async () => {
+    const created = { id: "user-id", email: "new@example.com" };
+    const findByEmail = jest
+      .spyOn(AuthRepository.prototype, "findUserByEmail")
+      .mockResolvedValue(null);
+    const createUser = jest
+      .spyOn(AuthRepository.prototype, "createUser")
+      .mockResolvedValue(created as never);
+
+    const result = await service.register(baseDto);
+
+    expect(result).toEqual(created);
+    expect(findByEmail).toHaveBeenCalledWith("new@example.com");
+    expect(createUser).toHaveBeenCalledWith({
+      email: "new@example.com",
+      password: expect.any(String),
+    });
+  });
+
+  it("registers an institution owner and attaches it to the default admin role", async () => {
     const created = { id: "user-id", email: "new@example.com" };
     const findByEmail = jest
       .spyOn(AuthRepository.prototype, "findUserByEmail")
@@ -82,19 +101,39 @@ describe("AuthService register", () => {
     const findRole = jest
       .spyOn(AuthRepository.prototype, "findDefaultRole")
       .mockResolvedValue({ id: "role-id" } as never);
-    const registerSuperAdmin = jest
-      .spyOn(AuthRepository.prototype, "registerSuperAdmin")
+    const registerInstitutionOwner = jest
+      .spyOn(AuthRepository.prototype, "registerInstitutionOwner")
       .mockResolvedValue(created as never);
 
-    const result = await service.register(baseDto);
+    const result = await service.register({
+      ...baseDto,
+      role: "instansi",
+      institutionName: "Example Academy",
+    } as RegisterDto);
 
     expect(result).toEqual(created);
     expect(findByEmail).toHaveBeenCalledWith("new@example.com");
-    expect(findRole).toHaveBeenCalledWith("superadmin");
-    expect(registerSuperAdmin).toHaveBeenCalledWith(
+    expect(findRole).toHaveBeenCalledWith("admin");
+    expect(registerInstitutionOwner).toHaveBeenCalledWith(
       { email: "new@example.com", password: expect.any(String) },
+      "Example Academy",
       "role-id",
     );
+  });
+
+  it("rejects a superadmin role through public registration", async () => {
+    jest
+      .spyOn(AuthRepository.prototype, "findUserByEmail")
+      .mockResolvedValue(null);
+    const registerSuperAdmin = jest.spyOn(
+      AuthRepository.prototype,
+      "registerSuperAdmin",
+    );
+
+    await expect(
+      service.register({ ...baseDto, role: "superadmin" } as never),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(registerSuperAdmin).not.toHaveBeenCalled();
   });
 
   it("rejects a duplicate email before creating anything", async () => {
@@ -112,7 +151,13 @@ describe("AuthService register", () => {
     expect(registerSuperAdmin).not.toHaveBeenCalled();
   });
 
-  it("returns 503 when the superadmin role is missing from the database", async () => {
+  const instansiDto = {
+    ...baseDto,
+    role: "instansi",
+    institutionName: "Example Academy",
+  } as RegisterDto;
+
+  it("returns 503 when the default admin role is missing from the database", async () => {
     jest
       .spyOn(AuthRepository.prototype, "findUserByEmail")
       .mockResolvedValue(null);
@@ -120,7 +165,7 @@ describe("AuthService register", () => {
       .spyOn(AuthRepository.prototype, "findDefaultRole")
       .mockResolvedValue(null);
 
-    await expect(service.register(baseDto)).rejects.toBeInstanceOf(
+    await expect(service.register(instansiDto)).rejects.toBeInstanceOf(
       ServiceUnavailableException,
     );
   });
@@ -143,10 +188,10 @@ describe("AuthService register", () => {
       .spyOn(AuthRepository.prototype, "findDefaultRole")
       .mockResolvedValue({ id: "role-id" } as never);
     jest
-      .spyOn(AuthRepository.prototype, "registerSuperAdmin")
+      .spyOn(AuthRepository.prototype, "registerInstitutionOwner")
       .mockRejectedValue({ code: "P2002" });
 
-    await expect(service.register(baseDto)).rejects.toBeInstanceOf(
+    await expect(service.register(instansiDto)).rejects.toBeInstanceOf(
       ConflictException,
     );
   });

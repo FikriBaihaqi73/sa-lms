@@ -2,10 +2,7 @@ import { createRoute, redirect } from "@tanstack/react-router";
 import { userRoute } from '../userLayout';
 
 export const indexRoute = createRoute({
-  getParentRoute: () => userRoute,
-  path: "/",
-  beforeLoad: () => { throw redirect({ to: "/nationalities" }); },
-	getParentRoute: () => rootRoute,
+	getParentRoute: () => userRoute,
 	path: "/",
 	beforeLoad: () => {
 		// Land each role on a page it can actually open: superadmin on the

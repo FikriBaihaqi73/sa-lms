@@ -91,7 +91,6 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 							<Select id="role" {...register("role")} className="h-11">
 								<option value="student">Student</option>
 								<option value="instansi">Instansi</option>
-								<option value="superadmin">Super Admin</option>
 							</Select>
 							{errors.role && (
 								<p className="text-sm text-red-500 font-medium">

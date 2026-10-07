@@ -1,29 +1,71 @@
-export interface InstitutionRow {
+export interface InstitutionLevel {
 	id: string;
 	name: string;
-	code: string;
-	location: string;
-	type: string;
-	package: string;
-	users: number;
-	courses: number;
-	status: "Aktif" | "Nonaktif" | "Trial" | "Trial (14 hari)";
+	description?: string | null;
 }
 
-export type InstitutionStatus =
-	| "Aktif"
-	| "Nonaktif"
-	| "Trial"
-	| "Trial (14 hari)";
+export interface Institution {
+	id: string;
+	institutionLevelId: string;
+	name: string;
+	shortName?: string | null;
+	address?: string | null;
+	city?: string | null;
+	province?: string | null;
+	postalCode?: string | null;
+	phoneNumber?: string | null;
+	email?: string | null;
+	website?: string | null;
+	logoUrl?: string | null;
+	createdAt: string;
+	updatedAt: string;
+	institutionLevel?: InstitutionLevel | null;
+}
 
-export interface InstitutionsData {
-	total: number;
-	active: number;
-	trial: number;
-	totalUsers: number;
-	newThisMonth: number;
-	fullyOperationalPercentage: number;
-	expiringIn3Days: number;
-	sla: number;
-	institutions: InstitutionRow[];
+export interface CreateInstitutionInput {
+	institutionLevelId: string;
+	name: string;
+	shortName?: string;
+	address?: string;
+	city?: string;
+	province?: string;
+	postalCode?: string;
+	phoneNumber?: string;
+	email?: string;
+	website?: string;
+	logoUrl?: string;
+}
+
+export interface UpdateInstitutionInput {
+	institutionLevelId?: string;
+	name?: string;
+	shortName?: string;
+	address?: string;
+	city?: string;
+	province?: string;
+	postalCode?: string;
+	phoneNumber?: string;
+	email?: string;
+	website?: string;
+	logoUrl?: string;
+}
+
+export interface PaginationMeta {
+	totalData: number;
+	totalPages: number;
+	currentPage: number;
+	perPage: number;
+}
+
+export interface ApiResponse<T> {
+	status: string;
+	code: number;
+	message: string;
+	data: T;
+	meta?: PaginationMeta;
+}
+
+export interface InstitutionListResult {
+	data: Institution[];
+	meta: PaginationMeta;
 }

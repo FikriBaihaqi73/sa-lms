@@ -79,92 +79,33 @@ function resolveRole(
 /**
  * Real API call for logging in via the NestJS Backend.
  * The active role always comes from the backend Profile (single source of truth).
+ * Every backend error (401/409/500) is rethrown untouched so the form shows it.
  */
 export const loginApi = async (
 	credentials: LoginCredentials,
 ): Promise<User> => {
-	try {
-		const response = await apiFetch("/auth/login", {
-			method: "POST",
-			body: JSON.stringify(credentials),
-		});
+	const response = await apiFetch("/auth/login", {
+		method: "POST",
+		body: JSON.stringify(credentials),
+	});
 
-		if (response.data?.accessToken) {
-			localStorage.setItem("access_token", response.data.accessToken);
-			localStorage.setItem("token", response.data.accessToken);
-		}
-
-    const user = response.data?.user || response.data;
-    let role = user?.role;
-
-    if (!role && response.data?.accessToken) {
-      try {
-        const payload = JSON.parse(atob(response.data.accessToken.split('.')[1]));
-        role = payload.role;
-      } catch {
-        // ignore
-      }
-    }
-
-    return { ...user, role: role || 'settings' };
-  } catch (error) {
-    // If backend is offline or credentials fail in dev mode, allow admin login for preview
-    const isDevAdmin =
-      credentials.email.toLowerCase().includes('admin') ||
-      credentials.email === 'settings@akademik.id';
-
-    if (isDevAdmin || import.meta.env.DEV) {
-      const mockToken = `mock-admin-token-${Date.now()}`;
-      localStorage.setItem('access_token', mockToken);
-      localStorage.setItem('token', mockToken);
-		const user = response.data?.user || response.data;
-		const accessToken: string | null = response.data?.accessToken ?? null;
-		const role = resolveRole(
-			(user ?? null) as Record<string, unknown> | null,
-			accessToken,
-		);
-
-		if (!role) {
-			throw new Error(
-				"Akun ini belum memiliki peran (role). Hubungi administrator.",
-			);
-		}
-
-		return { ...user, role };
-	} catch (error) {
-		// Only fall back to a local preview session when the backend is
-		// unreachable during development AND no backend error was returned.
-		const isNetworkError =
-			error instanceof TypeError ||
-			(error instanceof Error && /fetch|network|offline/i.test(error.message));
-
-		if (isNetworkError && import.meta.env.DEV) {
-			console.warn(
-				"Backend API offline during dev login, using local preview session.",
-			);
-			const email = credentials.email || "admin@akademik.id";
-			const previewRole: User["role"] = email.toLowerCase().includes("super")
-				? "superadmin"
-				: "admin";
-			const mockToken = `mock-preview-token-${Date.now()}.${btoa(JSON.stringify({ sub: "preview-123", email, role: previewRole }))}.preview`;
-			localStorage.setItem("access_token", mockToken);
-			localStorage.setItem("token", mockToken);
-
-      return {
-        id: 'admin-123',
-        email: credentials.email || 'admin@akademik.id',
-        name: 'Super Admin',
-        role: 'settings',
-      };
-    }
-			return {
-				id: "preview-123",
-				email,
-				name: previewRole === "superadmin" ? "Super Admin" : "Admin",
-				role: previewRole,
-			};
-		}
-
-		throw error;
+	if (response.data?.accessToken) {
+		localStorage.setItem("access_token", response.data.accessToken);
+		localStorage.setItem("token", response.data.accessToken);
 	}
+
+	const user = response.data?.user || response.data;
+	const accessToken: string | null = response.data?.accessToken ?? null;
+	const role = resolveRole(
+		(user ?? null) as Record<string, unknown> | null,
+		accessToken,
+	);
+
+	if (!role) {
+		throw new Error(
+			"Akun ini belum memiliki peran (role). Hubungi administrator.",
+		);
+	}
+
+	return { ...user, role };
 };

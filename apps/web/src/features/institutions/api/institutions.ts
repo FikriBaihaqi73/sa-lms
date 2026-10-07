@@ -1,80 +1,84 @@
-import type { InstitutionsData } from "../types";
+import { apiFetch } from "@/lib/api";
+import type {
+	ApiResponse,
+	CreateInstitutionInput,
+	Institution,
+	InstitutionLevel,
+	InstitutionListResult,
+	UpdateInstitutionInput,
+} from "../types";
 
-export const MOCK_INSTITUTIONS_DATA: InstitutionsData = {
-	total: 12,
-	active: 8,
-	trial: 3,
-	totalUsers: 18420,
-	newThisMonth: 2,
-	fullyOperationalPercentage: 66.7,
-	expiringIn3Days: 1,
-	sla: 99.8,
-	institutions: [
-		{
-			id: "1",
-			name: "SMA Negeri 1 Surabaya",
-			code: "SMANI-SBY",
-			location: "Surabaya, Jawa Timur",
-			type: "Sekolah",
-			package: "Enterprise",
-			users: 1450,
-			courses: 84,
-			status: "Aktif",
+export interface ListInstitutionsParams {
+	page?: number;
+	limit?: number;
+	search?: string;
+}
+
+const DEFAULT_META = {
+	totalData: 0,
+	totalPages: 0,
+	currentPage: 1,
+	perPage: 10,
+};
+
+export const listInstitutionsApi = async (
+	params: ListInstitutionsParams = {},
+): Promise<InstitutionListResult> => {
+	const query = new URLSearchParams();
+	query.set("page", String(params.page ?? 1));
+	query.set("limit", String(params.limit ?? 10));
+	if (params.search?.trim()) query.set("search", params.search.trim());
+
+	const response: ApiResponse<Institution[]> = await apiFetch(
+		`/institutions?${query.toString()}`,
+	);
+	return {
+		data: response.data ?? [],
+		meta: response.meta ?? {
+			...DEFAULT_META,
+			currentPage: params.page ?? 1,
+			perPage: params.limit ?? 10,
 		},
+	};
+};
+
+export const getInstitutionLevelsApi = async (): Promise<
+	InstitutionLevel[]
+> => {
+	const response: ApiResponse<InstitutionLevel[]> = await apiFetch(
+		"/institution-levels",
+	);
+	return response.data ?? [];
+};
+
+export const createInstitutionApi = async (
+	input: CreateInstitutionInput,
+): Promise<Institution> => {
+	const response: ApiResponse<Institution> = await apiFetch("/institutions", {
+		method: "POST",
+		body: JSON.stringify(input),
+	});
+	return response.data;
+};
+
+export const updateInstitutionApi = async (
+	id: string,
+	input: UpdateInstitutionInput,
+): Promise<Institution> => {
+	const response: ApiResponse<Institution> = await apiFetch(
+		`/institutions/${id}`,
 		{
-			id: "2",
-			name: "Universitas Nusantara",
-			code: "UNUS-JKT",
-			location: "Jakarta Pusat, DKI Jakarta",
-			type: "Kampus",
-			package: "Enterprise",
-			users: 8920,
-			courses: 312,
-			status: "Aktif",
+			method: "PATCH",
+			body: JSON.stringify(input),
 		},
-		{
-			id: "3",
-			name: "PT Karya Mandiri",
-			code: "KM-CORP",
-			location: "Bandung, Jawa Barat",
-			type: "Perusahaan",
-			package: "Pro",
-			users: 420,
-			courses: 28,
-			status: "Trial (14 hari)",
-		},
-		{
-			id: "4",
-			name: "SMK Telkom Sidoarjo",
-			code: "TELKOM-SDA",
-			location: "Sidoarjo, Jawa Timur",
-			type: "Sekolah",
-			package: "Pro",
-			users: 2150,
-			courses: 110,
-			status: "Aktif",
-		},
-		{
-			id: "5",
-			name: "Politeknik Bahari",
-			code: "POLBAH-SMG",
-			location: "Semarang, Jawa Tengah",
-			type: "Kampus",
-			package: "Starter",
-			users: 850,
-			courses: 45,
-			status: "Nonaktif",
-		},
-		{
-			id: "6",
-			name: "Lembaga Bahasa Cakrawala",
-			code: "LBC-YOG",
-			location: "DI Yogyakarta",
-			type: "Lembaga Kursus",
-			package: "Pro",
-			users: 630,
-			courses: 19,
-			status: "Trial",
-		},
-	],
+	);
+	return response.data;
+};
+
+export const deleteInstitutionApi = async (
+	id: string,
+): Promise<{ id: string }> => {
+	const response: ApiResponse<{ id: string; success?: boolean }> =
+		await apiFetch(`/institutions/${id}`, { method: "DELETE" });
+	return { id: response.data?.id ?? id };
 };

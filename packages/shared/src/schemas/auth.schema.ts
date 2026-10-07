@@ -4,8 +4,8 @@ import { z } from "zod";
 export const RegisterSchema = z
   .object({
     role: z
-      .enum(["student", "instansi", "superadmin"])
-      .describe("Role to register as"),
+      .enum(["student", "instansi"])
+      .describe("Role to register as (public self-registration only)"),
     email: z
       .email("Email format is invalid")
       .max(255, "Email must not exceed 255 characters")
