@@ -16,6 +16,7 @@ import {
 	ShieldCheck,
 	UserRound,
 	Users,
+	type LucideIcon,
 } from "lucide-react";
 import { SkyToggle } from "@/components/ui/sky-toggle";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -107,6 +108,7 @@ export function AppSidebar() {
 							</p>
 							<div className="space-y-0.5">
 								<NavItem to="/users" icon={Users} label="Data Pengguna (Users)" />
+								<NavItem to="/students" icon={GraduationCap} label="Students" />
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>
@@ -186,7 +188,7 @@ export function AppSidebar() {
 	);
 }
 
-function NavItem({ to, icon: Icon, label }: { to: string; icon: any; label: string }) {
+function NavItem({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {
 	return (
 		<Link
 			to={to}

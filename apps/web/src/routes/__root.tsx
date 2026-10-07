@@ -39,6 +39,9 @@ const ADMIN_ACCESSIBLE_PREFIXES = [
 	"/settings",
 ];
 
+// Student records belong to the institution owner/admin area, not Superadmin.
+const INSTITUTION_ADMIN_ONLY_PREFIXES = ["/students"];
+
 function AccessDenied({ message }: { message: string }) {
 	return (
 		<div className="flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-slate-900">
@@ -94,6 +97,7 @@ function RootLayout() {
 	const role = user?.role?.toLowerCase() || "admin";
 	const isSuperadmin = role === "superadmin";
 	const isAdmin = role === "admin" || isSuperadmin;
+	const isInstitutionAdmin = role === "admin" || !user?.role;
 
 	// Superadmin manages platform as a whole, not daily academic grades
 	if (location.pathname.startsWith("/grades") && isSuperadmin) {
@@ -112,6 +116,17 @@ function RootLayout() {
 		return (
 			<AccessDenied
 				message={`Halaman ini dikhususkan untuk Superadmin. Peran Anda (${role}) tidak memiliki hak akses.`}
+			/>
+		);
+	}
+
+	const isInstitutionAdminOnlyRoute = INSTITUTION_ADMIN_ONLY_PREFIXES.some((prefix) =>
+		location.pathname.startsWith(prefix),
+	);
+	if (isInstitutionAdminOnlyRoute && !isInstitutionAdmin) {
+		return (
+			<AccessDenied
+				message={`Halaman ini membutuhkan hak akses Admin Institusi. Peran Anda (${role}) tidak memiliki hak akses.`}
 			/>
 		);
 	}

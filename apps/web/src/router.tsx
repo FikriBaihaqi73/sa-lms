@@ -21,6 +21,7 @@ import { loginRoute } from "./routes/login/index";
 import { registerRoute } from "./routes/register/index";
 import { settingsRoute } from "./routes/settingsLayout";
 import { specializationStatusesRoute } from "./routes/specialization-statuses/index";
+import { studentsRoute } from "./routes/students/index";
 import { userRoute } from "./routes/userLayout";
 
 const settingsTree = settingsRoute.addChildren([
@@ -48,6 +49,7 @@ const routeTree = rootRoute.addChildren([
 	settingsTree,
 	userTree,
 	institutionsRoute,
+	studentsRoute,
 	loginRoute,
 	registerRoute,
 ]);
