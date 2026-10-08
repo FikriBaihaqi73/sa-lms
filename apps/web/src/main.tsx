@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from '@tanstack/react-router'
 import { ThemeProvider } from './components/theme-provider.tsx'
 import { AuthProvider } from './features/auth/context/AuthContext.tsx'
+import { Toaster } from 'sonner'
 import './index.css'
 import { router } from './router.tsx'
   
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <RouterProvider router={router} />
+          <Toaster richColors position="top-right" />
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

@@ -1,6 +1,7 @@
 /// <reference types="jest" />
-import type { PrismaClient } from "#generated/client";
+
 import { AssignmentTypeRepository } from "vitest";
+import type { PrismaClient } from "#generated/client";
 
 describe("AssignmentTypeRepository", () => {
   const assignmentTypes = {

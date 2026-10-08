@@ -25,6 +25,6 @@ model Institution {
   subjects         Subject[]
   announcements    Announcements[]
   classrooms       Classroom[]
-
+  academic_years   AcademicYears[]
   @@map("institutions")
 }

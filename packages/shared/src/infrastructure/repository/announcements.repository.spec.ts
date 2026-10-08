@@ -1,5 +1,5 @@
-import type { PrismaClient } from "#generated/client";
 import { AnnouncementsRepository } from "vitest";
+import type { PrismaClient } from "#generated/client";
 
 describe("AnnouncementsRepository", () => {
   it("finds announcements with pagination, search and eager-loaded relations", async () => {

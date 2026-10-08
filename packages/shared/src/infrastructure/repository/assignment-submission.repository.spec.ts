@@ -1,6 +1,7 @@
 /// <reference types="jest" />
-import type { PrismaClient } from "#generated/client";
+
 import { AssignmentSubmissionRepository } from "vitest";
+import type { PrismaClient } from "#generated/client";
 
 describe("AssignmentSubmissionRepository", () => {
   let repository: AssignmentSubmissionRepository;

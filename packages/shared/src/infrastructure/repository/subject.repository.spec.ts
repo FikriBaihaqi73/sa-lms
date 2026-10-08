@@ -1,8 +1,8 @@
 /// <reference types="jest" />
 
+import { SubjectRepository } from "vitest";
 import type { PrismaClient } from "#generated/client";
 import { subjectSelect } from "#selects/subject.select";
-import { SubjectRepository } from "vitest";
 
 describe("SubjectRepository", () => {
   let repository: SubjectRepository;

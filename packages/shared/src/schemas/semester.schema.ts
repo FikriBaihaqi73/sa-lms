@@ -28,7 +28,11 @@ export const FindAllSemesterSchema = z.object({
   page: z.coerce.number().int().min(1).optional().describe("Page number"),
   limit: z.coerce.number().int().min(1).optional().describe("Items per page"),
   search: z.string().optional().describe("Search keyword"),
-  academic_year_id: z.string().uuid().optional().describe("Filter by academic year ID"),
+  academic_year_id: z
+    .string()
+    .uuid()
+    .optional()
+    .describe("Filter by academic year ID"),
 });
 
 export class CreateSemesterDto extends createZodDto(CreateSemesterSchema) {}

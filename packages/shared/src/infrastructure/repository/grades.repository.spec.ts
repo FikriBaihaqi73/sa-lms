@@ -1,8 +1,9 @@
 /// <reference types="jest" />
+
+import { GradeRepository } from "vitest";
 import type { GradeEntity } from "#entities/grades.entity";
 import type { PrismaClient } from "#generated/client";
 import { gradeSelect } from "#selects/grades.select";
-import { GradeRepository } from "vitest";
 
 describe("GradeRepository", () => {
   const create = vi.fn();

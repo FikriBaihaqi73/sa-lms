@@ -1,7 +1,8 @@
 /// <reference types="jest" />
+
+import { ExaminationRepository } from "vitest";
 import type { PrismaClient } from "#generated/client";
 import { examinationSelect } from "#selects/examination.select";
-import { ExaminationRepository } from "vitest";
 
 describe("ExaminationRepository", () => {
   const examinations = {

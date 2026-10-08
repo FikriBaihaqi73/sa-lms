@@ -84,6 +84,7 @@ export function AppSidebar() {
 								<NavItem to="/specialization-statuses" icon={BookOpenCheck} label="Specialization Statuses" />
 								<NavItem to="/assignment-types" icon={BookOpen} label="Assignment Types" />
 								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Attendance Statuses" />
+								<NavItem to="/academic-years" icon={BookOpen} label="Academic Years" />
 							</div>
 						</div>
 
@@ -120,6 +121,7 @@ export function AppSidebar() {
 							</p>
 							<div className="space-y-0.5">
 								<NavItem to="/grades" icon={Award} label="Manajemen Nilai (Grades)" />
+								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran (Academic Years)" />
 							</div>
 						</div>
 

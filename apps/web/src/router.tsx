@@ -1,5 +1,6 @@
 import { createRouter } from "@tanstack/react-router";
 import { rootRoute } from "./routes/__root";
+import { academicYearsRoute } from "./routes/_settings/academic-years/index";
 import { academicStatusesRoute } from "./routes/_settings/academic-statuses/index";
 import { activityLogsRoute } from "./routes/_settings/activity-logs";
 import { assignmentTypesRoute } from "./routes/_settings/assignment-types/index";
@@ -43,6 +44,7 @@ const settingsTree = settingsRoute.addChildren([
 	assignmentTypesRoute,
 	profileRoute,
 	teachersRoute,
+	academicYearsRoute,
 ]);
 
 const userTree = userRoute.addChildren([indexRoute]);

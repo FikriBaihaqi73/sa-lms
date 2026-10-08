@@ -1,6 +1,5 @@
 import { getPrisma } from "#infrastructure/database/client";
 
-
 async function main() {
   const prisma = getPrisma();
   console.log("Seeding users...");
@@ -60,7 +59,9 @@ async function main() {
           },
         });
       });
-      console.log(`Created user with role ${role.name}: ${email} (Password: password123)`);
+      console.log(
+        `Created user with role ${role.name}: ${email} (Password: password123)`,
+      );
     } else {
       console.log(`User already exists for role ${role.name}: ${email}`);
     }
