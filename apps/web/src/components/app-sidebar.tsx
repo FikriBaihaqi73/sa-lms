@@ -10,6 +10,7 @@ import {
 	ClipboardCheck,
 	Globe,
 	GraduationCap,
+	HeartHandshake,
 	KeyRound,
 	LogOut,
 	Settings2,
@@ -111,6 +112,7 @@ export function AppSidebar() {
 								<NavItem to="/users" icon={Users} label="Data Pengguna (Users)" />
 								<NavItem to="/students" icon={GraduationCap} label="Students" />
 								<NavItem to="/teachers" icon={Briefcase} label="Guru / Teachers" />
+								<NavItem to="/guardians" icon={HeartHandshake} label="Wali Murid / Guardians" />
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>
