@@ -1,10 +1,10 @@
 import type { PrismaClient } from "#generated/client";
-import { AnnouncementsRepository } from "./announcements.repository";
+import { AnnouncementsRepository } from "vitest";
 
 describe("AnnouncementsRepository", () => {
   it("finds announcements with pagination, search and eager-loaded relations", async () => {
-    const findMany = jest.fn().mockResolvedValue([]);
-    const count = jest.fn().mockResolvedValue(0);
+    const findMany = vi.fn().mockResolvedValue([]);
+    const count = vi.fn().mockResolvedValue(0);
     const prisma = {
       announcements: { findMany, count },
     } as unknown as PrismaClient;
@@ -47,8 +47,8 @@ describe("AnnouncementsRepository", () => {
   });
 
   it("clamps invalid pagination values to the repository limits", async () => {
-    const findMany = jest.fn().mockResolvedValue([]);
-    const count = jest.fn().mockResolvedValue(0);
+    const findMany = vi.fn().mockResolvedValue([]);
+    const count = vi.fn().mockResolvedValue(0);
     const prisma = {
       announcements: { findMany, count },
     } as unknown as PrismaClient;

@@ -35,9 +35,20 @@ export class TeachersService {
     return ResponseHelper.success(teacher, "Teacher successfully created");
   }
 
-  async findAll() {
-    const teachers = await this.teachersRepository.findAll();
-    return ResponseHelper.success(teachers, "Teachers successfully retrieved");
+  async findAll(page = 1, limit = 10, search?: string, employmentStatusId?: string, specializationId?: string) {
+    const teachers = await this.teachersRepository.findAll({
+      page,
+      limit,
+      ...(search !== undefined ? { search } : {}),
+      ...(employmentStatusId !== undefined ? { employmentStatusId } : {}),
+      ...(specializationId !== undefined ? { specializationId } : {}),
+    });
+    return ResponseHelper.success(teachers.data, "Teachers successfully retrieved", 200, teachers.meta);
+  }
+
+  async getStats() {
+    const stats = await this.teachersRepository.getStats();
+    return ResponseHelper.success(stats, "Teacher stats successfully retrieved");
   }
 
   async findById(id: string) {

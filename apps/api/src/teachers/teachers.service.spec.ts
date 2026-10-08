@@ -22,6 +22,7 @@ describe("TeachersService", () => {
       findAll: jest.fn(),
       findById: jest.fn(),
       findByTeacherNumber: jest.fn(),
+      getStats: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     } as unknown as jest.Mocked<TeacherRepository>;
@@ -69,16 +70,41 @@ describe("TeachersService", () => {
   });
 
   describe("findAll", () => {
-    it("should return all teachers", async () => {
+    it("should return paginated teachers with meta", async () => {
       const teachersList = [{ id: "1", teacher_number: "T001" }];
-      mockRepositoryInstance.findAll.mockResolvedValue(teachersList as any);
+      const meta = { page: 1, limit: 10, total: 1, totalPages: 1 };
+      mockRepositoryInstance.findAll.mockResolvedValue({ data: teachersList, meta } as any);
 
-      const result = await service.findAll();
+      const result = await service.findAll(1, 10, "T00", "status-1", "spec-1");
 
       expect(result).toEqual(
-        ResponseHelper.success(teachersList, "Teachers successfully retrieved"),
+        ResponseHelper.success(teachersList, "Teachers successfully retrieved", 200, meta),
       );
-      expect(mockRepositoryInstance.findAll).toHaveBeenCalled();
+      expect(mockRepositoryInstance.findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+        search: "T00",
+        employmentStatusId: "status-1",
+        specializationId: "spec-1",
+      });
+    });
+
+    it("should return teacher stats", async () => {
+      const stats = {
+        total: 2,
+        tetapCount: 1,
+        honorerCount: 1,
+        specializationCount: 2,
+        totalClassAssignments: 3,
+        unassignedCount: 1,
+      };
+      mockRepositoryInstance.getStats.mockResolvedValue(stats as any);
+
+      const result = await service.getStats();
+
+      expect(result).toEqual(
+        ResponseHelper.success(stats, "Teacher stats successfully retrieved"),
+      );
     });
   });
 

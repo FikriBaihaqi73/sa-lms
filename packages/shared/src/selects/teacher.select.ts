@@ -10,6 +10,39 @@ export const teacherSelect = {
   join_date: true,
   created_at: true,
   updated_at: true,
+  profile: {
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      phoneNumber: true,
+      userId: true,
+      users: {
+        select: {
+          id: true,
+          email: true,
+          is_active: true,
+        },
+      },
+    },
+  },
+  employment_status: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  specialization: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  _count: {
+    select: {
+      classSubjects: true,
+    },
+  },
 } satisfies Prisma.TeachersSelect;
 
 export type TeacherSelectType = typeof teacherSelect;
