@@ -36,7 +36,7 @@ export function LoginForm({
 	} = useForm<LoginFormValues>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
-			email: "admin@nexora.com",
+			email: "superadmin@example.com",
 			password: "password123",
 		},
 	});
