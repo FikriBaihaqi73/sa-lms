@@ -6,17 +6,22 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import {
   CreateTeacherDto,
   UpdateTeacherDto,
 } from "@repo/shared/schemas/teacher.schema";
+import { Roles } from "../auth/roles.decorator";
 import { TeachersService } from "./teachers.service";
 
 @ApiTags("Teachers")
+@ApiBearerAuth("JWT-auth")
+@Roles("admin")
 @Controller("teachers")
 export class TeachersController {
   constructor(private readonly teachersService: TeachersService) {}
@@ -29,9 +34,21 @@ export class TeachersController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Retrieve all teachers" })
-  findAll() {
-    return this.teachersService.findAll();
+  @ApiOperation({ summary: "Retrieve teachers with search, filter, and pagination" })
+  findAll(
+    @Query("page", new ParseIntPipe({ optional: true })) page?: number,
+    @Query("limit", new ParseIntPipe({ optional: true })) limit?: number,
+    @Query("search") search?: string,
+    @Query("status") status?: string,
+    @Query("specialization") specialization?: string,
+  ) {
+    return this.teachersService.findAll(page ?? 1, limit ?? 10, search, status, specialization);
+  }
+
+  @Get("stats")
+  @ApiOperation({ summary: "Retrieve teacher aggregate stats" })
+  getStats() {
+    return this.teachersService.getStats();
   }
 
   @Get(":id")

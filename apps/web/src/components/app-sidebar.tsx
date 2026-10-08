@@ -109,6 +109,7 @@ export function AppSidebar() {
 							<div className="space-y-0.5">
 								<NavItem to="/users" icon={Users} label="Data Pengguna (Users)" />
 								<NavItem to="/students" icon={GraduationCap} label="Students" />
+								<NavItem to="/teachers" icon={Briefcase} label="Guru / Teachers" />
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>

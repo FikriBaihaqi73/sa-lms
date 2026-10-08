@@ -2,13 +2,13 @@
 import type { GradeEntity } from "#entities/grades.entity";
 import type { PrismaClient } from "#generated/client";
 import { gradeSelect } from "#selects/grades.select";
-import { GradeRepository } from "./grades.repository.js";
+import { GradeRepository } from "vitest";
 
 describe("GradeRepository", () => {
-  const create = jest.fn();
-  const findFirst = jest.fn();
-  const findMany = jest.fn();
-  const update = jest.fn();
+  const create = vi.fn();
+  const findFirst = vi.fn();
+  const findMany = vi.fn();
+  const update = vi.fn();
   const prisma = {
     grades: { create, findFirst, findMany, update },
   } as unknown as PrismaClient;

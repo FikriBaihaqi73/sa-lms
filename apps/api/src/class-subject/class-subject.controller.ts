@@ -49,16 +49,6 @@ export class ClassSubjectController {
     );
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Get a class subject relation by ID" })
-  async findOne(@Param("id") id: string) {
-    const result = await this.classSubjectService.findOne(id);
-    return ResponseHelper.success(
-      result,
-      "Class subject detail retrieved successfully",
-    );
-  }
-
   @Get("class/:classId")
   @ApiOperation({ summary: "Get class subjects by class ID" })
   async findByClass(@Param("classId") classId: string) {
@@ -97,6 +87,16 @@ export class ClassSubjectController {
     return ResponseHelper.success(
       result,
       "Class subjects by academic year retrieved successfully",
+    );
+  }
+
+  @Get(":id")
+  @ApiOperation({ summary: "Get a class subject relation by ID" })
+  async findOne(@Param("id") id: string) {
+    const result = await this.classSubjectService.findOne(id);
+    return ResponseHelper.success(
+      result,
+      "Class subject detail retrieved successfully",
     );
   }
 
