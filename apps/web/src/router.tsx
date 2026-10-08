@@ -17,6 +17,7 @@ import { settingsRouteDef } from "./routes/_settings/settings/index";
 import { usersRoute } from "./routes/_settings/users/index";
 import { indexRoute } from "./routes/_user/index";
 import { institutionsRoute } from "./routes/institutions/index";
+import { guardiansRoute } from "./routes/guardians/index";
 import { loginRoute } from "./routes/login/index";
 import { registerRoute } from "./routes/register/index";
 import { settingsRoute } from "./routes/settingsLayout";
@@ -52,6 +53,7 @@ const routeTree = rootRoute.addChildren([
 	userTree,
 	institutionsRoute,
 	studentsRoute,
+	guardiansRoute,
 	loginRoute,
 	registerRoute,
 ]);
