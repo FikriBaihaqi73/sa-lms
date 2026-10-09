@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@repo/shared/schemas/auth.schema";
 import { useNavigate } from "@tanstack/react-router";
-import { Eye, EyeOff } from "lucide-react";
+import { BookOpenCheck, Eye, EyeOff, Lock, Mail, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
@@ -36,8 +36,8 @@ export function LoginForm({
 	} = useForm<LoginFormValues>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
-			email: "superadmin@example.com",
-			password: "password123",
+			email: "",
+			password: "",
 		},
 	});
 
@@ -54,8 +54,6 @@ export function LoginForm({
 							: "/grades",
 			});
 		} catch (err) {
-			// Surface the real reason (e.g. missing profile/role, backend down)
-			// instead of masking everything as invalid credentials.
 			const message =
 				err instanceof Error && err.message
 					? err.message
@@ -65,106 +63,135 @@ export function LoginForm({
 	};
 
 	return (
-		<div className="flex min-h-[80vh] items-center justify-center p-4">
-			<Card className="w-full max-w-md shadow-xl border-zinc-200/80 dark:border-zinc-800">
-				<CardHeader className="space-y-2 text-center pb-6">
-					<CardTitle className="text-3xl font-bold tracking-tight">
-						Welcome Back
+		<Card className="w-full border-white/60 bg-white/90 shadow-2xl backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/85">
+			<CardHeader className="space-y-3 pb-6 text-center">
+				<div className="mx-auto flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 text-white shadow-lg shadow-blue-500/25">
+					<BookOpenCheck className="h-7 w-7" />
+				</div>
+				<div>
+					<CardTitle className="font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+						Selamat Datang
 					</CardTitle>
-					<CardDescription className="text-base">
-						Enter your email and password to sign in to your account
+					<CardDescription className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+						Masuk ke akun portal Sistem Academic Anda
 					</CardDescription>
-				</CardHeader>
-				<CardContent className="px-8 pb-8">
-					{error && (
-						<div className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-600 border border-red-200 dark:bg-red-950/50 dark:border-red-900/50 dark:text-red-400">
-							{error}
-						</div>
-					)}
+				</div>
+			</CardHeader>
 
-					<form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-						<div className="space-y-2.5">
-							<Label htmlFor="email" className="text-sm font-semibold">
-								Email
-							</Label>
+			<CardContent className="px-6 pb-8 sm:px-8">
+				{error && (
+					<div className="mb-5 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50/90 p-3.5 text-sm font-medium text-red-700 backdrop-blur-sm dark:border-red-900/50 dark:bg-red-950/60 dark:text-red-300">
+						<span className="shrink-0 text-red-500">⚠️</span>
+						<span>{error}</span>
+					</div>
+				)}
+
+				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+					<div className="space-y-1.5">
+						<Label
+							htmlFor="email"
+							className="text-xs font-semibold text-slate-700 dark:text-slate-300"
+						>
+							Email
+						</Label>
+						<div className="relative">
+							<div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+								<Mail className="h-4 w-4" />
+							</div>
 							<Input
 								id="email"
 								{...register("email")}
 								type="email"
-								placeholder="name@example.com"
+								placeholder="nama@email.com"
 								autoComplete="email"
-								className="h-11"
+								className="h-11 pl-9 rounded-lg border-slate-200 bg-white/80 transition-all focus:border-blue-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950/70 dark:focus:bg-slate-950"
 							/>
-							{errors.email && (
-								<p className="text-sm text-red-500 font-medium">
-									{errors.email.message}
-								</p>
-							)}
 						</div>
-
-						<div className="space-y-2.5">
-							<div className="flex items-center justify-between">
-								<Label htmlFor="password" className="text-sm font-semibold">
-									Password
-								</Label>
-								<a
-									href="#forgot"
-									className="text-sm font-medium text-zinc-500 hover:text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-400 dark:hover:text-zinc-100"
-								>
-									Forgot password?
-								</a>
-							</div>
-							<div className="relative">
-								<Input
-									id="password"
-									{...register("password")}
-									type={showPassword ? "text" : "password"}
-									placeholder="••••••••"
-									autoComplete="current-password"
-									className="h-11 pr-10"
-								/>
-								<button
-									type="button"
-									onClick={() => setShowPassword(!showPassword)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300 focus:outline-none"
-								>
-									{showPassword ? (
-										<EyeOff className="h-5 w-5" />
-									) : (
-										<Eye className="h-5 w-5" />
-									)}
-								</button>
-							</div>
-							{errors.password && (
-								<p className="text-sm text-red-500 font-medium">
-									{errors.password.message}
-								</p>
-							)}
-						</div>
-
-						<Button
-							type="submit"
-							disabled={isSubmitting}
-							className="w-full h-12 text-base font-semibold mt-4"
-						>
-							{isSubmitting ? "Signing in..." : "Sign in"}
-						</Button>
-
-						{onRegisterClick && (
-							<div className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-								Don't have an account?{" "}
-								<button
-									type="button"
-									onClick={onRegisterClick}
-									className="text-zinc-900 font-semibold underline-offset-4 hover:underline dark:text-zinc-100"
-								>
-									Sign up
-								</button>
-							</div>
+						{errors.email && (
+							<p className="text-xs font-medium text-red-500">
+								{errors.email.message}
+							</p>
 						)}
-					</form>
-				</CardContent>
-			</Card>
-		</div>
+					</div>
+
+					<div className="space-y-1.5">
+						<div className="flex items-center justify-between">
+							<Label
+								htmlFor="password"
+								className="text-xs font-semibold text-slate-700 dark:text-slate-300"
+							>
+								Kata Sandi
+							</Label>
+							<a
+								href="#forgot"
+								className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400"
+							>
+								Lupa kata sandi?
+							</a>
+						</div>
+						<div className="relative">
+							<div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+								<Lock className="h-4 w-4" />
+							</div>
+							<Input
+								id="password"
+								{...register("password")}
+								type={showPassword ? "text" : "password"}
+								placeholder="••••••••"
+								autoComplete="current-password"
+								className="h-11 pl-9 pr-10 rounded-lg border-slate-200 bg-white/80 transition-all focus:border-blue-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950/70 dark:focus:bg-slate-950"
+							/>
+							<button
+								type="button"
+								onClick={() => setShowPassword(!showPassword)}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none"
+							>
+								{showPassword ? (
+									<EyeOff className="h-4 w-4" />
+								) : (
+									<Eye className="h-4 w-4" />
+								)}
+							</button>
+						</div>
+						{errors.password && (
+							<p className="text-xs font-medium text-red-500">
+								{errors.password.message}
+							</p>
+						)}
+					</div>
+
+					<Button
+						type="submit"
+						disabled={isSubmitting}
+						className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all mt-2"
+					>
+						{isSubmitting ? (
+							<span className="flex items-center gap-2">
+								<span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+								Memproses...
+							</span>
+						) : (
+							<span className="flex items-center gap-2">
+								<Sparkles className="h-4 w-4" />
+								Masuk ke Portal
+							</span>
+						)}
+					</Button>
+
+					{onRegisterClick && (
+						<div className="pt-2 text-center text-xs text-slate-500 dark:text-slate-400">
+							Belum memiliki akun?{" "}
+							<button
+								type="button"
+								onClick={onRegisterClick}
+								className="font-semibold text-blue-600 underline-offset-4 hover:underline dark:text-blue-400"
+							>
+								Daftar sekarang
+							</button>
+						</div>
+					)}
+				</form>
+			</CardContent>
+		</Card>
 	);
 }

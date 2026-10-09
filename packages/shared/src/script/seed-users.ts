@@ -1,12 +1,15 @@
 import { getPrisma } from "#infrastructure/database/client";
+import bcrypt from "bcrypt";
 
 async function main() {
   const prisma = getPrisma();
   console.log("Seeding users...");
 
-  // Default hash for 'password123' (bcrypt cost 10, verified with bcrypt.compare)
-  const defaultPasswordHash =
-    "$2b$10$H49gujoPMq7BkVTdbI4/COa5ndHa/LTGgDpl2RoMapAOtKkFMblxC";
+  // Password plaintext yang mudah dibaca di kode
+  const plainPassword = "password123";
+
+  // Di-hash secara dinamis saat seed dijalankan agar masuk ke DB dalam bentuk hash bcrypt yang valid
+  const defaultPasswordHash = await bcrypt.hash(plainPassword, 10);
 
   // 1. Ensure at least one Institution exists
   let institution = await prisma.institution.findFirst();
@@ -31,7 +34,7 @@ async function main() {
     return;
   }
 
-  // 3. Create a user for each role
+  // 3. Create or update user for each role
   for (const role of roles) {
     const email = `${role.name}@example.com`;
     const existingUser = await prisma.users.findUnique({
@@ -60,10 +63,19 @@ async function main() {
         });
       });
       console.log(
-        `Created user with role ${role.name}: ${email} (Password: password123)`,
+        `Created user with role ${role.name}: ${email} (Password: ${plainPassword})`,
       );
     } else {
-      console.log(`User already exists for role ${role.name}: ${email}`);
+      await prisma.users.update({
+        where: { id: existingUser.id },
+        data: {
+          password: defaultPasswordHash,
+          is_active: true,
+        },
+      });
+      console.log(
+        `Updated password for role ${role.name}: ${email} (Password: ${plainPassword})`,
+      );
     }
   }
 

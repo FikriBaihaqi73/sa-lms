@@ -51,6 +51,14 @@ export class AuthRepository {
     });
   }
 
+  async updatePassword(id: string, passwordHash: string): Promise<UserEntity> {
+    return this.prisma.users.update({
+      where: { id },
+      data: { password: passwordHash },
+      select: userSelect,
+    });
+  }
+
   async updateAccessToken(
     id: string,
     accessToken: string,

@@ -6,6 +6,15 @@ export const institutionLevelSelect = {
   description: true,
   createdAt: true,
   updated_at: true,
+  _count: {
+    select: {
+      institutions: {
+        where: {
+          deletedAt: null,
+        },
+      },
+    },
+  },
 } satisfies Prisma.InstitutionLevelSelect;
 
 export type InstitutionLevelSelectType = typeof institutionLevelSelect;
@@ -13,3 +22,4 @@ export type InstitutionLevelSelectType = typeof institutionLevelSelect;
 export type InstitutionLevelEntity = Prisma.InstitutionLevelGetPayload<{
   select: InstitutionLevelSelectType;
 }>;
+
