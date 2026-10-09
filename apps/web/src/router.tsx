@@ -15,6 +15,7 @@ import { religionsRoute } from "./routes/_settings/religions/index";
 import { rolePermissionsRoute } from "./routes/_settings/role-permissions/index";
 import { rolesRoute } from "./routes/_settings/roles/index";
 import { settingsRouteDef } from "./routes/_settings/settings/index";
+import { semestersRoute } from "./routes/_settings/semesters/index";
 import { usersRoute } from "./routes/_settings/users/index";
 import { indexRoute } from "./routes/_user/index";
 import { institutionsRoute } from "./routes/institutions/index";
@@ -46,6 +47,7 @@ const settingsTree = settingsRoute.addChildren([
 	profileRoute,
 	teachersRoute,
 	academicYearsRoute,
+	semestersRoute,
 ]);
 
 const userTree = userRoute.addChildren([indexRoute]);

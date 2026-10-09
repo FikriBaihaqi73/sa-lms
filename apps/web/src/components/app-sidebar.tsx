@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	Activity,
 	Award,
+	CalendarRange,
 	BookOpen,
 	BookOpenCheck,
 	Briefcase,
@@ -124,6 +125,7 @@ export function AppSidebar() {
 							<div className="space-y-0.5">
 								<NavItem to="/grades" icon={Award} label="Manajemen Nilai (Grades)" />
 								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran (Academic Years)" />
+								<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
 							</div>
 						</div>
 
