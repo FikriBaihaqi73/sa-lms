@@ -1,4 +1,5 @@
-import React, { useDeferredValue, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { UsersHeader } from './UsersHeader';
 import { UsersStats } from './UsersStats';
 import { UsersTable } from './UsersTable';
@@ -14,7 +15,7 @@ function errorMessage(error: unknown): string {
 
 export const UsersPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const deferredSearch = useDeferredValue(searchTerm);
+  const debouncedSearch = useDebounce(searchTerm);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -23,7 +24,7 @@ export const UsersPage: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [notice, setNotice] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
 
-  const normalizedSearch = deferredSearch.trim();
+  const normalizedSearch = debouncedSearch.trim();
   const usersQuery = useUsers({ page: currentPage, limit, search: normalizedSearch });
   const createMutation = useCreateUser();
   const updateMutation = useUpdateUser();
