@@ -2,6 +2,7 @@ import type { Prisma } from "#generated/client";
 
 export const guardianSelect = {
   id: true,
+  institutionId: true,
   fullName: true,
   relationship: true,
   phoneNumber: true,
