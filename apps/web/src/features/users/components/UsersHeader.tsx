@@ -1,18 +1,15 @@
 import React from 'react';
-import { Plus, Search, ShieldCheck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Search, ShieldCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface UsersHeaderProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  onOpenCreateModal: () => void;
 }
 
 export const UsersHeader: React.FC<UsersHeaderProps> = ({
   searchTerm,
   onSearchChange,
-  onOpenCreateModal,
 }) => (
   <div className="space-y-6">
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -31,13 +28,6 @@ export const UsersHeader: React.FC<UsersHeaderProps> = ({
         </p>
       </div>
 
-      <Button
-        onClick={onOpenCreateModal}
-        className="bg-blue-600 font-medium text-white shadow-sm transition-all hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
-      >
-        <Plus className="mr-1.5 h-4 w-4" />
-        Tambah User
-      </Button>
     </div>
 
     <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/80 sm:flex-row">
