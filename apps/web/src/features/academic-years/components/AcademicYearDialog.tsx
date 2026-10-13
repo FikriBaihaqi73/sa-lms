@@ -100,7 +100,7 @@ export function AcademicYearDialog({
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						{isEditing ? "Edit Academic Year" : "Add Academic Year"}
+						{isEditing ? "Ubah Tahun Ajaran" : "Tambah Tahun Ajaran"}
 					</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
@@ -110,9 +110,9 @@ export function AcademicYearDialog({
 							name="academic_year"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Academic Year (e.g. 2023/2024)</FormLabel>
+									<FormLabel>Tahun Ajaran (contoh: 2023/2024)</FormLabel>
 									<FormControl>
-										<Input placeholder="Enter academic year" {...field} />
+										<Input placeholder="Masukkan tahun ajaran" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -125,7 +125,7 @@ export function AcademicYearDialog({
 							render={({ field }) => (
 								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
 									<div className="space-y-0.5">
-										<FormLabel className="text-base">Active Status</FormLabel>
+										<FormLabel className="text-base">Status Aktif</FormLabel>
 									</div>
 									<FormControl>
 										<Switch
@@ -144,10 +144,10 @@ export function AcademicYearDialog({
 								onClick={() => onOpenChange(false)}
 								disabled={isPending}
 							>
-								Cancel
+								Batal
 							</Button>
 							<Button type="submit" disabled={isPending}>
-								{isPending ? "Saving..." : "Save"}
+								{isPending ? "Menyimpan..." : "Simpan"}
 							</Button>
 						</DialogFooter>
 					</form>

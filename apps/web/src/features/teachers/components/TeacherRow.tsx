@@ -98,7 +98,7 @@ export function TeacherRow({
             title="Ubah guru"
           >
             <Pencil className="size-4" />
-            <span className="sr-only">Edit</span>
+            <span className="sr-only">Ubah</span>
           </Button>
           <span title={canDelete ? "Hapus guru" : "Guru masih mengampu kelas"}>
             <Button
@@ -110,7 +110,7 @@ export function TeacherRow({
               className="size-8 text-red-600 hover:text-red-700 disabled:text-slate-300 dark:text-red-400 dark:disabled:text-slate-600"
             >
               <Trash2 className="size-4" />
-              <span className="sr-only">Delete</span>
+              <span className="sr-only">Hapus</span>
             </Button>
           </span>
         </div>

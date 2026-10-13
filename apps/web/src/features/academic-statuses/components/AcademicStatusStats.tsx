@@ -85,8 +85,8 @@ export function AcademicStatusStats({ statuses, isLoading }: AcademicStatusStats
           Toleransi: <strong>2 semester mangkir berturut-turut</strong> &amp; evaluasi IPK semester 4.
         </p>
         <p className="flex justify-between font-mono text-[10px] text-slate-500 dark:text-slate-400">
-          <span>Jadwal Trigger: Akhir Semester</span>
-          <span className="text-blue-600 dark:text-blue-400">Auto-Sync On</span>
+          <span>Jadwal Pemicu: Akhir Semester</span>
+          <span className="text-blue-600 dark:text-blue-400">Sinkronisasi Otomatis Aktif</span>
         </p>
       </StatCard>
     </div>

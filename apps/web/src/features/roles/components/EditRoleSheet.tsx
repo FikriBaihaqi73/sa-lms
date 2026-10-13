@@ -51,13 +51,11 @@ export function RoleEditorSheet({
     },
     {},
   );
-
   const selectedIds = useWatch({ control: form.control, name: "permissionIds" }) ?? [];
 
   if (!open) return null;
 
   const isAdding = !role;
-
   const togglePermission = (id: string, checked: boolean) =>
     form.setValue(
       "permissionIds",
@@ -93,34 +91,30 @@ export function RoleEditorSheet({
         <div className="flex items-start justify-between border-b border-zinc-200 p-6 dark:border-slate-700">
           <div>
             <h2 id="role-sheet-title" className="text-xl font-semibold">
-              {role ? "Edit Role" : "Tambah role"}
+              {isAdding ? "Tambah Peran" : "Ubah Peran"}
             </h2>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
               {isAdding
-                ? "Tambahkan informasi role dan pilih permission yang sesuai."
-                : "Ubah informasi role dan konfigurasi hak akses."}
+                ? "Tambahkan informasi peran dan pilih izin yang sesuai."
+                : "Ubah informasi peran dan konfigurasi hak akses."}
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Close"
-            onClick={onClose}
-          >
+          <Button variant="ghost" size="icon" aria-label="Tutup" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
+
         <form
           className="flex min-h-0 flex-1 flex-col"
           onSubmit={form.handleSubmit(onSave)}
         >
           <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-6">
             <div className="space-y-2">
-              <Label htmlFor="role-name">Role name</Label>
+              <Label htmlFor="role-name">Nama peran</Label>
               <Input
                 id="role-name"
                 {...form.register("name")}
-                placeholder="e.g. Academic coordinator"
+                placeholder="Contoh: Koordinator akademik"
               />
               {form.formState.errors.name && (
                 <p className="text-sm text-destructive">
@@ -128,13 +122,14 @@ export function RoleEditorSheet({
                 </p>
               )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="role-description">Description</Label>
+              <Label htmlFor="role-description">Deskripsi</Label>
               <textarea
                 id="role-description"
                 {...form.register("description")}
                 className="flex min-h-24 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 dark:border-zinc-700 dark:focus-visible:ring-zinc-300"
-                placeholder="Describe this role"
+                placeholder="Jelaskan peran ini"
               />
               {form.formState.errors.description && (
                 <p className="text-sm text-destructive">
@@ -142,16 +137,17 @@ export function RoleEditorSheet({
                 </p>
               )}
             </div>
+
             <div>
               <div className="mb-3">
-                <Label>Permissions</Label>
+                <Label>Izin</Label>
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  Pilih hak akses yang diberikan untuk role ini.
+                  Pilih hak akses yang akan diberikan kepada peran ini.
                 </p>
               </div>
               {permissions.length === 0 ? (
                 <p className="rounded-md bg-zinc-100 p-3 text-sm text-zinc-600 dark:bg-slate-700 dark:text-zinc-300">
-                  Belum ada permission yang terdaftar di sistem.
+                  Belum ada izin yang terdaftar di sistem.
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -178,7 +174,7 @@ export function RoleEditorSheet({
                                 toggleModule(items, event.target.checked)
                               }
                             />{" "}
-                            Select all
+                            Pilih semua
                           </label>
                         </summary>
                         <div className="space-y-2 border-t border-zinc-200 p-4 dark:border-slate-700">
@@ -191,10 +187,7 @@ export function RoleEditorSheet({
                                 type="checkbox"
                                 checked={selectedIds.includes(permission.id)}
                                 onChange={(event) =>
-                                  togglePermission(
-                                    permission.id,
-                                    event.target.checked,
-                                  )
+                                  togglePermission(permission.id, event.target.checked)
                                 }
                               />
                               <span>{permission.name}</span>
@@ -213,6 +206,7 @@ export function RoleEditorSheet({
               )}
             </div>
           </div>
+
           <div className="sticky bottom-0 flex justify-end gap-3 border-t border-zinc-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
             <Button type="button" variant="outline" onClick={onClose}>
               Batal
@@ -221,8 +215,8 @@ export function RoleEditorSheet({
               {isSaving
                 ? "Menyimpan..."
                 : isAdding
-                  ? "Simpan role"
-                  : "Save Changes"}
+                  ? "Simpan Peran"
+                  : "Simpan Perubahan"}
             </Button>
           </div>
         </form>
@@ -231,7 +225,9 @@ export function RoleEditorSheet({
   );
 }
 
-interface EditRoleSheetProps extends Omit<RoleEditorSheetProps, "role"> { role: Role | null; }
+interface EditRoleSheetProps extends Omit<RoleEditorSheetProps, "role"> {
+  role: Role | null;
+}
 
 export function EditRoleSheet({ role, ...props }: EditRoleSheetProps) {
   return <RoleEditorSheet {...props} role={role ?? undefined} />;

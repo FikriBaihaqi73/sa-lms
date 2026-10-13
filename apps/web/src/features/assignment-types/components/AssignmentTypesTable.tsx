@@ -155,7 +155,7 @@ export function AssignmentTypesTable({
                           type="button"
                           onClick={() => onEdit(item)}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition-colors hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:bg-blue-950/40 dark:hover:text-blue-400"
-                          title="Edit"
+                          title="Ubah"
                         >
                           <Edit3 className="h-4 w-4" />
                         </button>

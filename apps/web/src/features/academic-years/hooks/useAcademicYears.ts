@@ -24,11 +24,11 @@ export const useCreateAcademicYear = () => {
 	return useMutation({
 		mutationFn: (data: CreateAcademicYearInput) => createAcademicYearApi(data),
 		onSuccess: () => {
-			toast.success("Academic year created successfully");
+			toast.success("Tahun ajaran berhasil ditambahkan.");
 			queryClient.invalidateQueries({ queryKey: ACADEMIC_YEARS_QUERY_KEY });
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || "Failed to create academic year");
+			toast.error(error.message || "Gagal menambahkan tahun ajaran.");
 		},
 	});
 };
@@ -40,11 +40,11 @@ export const useUpdateAcademicYear = () => {
 		mutationFn: ({ id, data }: { id: string; data: UpdateAcademicYearInput }) =>
 			updateAcademicYearApi(id, data),
 		onSuccess: () => {
-			toast.success("Academic year updated successfully");
+			toast.success("Tahun ajaran berhasil diperbarui.");
 			queryClient.invalidateQueries({ queryKey: ACADEMIC_YEARS_QUERY_KEY });
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || "Failed to update academic year");
+			toast.error(error.message || "Gagal memperbarui tahun ajaran.");
 		},
 	});
 };
@@ -55,11 +55,11 @@ export const useDeleteAcademicYear = () => {
 	return useMutation({
 		mutationFn: (id: string) => deleteAcademicYearApi(id),
 		onSuccess: () => {
-			toast.success("Academic year deleted successfully");
+			toast.success("Tahun ajaran berhasil dihapus.");
 			queryClient.invalidateQueries({ queryKey: ACADEMIC_YEARS_QUERY_KEY });
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || "Failed to delete academic year");
+			toast.error(error.message || "Gagal menghapus tahun ajaran.");
 		},
 	});
 };

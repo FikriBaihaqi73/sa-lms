@@ -9,14 +9,14 @@ export function SpecializationStatusHeader({ onAdd }: SpecializationStatusHeader
   return (
     <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
       <div className="max-w-2xl">
-        <nav className="text-xs text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
+        <nav className="text-xs text-slate-500 dark:text-slate-400" aria-label="Navigasi lokasi">
           Master Akademik <span className="mx-1">›</span>
-          <span className="font-semibold text-slate-700 dark:text-slate-200">Status Akademik</span>
+          <span className="font-semibold text-slate-700 dark:text-slate-200">Status Spesialisasi</span>
         </nav>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Status Akademik Mahasiswa</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Status Spesialisasi</h1>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400">
-            <span className="size-1.5 rounded-full bg-blue-600" /> Superadmin / Global Config
+            <span className="size-1.5 rounded-full bg-blue-600" /> Superadmin / Konfigurasi Global
           </span>
         </div>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">

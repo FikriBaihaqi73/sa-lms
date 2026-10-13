@@ -57,7 +57,7 @@ const routeTree = rootRoute.addChildren([
 	settingsTree,
 	userTree,
 	institutionsRoute,
-	studentsRoute,n
+	studentsRoute,
 	studentGuardiansRoute,
 	guardiansRoute,
 	loginRoute,

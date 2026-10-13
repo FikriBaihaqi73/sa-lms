@@ -50,4 +50,3 @@ export interface GuardianOptionListResult {
   data: Guardian[];
   meta: StudentGuardianPageMeta;
 }
-

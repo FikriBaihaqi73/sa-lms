@@ -72,7 +72,7 @@ export function AcademicYearsTable({ rows, totalCount, isLoading, onEdit, onDele
 											<DropdownMenuContent align="end">
 												<DropdownMenuLabel>Aksi</DropdownMenuLabel>
 												<DropdownMenuItem onClick={() => onEdit(item)}>
-													<Pencil className="mr-2 size-4" /> Edit
+													<Pencil className="mr-2 size-4" /> Ubah
 												</DropdownMenuItem>
 												<DropdownMenuItem
 													className="text-destructive focus:text-destructive"

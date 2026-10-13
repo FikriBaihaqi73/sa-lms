@@ -13,21 +13,21 @@ export function RoleStatsCards({ roles, permissions }: RoleStatsCardsProps) {
   const moduleNames = [...new Set(permissions.map((permission) => permission.module))];
   const cards = [
     {
-      label: "Active Roles",
+      label: "Peran Aktif",
       value: roles.length,
-      caption: `${systemCount} System • ${roles.length - systemCount} Custom`,
+      caption: `${systemCount} Sistem • ${roles.length - systemCount} Khusus`,
       icon: ShieldCheck,
     },
     {
-      label: "Assigned Users",
+      label: "Pengguna yang Ditugaskan",
       value: userCount,
-      caption: "Synced via auth engine",
+      caption: "Disinkronkan melalui layanan autentikasi",
       icon: UsersRound,
     },
     {
-      label: "Permissions Matrix",
+      label: "Matriks Izin",
       value: permissions.length,
-      caption: `${moduleNames.length} Domains${moduleNames.length ? ` (${moduleNames.join(", ")})` : ""}`,
+      caption: `${moduleNames.length} Domain${moduleNames.length ? ` (${moduleNames.join(", ")})` : ""}`,
       icon: KeyRound,
     },
   ];
@@ -45,7 +45,7 @@ export function RoleStatsCards({ roles, permissions }: RoleStatsCardsProps) {
       <Card className="rounded-lg shadow-none">
         <CardContent className="flex min-h-[96px] items-center gap-3 border-none p-3.5 shadow-none">
           <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300"><ShieldCheck className="size-5" strokeWidth={1.8} /></span>
-          <div><p className="font-mono text-lg font-semibold">PROTECTED</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Security guardrail</p><p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">Active user assignment lock active</p></div>
+          <div><p className="font-mono text-lg font-semibold">TERLINDUNGI</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Perlindungan keamanan</p><p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">Penguncian penugasan pengguna aktif</p></div>
         </CardContent>
       </Card>
     </section>

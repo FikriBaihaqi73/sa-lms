@@ -28,9 +28,9 @@ export const PermissionDeleteDialog: React.FC<PermissionDeleteDialogProps> = ({
             <AlertTriangle className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold">Hapus Permission?</h3>
+            <h3 className="text-lg font-bold">Hapus Izin?</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Tindakan ini akan menghapus akses permission ini secara permanen dari sistem.
+              Tindakan ini akan menghapus izin ini secara permanen dari sistem.
             </p>
           </div>
         </div>
@@ -57,7 +57,7 @@ export const PermissionDeleteDialog: React.FC<PermissionDeleteDialogProps> = ({
             className="bg-red-600 hover:bg-red-700 text-white font-medium"
           >
             {isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Hapus Permission
+            Hapus Izin
           </Button>
         </div>
       </div>

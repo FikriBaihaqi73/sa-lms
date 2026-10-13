@@ -48,7 +48,7 @@ export function RolesPage() {
     try {
       await createMutation.mutateAsync(values);
       setIsAdding(false);
-      setNotice({ kind: "success", message: "Perubahan berhasil disimpan" });
+      setNotice({ kind: "success", message: "Peran berhasil ditambahkan." });
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }
@@ -59,7 +59,7 @@ export function RolesPage() {
     try {
       await updateMutation.mutateAsync({ id: editingRole.id, values });
       setEditingRole(null);
-      setNotice({ kind: "success", message: "Perubahan berhasil disimpan" });
+      setNotice({ kind: "success", message: "Peran berhasil diperbarui." });
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }
@@ -70,7 +70,7 @@ export function RolesPage() {
     try {
       await deleteMutation.mutateAsync(deletingRole.id);
       setDeletingRole(null);
-      setNotice({ kind: "success", message: "Perubahan berhasil disimpan" });
+      setNotice({ kind: "success", message: "Peran berhasil dihapus." });
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }
@@ -79,7 +79,7 @@ export function RolesPage() {
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-slate-900 dark:text-slate-50 sm:p-6">
       <div className="mx-auto max-w-7xl space-y-5">
-        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"><div><h1 className="text-2xl font-semibold tracking-tight">Roles Page</h1><p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">Manage role access and permission assignments.</p></div><Button className="h-10 bg-blue-700 px-4 text-sm hover:bg-blue-800 dark:bg-blue-500 dark:hover:bg-blue-600" onClick={() => setIsAdding(true)}><Plus className="size-4" /> Add Role</Button></header>
+        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"><div><h1 className="text-2xl font-semibold tracking-tight">Peran</h1><p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">Kelola akses peran dan penetapan izin.</p></div><Button className="h-10 bg-blue-700 px-4 text-sm hover:bg-blue-800 dark:bg-blue-500 dark:hover:bg-blue-600" onClick={() => setIsAdding(true)}><Plus className="size-4" /> Tambah Peran</Button></header>
         <RoleStatsCards roles={roles} permissions={permissions} />
         <RoleFilterBar search={search} type={type} onSearchChange={setSearch} onTypeChange={setType} />
         {rolesQuery.isError || permissionsQuery.isError ? <div className="rounded-lg border border-destructive/40 bg-red-50 p-4 text-sm text-destructive dark:bg-red-950/30">{errorMessage(rolesQuery.error ?? permissionsQuery.error)}</div> : <RolesTable roles={filteredRoles} isLoading={rolesQuery.isPending || permissionsQuery.isPending} onEdit={setEditingRole} onDelete={setDeletingRole} onAdd={() => setIsAdding(true)} />}

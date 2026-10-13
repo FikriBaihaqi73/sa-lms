@@ -50,7 +50,7 @@ export function AppSidebar() {
 						Sistem Academic
 					</p>
 					<p className="mt-1 text-[10px] font-medium text-slate-500">
-						{isSuperadmin ? "Superadmin Portal" : isAdmin ? "Institution Admin" : "Academic Portal"}
+						{isSuperadmin ? "Portal Superadmin" : isAdmin ? "Admin Institusi" : "Portal Akademik"}
 					</p>
 				</div>
 			</div>
@@ -62,15 +62,15 @@ export function AppSidebar() {
 					<>
 						<div>
 							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								System & Access
+								Sistem & Akses
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/users" icon={Users} label="Users Management" />
-								<NavItem to="/roles" icon={ShieldCheck} label="Roles" />
-								<NavItem to="/permissions" icon={KeyRound} label="Permissions" />
-								<NavItem to="/role-permissions" icon={ShieldCheck} label="Role Permissions" />
-								<NavItem to="/activity-logs" icon={Activity} label="Activity Logs" />
-								<NavItem to="/settings" icon={Settings2} label="Settings" />
+								<NavItem to="/users" icon={Users} label="Manajemen Pengguna" />
+								<NavItem to="/roles" icon={ShieldCheck} label="Peran" />
+								<NavItem to="/permissions" icon={KeyRound} label="Izin" />
+								<NavItem to="/role-permissions" icon={ShieldCheck} label="Izin Peran" />
+								<NavItem to="/activity-logs" icon={Activity} label="Log Aktivitas" />
+								<NavItem to="/settings" icon={Settings2} label="Pengaturan" />
 							</div>
 						</div>
 
@@ -79,24 +79,24 @@ export function AppSidebar() {
 								Master Data Global
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/jenjang-institusi" icon={GraduationCap} label="Institution Levels" />
-								<NavItem to="/religions" icon={Church} label="Religions" />
-								<NavItem to="/nationalities" icon={Globe} label="Nationalities" />
-								<NavItem to="/academic-statuses" icon={BookOpenCheck} label="Academic Statuses" />
-								<NavItem to="/employment-statuses" icon={Briefcase} label="Employment Statuses" />
-								<NavItem to="/specialization-statuses" icon={BookOpenCheck} label="Specialization Statuses" />
-								<NavItem to="/assignment-types" icon={BookOpen} label="Assignment Types" />
-								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Attendance Statuses" />
-								<NavItem to="/academic-years" icon={BookOpen} label="Academic Years" />
+								<NavItem to="/jenjang-institusi" icon={GraduationCap} label="Jenjang Institusi" />
+								<NavItem to="/religions" icon={Church} label="Agama" />
+								<NavItem to="/nationalities" icon={Globe} label="Kewarganegaraan" />
+								<NavItem to="/academic-statuses" icon={BookOpenCheck} label="Status Akademik" />
+								<NavItem to="/employment-statuses" icon={Briefcase} label="Status Kepegawaian" />
+								<NavItem to="/specialization-statuses" icon={BookOpenCheck} label="Status Spesialisasi" />
+								<NavItem to="/assignment-types" icon={BookOpen} label="Jenis Tugas" />
+								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Status Kehadiran" />
+								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran" />
 							</div>
 						</div>
 
 						<div>
 							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Institution Management
+								Manajemen Institusi
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/institutions" icon={Briefcase} label="Institutions" />
+								<NavItem to="/institutions" icon={Briefcase} label="Institusi" />
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>
@@ -108,25 +108,25 @@ export function AppSidebar() {
 					<>
 						<div>
 							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								User Management
+								Manajemen Pengguna
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/users" icon={Users} label="Data Pengguna (Users)" />
-								<NavItem to="/students" icon={GraduationCap} label="Students" />
-								<NavItem to="/student-guardians" icon={UsersRound} label="Student Guardian" />
-								<NavItem to="/teachers" icon={Briefcase} label="Guru / Teachers" />
-								<NavItem to="/guardians" icon={HeartHandshake} label="Wali Murid / Guardians" />
+								<NavItem to="/users" icon={Users} label="Data Pengguna" />
+								<NavItem to="/students" icon={GraduationCap} label="Siswa" />
+								<NavItem to="/student-guardians" icon={UsersRound} label="Relasi Wali Siswa" />
+								<NavItem to="/teachers" icon={Briefcase} label="Guru" />
+								<NavItem to="/guardians" icon={HeartHandshake} label="Wali Murid" />
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>
 
 						<div>
 							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Academic Configuration
+								Konfigurasi Akademik
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/grades" icon={Award} label="Manajemen Nilai (Grades)" />
-								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran (Academic Years)" />
+								<NavItem to="/grades" icon={Award} label="Nilai Akademik" />
+								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran" />
 								<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
 							</div>
 						</div>
@@ -136,7 +136,7 @@ export function AppSidebar() {
 								Sistem & Pengaturan
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/activity-logs" icon={Activity} label="Activity Logs" />
+								<NavItem to="/activity-logs" icon={Activity} label="Log Aktivitas" />
 								<NavItem to="/settings" icon={Settings2} label="Pengaturan" />
 							</div>
 						</div>
@@ -148,7 +148,7 @@ export function AppSidebar() {
 					<>
 						<div>
 							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								My Profile
+								Profil Saya
 							</p>
 							<div className="space-y-0.5">
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
@@ -157,10 +157,10 @@ export function AppSidebar() {
 
 						<div>
 							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Academic & Assessment
+								Akademik & Penilaian
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/grades" icon={Award} label="Nilai Akademik (Grades)" />
+								<NavItem to="/grades" icon={Award} label="Nilai Akademik" />
 							</div>
 						</div>
 					</>
@@ -176,7 +176,7 @@ export function AppSidebar() {
 						</span>
 						<div className="min-w-0 flex-1">
 							<p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-100">
-								{user?.name || (isSuperadmin ? "Super Admin" : "Admin Institusi")}
+								{user?.name || (isSuperadmin ? "Superadmin" : "Admin Institusi")}
 							</p>
 							<p className="truncate text-[10px] text-slate-500 dark:text-slate-400">
 								{user?.email || "admin@nexora.com"}
@@ -221,7 +221,7 @@ export function AppTopbar() {
 			<SkyToggle />
 			<button
 				type="button"
-				aria-label="Notifications"
+				aria-label="Notifikasi"
 				className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition"
 			>
 				<span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900" />

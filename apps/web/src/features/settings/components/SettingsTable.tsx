@@ -64,7 +64,7 @@ export function SettingsTable({
 					<thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
 						<tr>
 							<th className="px-6 py-3.5">Kunci Pengaturan</th>
-							<th className="px-6 py-3.5">Nilai (Value)</th>
+							<th className="px-6 py-3.5">Nilai</th>
 							<th className="px-6 py-3.5">Keterangan</th>
 							<th className="px-6 py-3.5">Terakhir Diperbarui</th>
 							<th className="px-6 py-3.5 text-right">Aksi</th>

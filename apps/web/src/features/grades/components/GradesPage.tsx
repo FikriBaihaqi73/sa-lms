@@ -62,7 +62,7 @@ export function GradesPage() {
             <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400">
               <GraduationCap className="size-3.5" /> Portal Akademik
             </span>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Manajemen Nilai (Grades)</h1>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Manajemen Nilai</h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola nilai tugas, UTS, dan UAS siswa per kelas dan mata pelajaran. Bobot: Tugas 30%, UTS 30%, UAS 40%. KKM 70.</p>
           </div>
           <div className="flex items-center gap-2">
