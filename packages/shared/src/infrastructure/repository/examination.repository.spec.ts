@@ -1,16 +1,16 @@
 /// <reference types="jest" />
 
-import { ExaminationRepository } from "vitest";
 import type { PrismaClient } from "#generated/client";
 import { examinationSelect } from "#selects/examination.select";
+import { ExaminationRepository } from "./examination.repository";
 
 describe("ExaminationRepository", () => {
   const examinations = {
-    create: vi.fn(),
-    findFirst: vi.fn(),
-    findMany: vi.fn(),
-    count: vi.fn(),
-    update: vi.fn(),
+    create: jest.fn(),
+    findFirst: jest.fn(),
+    findMany: jest.fn(),
+    count: jest.fn(),
+    update: jest.fn(),
   };
   const repository = new ExaminationRepository({
     examinations,

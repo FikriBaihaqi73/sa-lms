@@ -9,8 +9,20 @@ export interface CreateRoleInput {
 
 export interface UpdateRoleInput {
   name?: string | undefined;
-  description?: string | undefined;
+  description?: string | null | undefined;
   permissionIds?: string[] | undefined;
+}
+
+export interface RolePaginationMeta {
+  totalData: number;
+  totalPages: number;
+  currentPage: number;
+  perPage: number;
+}
+
+export interface FindAllRolesResult {
+  data: RoleEntity[];
+  meta: RolePaginationMeta;
 }
 
 export class RoleRepository {
@@ -54,10 +66,7 @@ export class RoleRepository {
     });
   }
 
-  async findAll(
-    page: number,
-    limit: number,
-  ): Promise<{ data: RoleEntity[]; meta: any }> {
+  async findAll(page: number, limit: number): Promise<FindAllRolesResult> {
     const skip = (page - 1) * limit;
 
     const [data, totalData] = await Promise.all([

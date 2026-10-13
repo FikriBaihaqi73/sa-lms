@@ -31,19 +31,37 @@ export async function getPermissions(): Promise<Permission[]> {
   return response.data || [];
 }
 
+interface PaginatedRolesPayload {
+  data: ApiRole[];
+}
+
 export async function getRoles(totalPermissions: number): Promise<Role[]> {
-  const response = (await apiFetch(rolesKey)) as ApiEnvelope<ApiRole[]>;
-  const rawRoles = Array.isArray(response.data) ? response.data : ((response as any).data?.data || []);
+  const response = (await apiFetch(rolesKey)) as ApiEnvelope<
+    ApiRole[] | PaginatedRolesPayload
+  >;
+  const payload = response.data;
+  const rawRoles: ApiRole[] = Array.isArray(payload)
+    ? payload
+    : payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data)
+      ? payload.data
+      : [];
   return rawRoles.map((role: ApiRole) => toRole(role, totalPermissions));
 }
 
-type RoleRequest = Pick<RoleFormValues, "name" | "description" | "permissionIds">;
+type RoleRequest = {
+  name: string;
+  description?: string;
+  permissionIds?: string[];
+};
 
 function toRoleRequest(values: RoleFormValues): RoleRequest {
+  const trimmedName = values.name.trim();
+  const trimmedDescription = values.description?.trim();
+
   return {
-    name: values.name.trim(),
-    description: values.description.trim(),
-    permissionIds: values.permissionIds,
+    name: trimmedName,
+    ...(trimmedDescription ? { description: trimmedDescription } : {}),
+    permissionIds: values.permissionIds ?? [],
   };
 }
 

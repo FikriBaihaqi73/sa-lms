@@ -1,5 +1,5 @@
-import { getPrisma } from "#infrastructure/database/client";
 import bcrypt from "bcrypt";
+import { getPrisma } from "#infrastructure/database/client";
 
 async function main() {
   const prisma = getPrisma();

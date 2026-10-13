@@ -1,30 +1,32 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
+  Controller,
   DefaultValuePipe,
+  Delete,
+  Get,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
+  Query,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ClassAnnouncementsService } from "./class-announcements.service.js";
+import { ResponseHelper } from "@repo/shared/http/response";
 import {
+  ClassAnnouncementSearchDto,
   CreateClassAnnouncementDto,
   UpdateClassAnnouncementDto,
-  ClassAnnouncementSearchDto,
 } from "@repo/shared/schemas/class-announcement.schema";
-import { ResponseHelper } from "@repo/shared/http/response";
 import { ZodValidationPipe } from "nestjs-zod";
+import { ClassAnnouncementsService } from "./class-announcements.service.js";
 
 @ApiTags("Class Announcements")
 @ApiBearerAuth("JWT-auth")
 @Controller("class-announcements")
 export class ClassAnnouncementsController {
-  constructor(private readonly classAnnouncementsService: ClassAnnouncementsService) {}
+  constructor(
+    private readonly classAnnouncementsService: ClassAnnouncementsService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new class announcement" })
@@ -32,7 +34,9 @@ export class ClassAnnouncementsController {
     @Body(new ZodValidationPipe())
     createClassAnnouncementDto: CreateClassAnnouncementDto,
   ) {
-    const result = await this.classAnnouncementsService.create(createClassAnnouncementDto);
+    const result = await this.classAnnouncementsService.create(
+      createClassAnnouncementDto,
+    );
     return ResponseHelper.success(
       result,
       "Class Announcement created successfully",
@@ -41,13 +45,19 @@ export class ClassAnnouncementsController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Get all class announcements with pagination and search" })
+  @ApiOperation({
+    summary: "Get all class announcements with pagination and search",
+  })
   async findAll(
     @Query(new ZodValidationPipe()) query: ClassAnnouncementSearchDto,
     @Query("page", new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    const result = await this.classAnnouncementsService.findAll(query, page, limit);
+    const result = await this.classAnnouncementsService.findAll(
+      query,
+      page,
+      limit,
+    );
     return ResponseHelper.success(
       result.data,
       "Class Announcements fetched successfully",
@@ -60,7 +70,10 @@ export class ClassAnnouncementsController {
   @ApiOperation({ summary: "Get class announcement by ID" })
   async findOne(@Param("id") id: string) {
     const result = await this.classAnnouncementsService.findById(id);
-    return ResponseHelper.success(result, "Class Announcement fetched successfully");
+    return ResponseHelper.success(
+      result,
+      "Class Announcement fetched successfully",
+    );
   }
 
   @Patch(":id")
@@ -70,7 +83,10 @@ export class ClassAnnouncementsController {
     @Body(new ZodValidationPipe())
     updateClassAnnouncementDto: UpdateClassAnnouncementDto,
   ) {
-    const result = await this.classAnnouncementsService.update(id, updateClassAnnouncementDto);
+    const result = await this.classAnnouncementsService.update(
+      id,
+      updateClassAnnouncementDto,
+    );
     return ResponseHelper.success(
       result,
       "Class Announcement updated successfully",
