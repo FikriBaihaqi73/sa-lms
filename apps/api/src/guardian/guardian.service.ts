@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { GuardianRepository } from "@repo/shared/infrastructure/repository/guardian.repository";
 import type {
   CreateGuardianDto,
@@ -14,22 +14,31 @@ export class GuardianService {
     this.guardianRepository = new GuardianRepository(this.prisma.client);
   }
 
-  async findAll(
+  private async institutionIdFor(userId: string): Promise<string> {
+    const profile = await this.prisma.client.profile.findFirst({
+      where: { userId, deletedAt: null }, select: { institutionId: true },
+    });
+    if (!profile) throw new ForbiddenException("Institution access is required");
+    return profile.institutionId;
+  }
+
+  async findAll(userId: string,
     page: number,
     limit: number,
     filters?: { search?: string | undefined },
   ) {
-    return this.guardianRepository.findAll(page, limit, filters);
+    return this.guardianRepository.findAll(page, limit, { ...filters, institutionId: await this.institutionIdFor(userId) });
   }
 
-  async findOne(id: string) {
-    const guardian = await this.guardianRepository.findById(id);
+  async findOne(id: string, userId: string) {
+    const guardian = await this.guardianRepository.findById(id, await this.institutionIdFor(userId));
     if (!guardian) throw new NotFoundException("Guardian not found");
     return guardian;
   }
 
-  async create(dto: CreateGuardianDto) {
+  async create(dto: CreateGuardianDto, userId: string) {
     return this.guardianRepository.create({
+      institutionId: await this.institutionIdFor(userId),
       fullName: dto.fullName,
       ...(dto.relationship !== undefined
         ? { relationship: dto.relationship }
@@ -43,8 +52,8 @@ export class GuardianService {
     });
   }
 
-  async update(id: string, dto: UpdateGuardianDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateGuardianDto, userId: string) {
+    await this.findOne(id, userId);
     return this.guardianRepository.update(id, {
       ...(dto.fullName !== undefined ? { fullName: dto.fullName } : {}),
       ...(dto.relationship !== undefined
@@ -59,8 +68,8 @@ export class GuardianService {
     });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, userId: string) {
+    await this.findOne(id, userId);
     await this.guardianRepository.delete(id);
     return { success: true, id };
   }
