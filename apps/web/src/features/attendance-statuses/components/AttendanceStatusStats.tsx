@@ -31,8 +31,8 @@ export function AttendanceStatusStats({ total, isLoading }: AttendanceStatusStat
           <ShieldCheck className="size-5" />
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Scope Akses</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Settings Global</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Cakupan Akses</p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Pengaturan Global</p>
         </div>
       </div>
     </div>

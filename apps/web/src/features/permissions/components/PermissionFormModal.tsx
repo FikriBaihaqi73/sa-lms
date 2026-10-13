@@ -68,12 +68,12 @@ export const PermissionFormModal: React.FC<PermissionFormModalProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold">
-                {isEditing ? 'Edit Permission' : 'Tambah Permission Baru'}
+                {isEditing ? 'Ubah Izin' : 'Tambah Izin Baru'}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isEditing
-                  ? 'Perbarui informasi permission hak akses modul'
-                  : 'Tambahkan permission baru untuk kontrol akses RBAC'}
+                  ? 'Perbarui informasi izin akses modul'
+                  : 'Tambahkan izin baru untuk kontrol akses RBAC'}
               </p>
             </div>
           </div>
@@ -91,11 +91,11 @@ export const PermissionFormModal: React.FC<PermissionFormModalProps> = ({
           {/* Permission Name */}
           <div className="space-y-1.5">
             <Label htmlFor="name" className="text-sm font-semibold">
-              Nama Permission <span className="text-red-500">*</span>
+              Nama Izin <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
-              placeholder="e.g. users.create, classes.read, reports.export"
+              placeholder="Contoh: users.create, classes.read, reports.export"
               {...register('name')}
               disabled={isSubmitting}
               className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-sm focus-visible:ring-blue-500"
@@ -115,7 +115,7 @@ export const PermissionFormModal: React.FC<PermissionFormModalProps> = ({
             </Label>
             <Input
               id="module"
-              placeholder="e.g. users, students, academic, finance"
+              placeholder="Contoh: users, students, academic, finance"
               {...register('module')}
               disabled={isSubmitting}
               className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm focus-visible:ring-blue-500"
@@ -133,7 +133,7 @@ export const PermissionFormModal: React.FC<PermissionFormModalProps> = ({
             <textarea
               id="description"
               rows={3}
-              placeholder="Penjelasan singkat fungsi permission ini..."
+              placeholder="Penjelasan singkat fungsi izin ini..."
               {...register('description')}
               disabled={isSubmitting}
               className="w-full px-3 py-2 text-sm rounded-md bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
@@ -160,7 +160,7 @@ export const PermissionFormModal: React.FC<PermissionFormModalProps> = ({
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-medium"
             >
               {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {isEditing ? 'Simpan Perubahan' : 'Buat Permission'}
+              {isEditing ? 'Simpan Perubahan' : 'Buat Izin'}
             </Button>
           </div>
         </form>

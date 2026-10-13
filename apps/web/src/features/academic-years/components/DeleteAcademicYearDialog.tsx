@@ -31,14 +31,14 @@ export function DeleteAcademicYearDialog({
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Are you sure?</AlertDialogTitle>
+					<AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
 					<AlertDialogDescription>
-						This action cannot be undone. This will permanently delete the
-						academic year "{academicYear.academic_year}".
+						Tindakan ini tidak dapat dibatalkan. Tahun ajaran
+						"{academicYear.academic_year}" akan dihapus secara permanen.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+					<AlertDialogCancel disabled={isPending}>Batal</AlertDialogCancel>
 					<AlertDialogAction
 						onClick={(e) => {
 							e.preventDefault();
@@ -49,7 +49,7 @@ export function DeleteAcademicYearDialog({
 						disabled={isPending}
 						className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 					>
-						{isPending ? "Deleting..." : "Delete"}
+						{isPending ? "Menghapus..." : "Hapus"}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

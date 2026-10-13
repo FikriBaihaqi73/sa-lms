@@ -9,7 +9,7 @@ export function AcademicStatusHeader({ onAdd }: AcademicStatusHeaderProps) {
   return (
     <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
       <div className="max-w-2xl">
-        <nav className="text-xs text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
+        <nav className="text-xs text-slate-500 dark:text-slate-400" aria-label="Navigasi lokasi">
           Master Akademik <span className="mx-1">›</span>
           <span className="font-semibold text-slate-700 dark:text-slate-200">Status Akademik</span>
         </nav>

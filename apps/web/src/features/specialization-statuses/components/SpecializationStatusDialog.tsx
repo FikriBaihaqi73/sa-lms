@@ -88,7 +88,7 @@ export function SpecializationStatusDialog({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-6">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-semibold">
-              Nama Status Akademik <span className="text-red-500">*</span>
+              Nama Status Spesialisasi <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
@@ -107,7 +107,7 @@ export function SpecializationStatusDialog({
               id="description"
               {...register('description')}
               rows={3}
-              placeholder="Tambahkan catatan atau deskripsi status akademik..."
+              placeholder="Tambahkan catatan atau deskripsi status spesialisasi..."
               className="w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:border-slate-800 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-900/30"
             />
             {errors.description && (
@@ -124,7 +124,7 @@ export function SpecializationStatusDialog({
               disabled={isSaving}
               className="h-10 bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
             >
-              {isSaving ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Tambah Status Akademik'}
+              {isSaving ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Tambah Status Spesialisasi'}
             </Button>
           </div>
         </form>

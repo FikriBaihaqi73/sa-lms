@@ -83,10 +83,10 @@ export function NationalitiesPage() {
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400">
-              <ShieldCheck className="size-3.5" /> Settings Portal
+              <ShieldCheck className="size-3.5" /> Portal Pengaturan
             </span>
             <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-              Kewarganegaraan (Nationalities)
+              Kewarganegaraan
             </h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Kelola master data kewarganegaraan referensi untuk pendaftaran pengguna dan profil siswa.

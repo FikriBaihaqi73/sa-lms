@@ -41,11 +41,11 @@ export function RolePermissionPage() {
   }, [permissions]);
 
   if (permissionsQuery.isLoading || rolesQuery.isLoading) {
-    return <div className="p-4 text-sm text-slate-500">Loading role permissions...</div>;
+    return <div className="p-4 text-sm text-slate-500">Memuat izin peran...</div>;
   }
 
   if (permissionsQuery.isError || rolesQuery.isError) {
-    return <div className="p-4 text-sm text-destructive">Failed to load data.</div>;
+    return <div className="p-4 text-sm text-destructive">Gagal memuat data.</div>;
   }
 
   const togglePermission = (permissionId: string, checked: boolean) => {
@@ -75,9 +75,9 @@ export function RolePermissionPage() {
           permissionIds: dirtyPermissions,
         },
       });
-      setNotice({ kind: "success", message: "Permissions updated successfully" });
+      setNotice({ kind: "success", message: "Izin peran berhasil diperbarui." });
     } catch (error) {
-      setNotice({ kind: "error", message: error instanceof Error ? error.message : "Failed to save permissions" });
+      setNotice({ kind: "error", message: error instanceof Error ? error.message : "Gagal menyimpan izin peran." });
     } finally {
       setIsSaving(false);
     }
@@ -93,13 +93,13 @@ export function RolePermissionPage() {
       <div className="flex w-full flex-col gap-4 md:w-80 shrink-0">
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 overflow-hidden flex flex-col h-[calc(100vh-10rem)]">
           <div className="border-b border-slate-200 p-4 dark:border-slate-700">
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">Select Role</h2>
-            <p className="mt-1 text-xs text-slate-500">Choose a role to manage its permissions</p>
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">Pilih Peran</h2>
+            <p className="mt-1 text-xs text-slate-500">Pilih peran untuk mengelola izinnya</p>
             <div className="relative mt-4">
               <Search className="absolute left-2.5 top-2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search roles..."
+                placeholder="Cari peran..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800/50"
@@ -108,7 +108,7 @@ export function RolePermissionPage() {
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {filteredRoles.length === 0 ? (
-              <p className="p-4 text-center text-xs text-slate-500">No roles found.</p>
+              <p className="p-4 text-center text-xs text-slate-500">Peran tidak ditemukan.</p>
             ) : (
               filteredRoles.map((role) => (
                 <button
@@ -135,10 +135,10 @@ export function RolePermissionPage() {
           <div className="flex items-center justify-between border-b border-slate-200 p-4 sm:px-6 dark:border-slate-700">
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                {selectedRole ? `Permissions for ${selectedRole.name}` : "Role Permissions"}
+                {selectedRole ? `Izin untuk ${selectedRole.name}` : "Izin Peran"}
               </h2>
               <p className="mt-1 text-xs text-slate-500">
-                {selectedRole ? "Assign or unassign permissions for the selected role" : "Select a role from the list to view its permissions"}
+                {selectedRole ? "Pilih atau batalkan izin untuk peran ini" : "Pilih peran dari daftar untuk melihat izinnya"}
               </p>
             </div>
             {selectedRole && (
@@ -148,7 +148,7 @@ export function RolePermissionPage() {
                 disabled={!hasChanges || isSaving || selectedRole.isSystemRole}
                 onClick={saveChanges}
               >
-                {isSaving ? "Saving..." : "Save Changes"}
+                {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
               </Button>
             )}
           </div>
@@ -165,11 +165,11 @@ export function RolePermissionPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
                   <ShieldCheck className="h-6 w-6 text-slate-400" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">No role selected</h3>
-                <p className="mt-1 text-xs text-slate-500 max-w-sm">Please select a role from the list on the left to manage its permissions.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Belum ada peran yang dipilih</h3>
+                <p className="mt-1 text-xs text-slate-500 max-w-sm">Pilih peran dari daftar di sebelah kiri untuk mengelola izinnya.</p>
               </div>
             ) : dirtyPermissions === null ? (
-              <div className="p-4 text-sm text-slate-500">Loading...</div>
+              <div className="p-4 text-sm text-slate-500">Memuat...</div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {Object.entries(groupedPermissions).map(([module, items]) => {
@@ -179,7 +179,7 @@ export function RolePermissionPage() {
                       <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/80">
                         <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">{module.toUpperCase()}</span>
                         <label className="flex items-center gap-2 cursor-pointer">
-                          <span className="text-xs text-slate-500 font-medium">Select All</span>
+                          <span className="text-xs text-slate-500 font-medium">Pilih Semua</span>
                           <input
                             type="checkbox"
                             checked={allSelected}

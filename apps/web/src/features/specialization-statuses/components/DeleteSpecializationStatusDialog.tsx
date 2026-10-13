@@ -29,7 +29,7 @@ export function DeleteSpecializationStatusDialog({
             <span className="grid size-10 place-items-center rounded-xl bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400">
               <AlertTriangle className="size-5" />
             </span>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Hapus Status Akademik</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Hapus Status Spesialisasi</h2>
           </div>
           <button
             type="button"
@@ -43,7 +43,7 @@ export function DeleteSpecializationStatusDialog({
 
         <div className="space-y-4 p-6">
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Apakah Anda yakin ingin menghapus status akademik{' '}
+            Apakah Anda yakin ingin menghapus status spesialisasi{' '}
             <strong className="font-bold text-slate-900 dark:text-slate-100">"{specializationStatus.name}"</strong>
             ? Tindakan ini tidak dapat dibatalkan.
           </p>

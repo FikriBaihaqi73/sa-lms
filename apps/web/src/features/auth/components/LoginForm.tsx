@@ -57,7 +57,7 @@ export function LoginForm({
 			const message =
 				err instanceof Error && err.message
 					? err.message
-					: "Invalid credentials or login failed";
+					: "Kredensial tidak valid atau gagal masuk.";
 			setError(message);
 		}
 	};

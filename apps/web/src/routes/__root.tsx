@@ -85,7 +85,7 @@ function RootLayout() {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900">
 				<div className="text-sm font-semibold text-slate-500">
-					Loading auth state...
+					Memuat sesi...
 				</div>
 			</div>
 		);
@@ -104,7 +104,7 @@ function RootLayout() {
 	if (location.pathname.startsWith("/grades") && isSuperadmin) {
 		return (
 			<AccessDenied
-				message="Halaman Nilai Akademik (Grades) tidak dikelola oleh Superadmin platform. Fitur ini khusus untuk Admin Institusi, Guru, dan Siswa."
+				message="Halaman Nilai Akademik tidak dikelola oleh Superadmin platform. Fitur ini khusus untuk Admin Institusi, Guru, dan Siswa."
 			/>
 		);
 	}

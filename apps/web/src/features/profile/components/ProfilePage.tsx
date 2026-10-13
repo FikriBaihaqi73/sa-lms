@@ -70,7 +70,7 @@ export function ProfilePage() {
             <div>
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Institusi Naungan</p>
               <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                {profile?.institution?.name || 'Default Institution'}
+                {profile?.institution?.name || 'Institusi bawaan'}
               </p>
             </div>
           </CardContent>

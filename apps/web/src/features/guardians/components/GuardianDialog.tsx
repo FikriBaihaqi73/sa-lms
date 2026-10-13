@@ -69,12 +69,12 @@ export function GuardianDialog({
             </span>
             <div>
               <h2 id="guardian-dialog-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                {isEditing ? "Ubah Guardian" : "Tambah Guardian"}
+                {isEditing ? "Ubah Data Wali" : "Tambah Wali"}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isEditing
                   ? "Perbarui data wali murid yang sudah ada"
-                  : "Tambahkan data wali murid (guardian) baru ke sistem"}
+                  : "Tambahkan data wali murid baru ke sistem"}
               </p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export function GuardianDialog({
             </Button>
             <Button type="submit" disabled={isSaving} className="h-10 bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700">
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isSaving ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah Guardian"}
+              {isSaving ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah Wali"}
             </Button>
           </div>
         </form>

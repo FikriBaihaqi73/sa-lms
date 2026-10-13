@@ -115,22 +115,22 @@ export function SemesterDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[520px]">
 				<DialogHeader>
-					<DialogTitle>{isEditing ? "Edit Semester" : "Tambah Semester"}</DialogTitle>
-					<DialogDescription>Lengkapi data semester untuk academic year yang dipilih.</DialogDescription>
+					<DialogTitle>{isEditing ? "Ubah Semester" : "Tambah Semester"}</DialogTitle>
+					<DialogDescription>Lengkapi data semester untuk tahun ajaran yang dipilih.</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 						<FormField control={form.control} name="academic_year_id" render={({ field }) => (
 							<FormItem>
-								<FormLabel>Academic Year</FormLabel>
+								<FormLabel>Tahun Ajaran</FormLabel>
 								<FormControl>
 									<Select {...field} disabled={isPending || isAcademicYearsLoading || isAcademicYearsError}>
-										<option value="">Pilih academic year</option>
+										<option value="">Pilih tahun ajaran</option>
 										{academicYears.map((academicYear) => <option key={academicYear.id} value={academicYear.id}>{academicYear.academic_year}</option>)}
 									</Select>
 								</FormControl>
-								{isAcademicYearsLoading && <p className="text-xs text-slate-500">Memuat daftar academic year...</p>}
-								{isAcademicYearsError && <p className="text-xs text-red-600">Daftar academic year gagal dimuat.</p>}
+								{isAcademicYearsLoading && <p className="text-xs text-slate-500">Memuat daftar tahun ajaran...</p>}
+								{isAcademicYearsError && <p className="text-xs text-red-600">Gagal memuat daftar tahun ajaran.</p>}
 								<FormMessage />
 							</FormItem>
 						)} />
@@ -165,4 +165,3 @@ export function SemesterDialog({
 		</Dialog>
 	);
 }
-

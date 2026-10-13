@@ -112,6 +112,26 @@ export function ActivityLogList() {
     return 'User';
   };
 
+  const getRoleLabel = (role: string) => ({
+    'Super Admin': 'Superadmin',
+    Admin: 'Admin',
+    Instructor: 'Guru',
+    User: 'Pengguna',
+  })[role] ?? role;
+
+  const getStatusLabel = (status: string) => status === 'Success' ? 'Berhasil' : 'Gagal';
+
+  const getActionLabel = (action: string) => {
+    const lower = action.toLowerCase();
+    if (lower.includes('login')) return 'Masuk';
+    if (lower.includes('logout')) return 'Keluar';
+    if (lower.includes('create') || lower.includes('insert')) return 'Buat';
+    if (lower.includes('update') || lower.includes('edit')) return 'Perbarui';
+    if (lower.includes('delete') || lower.includes('remove')) return 'Hapus';
+    if (lower.includes('permission')) return 'Perubahan Izin';
+    return action;
+  };
+
   const getActionIcon = (action: string) => {
     const lower = action.toLowerCase();
     if (lower.includes('login')) return <LogIn className="w-4 h-4 text-blue-500" />;
@@ -154,7 +174,7 @@ export function ActivityLogList() {
   }, [data?.data, appliedFilters]);
 
   const formatDate = (dateString: Date | string) => {
-    return new Date(dateString).toLocaleString('en-US', {
+    return new Date(dateString).toLocaleString('id-ID', {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
@@ -162,7 +182,7 @@ export function ActivityLogList() {
 
   const handleExport = (format: 'csv' | 'json') => {
     // Mock export functionality
-    alert(`Exporting logs in ${format.toUpperCase()} format...`);
+    alert(`Mengekspor log dalam format ${format.toUpperCase()}...`);
   };
 
   return (
@@ -174,29 +194,29 @@ export function ActivityLogList() {
           <ol className="flex items-center space-x-2">
             <li>
               <a href="/" className="hover:text-foreground flex items-center gap-1">
-                <Home className="w-4 h-4" /> Dashboard
+                <Home className="w-4 h-4" /> Dasbor
               </a>
             </li>
             <li><ChevronRightIcon className="w-4 h-4" /></li>
-            <li className="text-foreground">Activity Logs</li>
+            <li className="text-foreground">Log Aktivitas</li>
           </ol>
         </nav>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Activity Logs</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Log Aktivitas</h1>
             <p className="text-muted-foreground mt-1">
-              Monitor, track, and audit all platform activities.
+              Pantau dan audit seluruh aktivitas platform.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Select onChange={(e) => handleExport(e.target.value as 'csv' | 'json')} defaultValue="">
-              <option value="" disabled>Export Logs</option>
-              <option value="csv">Export as CSV</option>
-              <option value="json">Export as JSON</option>
+              <option value="" disabled>Ekspor Log</option>
+              <option value="csv">Ekspor sebagai CSV</option>
+              <option value="json">Ekspor sebagai JSON</option>
             </Select>
             <Button className="shrink-0 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white" onClick={() => handleExport('csv')}>
-              <Download className="w-4 h-4 mr-2" /> Export
+              <Download className="w-4 h-4 mr-2" /> Ekspor
             </Button>
           </div>
         </div>
@@ -208,7 +228,7 @@ export function ActivityLogList() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Total Activities</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Aktivitas</p>
                 <p className="text-3xl font-bold text-foreground">
                   {isLoading ? <Skeleton className="h-9 w-20" /> : (data?.meta.totalData.toLocaleString() || '0')}
                 </p>
@@ -223,7 +243,7 @@ export function ActivityLogList() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Today's Activities</p>
+                <p className="text-sm font-medium text-muted-foreground">Aktivitas Hari Ini</p>
                 <p className="text-3xl font-bold text-foreground">
                   {isLoading ? <Skeleton className="h-9 w-16" /> : '3,142'}
                 </p>
@@ -238,7 +258,7 @@ export function ActivityLogList() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Active Admins</p>
+                <p className="text-sm font-medium text-muted-foreground">Admin Aktif</p>
                 <p className="text-3xl font-bold text-foreground">
                   {isLoading ? <Skeleton className="h-9 w-16" /> : '12'}
                 </p>
@@ -247,14 +267,14 @@ export function ActivityLogList() {
                 <Users className="w-6 h-6" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-4">Platform administrators active today</p>
+            <p className="text-xs text-muted-foreground mt-4">Administrator platform yang aktif hari ini</p>
           </CardContent>
         </Card>
         <Card className="shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Failed Activities</p>
+                <p className="text-sm font-medium text-muted-foreground">Aktivitas Gagal</p>
                 <p className="text-3xl font-bold text-foreground">
                   {isLoading ? <Skeleton className="h-9 w-16" /> : '28'}
                 </p>
@@ -264,7 +284,7 @@ export function ActivityLogList() {
               </div>
             </div>
             <p className="text-xs text-red-500 mt-4 flex items-center gap-1">
-               <span className="font-semibold">+4</span> since last hour
+               <span className="font-semibold">+4</span> sejak satu jam lalu
             </p>
           </CardContent>
         </Card>
@@ -274,16 +294,16 @@ export function ActivityLogList() {
         {/* 3. Advanced Search & Filters */}
         <CardHeader className="border-b pb-5 bg-muted/20">
           <div className="flex items-center gap-2 mb-4 text-sm font-semibold text-foreground">
-            <Filter className="w-4 h-4" /> Advanced Filters
+            <Filter className="w-4 h-4" /> Filter Lanjutan
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Search Activity / User</label>
+              <label className="text-xs font-semibold text-muted-foreground">Cari Aktivitas / Pengguna</label>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="ID, Name, Email..."
+                  placeholder="ID, Nama, Email..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-9 h-9 bg-background"
@@ -292,39 +312,39 @@ export function ActivityLogList() {
             </div>
             
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">User Role</label>
+              <label className="text-xs font-semibold text-muted-foreground">Peran Pengguna</label>
               <Select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="h-9 bg-background">
-                <option value="">All Roles</option>
-                <option value="Super Admin">Super Admin</option>
+                <option value="">Semua Peran</option>
+                <option value="Super Admin">Superadmin</option>
                 <option value="Admin">Admin</option>
-                <option value="Instructor">Instructor</option>
-                <option value="User">User</option>
+                <option value="Instructor">Guru</option>
+                <option value="User">Pengguna</option>
               </Select>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Activity Type</label>
+              <label className="text-xs font-semibold text-muted-foreground">Jenis Aktivitas</label>
               <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="h-9 bg-background">
-                <option value="">All Activities</option>
-                <option value="login">Login / Logout</option>
-                <option value="create">Create</option>
-                <option value="update">Update</option>
-                <option value="delete">Delete</option>
-                <option value="permission">Permission Changes</option>
+                <option value="">Semua Aktivitas</option>
+                <option value="login">Masuk / Keluar</option>
+                <option value="create">Buat</option>
+                <option value="update">Perbarui</option>
+                <option value="delete">Hapus</option>
+                <option value="permission">Perubahan Izin</option>
               </Select>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground">Status</label>
               <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-9 bg-background">
-                <option value="">All Status</option>
-                <option value="Success">Success</option>
-                <option value="Failed">Failed</option>
+                <option value="">Semua Status</option>
+                <option value="Success">Berhasil</option>
+                <option value="Failed">Gagal</option>
               </Select>
             </div>
 
             <div className="space-y-1.5 lg:col-span-2">
-              <label className="text-xs font-semibold text-muted-foreground">Date Range</label>
+              <label className="text-xs font-semibold text-muted-foreground">Rentang Tanggal</label>
               <div className="flex items-center gap-2">
                 <Input 
                   type="date" 
@@ -332,7 +352,7 @@ export function ActivityLogList() {
                   onChange={(e) => setDateFrom(e.target.value)}
                   className="h-9 bg-background" 
                 />
-                <span className="text-muted-foreground text-sm">to</span>
+                <span className="text-muted-foreground text-sm">sampai</span>
                 <Input 
                   type="date" 
                   value={dateTo}
@@ -343,10 +363,10 @@ export function ActivityLogList() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">IP Address</label>
+              <label className="text-xs font-semibold text-muted-foreground">Alamat IP</label>
               <Input
                 type="text"
-                placeholder="e.g. 192.168.1.1"
+                placeholder="Contoh: 192.168.1.1"
                 value={ipSearch}
                 onChange={(e) => setIpSearch(e.target.value)}
                 className="h-9 bg-background"
@@ -355,9 +375,9 @@ export function ActivityLogList() {
 
             <div className="flex items-end gap-2">
               <Button onClick={handleApplyFilters} className="h-9 flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white">
-                Apply Filters
+                Terapkan Filter
               </Button>
-              <Button variant="outline" onClick={handleResetFilters} className="h-9 px-3" title="Reset Filters">
+              <Button variant="outline" onClick={handleResetFilters} className="h-9 px-3" title="Hapus Filter">
                 <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
@@ -370,15 +390,15 @@ export function ActivityLogList() {
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow>
-                  <TableHead className="w-[180px]">Activity</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Target</TableHead>
-                  <TableHead>IP Address</TableHead>
-                  <TableHead className="w-[160px]">Date & Time</TableHead>
+                  <TableHead className="w-[180px]">Aktivitas</TableHead>
+                  <TableHead>Pengguna</TableHead>
+                  <TableHead>Peran</TableHead>
+                  <TableHead>Kategori</TableHead>
+                  <TableHead>Sasaran</TableHead>
+                  <TableHead>Alamat IP</TableHead>
+                  <TableHead className="w-[160px]">Tanggal & Waktu</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-center w-[60px]">Action</TableHead>
+                  <TableHead className="text-center w-[60px]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -399,7 +419,7 @@ export function ActivityLogList() {
                 ) : isError ? (
                   <TableRow>
                     <TableCell colSpan={9} className="h-64 text-center text-red-500">
-                      Failed to load audit logs. Please check your connection.
+                      Gagal memuat log audit. Periksa koneksi Anda.
                     </TableCell>
                   </TableRow>
                 ) : filteredData.length === 0 ? (
@@ -407,8 +427,8 @@ export function ActivityLogList() {
                     <TableCell colSpan={9} className="h-64 text-center text-muted-foreground">
                       <div className="flex flex-col items-center justify-center">
                         <ShieldAlert className="w-10 h-10 text-muted-foreground/30 mb-3" />
-                        <p className="font-medium text-foreground">No audit logs match criteria</p>
-                        <p className="text-sm mt-1">Try adjusting your advanced filters or search query.</p>
+                        <p className="font-medium text-foreground">Tidak ada log audit yang sesuai</p>
+                        <p className="text-sm mt-1">Coba sesuaikan filter lanjutan atau kata kunci pencarian.</p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -421,17 +441,17 @@ export function ActivityLogList() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {getActionIcon(log.action)}
-                            <span className="font-semibold text-foreground capitalize truncate max-w-[140px]" title={log.action}>
-                              {log.action}
+                            <span className="font-semibold text-foreground capitalize truncate max-w-[140px]" title={getActionLabel(log.action)}>
+                              {getActionLabel(log.action)}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-medium text-foreground">
-                              {Array.isArray(log.users?.profile) 
-                                ? log.users?.profile[0]?.fullName || 'Unknown User' 
-                                : (log.users?.profile as any)?.fullName || 'Unknown User'}
+                              {Array.isArray(log.users?.profile)
+                                ? log.users?.profile[0]?.fullName || 'Pengguna tidak diketahui'
+                                : (log.users?.profile as any)?.fullName || 'Pengguna tidak diketahui'}
                             </span>
                             <span className="text-xs text-muted-foreground truncate max-w-[150px]">
                               {log.users?.email || 'N/A'}
@@ -444,7 +464,7 @@ export function ActivityLogList() {
                             role === 'Admin' ? 'border-blue-200 text-blue-700 bg-blue-50 dark:border-blue-900 dark:text-blue-400 dark:bg-blue-900/20' :
                             'border-slate-200 text-slate-700 bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:bg-slate-800/30'
                           }`}>
-                            {role}
+                            {getRoleLabel(role)}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -483,7 +503,7 @@ export function ActivityLogList() {
                                 : "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-800/50"
                             }
                           >
-                            {status}
+                            {getStatusLabel(status)}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -494,7 +514,7 @@ export function ActivityLogList() {
                             onClick={() => setSelectedLog(log)}
                           >
                             <Eye className="w-4 h-4" />
-                            <span className="sr-only">View Audit Detail</span>
+                            <span className="sr-only">Lihat Detail Audit</span>
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -509,11 +529,11 @@ export function ActivityLogList() {
           <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-border bg-muted/10 gap-4">
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>
-                Showing <span className="font-medium text-foreground">{data?.meta ? ((page - 1) * limit) + 1 : 0}</span> to <span className="font-medium text-foreground">{data?.meta ? Math.min(page * limit, data.meta.totalData) : 0}</span> of{' '}
-                <span className="font-medium text-foreground">{data?.meta?.totalData || 0}</span> logs
+                Menampilkan <span className="font-medium text-foreground">{data?.meta ? ((page - 1) * limit) + 1 : 0}</span> sampai <span className="font-medium text-foreground">{data?.meta ? Math.min(page * limit, data.meta.totalData) : 0}</span> dari{' '}
+                <span className="font-medium text-foreground">{data?.meta?.totalData || 0}</span> log
               </span>
               <div className="flex items-center gap-2">
-                <span>Rows:</span>
+                <span>Baris:</span>
                 <Select value={limit.toString()} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }} className="h-8 w-[70px] text-xs">
                   <option value="10">10</option>
                   <option value="25">25</option>
@@ -523,7 +543,7 @@ export function ActivityLogList() {
               </div>
             </div>
             <div className="flex gap-2 items-center">
-              <span className="text-sm font-medium text-muted-foreground mr-2">Page {page} of {data?.meta?.totalPages || 1}</span>
+              <span className="text-sm font-medium text-muted-foreground mr-2">Halaman {page} dari {data?.meta?.totalPages || 1}</span>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -532,7 +552,7 @@ export function ActivityLogList() {
                 className="h-8 px-3"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Prev
+                Sebelumnya
               </Button>
               <Button 
                 variant="outline" 
@@ -541,7 +561,7 @@ export function ActivityLogList() {
                 disabled={!data?.meta || page === data.meta.totalPages || isLoading}
                 className="h-8 px-3"
               >
-                Next
+                Berikutnya
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -557,10 +577,10 @@ export function ActivityLogList() {
               <div>
                 <CardTitle className="text-xl flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5 text-primary" />
-                  Audit Log Detail
+                  Detail Log Audit
                 </CardTitle>
                 <CardDescription className="mt-1 font-mono text-xs">
-                  Log ID: {selectedLog.id}
+                  ID Log: {selectedLog.id}
                 </CardDescription>
               </div>
               <Button variant="ghost" size="icon" onClick={() => setSelectedLog(null)} className="h-8 w-8 -mt-2 -mr-2">
@@ -574,10 +594,10 @@ export function ActivityLogList() {
                 <div className={`p-4 rounded-lg flex items-start gap-3 border ${getStatus(selectedLog) === 'Success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400'}`}>
                   {getStatus(selectedLog) === 'Success' ? <Activity className="w-5 h-5 mt-0.5 shrink-0" /> : <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" />}
                   <div>
-                    <p className="font-semibold">{getStatus(selectedLog)} Execution</p>
+                    <p className="font-semibold">{getStatusLabel(getStatus(selectedLog))} Dieksekusi</p>
                     {getStatus(selectedLog) === 'Failed' && (
                       <p className="text-sm mt-1 opacity-90">
-                        Error code: ERR_VALIDATION_FAILED. Action was blocked due to missing permissions or invalid payload structure. (Mock Error)
+                        Kode kesalahan: ERR_VALIDATION_FAILED. Tindakan diblokir karena izin tidak tersedia atau struktur data tidak valid. (Kesalahan Simulasi)
                       </p>
                     )}
                   </div>
@@ -585,70 +605,70 @@ export function ActivityLogList() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8 text-sm">
                   <div>
-                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Actor</p>
+                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Pelaku</p>
                     <div className="flex items-center gap-2 mb-1">
                       <p className="font-semibold text-foreground">
-                        {Array.isArray(selectedLog.users?.profile) 
-                          ? selectedLog.users?.profile[0]?.fullName || 'Unknown User' 
-                          : (selectedLog.users?.profile as any)?.fullName || 'Unknown User'}
+                        {Array.isArray(selectedLog.users?.profile)
+                          ? selectedLog.users?.profile[0]?.fullName || 'Pengguna tidak diketahui'
+                          : (selectedLog.users?.profile as any)?.fullName || 'Pengguna tidak diketahui'}
                       </p>
-                      <Badge variant="secondary" className="text-[10px] py-0">{getRole(selectedLog)}</Badge>
+                      <Badge variant="secondary" className="text-[10px] py-0">{getRoleLabel(getRole(selectedLog))}</Badge>
                     </div>
                     <p className="text-muted-foreground">{selectedLog.users?.email}</p>
                   </div>
                   
                   <div>
-                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Action Context</p>
+                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Konteks Aksi</p>
                     <p className="font-semibold text-foreground flex items-center gap-2 capitalize">
-                      {getActionIcon(selectedLog.action)} {selectedLog.action}
+                      {getActionIcon(selectedLog.action)} {getActionLabel(selectedLog.action)}
                     </p>
-                    <p className="text-muted-foreground mt-1">Module: {selectedLog.module}</p>
+                    <p className="text-muted-foreground mt-1">Modul: {selectedLog.module}</p>
                   </div>
 
                   <div>
-                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Timestamp</p>
+                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Waktu</p>
                     <p className="font-medium text-foreground">{formatDate(selectedLog.created_at)}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">UTC Timezone</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Zona waktu UTC</p>
                   </div>
 
                   <div>
-                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Network Origin</p>
+                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Asal Jaringan</p>
                     <p className="font-mono text-foreground font-medium">{selectedLog.ip_address || 'N/A'}</p>
                   </div>
 
                   <div className="md:col-span-2">
-                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Target Entity</p>
+                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Entitas Sasaran</p>
                     {selectedLog.table_name ? (
                       <div className="bg-muted/50 p-3 rounded-md border border-border">
-                        <p className="text-sm font-medium"><span className="text-muted-foreground">Table:</span> {selectedLog.table_name}</p>
+                        <p className="text-sm font-medium"><span className="text-muted-foreground">Tabel:</span> {selectedLog.table_name}</p>
                         {selectedLog.record_id && (
-                          <p className="text-sm font-mono mt-1"><span className="text-muted-foreground font-sans">Record ID:</span> {selectedLog.record_id}</p>
+                          <p className="text-sm font-mono mt-1"><span className="text-muted-foreground font-sans">ID Data:</span> {selectedLog.record_id}</p>
                         )}
                       </div>
                     ) : (
-                      <p className="text-muted-foreground italic">No specific entity targeted</p>
+                      <p className="text-muted-foreground italic">Tidak ada entitas sasaran tertentu</p>
                     )}
                   </div>
 
                   <div className="md:col-span-2">
-                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">User Agent</p>
+                    <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">Agen Pengguna</p>
                     <p className="font-mono text-[11px] p-3 bg-muted/30 rounded border border-border text-muted-foreground break-all">
-                      {selectedLog.user_agent || 'Unknown / Not captured'}
+                      {selectedLog.user_agent || 'Tidak diketahui / Tidak direkam'}
                     </p>
                   </div>
 
                   {selectedLog.action.toLowerCase().includes('update') && getStatus(selectedLog) === 'Success' && (
                     <div className="md:col-span-2">
-                      <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wider">Data Changes (Mock)</p>
+                      <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wider">Perubahan Data (Simulasi)</p>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="border border-border rounded-md overflow-hidden">
-                          <div className="bg-muted/50 px-3 py-1.5 border-b border-border text-xs font-medium text-muted-foreground">Before</div>
+                          <div className="bg-muted/50 px-3 py-1.5 border-b border-border text-xs font-medium text-muted-foreground">Sebelum</div>
                           <pre className="p-3 text-[10px] font-mono text-red-500/80 bg-red-500/5 overflow-x-auto">
                             {`{\n  "status": "pending",\n  "updated_by": null\n}`}
                           </pre>
                         </div>
                         <div className="border border-border rounded-md overflow-hidden">
-                          <div className="bg-muted/50 px-3 py-1.5 border-b border-border text-xs font-medium text-muted-foreground">After</div>
+                          <div className="bg-muted/50 px-3 py-1.5 border-b border-border text-xs font-medium text-muted-foreground">Sesudah</div>
                           <pre className="p-3 text-[10px] font-mono text-emerald-500/80 bg-emerald-500/5 overflow-x-auto">
                             {`{\n  "status": "approved",\n  "updated_by": "${selectedLog.user_id}"\n}`}
                           </pre>
@@ -662,10 +682,10 @@ export function ActivityLogList() {
             </CardContent>
             <div className="p-4 border-t border-border bg-muted/20 shrink-0 flex justify-between items-center rounded-b-xl">
               <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <ShieldAlert className="w-3 h-3" /> Audit log is immutable
+                <ShieldAlert className="w-3 h-3" /> Log audit tidak dapat diubah
               </p>
               <Button onClick={() => setSelectedLog(null)} variant="outline">
-                Close
+                Tutup
               </Button>
             </div>
           </Card>

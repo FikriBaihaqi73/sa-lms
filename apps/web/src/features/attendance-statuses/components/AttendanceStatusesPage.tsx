@@ -46,7 +46,7 @@ export function AttendanceStatusesPage() {
     try {
       await createMutation.mutateAsync({ name: values.name, description: values.description || undefined });
       setIsAdding(false);
-      setNotice({ kind: 'success', message: 'Attendance status berhasil ditambahkan.' });
+      setNotice({ kind: 'success', message: 'Status kehadiran berhasil ditambahkan.' });
     } catch (error) {
       setNotice({ kind: 'error', message: errorMessage(error) });
     }
@@ -57,7 +57,7 @@ export function AttendanceStatusesPage() {
     try {
       await updateMutation.mutateAsync({ id: editingItem.id, input: { name: values.name, description: values.description || undefined } });
       setEditingItem(null);
-      setNotice({ kind: 'success', message: 'Attendance status berhasil diperbarui.' });
+      setNotice({ kind: 'success', message: 'Status kehadiran berhasil diperbarui.' });
     } catch (error) {
       setNotice({ kind: 'error', message: errorMessage(error) });
     }
@@ -69,7 +69,7 @@ export function AttendanceStatusesPage() {
       await deleteMutation.mutateAsync(deletingItem.id);
       if (statuses.length === 1 && currentPage > 1) setCurrentPage((page) => page - 1);
       setDeletingItem(null);
-      setNotice({ kind: 'success', message: 'Attendance status berhasil dihapus.' });
+      setNotice({ kind: 'success', message: 'Status kehadiran berhasil dihapus.' });
     } catch (error) {
       setNotice({ kind: 'error', message: errorMessage(error) });
     }

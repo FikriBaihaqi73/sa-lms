@@ -25,7 +25,7 @@ export function SemestersFilterBar({
 					<input
 						value={search}
 						onChange={(event) => onSearchChange(event.target.value)}
-						placeholder="Cari nama semester atau academic year..."
+						placeholder="Cari nama semester atau tahun ajaran..."
 						aria-label="Cari semester"
 						className="h-10 w-full rounded-lg border border-slate-200 bg-transparent pl-9 pr-4 text-sm outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-900/30"
 					/>
@@ -33,10 +33,10 @@ export function SemestersFilterBar({
 				<Select
 					value={academicYearId}
 					onChange={(event) => onAcademicYearChange(event.target.value)}
-					aria-label="Filter academic year"
+					aria-label="Filter tahun ajaran"
 					className="h-10 rounded-lg border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
 				>
-					<option value="">Semua Academic Year</option>
+					<option value="">Semua Tahun Ajaran</option>
 					{academicYears.map((academicYear) => (
 						<option key={academicYear.id} value={academicYear.id}>
 							{academicYear.academic_year}
@@ -47,4 +47,3 @@ export function SemestersFilterBar({
 		</div>
 	);
 }
-

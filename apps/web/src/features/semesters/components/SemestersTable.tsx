@@ -44,7 +44,7 @@ export function SemestersTable({
 					<thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
 						<tr>
 							<th className="px-5 py-3.5">Nama Semester</th>
-							<th className="px-4 py-3.5">Academic Year</th>
+							<th className="px-4 py-3.5">Tahun Ajaran</th>
 							<th className="px-4 py-3.5">Tanggal Mulai</th>
 							<th className="px-4 py-3.5">Tanggal Selesai</th>
 							<th className="px-4 py-3.5 text-center">Status</th>
@@ -93,7 +93,7 @@ export function SemestersTable({
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
 												<DropdownMenuLabel>Aksi</DropdownMenuLabel>
-												<DropdownMenuItem onClick={() => onEdit(semester)}><Pencil className="mr-2 size-4" /> Edit</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => onEdit(semester)}><Pencil className="mr-2 size-4" /> Ubah</DropdownMenuItem>
 												<DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => onDelete(semester)}><Trash className="mr-2 size-4" /> Hapus</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
@@ -117,4 +117,3 @@ export function SemestersTable({
 		</div>
 	);
 }
-

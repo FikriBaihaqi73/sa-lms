@@ -46,7 +46,7 @@ export class ApiError extends Error {
  * - Umum: { message: string | string[] } tanpa array `errors`.
  */
 function parseApiError(status: number, body: unknown): ApiError {
-  const fallback = `API request failed with status ${status}`;
+  const fallback = `Permintaan ke server gagal (status ${status}).`;
   if (!body || typeof body !== "object") {
     return new ApiError(fallback, { status });
   }
@@ -113,4 +113,3 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
 
   return response.json();
 }
-

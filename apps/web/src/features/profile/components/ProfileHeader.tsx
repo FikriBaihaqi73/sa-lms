@@ -8,8 +8,8 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const name = profile?.fullName || 'Admin Pemilik Institusi';
-  const roleName = profile?.role?.name || 'Pemilik Institusi (Admin)';
-  const institutionName = profile?.institution?.name || 'Utama / Default Institution';
+  const roleName = profile?.role?.name || 'Pemilik Institusi';
+  const institutionName = profile?.institution?.name || 'Utama / Institusi bawaan';
   const initials = name
     .split(' ')
     .map((n) => n[0])

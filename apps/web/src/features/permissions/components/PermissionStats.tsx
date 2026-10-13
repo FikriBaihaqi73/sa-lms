@@ -45,9 +45,9 @@ export const PermissionStats: React.FC<PermissionStatsProps> = ({ permissions })
         </div>
         <div>
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            Scope Akses
+            Cakupan Akses
           </p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Settings Global</p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Pengaturan Global</p>
         </div>
       </div>
 

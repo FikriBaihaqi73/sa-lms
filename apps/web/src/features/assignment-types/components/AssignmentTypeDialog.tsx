@@ -62,7 +62,7 @@ export function AssignmentTypeDialog({
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
           <div>
             <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-              {isEdit ? "Edit Tipe Tugas" : "Tambah Tipe Tugas Baru"}
+              {isEdit ? "Ubah Tipe Tugas" : "Tambah Tipe Tugas Baru"}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               {isEdit

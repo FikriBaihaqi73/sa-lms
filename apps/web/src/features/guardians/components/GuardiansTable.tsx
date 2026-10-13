@@ -29,7 +29,7 @@ export function GuardiansTable({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <span className="grid size-12 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400"><HeartHandshake className="size-6" /></span>
-          <div><p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{isLoading ? "..." : meta?.total ?? 0}</p><p className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Guardian</p></div>
+          <div><p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{isLoading ? "..." : meta?.total ?? 0}</p><p className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Wali</p></div>
         </div>
         <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <span className="grid size-12 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400"><Search className="size-6" /></span>
@@ -44,7 +44,7 @@ export function GuardiansTable({
       {isError ? (
         <div className="rounded-xl border border-red-200 bg-red-50/50 p-8 text-center text-red-600 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
           <AlertCircle className="mx-auto mb-2 size-8 text-red-500" />
-          <p className="font-semibold">Gagal memuat data guardian</p>
+          <p className="font-semibold">Gagal memuat data wali</p>
           <p className="text-sm opacity-90">Periksa koneksi ke backend lalu coba lagi.</p>
         </div>
       ) : (
@@ -56,8 +56,8 @@ export function GuardiansTable({
                 type="text"
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
-                placeholder="Cari nama guardian..."
-                aria-label="Cari guardian"
+                placeholder="Cari nama wali..."
+                aria-label="Cari wali"
                 className="h-10 w-full rounded-lg border border-slate-200 bg-transparent pl-9 pr-4 text-sm outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:border-slate-800 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-900/30"
               />
             </div>
@@ -68,7 +68,7 @@ export function GuardiansTable({
               <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
                 <tr>
                   <th className="px-6 py-3.5">#</th>
-                  <th className="px-6 py-3.5">Nama Guardian</th>
+                  <th className="px-6 py-3.5">Nama Wali</th>
                   <th className="px-6 py-3.5">Hubungan</th>
                   <th className="px-6 py-3.5">Telepon</th>
                   <th className="px-6 py-3.5">Email</th>
@@ -80,7 +80,7 @@ export function GuardiansTable({
                 {isLoading ? (
                   [1, 2, 3, 4, 5].map((item) => <tr key={item}><td colSpan={7} className="px-6 py-3"><div className="h-8 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800/60" /></td></tr>)
                 ) : guardians.length === 0 ? (
-                  <tr><td colSpan={7} className="px-6 py-12 text-center"><HeartHandshake className="mx-auto mb-3 size-12 text-slate-300 dark:text-slate-600" /><p className="font-semibold text-slate-800 dark:text-slate-200">{search ? "Tidak ada guardian yang sesuai pencarian" : "Belum ada data guardian"}</p><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{search ? "Coba gunakan kata kunci lain." : "Klik tombol \"Tambah Guardian\" untuk membuat data pertama."}</p></td></tr>
+                  <tr><td colSpan={7} className="px-6 py-12 text-center"><HeartHandshake className="mx-auto mb-3 size-12 text-slate-300 dark:text-slate-600" /><p className="font-semibold text-slate-800 dark:text-slate-200">{search ? "Wali tidak ditemukan untuk pencarian ini" : "Belum ada data wali"}</p><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{search ? "Coba gunakan kata kunci lain." : "Klik tombol \"Tambah Wali\" untuk membuat data pertama."}</p></td></tr>
                 ) : (
                   guardians.map((guardian, index) => <tr key={guardian.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                     <td className="px-6 py-4 font-mono text-xs font-semibold text-slate-500 dark:text-slate-400">{((meta?.page ?? 1) - 1) * (meta?.limit ?? guardians.length) + index + 1}</td>
@@ -95,7 +95,7 @@ export function GuardiansTable({
               </tbody>
             </table>
           </div>
-          {!isLoading && <div className="border-t border-slate-200 px-6 py-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">Menampilkan {guardians.length} dari {meta?.total ?? 0} guardian.</div>}
+          {!isLoading && <div className="border-t border-slate-200 px-6 py-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">Menampilkan {guardians.length} dari {meta?.total ?? 0} wali.</div>}
         </div>
       )}
     </div>

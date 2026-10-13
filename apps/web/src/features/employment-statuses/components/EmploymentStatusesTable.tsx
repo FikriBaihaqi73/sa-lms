@@ -62,11 +62,11 @@ export function EmploymentStatusesTable({
           <thead className="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-400">
             <tr>
               <th className="px-4 py-3 font-medium">No</th>
-              <th className="px-4 py-3 font-medium">Employment Status</th>
-              <th className="px-4 py-3 font-medium">Description</th>
-              <th className="px-4 py-3 font-medium">Created At</th>
-              <th className="px-4 py-3 font-medium">Updated At</th>
-              <th className="px-4 py-3 text-right font-medium">Actions</th>
+              <th className="px-4 py-3 font-medium">Status Kepegawaian</th>
+              <th className="px-4 py-3 font-medium">Deskripsi</th>
+              <th className="px-4 py-3 font-medium">Dibuat Pada</th>
+              <th className="px-4 py-3 font-medium">Diperbarui Pada</th>
+              <th className="px-4 py-3 text-right font-medium">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -112,7 +112,7 @@ export function EmploymentStatusesTable({
                         className="size-8 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400"
                       >
                         <Edit2 className="size-4" />
-                        <span className="sr-only">Edit</span>
+                        <span className="sr-only">Ubah</span>
                       </Button>
                       <Button
                         variant="ghost"
@@ -121,7 +121,7 @@ export function EmploymentStatusesTable({
                         className="size-8 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400"
                       >
                         <Trash2 className="size-4" />
-                        <span className="sr-only">Delete</span>
+                        <span className="sr-only">Hapus</span>
                       </Button>
                     </div>
                   </td>
@@ -146,7 +146,7 @@ export function EmploymentStatusesTable({
             className="size-8"
           >
             <ChevronLeft className="size-4" />
-            <span className="sr-only">Previous page</span>
+            <span className="sr-only">Halaman sebelumnya</span>
           </Button>
           <span className="px-2 text-xs font-medium text-slate-600 dark:text-slate-300">
             Hal {currentPage} dari {totalPages}
@@ -159,7 +159,7 @@ export function EmploymentStatusesTable({
             className="size-8"
           >
             <ChevronRight className="size-4" />
-            <span className="sr-only">Next page</span>
+            <span className="sr-only">Halaman berikutnya</span>
           </Button>
         </div>
       </div>

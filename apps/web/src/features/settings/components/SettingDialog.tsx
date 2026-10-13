@@ -100,7 +100,7 @@ export function SettingDialog({
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-6">
 					<div className="space-y-2">
 						<Label htmlFor="settingKey" className="text-sm font-semibold">
-							Kunci Pengaturan (Key) <span className="text-red-500">*</span>
+							Kunci Pengaturan <span className="text-red-500">*</span>
 						</Label>
 						<Input
 							id="settingKey"
@@ -124,7 +124,7 @@ export function SettingDialog({
 
 					<div className="space-y-2">
 						<Label htmlFor="settingValue" className="text-sm font-semibold">
-							Nilai Pengaturan (Value)
+							Nilai Pengaturan
 						</Label>
 						<textarea
 							id="settingValue"

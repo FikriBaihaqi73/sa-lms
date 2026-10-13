@@ -31,7 +31,7 @@ export function DeleteGuardianDialog({
               <AlertTriangle className="size-5" />
             </span>
             <h2 id="delete-guardian-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              Hapus Guardian?
+              Hapus Wali?
             </h2>
           </div>
           <button
@@ -47,7 +47,7 @@ export function DeleteGuardianDialog({
 
         <div className="space-y-4 p-6">
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Guardian{" "}
+            Wali{" "}
             <strong className="font-bold text-slate-900 dark:text-slate-100">
               "{guardian.fullName}"
             </strong>{" "}

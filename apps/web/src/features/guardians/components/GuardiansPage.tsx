@@ -56,7 +56,7 @@ export function GuardiansPage() {
     try {
       await createMutation.mutateAsync(toInput(values));
       setIsAdding(false);
-      setNotice({ kind: "success", message: `Guardian '${values.fullName}' berhasil ditambahkan.` });
+      setNotice({ kind: "success", message: `Wali murid '${values.fullName}' berhasil ditambahkan.` });
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }
@@ -67,7 +67,7 @@ export function GuardiansPage() {
     try {
       await updateMutation.mutateAsync({ id: editingGuardian.id, input: toInput(values) });
       setEditingGuardian(null);
-      setNotice({ kind: "success", message: `Guardian '${values.fullName}' berhasil diperbarui.` });
+      setNotice({ kind: "success", message: `Wali murid '${values.fullName}' berhasil diperbarui.` });
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }
@@ -81,7 +81,7 @@ export function GuardiansPage() {
         setCurrentPage((page) => page - 1);
       }
       setDeletingGuardian(null);
-      setNotice({ kind: "success", message: `Guardian '${deletingGuardian.fullName}' berhasil disembunyikan.` });
+      setNotice({ kind: "success", message: `Wali murid '${deletingGuardian.fullName}' berhasil disembunyikan.` });
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }
@@ -92,11 +92,11 @@ export function GuardiansPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400"><HeartHandshake className="size-3.5" />Institution Portal</span>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Guardian Management</h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola data wali murid (guardian) sebagai pendamping resmi siswa di institusi Anda.</p>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400"><HeartHandshake className="size-3.5" />Portal Institusi</span>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Manajemen Wali Murid</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola data wali murid sebagai pendamping resmi siswa di institusi Anda.</p>
           </div>
-          <Button onClick={() => setIsAdding(true)} className="h-10 bg-blue-700 px-4 text-sm font-semibold hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"><Plus className="mr-1.5 size-4" />Tambah Guardian</Button>
+          <Button onClick={() => setIsAdding(true)} className="h-10 bg-blue-700 px-4 text-sm font-semibold hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"><Plus className="mr-1.5 size-4" />Tambah Wali</Button>
         </header>
 
         {notice && <div role="status" className={`fixed right-4 top-4 z-[60] rounded-xl border p-4 text-sm font-medium text-white shadow-lg ${notice.kind === "success" ? "border-emerald-500 bg-emerald-600" : "border-red-500 bg-red-600"}`}>{notice.message}</div>}
@@ -104,7 +104,7 @@ export function GuardiansPage() {
 
         <GuardiansTable guardians={guardians} meta={meta} isLoading={guardiansQuery.isPending} isError={guardiansQuery.isError} search={search} onSearchChange={(value) => { setSearch(value); setCurrentPage(1); }} onEdit={setEditingGuardian} onDelete={setDeletingGuardian} />
 
-        {!guardiansQuery.isPending && !guardiansQuery.isError && meta && meta.totalPages > 0 && <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row"><label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">Per halaman<select value={limit} onChange={(event) => { setLimit(Number(event.target.value)); setCurrentPage(1); }} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"><option value={10}>10</option><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label><div className="flex items-center gap-3"><button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage <= 1 || guardiansQuery.isFetching} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Previous</button><span className="text-sm text-slate-600 dark:text-slate-400">Page {meta.page} of {totalPages}</span><button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages || guardiansQuery.isFetching} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Next</button></div></div>}
+        {!guardiansQuery.isPending && !guardiansQuery.isError && meta && meta.totalPages > 0 && <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row"><label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">Per halaman<select value={limit} onChange={(event) => { setLimit(Number(event.target.value)); setCurrentPage(1); }} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"><option value={10}>10</option><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label><div className="flex items-center gap-3"><button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage <= 1 || guardiansQuery.isFetching} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Sebelumnya</button><span className="text-sm text-slate-600 dark:text-slate-400">Halaman {meta.page} dari {totalPages}</span><button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages || guardiansQuery.isFetching} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Berikutnya</button></div></div>}
       </div>
 
       {isAdding && <GuardianDialog open={isAdding} isSaving={createMutation.isPending} onClose={() => setIsAdding(false)} onSave={handleCreate} />}

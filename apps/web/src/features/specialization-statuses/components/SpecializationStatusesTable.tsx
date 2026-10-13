@@ -36,7 +36,7 @@ export function SpecializationStatusesTable({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Cari kode status, nama status, atau deskripsi..."
+            placeholder="Cari kode, nama status, atau deskripsi..."
             className="h-10 w-full rounded-lg border border-slate-200 bg-transparent pl-9 pr-4 text-sm outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:border-slate-800 dark:focus:border-blue-500 dark:focus:ring-blue-900/30"
           />
         </div>
@@ -46,7 +46,7 @@ export function SpecializationStatusesTable({
           <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
             <tr>
               <th className="px-6 py-3.5">Kode</th>
-              <th className="px-6 py-3.5">Nama Status</th>
+              <th className="px-6 py-3.5">Nama Status Spesialisasi</th>
               <th className="px-6 py-3.5">Keterangan</th>
               <th className="px-6 py-3.5 text-right">Aksi</th>
             </tr>
