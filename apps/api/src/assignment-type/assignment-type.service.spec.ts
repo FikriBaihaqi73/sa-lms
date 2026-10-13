@@ -154,9 +154,9 @@ describe("AssignmentTypeService", () => {
         .spyOn(AssignmentTypeRepository.prototype, "findByName")
         .mockResolvedValue(other as never);
 
-      await expect(
-        service.update("1", { name: "Kuis" }),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.update("1", { name: "Kuis" })).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it("should throw NotFoundException if trying to update non-existent item", async () => {

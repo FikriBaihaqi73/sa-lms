@@ -64,7 +64,10 @@ export class ProfileController {
     if (!profile) {
       return ResponseHelper.error("Profile not found", 404);
     }
-    const updated = await this.profileService.update(profile.id, updateProfileDto);
+    const updated = await this.profileService.update(
+      profile.id,
+      updateProfileDto,
+    );
     return ResponseHelper.success(updated, "Profile updated successfully");
   }
 

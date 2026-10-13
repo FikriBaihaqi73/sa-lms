@@ -18,6 +18,7 @@ import {
 	ShieldCheck,
 	UserRound,
 	Users,
+	UsersRound,
 	type LucideIcon,
 } from "lucide-react";
 import { SkyToggle } from "@/components/ui/sky-toggle";
@@ -112,6 +113,7 @@ export function AppSidebar() {
 							<div className="space-y-0.5">
 								<NavItem to="/users" icon={Users} label="Data Pengguna" />
 								<NavItem to="/students" icon={GraduationCap} label="Siswa" />
+								<NavItem to="/student-guardians" icon={UsersRound} label="Relasi Wali Siswa" />
 								<NavItem to="/teachers" icon={Briefcase} label="Guru" />
 								<NavItem to="/guardians" icon={HeartHandshake} label="Wali Murid" />
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />

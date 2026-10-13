@@ -34,7 +34,9 @@ export class TeachersController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Retrieve teachers with search, filter, and pagination" })
+  @ApiOperation({
+    summary: "Retrieve teachers with search, filter, and pagination",
+  })
   findAll(
     @Query("page", new ParseIntPipe({ optional: true })) page?: number,
     @Query("limit", new ParseIntPipe({ optional: true })) limit?: number,
@@ -42,7 +44,13 @@ export class TeachersController {
     @Query("status") status?: string,
     @Query("specialization") specialization?: string,
   ) {
-    return this.teachersService.findAll(page ?? 1, limit ?? 10, search, status, specialization);
+    return this.teachersService.findAll(
+      page ?? 1,
+      limit ?? 10,
+      search,
+      status,
+      specialization,
+    );
   }
 
   @Get("stats")

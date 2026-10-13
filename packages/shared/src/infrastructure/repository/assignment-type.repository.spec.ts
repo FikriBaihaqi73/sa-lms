@@ -1,14 +1,14 @@
 /// <reference types="jest" />
 
-import { AssignmentTypeRepository } from "vitest";
 import type { PrismaClient } from "#generated/client";
+import { AssignmentTypeRepository } from "./assignment-type.repository";
 
 describe("AssignmentTypeRepository", () => {
   const assignmentTypes = {
-    create: vi.fn(),
-    findFirst: vi.fn(),
-    findMany: vi.fn(),
-    update: vi.fn(),
+    create: jest.fn(),
+    findFirst: jest.fn(),
+    findMany: jest.fn(),
+    update: jest.fn(),
   };
   const prisma = { assignmentTypes } as unknown as PrismaClient;
   const repository = new AssignmentTypeRepository(prisma);

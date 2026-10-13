@@ -1,4 +1,5 @@
-import { useDeferredValue, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Plus, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DeleteReligionDialog } from './DeleteReligionDialog';
@@ -19,7 +20,7 @@ function errorMessage(error: unknown): string {
 
 export function ReligionsPage() {
   const [search, setSearch] = useState('');
-  const deferredSearch = useDeferredValue(search);
+  const debouncedSearch = useDebounce(search);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isAdding, setIsAdding] = useState(false);
@@ -27,7 +28,7 @@ export function ReligionsPage() {
   const [deletingReligion, setDeletingReligion] = useState<Religion | null>(null);
   const [notice, setNotice] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
 
-  const normalizedSearch = deferredSearch.trim();
+  const normalizedSearch = debouncedSearch.trim();
   const religionsQuery = useReligions({ page: currentPage, limit, search: normalizedSearch });
   const createMutation = useCreateReligion();
   const updateMutation = useUpdateReligion();

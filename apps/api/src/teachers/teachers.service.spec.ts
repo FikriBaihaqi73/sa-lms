@@ -73,12 +73,20 @@ describe("TeachersService", () => {
     it("should return paginated teachers with meta", async () => {
       const teachersList = [{ id: "1", teacher_number: "T001" }];
       const meta = { page: 1, limit: 10, total: 1, totalPages: 1 };
-      mockRepositoryInstance.findAll.mockResolvedValue({ data: teachersList, meta } as any);
+      mockRepositoryInstance.findAll.mockResolvedValue({
+        data: teachersList,
+        meta,
+      } as any);
 
       const result = await service.findAll(1, 10, "T00", "status-1", "spec-1");
 
       expect(result).toEqual(
-        ResponseHelper.success(teachersList, "Teachers successfully retrieved", 200, meta),
+        ResponseHelper.success(
+          teachersList,
+          "Teachers successfully retrieved",
+          200,
+          meta,
+        ),
       );
       expect(mockRepositoryInstance.findAll).toHaveBeenCalledWith({
         page: 1,

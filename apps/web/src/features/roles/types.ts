@@ -18,7 +18,7 @@ export interface Permission {
 
 export interface RoleFormValues {
   name: string;
-  description: string;
+  description?: string;
   permissionIds?: string[];
 }
 

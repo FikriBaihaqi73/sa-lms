@@ -1,20 +1,19 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PrismaClient } from "#generated/client";
-import { TeacherRepository } from "./teacher.repository.js";
+import { TeacherRepository } from "./teacher.repository";
 
 describe("TeacherRepository", () => {
   const teachers = {
-    create: vi.fn(),
-    findFirst: vi.fn(),
-    findMany: vi.fn(),
-    count: vi.fn(),
-    update: vi.fn(),
+    create: jest.fn(),
+    findFirst: jest.fn(),
+    findMany: jest.fn(),
+    count: jest.fn(),
+    update: jest.fn(),
   };
   const specializations = {
-    count: vi.fn(),
+    count: jest.fn(),
   };
   const classSubjects = {
-    count: vi.fn(),
+    count: jest.fn(),
   };
   const prisma = {
     teachers,
@@ -24,7 +23,7 @@ describe("TeacherRepository", () => {
   const repository = new TeacherRepository(prisma);
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   // ─── create ────────────────────────────────────────────────────────

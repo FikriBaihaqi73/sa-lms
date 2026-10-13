@@ -22,4 +22,3 @@ export type InstitutionLevelSelectType = typeof institutionLevelSelect;
 export type InstitutionLevelEntity = Prisma.InstitutionLevelGetPayload<{
   select: InstitutionLevelSelectType;
 }>;
-

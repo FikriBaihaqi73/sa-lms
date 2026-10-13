@@ -1,6 +1,7 @@
-import { useDeferredValue, useState } from "react";
+import { useState } from "react";
 import { CalendarRange, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useAcademicYears } from "@/features/academic-years/hooks/useAcademicYears";
 import { useSemesters } from "../hooks/useSemesters";
 import type { Semester } from "../types";
@@ -13,7 +14,7 @@ const PAGE_LIMIT = 10;
 
 export function SemestersPage() {
 	const [search, setSearch] = useState("");
-	const deferredSearch = useDeferredValue(search);
+	const debouncedSearch = useDebounce(search);
 	const [academicYearId, setAcademicYearId] = useState("");
 	const [page, setPage] = useState(1);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -24,7 +25,7 @@ export function SemestersPage() {
 	const semestersQuery = useSemesters({
 		page,
 		limit: PAGE_LIMIT,
-		search: deferredSearch.trim() || undefined,
+		search: debouncedSearch.trim() || undefined,
 		academic_year_id: academicYearId || undefined,
 	});
 
