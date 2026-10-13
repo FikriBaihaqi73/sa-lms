@@ -14,7 +14,17 @@ import type { SpecializationStatus } from '../types';
 import type { SpecializationStatusFormValues } from '../schemas/specializationStatusSchema';
 
 function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+    if (
+      msg.includes('authentication') ||
+      msg.includes('unauthorized') ||
+      (error as { status?: number })?.status === 401
+    ) {
+      return 'Sesi login Anda telah berakhir atau belum masuk. Silakan masuk kembali ke akun Anda.';
+    }
+    return error.message;
+  }
   return 'Terjadi kesalahan. Silakan coba lagi.';
 }
 
@@ -43,6 +53,7 @@ export function SpecializationStatusesPage() {
       });
       setIsAdding(false);
       setNotice({ kind: 'success', message: 'Data peminatan berhasil ditambahkan.' });
+      specializationStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
@@ -57,6 +68,7 @@ export function SpecializationStatusesPage() {
       });
       setEditingItem(null);
       setNotice({ kind: 'success', message: 'Data peminatan berhasil diperbarui.' });
+      specializationStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
@@ -68,6 +80,7 @@ export function SpecializationStatusesPage() {
       await deleteMutation.mutateAsync(deletingItem.id);
       setDeletingItem(null);
       setNotice({ kind: 'success', message: 'Data peminatan berhasil dihapus.' });
+      specializationStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }

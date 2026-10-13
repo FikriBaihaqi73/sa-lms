@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useState } from "react";
+import { createContext, type ReactNode, useEffect, useState } from "react";
 import { loginApi } from "../api/login";
 import type { AuthState, LoginCredentials, User } from "../types";
 
@@ -79,6 +79,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			isLoading: false,
 		};
 	});
+
+	useEffect(() => {
+		const handleUnauthorized = () => {
+			setState({ user: null, isAuthenticated: false, isLoading: false });
+		};
+
+		const handleStorage = (event: StorageEvent) => {
+			if (event.key === "access_token" || event.key === "token") {
+				const raw =
+					localStorage.getItem("access_token") ||
+					localStorage.getItem("token");
+				if (!raw) {
+					setState({ user: null, isAuthenticated: false, isLoading: false });
+					return;
+				}
+				try {
+					const payload = JSON.parse(atob(raw.split(".")[1])) as Record<
+						string,
+						unknown
+					>;
+					const role = resolveStoredRole(payload);
+					if (role) {
+						setState({
+							user: {
+								id: typeof payload.sub === "string" ? payload.sub : "1",
+								email:
+									typeof payload.email === "string"
+										? payload.email
+										: "admin@example.com",
+								role,
+							},
+							isAuthenticated: true,
+							isLoading: false,
+						});
+					} else {
+						setState({ user: null, isAuthenticated: false, isLoading: false });
+					}
+				} catch {
+					setState({ user: null, isAuthenticated: false, isLoading: false });
+				}
+			}
+		};
+
+		window.addEventListener("auth:unauthorized", handleUnauthorized);
+		window.addEventListener("storage", handleStorage);
+
+		return () => {
+			window.removeEventListener("auth:unauthorized", handleUnauthorized);
+			window.removeEventListener("storage", handleStorage);
+		};
+	}, []);
 
 	const login = async (credentials: LoginCredentials): Promise<User> => {
 		setState((prev) => ({ ...prev, isLoading: true }));

@@ -110,6 +110,11 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     if (response.status === 401 && !endpoint.includes("/auth/login") && typeof window !== "undefined") {
       localStorage.removeItem("access_token");
       localStorage.removeItem("token");
+      window.dispatchEvent(
+        new CustomEvent("auth:unauthorized", {
+          detail: { endpoint, status: 401 },
+        }),
+      );
     }
     const body: unknown = await response.json().catch(() => null);
     throw parseApiError(response.status, body);
