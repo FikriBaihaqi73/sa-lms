@@ -35,7 +35,13 @@ export class TeachersService {
     return ResponseHelper.success(teacher, "Teacher successfully created");
   }
 
-  async findAll(page = 1, limit = 10, search?: string, employmentStatusId?: string, specializationId?: string) {
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    employmentStatusId?: string,
+    specializationId?: string,
+  ) {
     const teachers = await this.teachersRepository.findAll({
       page,
       limit,
@@ -43,12 +49,20 @@ export class TeachersService {
       ...(employmentStatusId !== undefined ? { employmentStatusId } : {}),
       ...(specializationId !== undefined ? { specializationId } : {}),
     });
-    return ResponseHelper.success(teachers.data, "Teachers successfully retrieved", 200, teachers.meta);
+    return ResponseHelper.success(
+      teachers.data,
+      "Teachers successfully retrieved",
+      200,
+      teachers.meta,
+    );
   }
 
   async getStats() {
     const stats = await this.teachersRepository.getStats();
-    return ResponseHelper.success(stats, "Teacher stats successfully retrieved");
+    return ResponseHelper.success(
+      stats,
+      "Teacher stats successfully retrieved",
+    );
   }
 
   async findById(id: string) {

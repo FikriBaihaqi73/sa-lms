@@ -4,6 +4,7 @@ import { z } from "zod";
 export const CreateRoleSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(1, "Role name is required")
     .max(255, "Role name must not exceed 255 characters")
     .describe("Name of the role (e.g., Admin, Teacher, Student)"),
@@ -14,7 +15,7 @@ export const CreateRoleSchema = z.object({
     .nullable()
     .describe("Optional description of the role"),
   permissionIds: z
-    .array(z.string().uuid())
+    .array(z.string().uuid("Invalid UUID format for permissionId"))
     .optional()
     .default([])
     .describe("List of permission UUIDs to assign to this role"),
@@ -23,6 +24,7 @@ export const CreateRoleSchema = z.object({
 export const UpdateRoleSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(1, "Role name must not be empty")
     .max(255, "Role name must not exceed 255 characters")
     .optional()
@@ -34,7 +36,7 @@ export const UpdateRoleSchema = z.object({
     .nullable()
     .describe("Updated description of the role"),
   permissionIds: z
-    .array(z.string().uuid())
+    .array(z.string().uuid("Invalid UUID format for permissionId"))
     .optional()
     .describe("Updated list of permission UUIDs for this role"),
 });

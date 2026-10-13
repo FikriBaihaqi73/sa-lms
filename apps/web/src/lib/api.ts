@@ -107,6 +107,10 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const response = await fetch(url, { ...options, headers });
   
   if (!response.ok) {
+    if (response.status === 401 && !endpoint.includes("/auth/login") && typeof window !== "undefined") {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("token");
+    }
     const body: unknown = await response.json().catch(() => null);
     throw parseApiError(response.status, body);
   }

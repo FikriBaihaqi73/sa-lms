@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { ClassAnnouncementsService } from "./class-announcements.service.js";
 import { ClassAnnouncementsController } from "./class-announcements.controller.js";
+import { ClassAnnouncementsService } from "./class-announcements.service.js";
 
 @Module({
   controllers: [ClassAnnouncementsController],

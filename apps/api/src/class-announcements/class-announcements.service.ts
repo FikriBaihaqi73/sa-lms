@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service.js";
 import { ClassAnnouncementRepository } from "@repo/shared/infrastructure/repository/class-announcement.repository";
-import type { CreateClassAnnouncementDto, UpdateClassAnnouncementDto, ClassAnnouncementSearchDto } from "@repo/shared/schemas/class-announcement.schema";
+import type {
+  ClassAnnouncementSearchDto,
+  CreateClassAnnouncementDto,
+  UpdateClassAnnouncementDto,
+} from "@repo/shared/schemas/class-announcement.schema";
+import { PrismaService } from "../prisma/prisma.service.js";
 
 @Injectable()
 export class ClassAnnouncementsService {
@@ -19,7 +23,11 @@ export class ClassAnnouncementsService {
     });
   }
 
-  async findAll(query: ClassAnnouncementSearchDto, page: number, limit: number) {
+  async findAll(
+    query: ClassAnnouncementSearchDto,
+    page: number,
+    limit: number,
+  ) {
     const skip = (page - 1) * limit;
     return this.repository.findAll({
       skip,
