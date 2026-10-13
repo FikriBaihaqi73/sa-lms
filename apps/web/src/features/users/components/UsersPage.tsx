@@ -76,7 +76,7 @@ export const UsersPage: React.FC = () => {
 
   return <main className="min-h-screen bg-slate-50 p-4 text-slate-900 transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100 sm:p-6 lg:p-8"><div className="mx-auto max-w-7xl space-y-6">
     {notice && <div role="status" className={notice.kind === 'success' ? 'fixed right-4 top-4 z-[60] rounded-xl border border-emerald-500 bg-emerald-600 p-4 text-sm font-medium text-white shadow-lg' : 'fixed right-4 top-4 z-[60] rounded-xl border border-red-500 bg-red-600 p-4 text-sm font-medium text-white shadow-lg'}>{notice.message}</div>}
-    <UsersHeader searchTerm={searchTerm} onSearchChange={handleSearchChange} onOpenCreateModal={openCreate} />
+    <UsersHeader searchTerm={searchTerm} onSearchChange={handleSearchChange} />
     <UsersStats users={users} meta={meta} />
     <UsersTable
       users={users}

@@ -67,7 +67,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   }
 
   if (users.length === 0) {
-    return <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"><UserRound className="mx-auto mb-3 h-12 w-12 text-slate-300 dark:text-slate-600" /><p className="text-base font-semibold text-slate-800 dark:text-slate-200">{searchTerm ? 'Tidak ada user yang sesuai pencarian' : 'Tidak ada user ditemukan'}</p><p className="mt-1 text-sm">{searchTerm ? 'Coba gunakan kata kunci lain.' : 'Klik tombol "Tambah User" untuk membuat user pertama.'}</p></div>;
+    return <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"><UserRound className="mx-auto mb-3 h-12 w-12 text-slate-300 dark:text-slate-600" /><p className="text-base font-semibold text-slate-800 dark:text-slate-200">{searchTerm ? 'Tidak ada user yang sesuai pencarian' : 'Tidak ada user ditemukan'}</p><p className="mt-1 text-sm">{searchTerm ? 'Coba gunakan kata kunci lain.' : 'Belum ada user yang terdaftar.'}</p></div>;
   }
 
   return <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
