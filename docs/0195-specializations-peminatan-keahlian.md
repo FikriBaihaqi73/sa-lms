@@ -162,7 +162,21 @@ Modul kini telah diselaraskan 100% dengan konteks sistem informasi akademik dan 
 ## 5. Verification & Testing
 - **Jest Unit Tests**: `pnpm --filter @repo/api test` -> **64/64 Test Suites Passed**, **400/400 Tests Passed** (0 failures).
 - **Turborepo Build**: `pnpm build` -> **6/6 tasks successful** (0 errors).
+- **ESLint & Code Standards**: `pnpm --filter @repo/web exec eslint src/lib/api.ts src/features/auth/context/AuthContext.tsx src/features/specialization-statuses/` -> 0 errors, 0 warnings.
 - **End-to-End Live Check**:
   - `GET http://localhost:5000/specializations` -> 200 OK (mengembalikan 6 peminatan asli).
   - `POST http://localhost:5000/specializations` dengan Bearer token -> 201 Created.
   - `DELETE http://localhost:5000/specializations/:id` dengan Bearer token -> 200 OK.
+
+---
+
+## 6. Auth Synchronization & Session Lifecycle Handling
+Untuk mengatasi kendala *"Authentication is required"* yang muncul saat sesi token kedaluwarsa atau hilang di `localStorage`:
+1. **Event `auth:unauthorized`**:
+   - `apiFetch` di `apps/web/src/lib/api.ts` secara otomatis membersihkan token dan memancarkan event `window.dispatchEvent(new CustomEvent("auth:unauthorized"))` saat menerima respons HTTP 401.
+2. **Sinkronisasi React AuthContext**:
+   - `AuthProvider` di `apps/web/src/features/auth/context/AuthContext.tsx` mendengarkan event `auth:unauthorized` dan langsung mengatur state `isAuthenticated: false` serta `user: null`, sehingga TanStack Router `RootLayout` segera mengarahkan pengguna ke `/login` secara anggun tanpa meninggalkan pengguna di status "ghost logged-in".
+3. **Sinkronisasi Multi-Tab (`storage` event)**:
+   - `AuthProvider` menyinkronkan token di seluruh tab browser secara real-time via event `storage`. Login atau logout di salah satu tab langsung ter-update di semua tab yang terbuka.
+4. **Pesan Human-Friendly**:
+   - Dialog dan tabel Specializations menangkap error autentikasi dan menyajikan pesan yang ramah: *"Sesi login Anda telah berakhir atau belum masuk. Silakan masuk kembali ke akun Anda."*
