@@ -1,7 +1,15 @@
 import { z } from "zod";
 
 export const roleFormSchema = z.object({
-  name: z.string().trim().min(2, "Nama role minimal 2 karakter"),
-  description: z.string().max(1000, "Deskripsi maksimal 1000 karakter"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Nama role minimal 2 karakter")
+    .max(255, "Nama role maksimal 255 karakter"),
+  description: z
+    .string()
+    .max(1000, "Deskripsi maksimal 1000 karakter")
+    .optional()
+    .default(""),
   permissionIds: z.array(z.string()).optional().default([]),
 });

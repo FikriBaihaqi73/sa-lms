@@ -7,6 +7,8 @@ interface UsersTableProps {
   users: User[];
   isLoading: boolean;
   isError: boolean;
+  error?: unknown;
+  onRetry?: () => void;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
   searchTerm: string;
@@ -25,6 +27,8 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   users,
   isLoading,
   isError,
+  error,
+  onRetry,
   onEdit,
   onDelete,
   searchTerm,
@@ -35,11 +39,35 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   }
 
   if (isError) {
-    return <div className="rounded-xl border border-red-200 bg-red-50/50 p-8 text-center text-red-600 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400"><AlertCircle className="mx-auto mb-2 h-8 w-8 text-red-500" /><p className="font-semibold">Gagal memuat data users</p><p className="text-sm opacity-90">Pastikan backend terhubung di VITE_API_URL.</p></div>;
+    const errorMsg = error instanceof Error ? error.message : "Gagal memuat data users dari server.";
+    const isAuthError =
+      errorMsg.toLowerCase().includes("token") ||
+      errorMsg.toLowerCase().includes("authentication") ||
+      errorMsg.toLowerCase().includes("401");
+
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50/50 p-8 text-center text-red-600 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
+        <AlertCircle className="mx-auto mb-2 h-8 w-8 text-red-500" />
+        <p className="font-semibold text-base">{isAuthError ? "Sesi Login Telah Kedaluwarsa" : "Gagal Memuat Data Users"}</p>
+        <p className="mt-1 text-sm opacity-90 max-w-md mx-auto">{isAuthError ? "Sesi autentikasi Anda telah berakhir karena reset kredensial. Silakan login kembali." : errorMsg}</p>
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {onRetry && (
+            <Button variant="outline" size="sm" onClick={onRetry} className="bg-white dark:bg-slate-900">
+              Coba Lagi
+            </Button>
+          )}
+          {isAuthError && (
+            <Button size="sm" onClick={() => { localStorage.clear(); window.location.href = "/login"; }} className="bg-red-600 text-white hover:bg-red-700">
+              Login Ulang
+            </Button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   if (users.length === 0) {
-    return <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"><UserRound className="mx-auto mb-3 h-12 w-12 text-slate-300 dark:text-slate-600" /><p className="text-base font-semibold text-slate-800 dark:text-slate-200">{searchTerm ? 'Tidak ada user yang sesuai pencarian' : 'Tidak ada user ditemukan'}</p><p className="mt-1 text-sm">{searchTerm ? 'Coba gunakan kata kunci lain.' : 'Klik tombol "Tambah User" untuk membuat user pertama.'}</p></div>;
+    return <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"><UserRound className="mx-auto mb-3 h-12 w-12 text-slate-300 dark:text-slate-600" /><p className="text-base font-semibold text-slate-800 dark:text-slate-200">{searchTerm ? 'Tidak ada user yang sesuai pencarian' : 'Tidak ada user ditemukan'}</p><p className="mt-1 text-sm">{searchTerm ? 'Coba gunakan kata kunci lain.' : 'Belum ada user yang terdaftar.'}</p></div>;
   }
 
   return <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">

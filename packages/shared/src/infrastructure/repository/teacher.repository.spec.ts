@@ -1,26 +1,29 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { PrismaClient } from "#generated/client";
-import { TeacherRepository } from "./teacher.repository.js";
+import { TeacherRepository } from "./teacher.repository";
 
 describe("TeacherRepository", () => {
   const teachers = {
-    create: vi.fn(),
-    findFirst: vi.fn(),
-    findMany: vi.fn(),
-    count: vi.fn(),
-    update: vi.fn(),
+    create: jest.fn(),
+    findFirst: jest.fn(),
+    findMany: jest.fn(),
+    count: jest.fn(),
+    update: jest.fn(),
   };
   const specializations = {
-    count: vi.fn(),
+    count: jest.fn(),
   };
   const classSubjects = {
-    count: vi.fn(),
+    count: jest.fn(),
   };
-  const prisma = { teachers, specializations, classSubjects } as unknown as PrismaClient;
+  const prisma = {
+    teachers,
+    specializations,
+    classSubjects,
+  } as unknown as PrismaClient;
   const repository = new TeacherRepository(prisma);
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   // ─── create ────────────────────────────────────────────────────────
@@ -230,7 +233,11 @@ describe("TeacherRepository", () => {
             deleted_at: null,
             OR: [
               { teacher_number: { contains: "john", mode: "insensitive" } },
-              { profile: { fullName: { contains: "john", mode: "insensitive" } } },
+              {
+                profile: {
+                  fullName: { contains: "john", mode: "insensitive" },
+                },
+              },
               { profile: { email: { contains: "john", mode: "insensitive" } } },
             ],
           }),
@@ -338,9 +345,7 @@ describe("TeacherRepository", () => {
     });
 
     it("handles null employment_status gracefully", async () => {
-      teachers.count
-        .mockResolvedValueOnce(2)
-        .mockResolvedValueOnce(0);
+      teachers.count.mockResolvedValueOnce(2).mockResolvedValueOnce(0);
       teachers.findMany.mockResolvedValue([
         { employment_status: null },
         { employment_status: { name: null } },
@@ -356,9 +361,7 @@ describe("TeacherRepository", () => {
     });
 
     it("returns all zeros when there are no teachers", async () => {
-      teachers.count
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
+      teachers.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
       teachers.findMany.mockResolvedValue([]);
       specializations.count.mockResolvedValue(0);
       classSubjects.count.mockResolvedValue(0);
@@ -376,9 +379,7 @@ describe("TeacherRepository", () => {
     });
 
     it("normalizes status names with extra whitespace", async () => {
-      teachers.count
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(0);
+      teachers.count.mockResolvedValueOnce(1).mockResolvedValueOnce(0);
       teachers.findMany.mockResolvedValue([
         { employment_status: { name: "  Tetap  " } },
       ]);
@@ -432,7 +433,10 @@ describe("TeacherRepository", () => {
     });
 
     it("only includes fields that are explicitly provided (partial update)", async () => {
-      const mockResult = { id: "teacher-uuid-1", teacher_number: "TCH-UPDATED" };
+      const mockResult = {
+        id: "teacher-uuid-1",
+        teacher_number: "TCH-UPDATED",
+      };
       teachers.update.mockResolvedValue(mockResult);
 
       await repository.update("teacher-uuid-1", {

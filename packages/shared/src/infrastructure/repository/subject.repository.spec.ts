@@ -2,18 +2,18 @@
 
 import type { PrismaClient } from "#generated/client";
 import { subjectSelect } from "#selects/subject.select";
-import { SubjectRepository } from "vitest";
+import { SubjectRepository } from "./subject.repository";
 
 describe("SubjectRepository", () => {
   let repository: SubjectRepository;
 
   const mockPrismaClient = {
     subject: {
-      create: vi.fn(),
-      findFirst: vi.fn(),
-      findMany: vi.fn(),
-      update: vi.fn(),
-      count: vi.fn(),
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      findMany: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
     },
   };
 

@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	Activity,
 	Award,
+	CalendarRange,
 	BookOpen,
 	BookOpenCheck,
 	Briefcase,
@@ -10,6 +11,7 @@ import {
 	ClipboardCheck,
 	Globe,
 	GraduationCap,
+	HeartHandshake,
 	KeyRound,
 	LogOut,
 	Settings2,
@@ -85,6 +87,7 @@ export function AppSidebar() {
 								<NavItem to="/specialization-statuses" icon={BookOpenCheck} label="Specialization Statuses" />
 								<NavItem to="/assignment-types" icon={BookOpen} label="Assignment Types" />
 								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Attendance Statuses" />
+								<NavItem to="/academic-years" icon={BookOpen} label="Academic Years" />
 							</div>
 						</div>
 
@@ -112,6 +115,7 @@ export function AppSidebar() {
 								<NavItem to="/students" icon={GraduationCap} label="Students" />
 								<NavItem to="/student-guardians" icon={UsersRound} label="Student Guardian" />
 								<NavItem to="/teachers" icon={Briefcase} label="Guru / Teachers" />
+								<NavItem to="/guardians" icon={HeartHandshake} label="Wali Murid / Guardians" />
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>
@@ -122,6 +126,8 @@ export function AppSidebar() {
 							</p>
 							<div className="space-y-0.5">
 								<NavItem to="/grades" icon={Award} label="Manajemen Nilai (Grades)" />
+								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran (Academic Years)" />
+								<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
 							</div>
 						</div>
 

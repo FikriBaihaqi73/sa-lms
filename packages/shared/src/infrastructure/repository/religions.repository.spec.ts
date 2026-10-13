@@ -1,14 +1,15 @@
 /// <reference types="jest" />
+
 import type { PrismaClient } from "#generated/client";
-import { ReligionRepository } from "vitest";
+import { ReligionRepository } from "./religions.repository";
 
 describe("ReligionRepository", () => {
   const religion = {
-    create: vi.fn(),
-    findFirst: vi.fn(),
-    findMany: vi.fn(),
-    count: vi.fn(),
-    update: vi.fn(),
+    create: jest.fn(),
+    findFirst: jest.fn(),
+    findMany: jest.fn(),
+    count: jest.fn(),
+    update: jest.fn(),
   };
   const prisma = { religion } as unknown as PrismaClient;
   const repository = new ReligionRepository(prisma);

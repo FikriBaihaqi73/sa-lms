@@ -27,5 +27,6 @@ model Institution {
   classrooms       Classroom[]
   guardians        Guardian[]
 
+  academic_years   AcademicYears[]
   @@map("institutions")
 }

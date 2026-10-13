@@ -1,16 +1,17 @@
 /// <reference types="jest" />
+
 import type { PrismaClient } from "#generated/client";
-import { AssignmentSubmissionRepository } from "vitest";
+import { AssignmentSubmissionRepository } from "./assignment-submission.repository";
 
 describe("AssignmentSubmissionRepository", () => {
   let repository: AssignmentSubmissionRepository;
   const mockPrisma = {
     assignmentSubmission: {
-      findMany: vi.fn(),
-      count: vi.fn(),
-      findFirst: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
+      findMany: jest.fn(),
+      count: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
     },
   } as unknown as PrismaClient;
 

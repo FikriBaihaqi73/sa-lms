@@ -10,6 +10,9 @@ model AcademicYears {
   is_active     Boolean @default(false)
 
   // relations
+  institution_id String? @db.Uuid
+  institution   Institution? @relation(fields: [institution_id], references: [id])
+
   classes       Classes[]
   classSubjects ClassSubjects[]
   studyPlans    StudyPlans[]

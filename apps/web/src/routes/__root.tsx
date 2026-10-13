@@ -37,10 +37,12 @@ const ADMIN_ACCESSIBLE_PREFIXES = [
 	"/users",
 	"/activity-logs",
 	"/settings",
+	"/academic-years",
 ];
 
 // Student records belong to the institution owner/admin area, not Superadmin.
 const INSTITUTION_ADMIN_ONLY_PREFIXES = ["/students", "/student-guardians", "/teachers"];
+const INSTITUTION_ADMIN_ONLY_PREFIXES = ["/students", "/teachers", "/semesters"];
 
 function AccessDenied({ message }: { message: string }) {
 	return (

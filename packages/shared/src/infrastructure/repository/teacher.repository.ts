@@ -88,7 +88,9 @@ export class TeacherRepository {
     });
   }
 
-  async findAll(params: FindAllTeachersInput = {}): Promise<FindAllTeachersResult> {
+  async findAll(
+    params: FindAllTeachersInput = {},
+  ): Promise<FindAllTeachersResult> {
     const page = Math.max(params.page ?? 1, 1);
     const limit = Math.min(Math.max(params.limit ?? 10, 1), 100);
     const search = params.search?.trim();
@@ -97,7 +99,9 @@ export class TeacherRepository {
 
     const where: Prisma.TeachersWhereInput = {
       deleted_at: null,
-      ...(employmentStatusId ? { employment_status_id: employmentStatusId } : {}),
+      ...(employmentStatusId
+        ? { employment_status_id: employmentStatusId }
+        : {}),
       ...(specializationId ? { specialization_id: specializationId } : {}),
       ...(search
         ? {
@@ -141,28 +145,37 @@ export class TeacherRepository {
   }
 
   async getStats(): Promise<TeacherStatsResult> {
-    const [total, teachers, specializationCount, totalClassAssignments, unassignedCount] =
-      await Promise.all([
-        this.prisma.teachers.count({ where: { deleted_at: null } }),
-        this.prisma.teachers.findMany({
-          where: { deleted_at: null },
-          select: {
-            employment_status: { select: { name: true } },
-          },
-        }),
-        this.prisma.specializations.count({ where: { deleted_at: null } }),
-        this.prisma.classSubjects.count({ where: { deleted_at: null } }),
-        this.prisma.teachers.count({
-          where: { deleted_at: null, classSubjects: { none: { deleted_at: null } } },
-        }),
-      ]);
+    const [
+      total,
+      teachers,
+      specializationCount,
+      totalClassAssignments,
+      unassignedCount,
+    ] = await Promise.all([
+      this.prisma.teachers.count({ where: { deleted_at: null } }),
+      this.prisma.teachers.findMany({
+        where: { deleted_at: null },
+        select: {
+          employment_status: { select: { name: true } },
+        },
+      }),
+      this.prisma.specializations.count({ where: { deleted_at: null } }),
+      this.prisma.classSubjects.count({ where: { deleted_at: null } }),
+      this.prisma.teachers.count({
+        where: {
+          deleted_at: null,
+          classSubjects: { none: { deleted_at: null } },
+        },
+      }),
+    ]);
 
     let tetapCount = 0;
     let honorerCount = 0;
     for (const teacher of teachers) {
       const status = normalizeStatusName(teacher.employment_status?.name);
       if (status.includes("tetap")) tetapCount += 1;
-      else if (status.includes("honorer") || status.includes("kontrak")) honorerCount += 1;
+      else if (status.includes("honorer") || status.includes("kontrak"))
+        honorerCount += 1;
     }
 
     return {
