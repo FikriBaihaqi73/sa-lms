@@ -29,7 +29,7 @@ export function useTeachersPageController() {
   const teachersQuery = useTeachers({
     page: state.page,
     limit: state.limit,
-    search: state.deferredSearch.trim(),
+    search: state.debouncedSearch.trim(),
     status: state.statusId,
     specialization: state.specializationId,
   });

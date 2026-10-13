@@ -1,10 +1,11 @@
-import { useDeferredValue, useState } from "react";
+import { useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import type { Teacher } from "../types";
 import type { TeacherFormValues } from "../schemas/teacherSchema";
 
 export function useTeachersPageState() {
   const [search, setSearch] = useState("");
-  const deferredSearch = useDeferredValue(search);
+  const debouncedSearch = useDebounce(search);
   const [statusId, setStatusId] = useState("");
   const [specializationId, setSpecializationId] = useState("");
   const [page, setPage] = useState(1);
@@ -14,7 +15,7 @@ export function useTeachersPageState() {
   const [deletingTeacher, setDeletingTeacher] = useState<Teacher | null>(null);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; message: string } | null>(null);
   return {
-    search, setSearch, deferredSearch,
+    search, setSearch, debouncedSearch,
     statusId, setStatusId, specializationId, setSpecializationId,
     page, setPage, limit, setLimit,
     isAdding, setIsAdding, editingTeacher, setEditingTeacher,

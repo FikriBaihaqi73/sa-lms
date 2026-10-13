@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
 	useCreateSetting,
 	useDeleteSetting,
@@ -22,6 +23,7 @@ export function SettingsPage() {
 	const [page, setPage] = useState(1);
 	const [limit] = useState(10);
 	const [search, setSearch] = useState("");
+	const debouncedSearch = useDebounce(search);
 	const [isAdding, setIsAdding] = useState(false);
 	const [editingItem, setEditingItem] = useState<Setting | null>(null);
 	const [deletingItem, setDeletingItem] = useState<Setting | null>(null);
@@ -30,7 +32,7 @@ export function SettingsPage() {
 		message: string;
 	} | null>(null);
 
-	const settingsQuery = useSettings({ page, limit, search });
+	const settingsQuery = useSettings({ page, limit, search: debouncedSearch.trim() });
 	const createMutation = useCreateSetting();
 	const updateMutation = useUpdateSetting();
 	const deleteMutation = useDeleteSetting();

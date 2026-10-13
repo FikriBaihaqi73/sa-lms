@@ -1,4 +1,5 @@
-import { useDeferredValue, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { AttendanceStatusHeader } from './AttendanceStatusHeader';
 import { AttendanceStatusStats } from './AttendanceStatusStats';
 import { AttendanceStatusesTable } from './AttendanceStatusesTable';
@@ -19,7 +20,7 @@ function errorMessage(error: unknown): string {
 
 export function AttendanceStatusesPage() {
   const [search, setSearch] = useState('');
-  const deferredSearch = useDeferredValue(search);
+  const debouncedSearch = useDebounce(search);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isAdding, setIsAdding] = useState(false);
@@ -27,7 +28,7 @@ export function AttendanceStatusesPage() {
   const [deletingItem, setDeletingItem] = useState<AttendanceStatus | null>(null);
   const [notice, setNotice] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
 
-  const normalizedSearch = deferredSearch.trim();
+  const normalizedSearch = debouncedSearch.trim();
   const statusesQuery = useAttendanceStatuses({ page: currentPage, limit, search: normalizedSearch });
   const createMutation = useCreateAttendanceStatus();
   const updateMutation = useUpdateAttendanceStatus();
