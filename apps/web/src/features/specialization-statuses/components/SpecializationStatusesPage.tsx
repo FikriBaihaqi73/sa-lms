@@ -42,7 +42,7 @@ export function SpecializationStatusesPage() {
         description: values.description || undefined,
       });
       setIsAdding(false);
-      setNotice({ kind: 'success', message: 'Status akademik berhasil ditambahkan.' });
+      setNotice({ kind: 'success', message: 'Data peminatan berhasil ditambahkan.' });
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
@@ -56,7 +56,7 @@ export function SpecializationStatusesPage() {
         input: { name: values.name, description: values.description || undefined },
       });
       setEditingItem(null);
-      setNotice({ kind: 'success', message: 'Status akademik berhasil diperbarui.' });
+      setNotice({ kind: 'success', message: 'Data peminatan berhasil diperbarui.' });
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
@@ -67,11 +67,12 @@ export function SpecializationStatusesPage() {
     try {
       await deleteMutation.mutateAsync(deletingItem.id);
       setDeletingItem(null);
-      setNotice({ kind: 'success', message: 'Status akademik berhasil dihapus.' });
+      setNotice({ kind: 'success', message: 'Data peminatan berhasil dihapus.' });
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
   };
+
 
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-slate-900 dark:text-slate-50 sm:p-6">

@@ -13,6 +13,7 @@ import {
   CreateSpecializationDto,
   UpdateSpecializationDto,
 } from "@repo/shared/schemas/specialization.schema";
+import { Public } from "../auth/public.decorator";
 import { SpecializationService } from "./specialization.service";
 
 @ApiTags("Specializations")
@@ -22,6 +23,7 @@ export class SpecializationController {
   constructor(private readonly specializationService: SpecializationService) {}
 
   @Get()
+  @Public()
   @ApiOperation({ summary: "Get all specializations" })
   async findAll() {
     const specializations = await this.specializationService.findAll();
@@ -32,6 +34,7 @@ export class SpecializationController {
   }
 
   @Get(":id")
+  @Public()
   @ApiOperation({ summary: "Get specialization by ID" })
   async findOne(@Param("id") id: string) {
     const specialization = await this.specializationService.findOne(id);
@@ -40,6 +43,7 @@ export class SpecializationController {
       "Specialization detail retrieved successfully",
     );
   }
+
 
   @Post()
   @ApiOperation({ summary: "Create a new specialization" })

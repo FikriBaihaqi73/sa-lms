@@ -83,7 +83,7 @@ export function AppSidebar() {
 								<NavItem to="/nationalities" icon={Globe} label="Nationalities" />
 								<NavItem to="/academic-statuses" icon={BookOpenCheck} label="Academic Statuses" />
 								<NavItem to="/employment-statuses" icon={Briefcase} label="Employment Statuses" />
-								<NavItem to="/specialization-statuses" icon={BookOpenCheck} label="Specialization Statuses" />
+								<NavItem to="/specializations" icon={Award} label="Peminatan & Keahlian" />
 								<NavItem to="/assignment-types" icon={BookOpen} label="Assignment Types" />
 								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Attendance Statuses" />
 								<NavItem to="/academic-years" icon={BookOpen} label="Academic Years" />

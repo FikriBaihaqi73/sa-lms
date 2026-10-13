@@ -1,9 +1,9 @@
 import { AlertTriangle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { SpecializationStatus } from '../types';
+import type { Specialization } from '../types';
 
 interface DeleteSpecializationStatusDialogProps {
-  specializationStatus: SpecializationStatus | null;
+  specializationStatus: Specialization | null;
   isDeleting: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void>;
@@ -29,7 +29,9 @@ export function DeleteSpecializationStatusDialog({
             <span className="grid size-10 place-items-center rounded-xl bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400">
               <AlertTriangle className="size-5" />
             </span>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Hapus Status Akademik</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              Hapus Data Peminatan
+            </h2>
           </div>
           <button
             type="button"
@@ -43,19 +45,27 @@ export function DeleteSpecializationStatusDialog({
 
         <div className="space-y-4 p-6">
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Apakah Anda yakin ingin menghapus status akademik{' '}
-            <strong className="font-bold text-slate-900 dark:text-slate-100">"{specializationStatus.name}"</strong>
+            Apakah Anda yakin ingin menghapus data peminatan / konsentrasi{' '}
+            <strong className="font-bold text-slate-900 dark:text-slate-100">
+              "{specializationStatus.name}"
+            </strong>
             ? Tindakan ini tidak dapat dibatalkan.
           </p>
 
           {specializationStatus.description && (
             <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
-              <span className="font-semibold">Keterangan:</span> {specializationStatus.description}
+              <span className="font-semibold">Deskripsi:</span> {specializationStatus.description}
             </div>
           )}
 
           <div className="flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isDeleting} className="h-10 px-4 text-sm font-semibold">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isDeleting}
+              className="h-10 px-4 text-sm font-semibold"
+            >
               Batal
             </Button>
             <Button

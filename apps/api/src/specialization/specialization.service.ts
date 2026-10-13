@@ -33,20 +33,25 @@ export class SpecializationService {
   }
 
   async create(dto: CreateSpecializationDto) {
-    const existing = await this.specializationRepository.findByName(dto.name);
+    const trimmedName = dto.name.trim();
+    const existing = await this.specializationRepository.findByName(trimmedName);
     if (existing) {
       throw new ConflictException("Specialization name already exists");
     }
     return this.specializationRepository.create({
-      name: dto.name,
-      ...(dto.description ? { description: dto.description } : {}),
+      name: trimmedName,
+      ...(dto.description !== undefined && dto.description !== null
+        ? { description: dto.description.trim() }
+        : {}),
     });
   }
 
   async update(id: string, dto: UpdateSpecializationDto) {
     await this.findOne(id);
     if (dto.name) {
-      const existing = await this.specializationRepository.findByName(dto.name);
+      const trimmedName = dto.name.trim();
+      const existing =
+        await this.specializationRepository.findByName(trimmedName);
       if (existing && existing.id !== id) {
         throw new ConflictException(
           "Specialization name already in use by another specialization",
@@ -54,9 +59,9 @@ export class SpecializationService {
       }
     }
     return this.specializationRepository.update(id, {
-      ...(dto.name ? { name: dto.name } : {}),
+      ...(dto.name ? { name: dto.name.trim() } : {}),
       ...(dto.description !== undefined
-        ? { description: dto.description ?? undefined }
+        ? { description: dto.description ? dto.description.trim() : null }
         : {}),
     });
   }
@@ -67,3 +72,4 @@ export class SpecializationService {
     return { success: true, id };
   }
 }
+

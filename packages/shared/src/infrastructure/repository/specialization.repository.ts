@@ -6,12 +6,12 @@ import {
 
 export interface CreateSpecializationInput {
   name: string;
-  description?: string;
+  description?: string | null | undefined;
 }
 
 export interface UpdateSpecializationInput {
-  name?: string;
-  description?: string;
+  name?: string | undefined;
+  description?: string | null | undefined;
 }
 
 export class SpecializationRepository {
@@ -52,6 +52,9 @@ export class SpecializationRepository {
       where: {
         deleted_at: null,
       },
+      orderBy: {
+        created_at: "asc",
+      },
       select: specializationSelect,
     });
   }
@@ -69,7 +72,7 @@ export class SpecializationRepository {
           name: data.name,
         }),
         ...(data.description !== undefined && {
-          description: data.description,
+          description: data.description ?? null,
         }),
       },
       select: specializationSelect,
@@ -88,3 +91,4 @@ export class SpecializationRepository {
     });
   }
 }
+
