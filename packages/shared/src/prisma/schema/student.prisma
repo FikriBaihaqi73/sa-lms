@@ -9,8 +9,10 @@ model Student {
   profileId        String  @unique @map("profile_id") @db.Uuid
   departmentId     String? @map("department_id") @db.Uuid
   academicStatusId String  @map("academic_status_id") @db.Uuid
-  studentNumber    String  @unique @map("student_number")
-  enrollmentYear   Int?    @map("enrollment_year")
+  studentNumber    String    @unique @map("student_number")
+  enrollmentYear   Int?      @map("enrollment_year")
+  referralCode     String?   @map("referral_code") @db.VarChar(100)
+  referralExpiresAt DateTime? @map("referral_expires_at") @db.Timestamp
 
   // relations
   profile               Profile                @relation(fields: [profileId], references: [id])

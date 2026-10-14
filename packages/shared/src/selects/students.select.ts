@@ -11,6 +11,8 @@ export const studentSelect = {
   academicStatusId: true,
   studentNumber: true,
   enrollmentYear: true,
+  referralCode: true,
+  referralExpiresAt: true,
 
   profile: {
     select: {

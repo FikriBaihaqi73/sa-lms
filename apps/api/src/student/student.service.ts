@@ -26,6 +26,12 @@ export class StudentService {
       ...(createStudentDto.enrollmentYear !== undefined && {
         enrollmentYear: createStudentDto.enrollmentYear,
       }),
+      ...(createStudentDto.referralCode !== undefined && {
+        referralCode: createStudentDto.referralCode,
+      }),
+      ...(createStudentDto.referralExpiresAt !== undefined && {
+        referralExpiresAt: createStudentDto.referralExpiresAt,
+      }),
     });
 
     return ResponseHelper.success(student, "Student successfully created");
@@ -70,6 +76,12 @@ export class StudentService {
       }),
       ...(updateStudentDto.enrollmentYear !== undefined && {
         enrollmentYear: updateStudentDto.enrollmentYear,
+      }),
+      ...(updateStudentDto.referralCode !== undefined && {
+        referralCode: updateStudentDto.referralCode,
+      }),
+      ...(updateStudentDto.referralExpiresAt !== undefined && {
+        referralExpiresAt: updateStudentDto.referralExpiresAt,
       }),
     });
 

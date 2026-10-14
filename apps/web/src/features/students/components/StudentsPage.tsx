@@ -49,6 +49,8 @@ export function StudentsPage() {
         studentNumber: values.studentNumber.trim(),
         ...(values.departmentId ? { departmentId: values.departmentId } : {}),
         ...(values.enrollmentYear !== undefined ? { enrollmentYear: values.enrollmentYear } : {}),
+        referralCode: values.referralCode?.trim() || null,
+        referralExpiresAt: values.referralExpiresAt || null,
       };
       if (editingStudent) {
         await updateMutation.mutateAsync({ id: editingStudent.id, input: base });

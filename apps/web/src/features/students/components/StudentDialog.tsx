@@ -21,7 +21,26 @@ interface StudentDialogProps {
   onSave: (values: StudentFormValues) => Promise<void>;
 }
 
-const EMPTY_VALUES: StudentFormInput = { profileId: "", departmentId: "", academicStatusId: "", studentNumber: "", enrollmentYear: undefined };
+function formatDateForInput(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toISOString().slice(0, 10);
+  } catch {
+    return "";
+  }
+}
+
+const EMPTY_VALUES: StudentFormInput = {
+  profileId: "",
+  departmentId: "",
+  academicStatusId: "",
+  studentNumber: "",
+  enrollmentYear: undefined,
+  referralCode: "",
+  referralExpiresAt: "",
+};
 
 export function StudentDialog({ open, student, profiles, departments, academicStatuses, isSaving, onClose, onSave }: StudentDialogProps) {
   const isEditing = Boolean(student);
@@ -35,6 +54,8 @@ export function StudentDialog({ open, student, profiles, departments, academicSt
       academicStatusId: student.academicStatusId,
       studentNumber: student.studentNumber,
       enrollmentYear: student.enrollmentYear ?? undefined,
+      referralCode: student.referralCode ?? "",
+      referralExpiresAt: formatDateForInput(student.referralExpiresAt),
     } : EMPTY_VALUES);
   }, [open, reset, student]);
 
@@ -46,6 +67,7 @@ export function StudentDialog({ open, student, profiles, departments, academicSt
       <div className="space-y-2"><Label htmlFor="student-profile" className="text-sm font-semibold">Profil <span className="text-red-500">*</span></Label><Select id="student-profile" {...register("profileId")} disabled={isEditing} className="h-11"><option value="">Pilih profil</option>{profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.fullName}{profile.email ? ` — ${profile.email}` : ""}</option>)}</Select>{isEditing && <p className="text-xs text-slate-500 dark:text-slate-400">Profil tidak dapat diubah saat menyunting karena API siswa hanya memperbarui data akademik.</p>}{errors.profileId && <p className="text-xs font-medium text-red-500">{errors.profileId.message}</p>}</div>
       <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="student-department" className="text-sm font-semibold">Jurusan</Label><Select id="student-department" {...register("departmentId")} className="h-11"><option value="">Tanpa jurusan</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.name}{department.code ? ` (${department.code})` : ""}</option>)}</Select>{errors.departmentId && <p className="text-xs font-medium text-red-500">{errors.departmentId.message}</p>}</div><div className="space-y-2"><Label htmlFor="student-status" className="text-sm font-semibold">Status Akademik <span className="text-red-500">*</span></Label><Select id="student-status" {...register("academicStatusId")} className="h-11"><option value="">Pilih status akademik</option>{academicStatuses.map((status) => <option key={status.id} value={status.id}>{status.name}</option>)}</Select>{errors.academicStatusId && <p className="text-xs font-medium text-red-500">{errors.academicStatusId.message}</p>}</div></div>
       <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="student-number" className="text-sm font-semibold">Nomor Induk Siswa <span className="text-red-500">*</span></Label><Input id="student-number" {...register("studentNumber")} placeholder="Contoh: 20260001" className="h-11" />{errors.studentNumber && <p className="text-xs font-medium text-red-500">{errors.studentNumber.message}</p>}</div><div className="space-y-2"><Label htmlFor="student-year" className="text-sm font-semibold">Tahun Masuk</Label><Input id="student-year" type="number" {...register("enrollmentYear", { valueAsNumber: true })} placeholder="Contoh: 2026" className="h-11" />{errors.enrollmentYear && <p className="text-xs font-medium text-red-500">{errors.enrollmentYear.message}</p>}</div></div>
+      <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="student-referral-code" className="text-sm font-semibold">Kode Referral</Label><Input id="student-referral-code" {...register("referralCode")} placeholder="Contoh: REF2026XYZ" className="h-11" />{errors.referralCode && <p className="text-xs font-medium text-red-500">{errors.referralCode.message}</p>}</div><div className="space-y-2"><Label htmlFor="student-referral-expires" className="text-sm font-semibold">Tanggal Expired Referral</Label><Input id="student-referral-expires" type="date" {...register("referralExpiresAt")} className="h-11" />{errors.referralExpiresAt && <p className="text-xs font-medium text-red-500">{errors.referralExpiresAt.message}</p>}</div></div>
       <div className="flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800"><Button type="button" variant="outline" onClick={onClose} disabled={isSaving} className="h-10 px-4 text-sm font-semibold">Batal</Button><Button type="submit" disabled={isSaving} className="h-10 bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700">{isSaving ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah Siswa"}</Button></div>
       </form>
     </div>
