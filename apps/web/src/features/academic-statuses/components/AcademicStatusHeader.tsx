@@ -1,4 +1,4 @@
-import { Download, Plus, SlidersHorizontal } from 'lucide-react';
+import { Plus, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AcademicStatusHeaderProps {
@@ -26,13 +26,6 @@ export function AcademicStatusHeader({ onAdd }: AcademicStatusHeaderProps) {
       </div>
 
       <div className="flex flex-wrap gap-2 lg:max-w-md lg:justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          className="h-10 border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-        >
-          <Download className="mr-1.5 size-4" /> Export Standar PD-DIKTI
-        </Button>
         <Button
           type="button"
           variant="outline"
