@@ -1,4 +1,4 @@
-import { NotFoundException } from "@nestjs/common";
+import { ConflictException, NotFoundException } from "@nestjs/common";
 import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
 import type {
   CreateStudentDto,
@@ -59,6 +59,12 @@ describe("StudentService", () => {
   beforeEach(() => {
     service = new StudentService(mockPrismaService);
     jest.clearAllMocks();
+    jest
+      .spyOn(StudentRepository.prototype, "findByProfileId")
+      .mockResolvedValue(null);
+    jest
+      .spyOn(StudentRepository.prototype, "findByStudentNumber")
+      .mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -66,6 +72,38 @@ describe("StudentService", () => {
   });
 
   describe("create", () => {
+    it("throws ConflictException when profile is already registered as a student", async () => {
+      jest
+        .spyOn(StudentRepository.prototype, "findByProfileId")
+        .mockResolvedValue(sampleStudentEntity);
+
+      const dto: CreateStudentDto = {
+        profileId: "profile-uuid-1",
+        academicStatusId: "status-uuid-1",
+        studentNumber: "20260001",
+      };
+
+      await expect(service.create(dto)).rejects.toBeInstanceOf(
+        ConflictException,
+      );
+    });
+
+    it("throws ConflictException when student number is already in use", async () => {
+      jest
+        .spyOn(StudentRepository.prototype, "findByStudentNumber")
+        .mockResolvedValue(sampleStudentEntity);
+
+      const dto: CreateStudentDto = {
+        profileId: "profile-uuid-2",
+        academicStatusId: "status-uuid-1",
+        studentNumber: "20260001",
+      };
+
+      await expect(service.create(dto)).rejects.toBeInstanceOf(
+        ConflictException,
+      );
+    });
+
     it("creates a student with referralCode and referralExpiresAt", async () => {
       const createSpy = jest
         .spyOn(StudentRepository.prototype, "create")
