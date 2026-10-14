@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { ResponseHelper } from "@repo/shared/http/response";
 import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
 import type {
@@ -16,6 +20,22 @@ export class StudentService {
   }
 
   async create(createStudentDto: CreateStudentDto) {
+    const existingByProfile = await this.studentRepository.findByProfileId(
+      createStudentDto.profileId,
+    );
+    if (existingByProfile) {
+      throw new ConflictException(
+        "Profil pengguna ini sudah terdaftar sebagai siswa",
+      );
+    }
+
+    const existingByNumber = await this.studentRepository.findByStudentNumber(
+      createStudentDto.studentNumber,
+    );
+    if (existingByNumber) {
+      throw new ConflictException("Nomor Induk Siswa sudah terdaftar");
+    }
+
     const student = await this.studentRepository.create({
       profileId: createStudentDto.profileId,
       ...(createStudentDto.departmentId !== undefined && {
@@ -25,6 +45,12 @@ export class StudentService {
       studentNumber: createStudentDto.studentNumber,
       ...(createStudentDto.enrollmentYear !== undefined && {
         enrollmentYear: createStudentDto.enrollmentYear,
+      }),
+      ...(createStudentDto.referralCode !== undefined && {
+        referralCode: createStudentDto.referralCode,
+      }),
+      ...(createStudentDto.referralExpiresAt !== undefined && {
+        referralExpiresAt: createStudentDto.referralExpiresAt,
       }),
     });
 
@@ -70,6 +96,12 @@ export class StudentService {
       }),
       ...(updateStudentDto.enrollmentYear !== undefined && {
         enrollmentYear: updateStudentDto.enrollmentYear,
+      }),
+      ...(updateStudentDto.referralCode !== undefined && {
+        referralCode: updateStudentDto.referralCode,
+      }),
+      ...(updateStudentDto.referralExpiresAt !== undefined && {
+        referralExpiresAt: updateStudentDto.referralExpiresAt,
       }),
     });
 

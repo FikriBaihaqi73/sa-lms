@@ -20,6 +20,24 @@ export const CreateStudentSchema = z.object({
     .min(1, "Student number is required")
     .describe("Student Number/NIM"),
   enrollmentYear: z.number().int().optional().describe("Enrollment Year"),
+  referralCode: z
+    .string()
+    .trim()
+    .max(100, "Kode referral maksimal 100 karakter")
+    .optional()
+    .describe("Kode referral siswa"),
+  referralExpiresAt: z
+    .string()
+    .datetime({ message: "Format tanggal expired harus ISO 8601" })
+    .or(
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal harus YYYY-MM-DD"),
+    )
+    .or(z.literal(""))
+    .optional()
+    .nullable()
+    .describe("Tanggal kedaluwarsa kode referral"),
 });
 
 export const UpdateStudentSchema = CreateStudentSchema.partial();

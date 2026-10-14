@@ -11,6 +11,13 @@ export const studentFormSchema = z.object({
   academicStatusId: z.string().uuid("Status akademik wajib dipilih."),
   studentNumber: z.string().trim().min(1, "Nomor mahasiswa wajib diisi."),
   enrollmentYear: optionalNumber,
+  referralCode: z
+    .string()
+    .trim()
+    .max(100, "Kode referral maksimal 100 karakter.")
+    .optional()
+    .or(z.literal("")),
+  referralExpiresAt: z.string().optional().or(z.literal("")),
 });
 
 export type StudentFormInput = z.input<typeof studentFormSchema>;

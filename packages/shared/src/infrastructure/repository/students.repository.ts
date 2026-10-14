@@ -7,6 +7,8 @@ export interface CreateStudentInput {
   academicStatusId: string;
   studentNumber: string;
   enrollmentYear?: number | null;
+  referralCode?: string | null;
+  referralExpiresAt?: Date | string | null;
 }
 
 export interface UpdateStudentInput {
@@ -14,6 +16,8 @@ export interface UpdateStudentInput {
   academicStatusId?: string;
   studentNumber?: string;
   enrollmentYear?: number | null;
+  referralCode?: string | null;
+  referralExpiresAt?: Date | string | null;
 }
 
 export interface FindAllStudentInput {
@@ -44,6 +48,10 @@ export class StudentRepository {
         academicStatusId: data.academicStatusId,
         studentNumber: data.studentNumber,
         enrollmentYear: data.enrollmentYear ?? null,
+        referralCode: data.referralCode ? data.referralCode.trim() : null,
+        referralExpiresAt: data.referralExpiresAt
+          ? new Date(data.referralExpiresAt)
+          : null,
       },
       select: studentSelect,
     });
@@ -126,6 +134,12 @@ export class StudentRepository {
                   },
                 },
               },
+              {
+                referralCode: {
+                  contains: search,
+                  mode: "insensitive" as const,
+                },
+              },
             ],
           }
         : {}),
@@ -175,6 +189,14 @@ export class StudentRepository {
         }),
         ...(data.enrollmentYear !== undefined && {
           enrollmentYear: data.enrollmentYear,
+        }),
+        ...(data.referralCode !== undefined && {
+          referralCode: data.referralCode ? data.referralCode.trim() : null,
+        }),
+        ...(data.referralExpiresAt !== undefined && {
+          referralExpiresAt: data.referralExpiresAt
+            ? new Date(data.referralExpiresAt)
+            : null,
         }),
       },
       select: studentSelect,

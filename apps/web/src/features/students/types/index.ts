@@ -32,6 +32,8 @@ export interface Student {
   academicStatusId: string;
   studentNumber: string;
   enrollmentYear?: number | null;
+  referralCode?: string | null;
+  referralExpiresAt?: string | null;
   profile?: StudentProfile | null;
 }
 
@@ -53,6 +55,8 @@ export interface CreateStudentInput {
   academicStatusId: string;
   studentNumber: string;
   enrollmentYear?: number;
+  referralCode?: string | null;
+  referralExpiresAt?: string | null;
 }
 
 export interface UpdateStudentInput {
@@ -60,6 +64,8 @@ export interface UpdateStudentInput {
   academicStatusId?: string;
   studentNumber?: string;
   enrollmentYear?: number;
+  referralCode?: string | null;
+  referralExpiresAt?: string | null;
 }
 
 export interface StudentProfileListResult {
