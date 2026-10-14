@@ -23,7 +23,10 @@ import { guardiansRoute } from "./routes/guardians/index";
 import { loginRoute } from "./routes/login/index";
 import { registerRoute } from "./routes/register/index";
 import { settingsRoute } from "./routes/settingsLayout";
-import { specializationStatusesRoute } from "./routes/specialization-statuses/index";
+import {
+	specializationStatusesRoute,
+	specializationsRoute,
+} from "./routes/specialization-statuses/index";
 import { studentsRoute } from "./routes/students/index";
 import { studentGuardiansRoute } from "./routes/student-guardians/index";
 import { teachersRoute } from "./routes/_settings/teachers/index";
@@ -43,6 +46,7 @@ const settingsTree = settingsRoute.addChildren([
 	religionsRoute,
 	settingsRouteDef,
 	specializationStatusesRoute,
+	specializationsRoute,
 	attendanceStatusesRoute,
 	assignmentTypesRoute,
 	profileRoute,
@@ -50,6 +54,7 @@ const settingsTree = settingsRoute.addChildren([
 	academicYearsRoute,
 	semestersRoute,
 ]);
+
 
 const userTree = userRoute.addChildren([indexRoute]);
 

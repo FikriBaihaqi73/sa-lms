@@ -1,80 +1,69 @@
 import { apiFetch } from '@/lib/api';
-import { enrichSpecializationStatus } from '../data/mockSpecializationStatuses';
 import type {
-  SpecializationStatus,
+  Specialization,
   ApiResponse,
-  CreateSpecializationStatusInput,
-  UpdateSpecializationStatusInput,
+  CreateSpecializationInput,
+  UpdateSpecializationInput,
 } from '../types';
 
-export const getSpecializationStatusesApi = async (): Promise<SpecializationStatus[]> => {
-  let response: ApiResponse<SpecializationStatus[]>;
-  try {
-    response = await apiFetch('/specializations');
-  } catch {
-    response = await apiFetch('/specialization-statuses');
+export const getSpecializationsApi = async (): Promise<Specialization[]> => {
+  const response = (await apiFetch('/specializations')) as ApiResponse<Specialization[]>;
+  const rawData = response.data;
+  if (Array.isArray(rawData)) {
+    return rawData;
   }
-  const rawData = Array.isArray(response.data) ? response.data : ((response as any).data?.data || []);
-  return rawData.map(enrichSpecializationStatus);
+  if (rawData && typeof rawData === 'object' && 'data' in rawData && Array.isArray((rawData as { data: Specialization[] }).data)) {
+    return (rawData as { data: Specialization[] }).data;
+  }
+  return [];
 };
 
-export const getSpecializationStatusByIdApi = async (id: string): Promise<SpecializationStatus> => {
-  let response: ApiResponse<SpecializationStatus>;
-  try {
-    response = await apiFetch(`/specializations/${id}`);
-  } catch {
-    response = await apiFetch(`/specialization-statuses/${id}`);
-  }
-  return enrichSpecializationStatus(response.data);
-};
-
-export const createSpecializationStatusApi = async (
-  input: CreateSpecializationStatusInput,
-): Promise<SpecializationStatus> => {
-  let response: ApiResponse<SpecializationStatus>;
-  try {
-    response = await apiFetch('/specializations', {
-      method: 'POST',
-      body: JSON.stringify(input),
-    });
-  } catch {
-    response = await apiFetch('/specialization-statuses', {
-      method: 'POST',
-      body: JSON.stringify(input),
-    });
-  }
-  return enrichSpecializationStatus(response.data);
-};
-
-export const updateSpecializationStatusApi = async (
-  id: string,
-  input: UpdateSpecializationStatusInput,
-): Promise<SpecializationStatus> => {
-  let response: ApiResponse<SpecializationStatus>;
-  try {
-    response = await apiFetch(`/specializations/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(input),
-    });
-  } catch {
-    response = await apiFetch(`/specialization-statuses/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(input),
-    });
-  }
-  return enrichSpecializationStatus(response.data);
-};
-
-export const deleteSpecializationStatusApi = async (id: string): Promise<{ id: string }> => {
-  let response: ApiResponse<{ id: string }>;
-  try {
-    response = await apiFetch(`/specializations/${id}`, {
-      method: 'DELETE',
-    });
-  } catch {
-    response = await apiFetch(`/specialization-statuses/${id}`, {
-      method: 'DELETE',
-    });
-  }
+export const getSpecializationByIdApi = async (id: string): Promise<Specialization> => {
+  const response = (await apiFetch(`/specializations/${id}`)) as ApiResponse<Specialization>;
   return response.data;
 };
+
+export const createSpecializationApi = async (
+  input: CreateSpecializationInput,
+): Promise<Specialization> => {
+  const payload = {
+    name: input.name.trim(),
+    ...(input.description ? { description: input.description.trim() } : {}),
+  };
+  const response = (await apiFetch('/specializations', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })) as ApiResponse<Specialization>;
+  return response.data;
+};
+
+export const updateSpecializationApi = async (
+  id: string,
+  input: UpdateSpecializationInput,
+): Promise<Specialization> => {
+  const payload = {
+    ...(input.name ? { name: input.name.trim() } : {}),
+    ...(input.description !== undefined
+      ? { description: input.description ? input.description.trim() : null }
+      : {}),
+  };
+  const response = (await apiFetch(`/specializations/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })) as ApiResponse<Specialization>;
+  return response.data;
+};
+
+export const deleteSpecializationApi = async (id: string): Promise<{ id: string }> => {
+  const response = (await apiFetch(`/specializations/${id}`, {
+    method: 'DELETE',
+  })) as ApiResponse<{ id: string }>;
+  return response.data;
+};
+
+// Aliases for compatibility with existing imports
+export const getSpecializationStatusesApi = getSpecializationsApi;
+export const getSpecializationStatusByIdApi = getSpecializationByIdApi;
+export const createSpecializationStatusApi = createSpecializationApi;
+export const updateSpecializationStatusApi = updateSpecializationApi;
+export const deleteSpecializationStatusApi = deleteSpecializationApi;

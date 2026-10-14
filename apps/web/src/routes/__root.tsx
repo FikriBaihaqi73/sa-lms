@@ -22,6 +22,7 @@ const SUPERADMIN_ONLY_PREFIXES = [
 	"/nationalities",
 	"/academic-statuses",
 	"/employment-statuses",
+	"/specializations",
 	"/specialization-statuses",
 	"/attendance-statuses",
 	"/institutions",

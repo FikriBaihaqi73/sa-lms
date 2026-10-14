@@ -14,7 +14,17 @@ import type { SpecializationStatus } from '../types';
 import type { SpecializationStatusFormValues } from '../schemas/specializationStatusSchema';
 
 function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+    if (
+      msg.includes('authentication') ||
+      msg.includes('unauthorized') ||
+      (error as { status?: number })?.status === 401
+    ) {
+      return 'Sesi login Anda telah berakhir atau belum masuk. Silakan masuk kembali ke akun Anda.';
+    }
+    return error.message;
+  }
   return 'Terjadi kesalahan. Silakan coba lagi.';
 }
 
@@ -42,7 +52,8 @@ export function SpecializationStatusesPage() {
         description: values.description || undefined,
       });
       setIsAdding(false);
-      setNotice({ kind: 'success', message: 'Status akademik berhasil ditambahkan.' });
+      setNotice({ kind: 'success', message: 'Data peminatan berhasil ditambahkan.' });
+      specializationStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
@@ -56,7 +67,8 @@ export function SpecializationStatusesPage() {
         input: { name: values.name, description: values.description || undefined },
       });
       setEditingItem(null);
-      setNotice({ kind: 'success', message: 'Status akademik berhasil diperbarui.' });
+      setNotice({ kind: 'success', message: 'Data peminatan berhasil diperbarui.' });
+      specializationStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
@@ -67,11 +79,13 @@ export function SpecializationStatusesPage() {
     try {
       await deleteMutation.mutateAsync(deletingItem.id);
       setDeletingItem(null);
-      setNotice({ kind: 'success', message: 'Status akademik berhasil dihapus.' });
+      setNotice({ kind: 'success', message: 'Data peminatan berhasil dihapus.' });
+      specializationStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
   };
+
 
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-slate-900 dark:text-slate-50 sm:p-6">

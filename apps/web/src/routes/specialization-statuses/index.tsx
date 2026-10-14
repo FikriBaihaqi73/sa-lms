@@ -7,3 +7,9 @@ export const specializationStatusesRoute = createRoute({
   path: '/specialization-statuses',
   component: SpecializationStatusesPage,
 });
+
+export const specializationsRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: '/specializations',
+  component: SpecializationStatusesPage,
+});

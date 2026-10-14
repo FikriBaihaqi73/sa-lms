@@ -84,7 +84,7 @@ export function AppSidebar() {
 								<NavItem to="/nationalities" icon={Globe} label="Kewarganegaraan" />
 								<NavItem to="/academic-statuses" icon={BookOpenCheck} label="Status Akademik" />
 								<NavItem to="/employment-statuses" icon={Briefcase} label="Status Kepegawaian" />
-								<NavItem to="/specialization-statuses" icon={BookOpenCheck} label="Status Spesialisasi" />
+								<NavItem to="/specializations" icon={Award} label="Peminatan & Keahlian" />
 								<NavItem to="/assignment-types" icon={BookOpen} label="Jenis Tugas" />
 								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Status Kehadiran" />
 								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran" />
