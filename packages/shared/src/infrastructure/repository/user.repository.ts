@@ -1,4 +1,4 @@
-import type { PrismaClient } from "#generated/client";
+import type { Prisma, PrismaClient } from "#generated/client";
 import {
   type UserEntity,
   type UserWithPasswordEntity,
@@ -22,6 +22,13 @@ export interface FindAllUserInput {
   page?: number;
   limit?: number;
   search?: string;
+  /**
+   * When provided, only users that belong to this institution (through a
+   * non-deleted profile) are returned. The filter is part of the shared
+   * `where` clause so it also constrains pagination and the `total` count.
+   * Omit it to read users across every institution (superadmin scope).
+   */
+  institution_id?: string;
 }
 
 export interface FindAllUserResult {
@@ -50,11 +57,19 @@ export class UserRepository {
     });
   }
 
-  async findById(id: string): Promise<UserEntity | null> {
+  /**
+   * Look up a user by ID. When `institutionId` is supplied the lookup is
+   * scoped to that institution so a user owned by another institution is
+   * reported as missing (null) instead of being leaked.
+   */
+  async findById(id: string, institutionId?: string): Promise<UserEntity | null> {
     return this.prisma.users.findFirst({
       where: {
         id,
         deleted_at: null,
+        ...(institutionId !== undefined
+          ? { profile: { some: { institutionId, deletedAt: null } } }
+          : {}),
       },
       select: userSelect,
     });
@@ -74,9 +89,15 @@ export class UserRepository {
     const page = Math.max(params.page ?? 1, 1);
     const limit = Math.min(Math.max(params.limit ?? 10, 1), 100);
     const search = params.search?.trim();
+    const institutionId = params.institution_id?.trim();
 
-    const where = {
+    const where: Prisma.UsersWhereInput = {
       deleted_at: null,
+      // Institution scope is applied up-front so pagination, search and the
+      // `total` count below only ever consider the caller's institution.
+      ...(institutionId
+        ? { profile: { some: { institutionId, deletedAt: null } } }
+        : {}),
       ...(search
         ? {
             OR: [
