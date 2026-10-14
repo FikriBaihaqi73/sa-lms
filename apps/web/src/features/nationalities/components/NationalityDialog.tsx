@@ -99,7 +99,7 @@ export function NationalityDialog({
             <Input
               id="name"
               {...register('name')}
-              placeholder="Contoh: Indonesia, Malaysia, Japan"
+              placeholder="Contoh: Indonesia, Malaysia, Jepang"
               className="h-11"
             />
             {errors.name && (

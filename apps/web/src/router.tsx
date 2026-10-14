@@ -28,6 +28,7 @@ import {
 	specializationsRoute,
 } from "./routes/specialization-statuses/index";
 import { studentsRoute } from "./routes/students/index";
+import { studentGuardiansRoute } from "./routes/student-guardians/index";
 import { teachersRoute } from "./routes/_settings/teachers/index";
 import { userRoute } from "./routes/userLayout";
 
@@ -62,6 +63,7 @@ const routeTree = rootRoute.addChildren([
 	userTree,
 	institutionsRoute,
 	studentsRoute,
+	studentGuardiansRoute,
 	guardiansRoute,
 	loginRoute,
 	registerRoute,

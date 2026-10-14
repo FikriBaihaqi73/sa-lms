@@ -32,11 +32,12 @@ export class StudentGuardianRepository {
     });
   }
 
-  async findById(id: string): Promise<StudentGuardianEntity | null> {
+  async findById(id: string, institutionId: string): Promise<StudentGuardianEntity | null> {
     return this.prisma.studentGuardian.findFirst({
       where: {
         id,
         deletedAt: null,
+        student: { profile: { institutionId } },
       },
       select: studentGuardianSelect,
     });
@@ -59,11 +60,12 @@ export class StudentGuardianRepository {
   async findAll(
     page = 1,
     limit = 10,
-    search?: string,
+    search?: string, institutionId?: string,
   ): Promise<{ data: StudentGuardianEntity[]; meta: any }> {
     const skip = (page - 1) * limit;
     const whereCondition = {
       deletedAt: null,
+      ...(institutionId ? { student: { profile: { institutionId } } } : {}),
       ...(search
         ? {
             OR: [
@@ -136,21 +138,23 @@ export class StudentGuardianRepository {
     };
   }
 
-  async findByStudentId(studentId: string): Promise<StudentGuardianEntity[]> {
+  async findByStudentId(studentId: string, institutionId: string): Promise<StudentGuardianEntity[]> {
     return this.prisma.studentGuardian.findMany({
       where: {
         studentId,
         deletedAt: null,
+        student: { profile: { institutionId } },
       },
       select: studentGuardianSelect,
     });
   }
 
-  async findByGuardianId(guardianId: string): Promise<StudentGuardianEntity[]> {
+  async findByGuardianId(guardianId: string, institutionId: string): Promise<StudentGuardianEntity[]> {
     return this.prisma.studentGuardian.findMany({
       where: {
         guardianId,
         deletedAt: null,
+        student: { profile: { institutionId } },
       },
       select: studentGuardianSelect,
     });

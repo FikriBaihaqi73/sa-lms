@@ -20,6 +20,7 @@ export interface FindAllStudentInput {
   page?: number;
   limit?: number;
   search?: string;
+  institutionId?: string;
 }
 
 export interface FindAllStudentResult {
@@ -89,6 +90,9 @@ export class StudentRepository {
 
     const where = {
       deletedAt: null,
+      ...(params.institutionId
+        ? { profile: { institutionId: params.institutionId } }
+        : {}),
       ...(search
         ? {
             OR: [

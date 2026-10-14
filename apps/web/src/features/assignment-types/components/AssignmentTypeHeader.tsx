@@ -13,7 +13,7 @@ export function AssignmentTypeHeader({ onAdd }: AssignmentTypeHeaderProps) {
         </div>
         <div>
           <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-2xl">
-            Tipe Tugas (Assignment Types)
+            Tipe Tugas
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
             Kelola kategori dan tipe penugasan pembelajaran di institusi pendidikan

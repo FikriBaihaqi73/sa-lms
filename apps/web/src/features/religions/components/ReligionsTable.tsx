@@ -29,7 +29,7 @@ export function ReligionsTable({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <span className="grid size-12 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400"><Church className="size-6" /></span>
-          <div><p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{isLoading ? '...' : meta?.total ?? 0}</p><p className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Religion</p></div>
+          <div><p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{isLoading ? '...' : meta?.total ?? 0}</p><p className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Agama</p></div>
         </div>
         <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <span className="grid size-12 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400"><Search className="size-6" /></span>
@@ -44,7 +44,7 @@ export function ReligionsTable({
       {isError ? (
         <div className="rounded-xl border border-red-200 bg-red-50/50 p-8 text-center text-red-600 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
           <AlertCircle className="mx-auto mb-2 size-8 text-red-500" />
-          <p className="font-semibold">Gagal memuat data religion</p>
+          <p className="font-semibold">Gagal memuat data agama</p>
           <p className="text-sm opacity-90">Periksa koneksi ke backend lalu coba lagi.</p>
         </div>
       ) : (
@@ -56,8 +56,8 @@ export function ReligionsTable({
                 type="text"
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
-                placeholder="Cari nama religion..."
-                aria-label="Cari religion"
+                placeholder="Cari nama agama..."
+                aria-label="Cari agama"
                 className="h-10 w-full rounded-lg border border-slate-200 bg-transparent pl-9 pr-4 text-sm outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:border-slate-800 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-900/30"
               />
             </div>
@@ -66,13 +66,13 @@ export function ReligionsTable({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-left text-sm">
               <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
-                <tr><th className="px-6 py-3.5">#</th><th className="px-6 py-3.5">Nama Religion</th><th className="px-6 py-3.5 text-right">Aksi</th></tr>
+                <tr><th className="px-6 py-3.5">#</th><th className="px-6 py-3.5">Nama Agama</th><th className="px-6 py-3.5 text-right">Aksi</th></tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                 {isLoading ? (
                   [1, 2, 3, 4, 5].map((item) => <tr key={item}><td colSpan={3} className="px-6 py-3"><div className="h-8 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800/60" /></td></tr>)
                 ) : religions.length === 0 ? (
-                  <tr><td colSpan={3} className="px-6 py-12 text-center"><Church className="mx-auto mb-3 size-12 text-slate-300 dark:text-slate-600" /><p className="font-semibold text-slate-800 dark:text-slate-200">{search ? 'Tidak ada religion yang sesuai pencarian' : 'Belum ada data religion'}</p><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{search ? 'Coba gunakan kata kunci lain.' : 'Klik tombol "Tambah Religion" untuk membuat data pertama.'}</p></td></tr>
+                  <tr><td colSpan={3} className="px-6 py-12 text-center"><Church className="mx-auto mb-3 size-12 text-slate-300 dark:text-slate-600" /><p className="font-semibold text-slate-800 dark:text-slate-200">{search ? 'Agama tidak ditemukan untuk pencarian ini' : 'Belum ada data agama'}</p><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{search ? 'Coba gunakan kata kunci lain.' : 'Klik tombol "Tambah Agama" untuk membuat data pertama.'}</p></td></tr>
                 ) : (
                   religions.map((religion, index) => <tr key={religion.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                     <td className="px-6 py-4 font-mono text-xs font-semibold text-slate-500 dark:text-slate-400">{((meta?.page ?? 1) - 1) * (meta?.limit ?? religions.length) + index + 1}</td>
@@ -83,7 +83,7 @@ export function ReligionsTable({
               </tbody>
             </table>
           </div>
-          {!isLoading && <div className="border-t border-slate-200 px-6 py-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">Menampilkan {religions.length} dari {meta?.total ?? 0} religion.</div>}
+          {!isLoading && <div className="border-t border-slate-200 px-6 py-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">Menampilkan {religions.length} dari {meta?.total ?? 0} agama.</div>}
         </div>
       )}
     </div>

@@ -31,7 +31,7 @@ export function DeleteReligionDialog({
               <AlertTriangle className="size-5" />
             </span>
             <h2 id="delete-religion-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              Hapus Religion?
+              Hapus Agama?
             </h2>
           </div>
           <button
@@ -47,7 +47,7 @@ export function DeleteReligionDialog({
 
         <div className="space-y-4 p-6">
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Religion <strong className="font-bold text-slate-900 dark:text-slate-100">"{religion.name}"</strong> akan disembunyikan dari daftar melalui soft delete.
+            Agama <strong className="font-bold text-slate-900 dark:text-slate-100">"{religion.name}"</strong> akan disembunyikan dari daftar.
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Data tidak dihapus secara permanen dan tidak akan tampil pada daftar aktif.

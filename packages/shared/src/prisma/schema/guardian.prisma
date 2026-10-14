@@ -12,9 +12,12 @@ model Guardian {
   email        String? @db.VarChar(255)
   address      String? @db.Text
   occupation   String? @db.VarChar(255)
+  institutionId String? @map("institution_id") @db.Uuid
 
   // relations
+  institution Institution? @relation(fields: [institutionId], references: [id])
   studentGuardians StudentGuardian[]
 
+  @@index([institutionId])
   @@map("guardians")
 }

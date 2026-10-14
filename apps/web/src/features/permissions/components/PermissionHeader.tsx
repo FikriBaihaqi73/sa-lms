@@ -28,14 +28,14 @@ export const PermissionHeader: React.FC<PermissionHeaderProps> = ({
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-600/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30">
               <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              Settings Portal
+              Portal Pengaturan
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-            Permission Management
+            Manajemen Izin
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Atur dan kelola hak akses (permissions) seluruh modul sistem aplikasi.
+            Atur dan kelola hak akses untuk seluruh modul aplikasi.
           </p>
         </div>
 
@@ -47,7 +47,7 @@ export const PermissionHeader: React.FC<PermissionHeaderProps> = ({
             className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-medium shadow-sm transition-all"
           >
             <Plus className="w-4 h-4 mr-1.5" />
-            Tambah Permission
+            Tambah Izin
           </Button>
         </div>
       </div>
@@ -59,7 +59,7 @@ export const PermissionHeader: React.FC<PermissionHeaderProps> = ({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
             type="text"
-            placeholder="Cari nama atau modul permission..."
+            placeholder="Cari nama atau modul izin..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-blue-500"

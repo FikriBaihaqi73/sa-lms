@@ -77,15 +77,15 @@ export const PermissionPage: React.FC = () => {
           id: editingPermission.id,
           data: values,
         });
-        showToast(`Permission '${values.name}' berhasil diperbarui.`);
+        showToast(`Izin '${values.name}' berhasil diperbarui.`);
       } else {
         await createMutation.mutateAsync(values);
-        showToast(`Permission baru '${values.name}' berhasil dibuat.`);
+        showToast(`Izin baru '${values.name}' berhasil dibuat.`);
       }
       setIsFormModalOpen(false);
       setEditingPermission(null);
     } catch (err: any) {
-      showToast(err?.message || 'Gagal menyimpan permission.', 'error');
+      showToast(err?.message || 'Gagal menyimpan izin.', 'error');
     }
   };
 
@@ -99,11 +99,11 @@ export const PermissionPage: React.FC = () => {
     if (!deletingPermission) return;
     try {
       await deleteMutation.mutateAsync(deletingPermission.id);
-      showToast(`Permission '${deletingPermission.name}' berhasil dihapus.`);
+      showToast(`Izin '${deletingPermission.name}' berhasil dihapus.`);
       setIsDeleteDialogOpen(false);
       setDeletingPermission(null);
     } catch (err: any) {
-      showToast(err?.message || 'Gagal menghapus permission.', 'error');
+      showToast(err?.message || 'Gagal menghapus izin.', 'error');
     }
   };
 

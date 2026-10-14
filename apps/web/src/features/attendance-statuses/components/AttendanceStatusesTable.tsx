@@ -52,9 +52,9 @@ export function AttendanceStatusesTable({
           <thead className="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-400">
             <tr>
               <th className="px-4 py-3 font-medium">No</th>
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Description</th>
-              <th className="px-4 py-3 text-right font-medium">Actions</th>
+              <th className="px-4 py-3 font-medium">Nama</th>
+              <th className="px-4 py-3 font-medium">Deskripsi</th>
+              <th className="px-4 py-3 text-right font-medium">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -75,10 +75,10 @@ export function AttendanceStatusesTable({
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
                       <Button variant="ghost" size="icon" onClick={() => onEdit(item)} className="size-8 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400">
-                        <Edit2 className="size-4" /><span className="sr-only">Edit {item.name}</span>
+                        <Edit2 className="size-4" /><span className="sr-only">Ubah {item.name}</span>
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => onDelete(item)} className="size-8 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400">
-                        <Trash2 className="size-4" /><span className="sr-only">Delete {item.name}</span>
+                        <Trash2 className="size-4" /><span className="sr-only">Hapus {item.name}</span>
                       </Button>
                     </div>
                   </td>

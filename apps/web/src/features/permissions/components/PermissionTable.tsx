@@ -34,7 +34,7 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({
     return (
       <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20 p-8 text-center text-red-600 dark:text-red-400">
         <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-500" />
-        <p className="font-semibold">Gagal memuat data permissions</p>
+        <p className="font-semibold">Gagal memuat data izin</p>
         <p className="text-sm opacity-90">Pastikan backend terhubung di VITE_API_URL.</p>
       </div>
     );
@@ -45,10 +45,10 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center text-slate-500 dark:text-slate-400">
         <KeyRound className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
         <p className="text-base font-semibold text-slate-800 dark:text-slate-200">
-          {searchTerm ? 'Tidak ada permission yang sesuai filter pencarian' : 'Belum ada data permission'}
+          {searchTerm ? 'Tidak ada izin yang sesuai dengan pencarian' : 'Belum ada data izin'}
         </p>
         <p className="text-sm mt-1">
-          {searchTerm ? 'Coba ubah kata kunci atau reset filter modul.' : 'Klik tombol "Tambah Permission" untuk membuat permission pertama.'}
+          {searchTerm ? 'Coba ubah kata kunci atau hapus filter modul.' : 'Klik tombol "Tambah Izin" untuk membuat izin pertama.'}
         </p>
       </div>
     );
@@ -60,7 +60,7 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-semibold uppercase text-xs tracking-wider">
             <tr>
-              <th className="px-5 py-3.5">Nama Permission</th>
+              <th className="px-5 py-3.5">Nama Izin</th>
               <th className="px-5 py-3.5">Modul</th>
               <th className="px-5 py-3.5">Deskripsi</th>
               <th className="px-5 py-3.5 text-right">Aksi</th>
@@ -100,10 +100,10 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({
                       size="sm"
                       onClick={() => onEdit(item)}
                       className="h-8 px-2.5 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 transition-colors"
-                      title="Edit Permission"
+                      title="Ubah Izin"
                     >
                       <Edit2 className="w-3.5 h-3.5 mr-1" />
-                      Edit
+                      Ubah
                     </Button>
 
                     <Button
@@ -111,7 +111,7 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({
                       size="sm"
                       onClick={() => onDelete(item)}
                       className="h-8 px-2.5 text-red-600 dark:text-red-400 border-slate-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-950/50 hover:border-red-200 dark:hover:border-red-800 transition-colors"
-                      title="Hapus Permission"
+                      title="Hapus Izin"
                     >
                       <Trash2 className="w-3.5 h-3.5 mr-1" />
                       Hapus
@@ -126,7 +126,7 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({
 
       {/* Footer count info */}
       <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
-        <span>Menampilkan {permissions.length} data permission</span>
+        <span>Menampilkan {permissions.length} data izin</span>
         <span className="font-mono text-slate-400 dark:text-slate-500">RBAC Engine v1.0</span>
       </div>
     </div>

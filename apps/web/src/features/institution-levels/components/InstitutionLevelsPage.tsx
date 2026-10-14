@@ -140,7 +140,7 @@ export function InstitutionLevelsPage() {
 					<div>
 						<span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-600/10 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-400">
 							<ShieldCheck className="size-3.5" />
-							Settings Portal
+							Portal Pengaturan
 						</span>
 						<h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
 							Jenjang Institusi

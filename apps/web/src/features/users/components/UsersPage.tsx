@@ -44,10 +44,10 @@ export const UsersPage: React.FC = () => {
       if (editingUser) {
         const data = { email: values.email, is_active: values.is_active, ...(values.password ? { password: values.password } : {}) };
         await updateMutation.mutateAsync({ id: editingUser.id, data });
-        setNotice({ kind: 'success', message: 'User berhasil diperbarui' });
+        setNotice({ kind: 'success', message: 'Pengguna berhasil diperbarui' });
       } else {
         await createMutation.mutateAsync({ email: values.email, password: values.password, is_active: values.is_active });
-        setNotice({ kind: 'success', message: 'User berhasil dibuat' });
+        setNotice({ kind: 'success', message: 'Pengguna berhasil dibuat' });
       }
       setIsFormModalOpen(false);
       setEditingUser(null);
@@ -60,7 +60,7 @@ export const UsersPage: React.FC = () => {
     if (!deletingUser) return;
     try {
       await deleteMutation.mutateAsync(deletingUser.id);
-      setNotice({ kind: 'success', message: 'User berhasil dihapus' });
+      setNotice({ kind: 'success', message: 'Pengguna berhasil dihapus' });
       setIsDeleteDialogOpen(false);
       setDeletingUser(null);
     } catch (error) {
@@ -89,6 +89,6 @@ export const UsersPage: React.FC = () => {
       searchTerm={normalizedSearch}
       total={meta?.total ?? 0}
     />
-    {!usersQuery.isLoading && !usersQuery.isError && meta && meta.totalPages > 0 && <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row"><label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">Per halaman<select value={limit} onChange={(event) => { setLimit(Number(event.target.value)); setCurrentPage(1); }} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"><option value={10}>10</option><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label><div className="flex items-center gap-3"><button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage <= 1} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Previous</button><span className="text-sm text-slate-600 dark:text-slate-400">Page {meta.page} of {totalPages}</span><button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Next</button></div></div>}
+    {!usersQuery.isLoading && !usersQuery.isError && meta && meta.totalPages > 0 && <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row"><label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">Per halaman<select value={limit} onChange={(event) => { setLimit(Number(event.target.value)); setCurrentPage(1); }} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"><option value={10}>10</option><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label><div className="flex items-center gap-3"><button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage <= 1} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Sebelumnya</button><span className="text-sm text-slate-600 dark:text-slate-400">Halaman {meta.page} dari {totalPages}</span><button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Berikutnya</button></div></div>}
   </div><UserFormModal isOpen={isFormModalOpen} onClose={() => { setIsFormModalOpen(false); setEditingUser(null); }} onSubmit={handleFormSubmit} initialData={editingUser} isSubmitting={createMutation.isPending || updateMutation.isPending} /><UserDeleteDialog isOpen={isDeleteDialogOpen} onClose={() => { setIsDeleteDialogOpen(false); setDeletingUser(null); }} onConfirm={handleConfirmDelete} user={deletingUser} isDeleting={deleteMutation.isPending} /></main>;
 };

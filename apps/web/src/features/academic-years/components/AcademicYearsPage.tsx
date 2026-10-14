@@ -76,7 +76,7 @@ export function AcademicYearsPage() {
 							<CalendarRange className="size-3.5" /> Portal Akademik
 						</span>
 						<h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-							Manajemen Tahun Ajaran (Academic Years)
+							Manajemen Tahun Ajaran
 						</h1>
 						<p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
 							Kelola tahun ajaran dan status aktifnya sebagai referensi kelas,
@@ -85,7 +85,7 @@ export function AcademicYearsPage() {
 					</div>
 					<div className="flex items-center gap-2">
 						<Button type="button" onClick={() => setIsCreateDialogOpen(true)}>
-							<Plus className="size-4" /> Add Academic Year
+							<Plus className="size-4" /> Tambah Tahun Ajaran
 						</Button>
 					</div>
 				</header>

@@ -15,7 +15,7 @@ export function StudentStats({ meta, visibleCount, isLoading }: StudentStatsProp
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       <div className={cardClass}>
         <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-blue-600 dark:border-blue-900/50 dark:bg-blue-950/60 dark:text-blue-400"><UsersRound className="size-5" /></div>
-        <div><p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Students</p><p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{value(meta?.total ?? 0)}</p></div>
+        <div><p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Siswa</p><p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{value(meta?.total ?? 0)}</p></div>
       </div>
       <div className={cardClass}>
         <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-3 text-emerald-600 dark:border-emerald-900/50 dark:bg-emerald-950/60 dark:text-emerald-400"><ListChecks className="size-5" /></div>
@@ -28,4 +28,3 @@ export function StudentStats({ meta, visibleCount, isLoading }: StudentStatsProp
     </div>
   );
 }
-

@@ -55,10 +55,10 @@ export function ReligionDialog({
             </span>
             <div>
               <h2 id="religion-dialog-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                {isEditing ? 'Ubah Religion' : 'Tambah Religion'}
+                {isEditing ? 'Ubah Agama' : 'Tambah Agama'}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isEditing ? 'Perbarui data religion yang sudah ada' : 'Tambahkan data religion baru ke sistem'}
+                {isEditing ? 'Perbarui data agama yang sudah ada' : 'Tambahkan data agama baru ke sistem'}
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export function ReligionDialog({
         <form onSubmit={handleSubmit(onSave)} className="space-y-4 p-6">
           <div className="space-y-2">
             <Label htmlFor="religion-name" className="text-sm font-semibold">
-              Nama Religion <span className="text-red-500">*</span>
+              Nama Agama <span className="text-red-500">*</span>
             </Label>
             <Input
               id="religion-name"
@@ -96,7 +96,7 @@ export function ReligionDialog({
             </Button>
             <Button type="submit" disabled={isSaving} className="h-10 bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700">
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isSaving ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Tambah Religion'}
+              {isSaving ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Tambah Agama'}
             </Button>
           </div>
         </form>

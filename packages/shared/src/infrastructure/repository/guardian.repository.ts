@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "#generated/client";
 import { type GuardianEntity, guardianSelect } from "#selects/guardian.select";
 
 export interface CreateGuardianInput {
+  institutionId: string;
   fullName: string;
   relationship?: string | undefined;
   phoneNumber?: string | undefined;
@@ -29,6 +30,7 @@ export class GuardianRepository {
   async create(data: CreateGuardianInput): Promise<GuardianEntity> {
     return this.prisma.guardian.create({
       data: {
+        institutionId: data.institutionId,
         fullName: data.fullName,
         ...(data.relationship !== undefined && {
           relationship: data.relationship,
@@ -50,10 +52,11 @@ export class GuardianRepository {
     });
   }
 
-  async findById(id: string): Promise<GuardianEntity | null> {
+  async findById(id: string, institutionId: string): Promise<GuardianEntity | null> {
     return this.prisma.guardian.findFirst({
       where: {
         id,
+        institutionId,
         deletedAt: null,
       },
       select: guardianSelect,
@@ -63,19 +66,12 @@ export class GuardianRepository {
   async findAll(
     page: number,
     limit: number,
-    filters?: GuardianSearchInput,
-  ): Promise<{
-    data: GuardianEntity[];
-    meta: {
-      totalData: number;
-      totalPages: number;
-      currentPage: number;
-      perPage: number;
-    };
-  }> {
+    filters?: GuardianSearchInput & { institutionId: string },
+  ) {
     const skip = (page - 1) * limit;
     const where = {
       deletedAt: null,
+      ...(filters?.institutionId ? { institutionId: filters.institutionId } : {}),
       ...(filters?.search
         ? {
             fullName: {
@@ -116,9 +112,7 @@ export class GuardianRepository {
 
   async update(id: string, data: UpdateGuardianInput): Promise<GuardianEntity> {
     return this.prisma.guardian.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         ...(data.fullName !== undefined && {
           fullName: data.fullName,
@@ -145,9 +139,7 @@ export class GuardianRepository {
 
   async delete(id: string): Promise<GuardianEntity> {
     return this.prisma.guardian.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         deletedAt: new Date(),
       },

@@ -38,7 +38,7 @@ export function EditGradeDialog({ row, isSaving, onClose, onSave }: Props) {
               <PencilLine className="size-5" />
             </span>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Edit Nilai - {row.studentName}</h2>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Ubah Nilai - {row.studentName}</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">{row.studentNumber} - {row.subjectName} ({row.className})</p>
             </div>
           </div>
