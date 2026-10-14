@@ -7,9 +7,9 @@
 ---
 
 ## 1. Overview
-Halaman **Academic Years (Tahun Ajaran)** menyediakan antarmuka CRUD lengkap bagi **Admin institusi** dan **Superadmin** untuk mengelola tahun ajaran (contoh: `2023/2024`) beserta status aktif/nonaktifnya. Data ini menjadi referensi utama untuk kelas, jadwal, dan nilai.
+Halaman **Academic Years (Tahun Ajaran)** menyediakan antarmuka CRUD lengkap bagi **Admin institusi** untuk mengelola tahun ajaran (contoh: `2023/2024`) beserta status aktif/nonaktifnya. Data ini menjadi referensi utama untuk kelas, jadwal, dan nilai. Sejak TASK 0198 fitur ini dipindahkan dari Superadmin ke Admin (institusi).
 
-Halaman dilindungi access guard di `src/routes/__root.tsx` (termasuk dalam `ADMIN_ACCESSIBLE_PREFIXES`, sehingga hanya `admin`/`superadmin` yang dapat mengakses) dan terdaftar pada route `/academic-years` di bawah layout Settings.
+Halaman dilindungi access guard di `src/routes/__root.tsx` (termasuk dalam `INSTITUTION_ADMIN_ONLY_PREFIXES`, sehingga hanya `admin` institusi yang dapat mengakses; Superadmin menerima 403) dan terdaftar pada route `/academic-years` di bawah layout Settings.
 
 ---
 
