@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +38,6 @@ type RegisterFormValues = z.infer<typeof FrontendRegisterSchema>;
 
 export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 	const [error, setError] = useState("");
-	const [success, setSuccess] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -54,7 +54,7 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 			email: "",
 			password: "",
 			confirmPassword: "",
-			institutionName: "",
+			institutionName: undefined,
 		},
 	});
 
@@ -63,14 +63,14 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 	const onSubmit = async (data: RegisterFormValues) => {
 		try {
 			setError("");
-			setSuccess("");
 			await registerApi({
 				email: data.email,
 				password: data.password,
 				role: data.role,
 				institutionName: data.institutionName,
 			});
-			setSuccess("Akun berhasil dibuat! Silakan masuk dengan akun baru Anda.");
+			toast.success("Akun berhasil dibuat! Silakan masuk dengan akun baru Anda.");
+			onLoginClick();
 		} catch (err: unknown) {
 			setError(
 				err instanceof Error ? err.message : "Pendaftaran gagal dilakukan",
@@ -102,13 +102,6 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 						<span>{error}</span>
 					</div>
 				)}
-				{success && (
-					<div className="mb-6 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50/90 p-3.5 text-sm font-medium text-emerald-700 backdrop-blur-sm dark:border-emerald-900/50 dark:bg-emerald-950/60 dark:text-emerald-300">
-						<span className="shrink-0 text-emerald-500">✓</span>
-						<span>{success}</span>
-					</div>
-				)}
-
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 					{/* Role Selector Tabs */}
 					<div className="space-y-2">
