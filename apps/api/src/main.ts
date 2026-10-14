@@ -65,7 +65,7 @@ async function bootstrap() {
   const rawPort = process.env.PORT;
   const parsedPort = rawPort ? Number(rawPort) : Number.NaN;
   const port =
-    Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : 5001;
+    Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : 5000;
 
   // Bind tanpa host eksplisit -> Node memakai dual-stack ("::" dengan
   // ipv6Only=false), sehingga endpoint terjangkau lewat 127.0.0.1 (IPv4)
