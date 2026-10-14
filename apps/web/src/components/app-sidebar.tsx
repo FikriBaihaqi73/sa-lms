@@ -87,7 +87,6 @@ export function AppSidebar() {
 								<NavItem to="/specializations" icon={Award} label="Peminatan & Keahlian" />
 								<NavItem to="/assignment-types" icon={BookOpen} label="Jenis Tugas" />
 								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Status Kehadiran" />
-								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran" />
 							</div>
 						</div>
 
