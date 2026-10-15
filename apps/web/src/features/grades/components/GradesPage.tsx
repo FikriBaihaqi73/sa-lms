@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Download, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ApiError } from "@/lib/api";
 import { GradesFilterBar } from "./GradesFilterBar";
 import { GradesStats } from "./GradesStats";
 import { GradesTable } from "./GradesTable";
@@ -14,6 +15,13 @@ const SUBJECT_OPTIONS = ["Semua Mapel", "Matematika", "IPA", "Bahasa Indonesia",
 const SEMESTER_OPTIONS = ["Semester Ganjil", "Semester Genap"];
 
 function errorMessage(error: unknown): string {
+  // ApiError membawa pesan envelope backend + error per-field (errors: [{ path, message }]).
+  if (error instanceof ApiError) {
+    const details = error.fieldErrors
+      .map((fieldError) => `${fieldError.field}: ${fieldError.message}`)
+      .join("; ");
+    return details ? `${error.message} — ${details}` : error.message;
+  }
   if (error instanceof Error) return error.message;
   return "Terjadi kesalahan. Silakan coba lagi.";
 }

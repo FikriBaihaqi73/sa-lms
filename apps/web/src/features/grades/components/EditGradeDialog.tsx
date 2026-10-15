@@ -6,17 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { gradeRowFormSchema, type GradeRowFormValues } from "../schemas/grade-schema";
-import type { GradeRow, UpdateGradeInput } from "../types";
+import { parseScore, type GradeRow, type UpdateGradeInput } from "../types";
 
 interface Props { row: GradeRow; isSaving: boolean; onClose: () => void; onSave: (v: UpdateGradeInput) => Promise<void>; }
+
+/**
+ * Nilai default form dinormalkan dengan `parseScore` karena skor dari backend
+ * bisa berupa string Decimal (mis. "85.50") — tanpa normalisasi, zod `z.number()`
+ * menolak value yang tidak diubah pengguna saat submit.
+ */
+function toFormValues(row: GradeRow): GradeRowFormValues {
+  return {
+    tugas: parseScore(row.tugas),
+    uts: parseScore(row.uts),
+    uas: parseScore(row.uas),
+  };
+}
 
 export function EditGradeDialog({ row, isSaving, onClose, onSave }: Props) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<GradeRowFormValues>({
     resolver: zodResolver(gradeRowFormSchema),
-    defaultValues: { tugas: row.tugas, uts: row.uts, uas: row.uas },
+    defaultValues: toFormValues(row),
   });
   useEffect(() => {
-    reset({ tugas: row.tugas, uts: row.uts, uas: row.uas });
+    reset(toFormValues(row));
   }, [row, reset]);
   const numberField = {
     setValueAs: (value: string | number | null | undefined): number | null => {
@@ -25,6 +38,8 @@ export function EditGradeDialog({ row, isSaving, onClose, onSave }: Props) {
       return Number.isNaN(parsed) ? null : parsed;
     },
   } as const;
+  // Aturan input mengikuti backend (UpdateStudentGradeSchema):
+  // number 0-100, boleh kosong (null → di-omit saat kirim PATCH).
   const submit = async (v: GradeRowFormValues) => {
     await onSave({ assignmentScore: v.tugas, midExamScore: v.uts, finalExamScore: v.uas });
   };

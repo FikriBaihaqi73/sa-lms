@@ -1,5 +1,5 @@
 import { Pencil } from "lucide-react";
-import { calcFinalScore, gradePredicate, gradeStatus } from "../types";
+import { calcFinalScore, gradePredicate, gradeStatus, parseScore } from "../types";
 import type { GradeRow } from "../types";
 
 interface Props { rows: GradeRow[]; totalCount: number; isLoading: boolean; onEdit: (r: GradeRow) => void; }
@@ -12,8 +12,10 @@ const tone: Record<GradeRow["avatarTone"], string> = {
 };
 
 function score(v: number | null) {
-  if (v == null) return <span className="italic text-slate-400">-</span>;
-  return <span className="font-semibold text-slate-900 dark:text-slate-100">{v}</span>;
+  // parseScore menangani skor Decimal backend yang masih berupa string ("85.50").
+  const value = parseScore(v);
+  if (value == null) return <span className="italic text-slate-400">-</span>;
+  return <span className="font-semibold text-slate-900 dark:text-slate-100">{value}</span>;
 }
 
 export function GradesTable({ rows, totalCount, isLoading, onEdit }: Props) {
