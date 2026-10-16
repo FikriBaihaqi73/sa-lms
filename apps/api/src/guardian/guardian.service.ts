@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { GuardianRepository } from "@repo/shared/infrastructure/repository/guardian.repository";
 import type {
   CreateGuardianDto,
@@ -16,29 +21,58 @@ export class GuardianService {
 
   private async institutionIdFor(userId: string): Promise<string> {
     const profile = await this.prisma.client.profile.findFirst({
-      where: { userId, deletedAt: null }, select: { institutionId: true },
+      where: { userId, deletedAt: null },
+      select: { institutionId: true },
     });
-    if (!profile) throw new ForbiddenException("Institution access is required");
+    if (!profile)
+      throw new ForbiddenException("Institution access is required");
     return profile.institutionId;
   }
 
-  async findAll(userId: string,
+  async findAll(
+    userId: string,
     page: number,
     limit: number,
     filters?: { search?: string | undefined },
   ) {
-    return this.guardianRepository.findAll(page, limit, { ...filters, institutionId: await this.institutionIdFor(userId) });
+    return this.guardianRepository.findAll(page, limit, {
+      ...filters,
+      institutionId: await this.institutionIdFor(userId),
+    });
   }
 
   async findOne(id: string, userId: string) {
-    const guardian = await this.guardianRepository.findById(id, await this.institutionIdFor(userId));
+    const guardian = await this.guardianRepository.findById(
+      id,
+      await this.institutionIdFor(userId),
+    );
     if (!guardian) throw new NotFoundException("Guardian not found");
     return guardian;
   }
 
   async create(dto: CreateGuardianDto, userId: string) {
+    const institutionId = await this.institutionIdFor(userId);
+
+    if (!dto.studentId) {
+      throw new BadRequestException("Student selection is required");
+    }
+
+    const student = await this.prisma.client.student.findFirst({
+      where: {
+        id: dto.studentId,
+        deletedAt: null,
+        profile: { institutionId },
+      },
+      select: { id: true },
+    });
+
+    if (!student) {
+      throw new NotFoundException("Student not found");
+    }
+
     return this.guardianRepository.create({
-      institutionId: await this.institutionIdFor(userId),
+      institutionId,
+      studentId: student.id,
       fullName: dto.fullName,
       ...(dto.relationship !== undefined
         ? { relationship: dto.relationship }

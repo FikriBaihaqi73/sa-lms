@@ -10,8 +10,9 @@ mengubah, dan menghapus (soft delete) data guardian. UI/UX mengikuti pola
 halaman lain (`/religions`, `/students`): stats cards, tabel dengan search,
 dialog tambah/ubah, dialog konfirmasi hapus, toast notice, dan pagination.
 
-Backend sudah tersedia sebelumnya (`GuardianModule`) — halaman ini **hanya
-frontend** (tidak ada perubahan API).
+Guardian baru harus langsung dihubungkan ke satu student. Backend memvalidasi
+student aktif dalam institusi admin dan membuat relasi `StudentGuardian` secara
+atomik bersama guardian.
 
 ## 2. Endpoints (semua butuh header `Authorization: Bearer <token>`)
 
@@ -19,13 +20,13 @@ frontend** (tidak ada perubahan API).
 |---|---|---|
 | `GET` | `/guardians?page=1&limit=10&search=<q>` | Daftar guardian (pagination + search by `fullName`, case-insensitive) |
 | `GET` | `/guardians/:id` | Detail satu guardian |
-| `POST` | `/guardians` | Buat guardian baru |
+| `POST` | `/guardians` | Buat guardian baru sekaligus relasi ke student |
 | `PATCH` | `/guardians/:id` | Update sebagian field guardian |
 | `DELETE` | `/guardians/:id` | Soft delete (set `deletedAt`) |
 
-Catatan role: controller `GuardianController` **tidak memakai `@Roles()`**,
-jadi semua role terautentikasi bisa memanggil (dibuka oleh `JwtAuthGuard`
-global). Menu sidebar hanya ditampilkan untuk **institution admin**.
+Catatan role: controller `GuardianController` memakai `@Roles("admin")`.
+Endpoint guardian hanya dapat dipanggil oleh admin institusi dan seluruh data
+dibatasi ke institusi admin yang sedang login.
 
 ## 3. Request expectations
 
@@ -33,6 +34,7 @@ global). Menu sidebar hanya ditampilkan untuk **institution admin**.
 
 ```json
 {
+  "studentId": "00000000-0000-4000-8000-000000000001",
   "fullName": "Budi Santoso",
   "relationship": "Ayah",
   "phoneNumber": "081234567890",
@@ -42,6 +44,8 @@ global). Menu sidebar hanya ditampilkan untuk **institution admin**.
 }
 ```
 
+- `studentId`: **wajib**, UUID student aktif yang berada di institusi admin.
+  Student yang tidak ada atau berasal dari institusi lain menghasilkan `404`.
 - `fullName`: **wajib**, string, min 1 karakter (validasi Zod backend;
   request dengan `fullName: ""` menghasilkan `400`).
 - Semua field lain **opsional**.
@@ -49,8 +53,8 @@ global). Menu sidebar hanya ditampilkan untuk **institution admin**.
 
 ### `PATCH /guardians/:id` body
 
-Sama seperti POST, semua field bersifat partial — kirim hanya field yang
-berubah.
+Field guardian pada PATCH bersifat partial — kirim hanya field yang berubah;
+`studentId` tidak diperlukan saat update.
 
 ## 4. Response structure
 
@@ -85,7 +89,8 @@ Error umum:
 
 - `400` — validasi Zod (field gagal + pesan per field).
 - `401` — token tidak ada/kedaluwarsa → redirect `/login`.
-- `404` — `Guardian not found` (id tidak ada atau sudah soft-deleted).
+- `404` — `Student not found` bila student tidak valid atau di luar institusi;
+  `Guardian not found` untuk detail/update/delete yang tidak ditemukan.
 
 ## 5. Frontend implementation flow
 
@@ -98,15 +103,21 @@ Error umum:
    agar pagination terasa halus.
 4. Search memakai `useDeferredValue` — request server hanya dikirim setelah
    user berhenti mengetik (debounce alami).
-5. Semua mutasi (create/update/delete) meng-invalidasi
+5. Pada mode tambah, `GuardianDialog` memuat pilihan student dari
+   `/student-guardians/options/students` dan mengirim `studentId` bersama data
+   guardian. Mode ubah tidak meminta student baru.
+6. Semua mutasi (create/update/delete) meng-invalidasi
    `["guardians"]` sehingga tabel reload otomatis.
-6. Field opsional dikirim sebagai `undefined` saat kosong
+7. Field opsional dikirim sebagai `undefined` saat kosong
    (`"" → undefined`) agar body tetap bersih.
 
 ## 6. Edge cases & validation rules untuk frontend
 
 - **Nama wajib**: form Zod `fullName` min 1 karakter — tombol submit tetap
   aktif, error muncul di bawah input.
+- **Student wajib saat tambah**: form menampilkan searchable select dengan
+  pesan `Siswa wajib dipilih.`. Pilihan sudah dibatasi backend ke institusi
+  admin, tetapi backend tetap memvalidasi ulang ID yang dikirim.
 - **Email**: format email divalidasi lokal (`Format email tidak valid.`);
   string kosong diizinkan (field opsional).
 - **Batas karakter**: fullName 255, relationship/occupation 100,
