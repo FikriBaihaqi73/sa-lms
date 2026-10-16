@@ -37,6 +37,7 @@ export interface ApiResponse<T> {
 }
 
 export interface CreateGuardianInput {
+  studentId: string;
   fullName: string;
   relationship?: string;
   phoneNumber?: string;

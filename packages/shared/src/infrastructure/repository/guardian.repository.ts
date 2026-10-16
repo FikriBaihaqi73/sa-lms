@@ -3,6 +3,7 @@ import { type GuardianEntity, guardianSelect } from "#selects/guardian.select";
 
 export interface CreateGuardianInput {
   institutionId: string;
+  studentId: string;
   fullName: string;
   relationship?: string | undefined;
   phoneNumber?: string | undefined;
@@ -31,6 +32,11 @@ export class GuardianRepository {
     return this.prisma.guardian.create({
       data: {
         institutionId: data.institutionId,
+        studentGuardians: {
+          create: {
+            studentId: data.studentId,
+          },
+        },
         fullName: data.fullName,
         ...(data.relationship !== undefined && {
           relationship: data.relationship,
@@ -52,7 +58,10 @@ export class GuardianRepository {
     });
   }
 
-  async findById(id: string, institutionId: string): Promise<GuardianEntity | null> {
+  async findById(
+    id: string,
+    institutionId: string,
+  ): Promise<GuardianEntity | null> {
     return this.prisma.guardian.findFirst({
       where: {
         id,
@@ -71,7 +80,9 @@ export class GuardianRepository {
     const skip = (page - 1) * limit;
     const where = {
       deletedAt: null,
-      ...(filters?.institutionId ? { institutionId: filters.institutionId } : {}),
+      ...(filters?.institutionId
+        ? { institutionId: filters.institutionId }
+        : {}),
       ...(filters?.search
         ? {
             fullName: {

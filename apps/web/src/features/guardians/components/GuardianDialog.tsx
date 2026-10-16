@@ -1,11 +1,17 @@
-import { useEffect } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { HeartHandshake, Loader2, X } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { guardianFormSchema, type GuardianFormValues } from "../schemas/guardianSchema";
+import { SearchableSelect } from "@/features/student-guardians/components/SearchableSelect";
+import { useStudentOptions } from "@/features/student-guardians/hooks/useStudentGuardians";
+import {
+  createGuardianFormSchema,
+  guardianFormSchema,
+  type GuardianFormValues,
+} from "../schemas/guardianSchema";
 import type { Guardian } from "../types";
 
 interface GuardianDialogProps {
@@ -28,10 +34,15 @@ export function GuardianDialog({
     register,
     handleSubmit,
     reset,
+    setValue,
+    control,
     formState: { errors },
   } = useForm<GuardianFormValues>({
-    resolver: zodResolver(guardianFormSchema),
+    resolver: zodResolver(
+      isEditing ? guardianFormSchema : createGuardianFormSchema,
+    ),
     defaultValues: {
+      studentId: "",
       fullName: "",
       relationship: "",
       phoneNumber: "",
@@ -40,9 +51,23 @@ export function GuardianDialog({
       occupation: "",
     },
   });
+  const [studentSearch, setStudentSearch] = useState("");
+  const deferredStudentSearch = useDeferredValue(studentSearch);
+  const studentOptionsQuery = useStudentOptions(deferredStudentSearch);
+
+  const studentId = useWatch({ control, name: "studentId" }) ?? "";
+  const studentOptions = (studentOptionsQuery.data?.pages ?? [])
+    .flatMap((page) => page.data)
+    .map((student) => ({
+      id: student.id,
+      label:
+        student.profile?.fullName || student.studentNumber || "Siswa tanpa nama",
+      hint: student.studentNumber,
+    }));
 
   useEffect(() => {
     reset({
+      studentId: "",
       fullName: guardian?.fullName ?? "",
       relationship: guardian?.relationship ?? "",
       phoneNumber: guardian?.phoneNumber ?? "",
@@ -90,6 +115,28 @@ export function GuardianDialog({
         </div>
 
         <form onSubmit={handleSubmit(onSave)} className="space-y-4 p-6">
+          {!isEditing && (
+            <SearchableSelect
+              label="Siswa"
+              required
+              value={studentId}
+              options={studentOptions}
+              searchTerm={studentSearch}
+              onSearchChange={setStudentSearch}
+              onSelect={(id) =>
+                setValue("studentId", id, { shouldValidate: true })
+              }
+              disabled={isSaving}
+              isLoading={studentOptionsQuery.isPending}
+              isError={studentOptionsQuery.isError}
+              hasNextPage={Boolean(studentOptionsQuery.hasNextPage)}
+              isFetchingNextPage={studentOptionsQuery.isFetchingNextPage}
+              onLoadMore={() => void studentOptionsQuery.fetchNextPage()}
+              error={errors.studentId?.message}
+              placeholder="Cari nama atau NIS siswa..."
+              emptyText="Siswa tidak ditemukan"
+            />
+          )}
           <div className="space-y-2">
             <Label htmlFor="guardian-fullName" className="text-sm font-semibold">
               Nama Lengkap <span className="text-red-500">*</span>

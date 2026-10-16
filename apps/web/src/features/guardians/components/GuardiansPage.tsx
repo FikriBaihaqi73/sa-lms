@@ -54,8 +54,13 @@ export function GuardiansPage() {
   });
 
   const handleCreate = async (values: GuardianFormValues) => {
+    if (!values.studentId) return;
+
     try {
-      await createMutation.mutateAsync(toInput(values));
+      await createMutation.mutateAsync({
+        studentId: values.studentId,
+        ...toInput(values),
+      });
       setIsAdding(false);
       setNotice({ kind: "success", message: `Wali murid '${values.fullName}' berhasil ditambahkan.` });
     } catch (error) {

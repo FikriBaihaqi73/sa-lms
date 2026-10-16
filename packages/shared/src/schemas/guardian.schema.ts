@@ -1,7 +1,7 @@
 import { createZodDto } from "nestjs-zod/dto";
 import { z } from "zod";
 
-export const CreateGuardianSchema = z.object({
+const GuardianFieldsSchema = z.object({
   fullName: z
     .string()
     .min(1, "Full name is required")
@@ -20,7 +20,15 @@ export const CreateGuardianSchema = z.object({
   occupation: z.string().optional().describe("Occupation of the guardian"),
 });
 
-export const UpdateGuardianSchema = CreateGuardianSchema.partial();
+export const CreateGuardianSchema = GuardianFieldsSchema.extend({
+  studentId: z
+    .string()
+    .min(1, "Student selection is required")
+    .uuid("Student ID must be a valid UUID")
+    .describe("ID of the student linked to the guardian"),
+});
+
+export const UpdateGuardianSchema = GuardianFieldsSchema.partial();
 
 export class CreateGuardianDto extends createZodDto(CreateGuardianSchema) {}
 export class UpdateGuardianDto extends createZodDto(UpdateGuardianSchema) {}

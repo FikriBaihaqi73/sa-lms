@@ -3,7 +3,8 @@ import { z } from "zod";
 const optionalText = (max: number, message: string) =>
   z.string().trim().max(max, message).optional().or(z.literal(""));
 
-export const guardianFormSchema = z.object({
+const guardianFieldsSchema = z.object({
+  studentId: z.string().optional(),
   fullName: z
     .string()
     .trim()
@@ -22,4 +23,18 @@ export const guardianFormSchema = z.object({
   occupation: optionalText(100, "Pekerjaan maksimal 100 karakter."),
 });
 
-export type GuardianFormValues = z.infer<typeof guardianFormSchema>;
+export const guardianFormSchema = guardianFieldsSchema;
+
+export const createGuardianFormSchema = guardianFieldsSchema.superRefine(
+  (values, context) => {
+    if (!values.studentId?.trim()) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Siswa wajib dipilih.",
+        path: ["studentId"],
+      });
+    }
+  },
+);
+
+export type GuardianFormValues = z.infer<typeof guardianFieldsSchema>;
