@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			typeof window !== "undefined"
 				? localStorage.getItem("access_token") || localStorage.getItem("token")
 				: null;
-		let user = null;
+		let user: User | null = null;
 		if (token) {
 			try {
 				const payload = JSON.parse(atob(token.split(".")[1])) as Record<
