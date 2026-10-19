@@ -7,11 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { teacherFormSchema, type TeacherFormInput, type TeacherFormValues } from "../schemas/teacherSchema";
-import type { TeacherFormProfile, TeacherReference } from "../types";
+import type { TeacherReference } from "../types";
 
 interface TeacherDialogProps {
   open: boolean;
-  profiles: TeacherFormProfile[];
   statuses: TeacherReference[];
   specializations: TeacherReference[];
   isSaving: boolean;
@@ -30,7 +29,6 @@ const EMPTY_VALUES: TeacherFormInput = {
 
 export function TeacherDialogForm({
   open,
-  profiles,
   statuses,
   specializations,
   isSaving,
@@ -40,13 +38,11 @@ export function TeacherDialogForm({
   subtitle,
   submitLabel,
   initialValues,
-  lockProfile,
 }: TeacherDialogProps & {
   title: string;
   subtitle: string;
   submitLabel: string;
   initialValues?: TeacherFormInput;
-  lockProfile?: boolean;
 }) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<
     TeacherFormInput,
@@ -79,21 +75,6 @@ export function TeacherDialogForm({
           </button>
         </div>
         <form onSubmit={handleSubmit(onSave)} className="space-y-4 p-6">
-          <div className="space-y-2">
-            <Label htmlFor="teacher-profile" className="text-sm font-semibold">
-              Profil guru <span className="text-red-500">*</span>
-            </Label>
-            <Select id="teacher-profile" {...register("profile_id")} disabled={lockProfile} className="h-11">
-              <option value="">Pilih profil</option>
-              {profiles.map((profile) => (
-                <option key={profile.id} value={profile.id}>
-                  {profile.fullName}
-                  {profile.email ? ` — ${profile.email}` : ""}
-                </option>
-              ))}
-            </Select>
-            {errors.profile_id && <p className="text-xs font-medium text-red-500">{errors.profile_id.message}</p>}
-          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="teacher-number" className="text-sm font-semibold">

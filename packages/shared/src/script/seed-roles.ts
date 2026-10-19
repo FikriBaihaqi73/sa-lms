@@ -37,6 +37,12 @@ async function main() {
         data: role,
       });
       console.log(`Created role: ${role.name}`);
+    } else if (existingRole.deletedAt) {
+      await prisma.role.update({
+        where: { id: existingRole.id },
+        data: { deletedAt: null, description: role.description },
+      });
+      console.log(`Restored soft-deleted role: ${role.name}`);
     } else {
       console.log(`Role already exists: ${role.name}`);
     }

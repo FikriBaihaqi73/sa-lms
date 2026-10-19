@@ -1,5 +1,5 @@
 import type { PrismaClient } from "#generated/client";
-import { TeacherRepository } from "./teacher.repository";
+import { TeacherRepository } from "#infrastructure/repository/teacher.repository";
 
 describe("TeacherRepository", () => {
   const teachers = {
@@ -95,6 +95,39 @@ describe("TeacherRepository", () => {
             specialization_id: null,
             employment_status_id: null,
             teacher_number: "TCH-002",
+            join_date: null,
+          },
+        }),
+      );
+    });
+
+    it("creates a teacher without profile_id (profile_id is null/undefined)", async () => {
+      const mockResult = {
+        id: "teacher-uuid-3",
+        profile_id: null,
+        department_id: null,
+        specialization_id: null,
+        employment_status_id: null,
+        teacher_number: "TCH-003",
+        join_date: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+      teachers.create.mockResolvedValue(mockResult);
+
+      const result = await repository.create({
+        teacher_number: "TCH-003",
+      });
+
+      expect(result).toEqual(mockResult);
+      expect(teachers.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: {
+            profile_id: null,
+            department_id: null,
+            specialization_id: null,
+            employment_status_id: null,
+            teacher_number: "TCH-003",
             join_date: null,
           },
         }),

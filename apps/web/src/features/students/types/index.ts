@@ -27,7 +27,7 @@ export interface Student {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
-  profileId: string;
+  profileId?: string | null;
   departmentId?: string | null;
   academicStatusId: string;
   studentNumber: string;
@@ -50,7 +50,7 @@ export interface StudentListResult {
 }
 
 export interface CreateStudentInput {
-  profileId: string;
+  profileId?: string | null;
   departmentId?: string;
   academicStatusId: string;
   studentNumber: string;

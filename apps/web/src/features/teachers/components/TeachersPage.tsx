@@ -27,7 +27,7 @@ export type TeachersPageState = ReturnType<typeof useTeachersPageState>;
 
 export function toCreateInput(values: TeacherFormValues) {
   return {
-    profile_id: values.profile_id,
+    ...(values.profile_id ? { profile_id: values.profile_id } : {}),
     teacher_number: values.teacher_number.trim(),
     ...(values.specialization_id ? { specialization_id: values.specialization_id } : {}),
     ...(values.employment_status_id ? { employment_status_id: values.employment_status_id } : {}),

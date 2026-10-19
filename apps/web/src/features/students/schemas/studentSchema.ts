@@ -5,9 +5,15 @@ const optionalNumber = z.preprocess(
   z.number().int("Tahun masuk harus berupa bilangan bulat.").optional(),
 );
 
+const optionalUuid = z
+  .string()
+  .uuid("Pilihan tidak valid.")
+  .optional()
+  .or(z.literal(""));
+
 export const studentFormSchema = z.object({
-  profileId: z.string().uuid("Profil mahasiswa wajib dipilih."),
-  departmentId: z.string().uuid("Departemen tidak valid.").optional().or(z.literal("")),
+  profileId: optionalUuid.describe("Profil mahasiswa (opsional)"),
+  departmentId: optionalUuid.describe("Departemen mahasiswa"),
   academicStatusId: z.string().uuid("Status akademik wajib dipilih."),
   studentNumber: z.string().trim().min(1, "Nomor mahasiswa wajib diisi."),
   enrollmentYear: optionalNumber,

@@ -11,7 +11,6 @@ import {
   useEmploymentStatuses,
   useSpecializations,
   useTeacherClassSubjects,
-  useTeacherProfiles,
   useTeachers,
   useTeacherStats,
   useUpdateTeacher,
@@ -34,7 +33,6 @@ export function useTeachersPageController() {
     specialization: state.specializationId,
   });
   const statsQuery = useTeacherStats();
-  const profilesQuery = useTeacherProfiles();
   const statusesQuery = useEmploymentStatuses();
   const specializationsQuery = useSpecializations();
   const assignmentsQuery = useTeacherClassSubjects(state.editingTeacher?.id);
@@ -77,14 +75,14 @@ export function useTeachersPageController() {
       state.setNotice({ kind: "error", message: errorMessage(error) });
     }
   }
-  return { state, teachersQuery, statsQuery, profilesQuery, statusesQuery, specializationsQuery, assignmentsQuery, createMutation, updateMutation, deleteMutation, teachers, meta, totalPages, handleCreate, handleUpdate, handleDelete };
+  return { state, teachersQuery, statsQuery, statusesQuery, specializationsQuery, assignmentsQuery, createMutation, updateMutation, deleteMutation, teachers, meta, totalPages, handleCreate, handleUpdate, handleDelete };
 }
 
 export type TeachersPageController = ReturnType<typeof useTeachersPageController>;
 
 
 export function TeachersPageLayout({ controller }: { controller: TeachersPageController }) {
-  const { state, teachersQuery, statsQuery, profilesQuery, statusesQuery } = controller;
+  const { state, teachersQuery, statsQuery, statusesQuery } = controller;
   const { specializationsQuery, assignmentsQuery, createMutation, updateMutation } = controller;
   const { deleteMutation, teachers, meta, handleCreate, handleUpdate, handleDelete } = controller;
   return (
@@ -118,7 +116,6 @@ export function TeachersPageLayout({ controller }: { controller: TeachersPageCon
       {state.isAdding && (
         <AddTeacherDialog
           open={state.isAdding}
-          profiles={profilesQuery.data ?? []}
           statuses={statusesQuery.data ?? []}
           specializations={specializationsQuery.data ?? []}
           isSaving={createMutation.isPending}

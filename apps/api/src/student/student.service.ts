@@ -20,13 +20,15 @@ export class StudentService {
   }
 
   async create(createStudentDto: CreateStudentDto) {
-    const existingByProfile = await this.studentRepository.findByProfileId(
-      createStudentDto.profileId,
-    );
-    if (existingByProfile) {
-      throw new ConflictException(
-        "Profil pengguna ini sudah terdaftar sebagai siswa",
+    if (createStudentDto.profileId) {
+      const existingByProfile = await this.studentRepository.findByProfileId(
+        createStudentDto.profileId,
       );
+      if (existingByProfile) {
+        throw new ConflictException(
+          "Profil pengguna ini sudah terdaftar sebagai siswa",
+        );
+      }
     }
 
     const existingByNumber = await this.studentRepository.findByStudentNumber(
@@ -37,7 +39,9 @@ export class StudentService {
     }
 
     const student = await this.studentRepository.create({
-      profileId: createStudentDto.profileId,
+      ...(createStudentDto.profileId
+        ? { profileId: createStudentDto.profileId }
+        : {}),
       ...(createStudentDto.departmentId !== undefined && {
         departmentId: createStudentDto.departmentId,
       }),

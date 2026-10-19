@@ -2,7 +2,7 @@ import type { PrismaClient } from "#generated/client";
 import { type StudentEntity, studentSelect } from "#selects/students.select";
 
 export interface CreateStudentInput {
-  profileId: string;
+  profileId?: string | null;
   departmentId?: string | null;
   academicStatusId: string;
   studentNumber: string;
@@ -43,7 +43,7 @@ export class StudentRepository {
   async create(data: CreateStudentInput): Promise<StudentEntity> {
     return this.prisma.student.create({
       data: {
-        profileId: data.profileId,
+        profileId: data.profileId ?? null,
         departmentId: data.departmentId ?? null,
         academicStatusId: data.academicStatusId,
         studentNumber: data.studentNumber,

@@ -2,7 +2,7 @@ import type { Prisma, PrismaClient } from "#generated/client";
 import { type TeacherEntity, teacherSelect } from "#selects/teacher.select";
 
 export interface CreateTeacherInput {
-  profile_id: string;
+  profile_id?: string | null;
   department_id?: string;
   specialization_id?: string;
   employment_status_id?: string;
@@ -56,7 +56,7 @@ export class TeacherRepository {
   async create(data: CreateTeacherInput): Promise<TeacherEntity> {
     return this.prisma.teachers.create({
       data: {
-        profile_id: data.profile_id,
+        profile_id: data.profile_id ?? null,
         department_id: data.department_id ?? null,
         specialization_id: data.specialization_id ?? null,
         employment_status_id: data.employment_status_id ?? null,

@@ -55,7 +55,7 @@ describe("TeachersService", () => {
   });
 
   describe("create", () => {
-    it("should create a teacher and return success response", async () => {
+    it("should create a teacher with profile_id and return success response", async () => {
       const createDto = { profile_id: "1", teacher_number: "T001" };
       const teacherEntity = { id: "1", ...createDto };
       mockRepositoryInstance.create.mockResolvedValue(teacherEntity as any);
@@ -65,7 +65,58 @@ describe("TeachersService", () => {
       expect(result).toEqual(
         ResponseHelper.success(teacherEntity, "Teacher successfully created"),
       );
-      expect(mockRepositoryInstance.create).toHaveBeenCalled();
+      expect(mockRepositoryInstance.create).toHaveBeenCalledWith({
+        profile_id: "1",
+        teacher_number: "T001",
+      });
+    });
+
+    it("should create a teacher without profile_id and return success response", async () => {
+      const createDto = { teacher_number: "T002" };
+      const teacherEntity = {
+        id: "2",
+        profile_id: null,
+        teacher_number: "T002",
+      };
+      mockRepositoryInstance.create.mockResolvedValue(teacherEntity as any);
+
+      const result = await service.create(createDto);
+
+      expect(result).toEqual(
+        ResponseHelper.success(teacherEntity, "Teacher successfully created"),
+      );
+      expect(mockRepositoryInstance.create).toHaveBeenCalledWith({
+        teacher_number: "T002",
+      });
+    });
+
+    it("should pass join_date and reference IDs correctly when provided", async () => {
+      const createDto = {
+        teacher_number: "T003",
+        specialization_id: "spec-uuid",
+        employment_status_id: "status-uuid",
+        department_id: "dept-uuid",
+        join_date: "2026-01-01T00:00:00.000Z",
+      };
+      const teacherEntity = {
+        id: "3",
+        ...createDto,
+        join_date: new Date(createDto.join_date),
+      };
+      mockRepositoryInstance.create.mockResolvedValue(teacherEntity as any);
+
+      const result = await service.create(createDto);
+
+      expect(result).toEqual(
+        ResponseHelper.success(teacherEntity, "Teacher successfully created"),
+      );
+      expect(mockRepositoryInstance.create).toHaveBeenCalledWith({
+        teacher_number: "T003",
+        specialization_id: "spec-uuid",
+        employment_status_id: "status-uuid",
+        department_id: "dept-uuid",
+        join_date: new Date(createDto.join_date),
+      });
     });
   });
 

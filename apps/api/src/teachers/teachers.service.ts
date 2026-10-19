@@ -17,7 +17,9 @@ export class TeachersService {
 
   async create(createTeacherDto: CreateTeacherDto) {
     const teacher = await this.teachersRepository.create({
-      profile_id: createTeacherDto.profile_id,
+      ...(createTeacherDto.profile_id
+        ? { profile_id: createTeacherDto.profile_id }
+        : {}),
       teacher_number: createTeacherDto.teacher_number,
       ...(createTeacherDto.department_id
         ? { department_id: createTeacherDto.department_id }
