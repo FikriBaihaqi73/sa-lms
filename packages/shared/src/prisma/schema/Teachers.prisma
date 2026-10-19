@@ -6,7 +6,7 @@ model Teachers {
   deleted_at DateTime? @db.Timestamp
 
   // attributes
-  profile_id           String    @unique @db.Uuid
+  profile_id           String?   @unique @db.Uuid
   department_id        String?   @db.Uuid
   specialization_id    String?   @db.Uuid
   employment_status_id String?   @db.Uuid
@@ -14,7 +14,7 @@ model Teachers {
   join_date            DateTime? @db.Date
 
   // relations
-  profile           Profile           @relation(fields: [profile_id], references: [id])
+  profile           Profile?          @relation(fields: [profile_id], references: [id])
   department        Departments?      @relation(fields: [department_id], references: [id])
   specialization    Specializations?  @relation(fields: [specialization_id], references: [id])
   employment_status EmploymentStatus? @relation(fields: [employment_status_id], references: [id])

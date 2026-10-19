@@ -6,7 +6,7 @@ import { StudentDialog } from "./StudentDialog";
 import { StudentHeader } from "./StudentHeader";
 import { StudentStats } from "./StudentStats";
 import { StudentsTable } from "./StudentsTable";
-import { useCreateStudent, useDeleteStudent, useStudentDepartments, useStudentProfiles, useStudents, useUpdateStudent } from "../hooks/useStudents";
+import { useCreateStudent, useDeleteStudent, useStudentDepartments, useStudents, useUpdateStudent } from "../hooks/useStudents";
 import type { Student } from "../types";
 import type { StudentFormValues } from "../schemas/studentSchema";
 
@@ -25,7 +25,6 @@ export function StudentsPage() {
   const [notice, setNotice] = useState<{ kind: "success" | "error"; message: string } | null>(null);
 
   const studentsQuery = useStudents({ page: currentPage, limit, search: debouncedSearch.trim() });
-  const profilesQuery = useStudentProfiles();
   const departmentsQuery = useStudentDepartments();
   const academicStatusesQuery = useAcademicStatuses();
   const createMutation = useCreateStudent();
@@ -37,7 +36,6 @@ export function StudentsPage() {
   const totalPages = Math.max(meta?.totalPages ?? 1, 1);
 
   const departments = departmentsQuery.data?.data ?? [];
-  const profiles = profilesQuery.data?.data ?? [];
   const academicStatuses = academicStatusesQuery.data ?? [];
 
   useEffect(() => {
@@ -60,7 +58,10 @@ export function StudentsPage() {
         await updateMutation.mutateAsync({ id: editingStudent.id, input: base });
         setNotice({ kind: "success", message: "Siswa berhasil diperbarui." });
       } else {
-        await createMutation.mutateAsync({ profileId: values.profileId, ...base });
+        await createMutation.mutateAsync({
+          ...(values.profileId ? { profileId: values.profileId } : {}),
+          ...base,
+        });
         setNotice({ kind: "success", message: "Siswa berhasil dibuat." });
       }
       setIsDialogOpen(false);
@@ -87,5 +88,5 @@ export function StudentsPage() {
     <StudentStats meta={meta} visibleCount={students.length} isLoading={studentsQuery.isPending} />
     <StudentsTable students={students} departments={departments} academicStatuses={academicStatuses} isLoading={studentsQuery.isPending} isError={studentsQuery.isError} searchTerm={debouncedSearch.trim()} total={meta?.total ?? 0} onEdit={(student) => { setEditingStudent(student); setIsDialogOpen(true); }} onDelete={setDeletingStudent} />
     {!studentsQuery.isPending && !studentsQuery.isError && meta && meta.totalPages > 0 && <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row"><label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">Per halaman<select value={limit} onChange={(event) => { setLimit(Number(event.target.value)); setCurrentPage(1); }} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"><option value={10}>10</option><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label><div className="flex items-center gap-3"><button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage <= 1} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Sebelumnya</button><span className="text-sm text-slate-600 dark:text-slate-400">Halaman {meta.page} dari {totalPages}</span><button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Berikutnya</button></div></div>}
-  </div><StudentDialog open={isDialogOpen} student={editingStudent} profiles={profiles} departments={departments} academicStatuses={academicStatuses} isSaving={createMutation.isPending || updateMutation.isPending} onClose={() => { setIsDialogOpen(false); setEditingStudent(null); }} onSave={handleSave} /><DeleteStudentDialog student={deletingStudent} isDeleting={deleteMutation.isPending} onClose={() => setDeletingStudent(null)} onConfirm={handleConfirmDelete} /></main>;
+  </div><StudentDialog open={isDialogOpen} student={editingStudent} departments={departments} academicStatuses={academicStatuses} isSaving={createMutation.isPending || updateMutation.isPending} onClose={() => { setIsDialogOpen(false); setEditingStudent(null); }} onSave={handleSave} /><DeleteStudentDialog student={deletingStudent} isDeleting={deleteMutation.isPending} onClose={() => setDeletingStudent(null)} onConfirm={handleConfirmDelete} /></main>;
 }

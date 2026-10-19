@@ -166,6 +166,37 @@ describe("StudentService", () => {
       });
       expect(result.data).toEqual(studentWithoutOptional);
     });
+
+    it("creates a student without profileId (profileId is omitted)", async () => {
+      const studentWithoutProfile = {
+        ...sampleStudentEntity,
+        profileId: null,
+        profile: null,
+      };
+
+      const createSpy = jest
+        .spyOn(StudentRepository.prototype, "create")
+        .mockResolvedValue(studentWithoutProfile);
+
+      const findProfileSpy = jest.spyOn(
+        StudentRepository.prototype,
+        "findByProfileId",
+      );
+
+      const dto: CreateStudentDto = {
+        academicStatusId: "status-uuid-1",
+        studentNumber: "20260003",
+      };
+
+      const result = await service.create(dto);
+
+      expect(findProfileSpy).not.toHaveBeenCalled();
+      expect(createSpy).toHaveBeenCalledWith({
+        academicStatusId: "status-uuid-1",
+        studentNumber: "20260003",
+      });
+      expect(result.data).toEqual(studentWithoutProfile);
+    });
   });
 
   describe("findAll", () => {

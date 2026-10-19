@@ -121,7 +121,7 @@ export function EditTeacherSheet({ open, teacher, assignments, assignmentsLoadin
             disabled={isSaving}
             onClick={() =>
               onSave({
-                profile_id: teacher.profile_id,
+                profile_id: teacher.profile_id ?? "",
                 teacher_number: teacher.teacher_number,
                 specialization_id: teacher.specialization_id ?? "",
                 employment_status_id: teacher.employment_status_id ?? "",

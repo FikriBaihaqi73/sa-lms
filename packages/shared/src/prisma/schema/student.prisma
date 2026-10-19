@@ -6,7 +6,7 @@ model Student {
   deletedAt DateTime? @map("deleted_at")
 
   // attributes
-  profileId        String  @unique @map("profile_id") @db.Uuid
+  profileId        String?  @unique @map("profile_id") @db.Uuid
   departmentId     String? @map("department_id") @db.Uuid
   academicStatusId String  @map("academic_status_id") @db.Uuid
   studentNumber    String    @unique @map("student_number")
@@ -15,7 +15,7 @@ model Student {
   referralExpiresAt DateTime? @map("referral_expires_at") @db.Timestamp
 
   // relations
-  profile               Profile                @relation(fields: [profileId], references: [id])
+  profile               Profile?                @relation(fields: [profileId], references: [id])
   studentGuardians      StudentGuardian[]
   examinationScores     ExaminationScores[]
   classStudents         ClassStudent[]

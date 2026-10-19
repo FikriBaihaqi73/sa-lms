@@ -1,5 +1,5 @@
 import type { PrismaClient } from "#generated/client";
-import { StudentRepository } from "./students.repository";
+import { StudentRepository } from "#infrastructure/repository/students.repository";
 
 describe("StudentRepository", () => {
   const student = {
@@ -90,6 +90,34 @@ describe("StudentRepository", () => {
           departmentId: null,
           academicStatusId: "status-uuid-1",
           studentNumber: "20260002",
+          enrollmentYear: null,
+          referralCode: null,
+          referralExpiresAt: null,
+        },
+        select: expect.any(Object),
+      });
+    });
+
+    it("creates a student without profileId (profileId is null/undefined)", async () => {
+      const studentWithoutProfile = {
+        ...sampleStudent,
+        profileId: null,
+        profile: null,
+      };
+      student.create.mockResolvedValue(studentWithoutProfile);
+
+      const result = await repository.create({
+        academicStatusId: "status-uuid-1",
+        studentNumber: "20260003",
+      });
+
+      expect(result.profileId).toBeNull();
+      expect(student.create).toHaveBeenCalledWith({
+        data: {
+          profileId: null,
+          departmentId: null,
+          academicStatusId: "status-uuid-1",
+          studentNumber: "20260003",
           enrollmentYear: null,
           referralCode: null,
           referralExpiresAt: null,

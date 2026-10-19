@@ -5,7 +5,9 @@ export const CreateStudentSchema = z.object({
   profileId: z
     .string()
     .uuid("Invalid UUID format for profileId")
-    .describe("Profile ID (UUID)"),
+    .optional()
+    .nullable()
+    .describe("Optional Profile ID (UUID) associated with the student"),
   departmentId: z
     .string()
     .uuid("Invalid UUID format for departmentId")
