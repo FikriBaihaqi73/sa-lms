@@ -1,100 +1,126 @@
 import { apiFetch } from "@/lib/api";
-import type { ApiResponse, GradeListResponse, GradeRow, UpdateGradeInput } from "../types";
+import type {
+  ApiResponse,
+  CreateGradeInput,
+  StandardGrade,
+  UpdateGradeInput,
+} from "../types";
 import { parseScore } from "../types";
 
 /**
- * Petakan satu item response `/student-grades` (eager loaded) ke `GradeRow`.
- * Kolom skor dan relasi `grade` datang sebagai Decimal → string JSON dari
- * backend, dinormalkan lewat `parseScore`.
+ * Petakan item dari endpoint /grades ke interface StandardGrade.
  */
-export function toGradeRow(item: Record<string, unknown>, index: number): GradeRow {
-  const student = (item.student ?? {}) as Record<string, unknown>;
-  const profile = (student.profile ?? {}) as Record<string, unknown>;
-  const classSubject = (item.classSubject ?? {}) as Record<string, unknown>;
-  const clazz = (classSubject.class ?? {}) as Record<string, unknown>;
-  const subject = (classSubject.subject ?? {}) as Record<string, unknown>;
-  const academicYear = (item.academicYear ?? {}) as Record<string, unknown>;
-  const grade = (item.grade ?? null) as Record<string, unknown> | null;
-  const fullName = String(profile.fullName ?? student.studentNumber ?? `Siswa ${index + 1}`);
-  const initials = fullName
-    .split(" ")
-    .map((part) => part.charAt(0))
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-  const tones = ["blue", "pink", "amber", "teal"] as const;
-  const letter = grade && typeof grade.grade === "string" && grade.grade !== "" ? grade.grade : null;
+export function toStandardGrade(raw: Record<string, unknown>): StandardGrade {
   return {
-    id: String(item.id ?? `sg-${index}`),
-    studentName: fullName,
-    studentNumber: String(student.studentNumber ?? "-"),
-    initials: initials || "SW",
-    avatarTone: tones[index % tones.length],
-    tugas: parseScore(item.assignmentScore),
-    uts: parseScore(item.midExamScore),
-    uas: parseScore(item.finalExamScore),
-    className: String(clazz.name ?? "Kelas"),
-    subjectCode: String(subject.code ?? "MAT"),
-    subjectName: String(subject.name ?? "Mata Pelajaran"),
-    semester: String(academicYear.academic_year ?? "Semester"),
-    gradeRange: grade
-      ? {
-          letter: letter ?? "-",
-          minimumScore: parseScore(grade.minimumScore),
-          maximumScore: parseScore(grade.maximumScore),
-        }
-      : null,
+    id: String(raw.id ?? ""),
+    grade: String(raw.grade ?? ""),
+    minimumScore: parseScore(raw.minimumScore),
+    maximumScore: parseScore(raw.maximumScore),
+    description:
+      raw.description != null && String(raw.description).trim() !== ""
+        ? String(raw.description)
+        : null,
+    createdAt: raw.createdAt ? String(raw.createdAt) : undefined,
+    updatedAt: raw.updatedAt ? String(raw.updatedAt) : undefined,
   };
 }
 
 /**
- * Susun body PATCH `/student-grades/:id` sesuai kontrak backend:
- * - hanya `number` 0-100 yang boleh terkirim;
- * - field bernilai `null` (kolom kosong) DI-OMIT — `UpdateStudentGradeSchema`
- *   memakai `z.number().optional()` sehingga `null` akan ditolak 400;
- * - semua field opsional, jadi PATCH bisa sebagian.
+ * Ambil seluruh data standar penilaian (skala/rubrik).
  */
-export function buildUpdateGradePayload(input: UpdateGradeInput): Record<string, number> {
-  const payload: Record<string, number> = {};
-  if (input.assignmentScore != null) payload.assignmentScore = input.assignmentScore;
-  if (input.midExamScore != null) payload.midExamScore = input.midExamScore;
-  if (input.finalExamScore != null) payload.finalExamScore = input.finalExamScore;
-  return payload;
-}
-
-export const getGradesApi = async (search?: string): Promise<GradeRow[]> => {
-  const query = new URLSearchParams({
-    page: "1",
-    limit: "50",
-    ...(search ? { search } : {}),
-  });
-  const response: ApiResponse<unknown> = await apiFetch(
-    `/student-grades?${query.toString()}`,
-  );
+export const getGradesApi = async (): Promise<StandardGrade[]> => {
+  const response: ApiResponse<unknown> = await apiFetch("/grades");
   const data = response.data;
-  // Envelope backend: data berupa array item. Fallback `data.data` dipertahankan
-  // untuk kompatibilitas dengan response yang membungkus array di dalam `data`.
-  const rawArray: unknown = Array.isArray(data)
+
+  const rawArray: unknown[] = Array.isArray(data)
     ? data
     : data && typeof data === "object" && Array.isArray((data as { data?: unknown }).data)
-      ? (data as { data: unknown[] }).data
+      ? ((data as { data: unknown[] }).data ?? [])
       : [];
-  return (rawArray as Record<string, unknown>[]).map(toGradeRow);
+
+  return (rawArray as Record<string, unknown>[]).map(toStandardGrade);
 };
 
-export const updateGradeApi = async (id: string, input: UpdateGradeInput): Promise<GradeRow> => {
-  const payload = buildUpdateGradePayload(input);
-  if (Object.keys(payload).length === 0) {
-    throw new Error("Tidak ada perubahan nilai untuk disimpan.");
+/**
+ * Ambil detail satu standar penilaian berdasarkan ID.
+ */
+export const getGradeByIdApi = async (id: string): Promise<StandardGrade> => {
+  const response: ApiResponse<Record<string, unknown>> = await apiFetch(`/grades/${id}`);
+  if (!response.data || typeof response.data !== "object") {
+    throw new Error("Data standar penilaian tidak ditemukan.");
   }
-  const response: ApiResponse<unknown> = await apiFetch(`/student-grades/${id}`, {
+  return toStandardGrade(response.data);
+};
+
+/**
+ * Buat standar penilaian baru.
+ */
+export const createGradeApi = async (
+  input: CreateGradeInput,
+): Promise<StandardGrade> => {
+  const payload: Record<string, unknown> = {
+    grade: input.grade.trim(),
+    ...(input.minimumScore != null ? { minimumScore: input.minimumScore } : {}),
+    ...(input.maximumScore != null ? { maximumScore: input.maximumScore } : {}),
+    ...(input.description ? { description: input.description.trim() } : {}),
+  };
+
+  const response: ApiResponse<Record<string, unknown>> = await apiFetch("/grades", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.data || typeof response.data !== "object") {
+    throw new Error("Gagal membuat standar nilai.");
+  }
+  return toStandardGrade(response.data);
+};
+
+/**
+ * Perbarui standar penilaian yang sudah ada.
+ */
+export const updateGradeApi = async (
+  id: string,
+  input: UpdateGradeInput,
+): Promise<StandardGrade> => {
+  const payload: Record<string, unknown> = {};
+
+  if (input.grade !== undefined) {
+    payload.grade = input.grade.trim();
+  }
+  if (input.minimumScore !== undefined && input.minimumScore != null) {
+    payload.minimumScore = input.minimumScore;
+  }
+  if (input.maximumScore !== undefined && input.maximumScore != null) {
+    payload.maximumScore = input.maximumScore;
+  }
+  if (input.description !== undefined) {
+    payload.description = input.description ? input.description.trim() : "";
+  }
+
+  const response: ApiResponse<Record<string, unknown>> = await apiFetch(`/grades/${id}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
+
   if (!response.data || typeof response.data !== "object") {
-    throw new Error("Response pembaruan nilai tidak valid.");
+    throw new Error("Gagal memperbarui standar nilai.");
   }
-  return toGradeRow(response.data as Record<string, unknown>, 0);
+  return toStandardGrade(response.data);
 };
 
-export type { GradeListResponse };
+/**
+ * Hapus (soft delete) standar penilaian.
+ */
+export const deleteGradeApi = async (
+  id: string,
+): Promise<{ success: boolean; id: string }> => {
+  const response: ApiResponse<{ success: boolean; id: string }> = await apiFetch(
+    `/grades/${id}`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  return response.data ?? { success: true, id };
+};

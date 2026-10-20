@@ -107,11 +107,11 @@ function RootLayout() {
 	const isAdmin = role === "admin" || isSuperadmin;
 	const isInstitutionAdmin = role === "admin" || !user?.role;
 
-	// Superadmin manages platform as a whole, not daily academic grades
+	// Superadmin manages platform globally; academic grading standards are institution-scoped
 	if (location.pathname.startsWith("/grades") && isSuperadmin) {
 		return (
 			<AccessDenied
-				message="Halaman Nilai Akademik tidak dikelola oleh Superadmin platform. Fitur ini khusus untuk Admin Institusi, Guru, dan Siswa."
+				message="Halaman Standar Penilaian dikelola khusus pada lingkup institusi (Admin Institusi dan Guru)."
 			/>
 		);
 	}
