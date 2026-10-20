@@ -1,90 +1,197 @@
-import { Pencil } from "lucide-react";
-import { calcFinalScore, gradePredicate, gradeStatus, parseScore } from "../types";
-import type { GradeRow } from "../types";
+import { useState } from "react";
+import { Edit2, Plus, Search, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { formatScoreRange, getGradeColorBadge } from "../types";
+import type { StandardGrade } from "../types";
 
-interface Props { rows: GradeRow[]; totalCount: number; isLoading: boolean; onEdit: (r: GradeRow) => void; }
-
-const tone: Record<GradeRow["avatarTone"], string> = {
-  blue: "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300",
-  pink: "bg-pink-100 text-pink-700 dark:bg-pink-950/60 dark:text-pink-300",
-  amber: "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300",
-  teal: "bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300",
-};
-
-function score(v: number | null) {
-  // parseScore menangani skor Decimal backend yang masih berupa string ("85.50").
-  const value = parseScore(v);
-  if (value == null) return <span className="italic text-slate-400">-</span>;
-  return <span className="font-semibold text-slate-900 dark:text-slate-100">{value}</span>;
+interface GradesTableProps {
+  grades: StandardGrade[];
+  isLoading: boolean;
+  onEdit: (grade: StandardGrade) => void;
+  onDelete: (grade: StandardGrade) => void;
+  onAdd: () => void;
 }
 
-export function GradesTable({ rows, totalCount, isLoading, onEdit }: Props) {
+export function GradesTable({
+  grades,
+  isLoading,
+  onEdit,
+  onDelete,
+  onAdd,
+}: GradesTableProps) {
+  const [search, setSearch] = useState("");
+
+  const filtered = grades
+    .filter((g) => {
+      const q = search.trim().toLowerCase();
+      if (!q) return true;
+      const matchGrade = g.grade.toLowerCase().includes(q);
+      const matchDesc = (g.description ?? "").toLowerCase().includes(q);
+      return matchGrade || matchDesc;
+    })
+    .sort((a, b) => {
+      const minA = a.minimumScore ?? 0;
+      const minB = b.minimumScore ?? 0;
+      return minB - minA;
+    });
+
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] text-left text-sm">
-          <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
-            <tr>
-              <th className="px-6 py-3.5">Siswa</th>
-              <th className="px-4 py-3.5 text-center">Tugas (30%)</th>
-              <th className="px-4 py-3.5 text-center">UTS (30%)</th>
-              <th className="px-4 py-3.5 text-center">UAS (40%)</th>
-              <th className="px-4 py-3.5 text-center">Nilai Akhir</th>
-              <th className="px-4 py-3.5">Predikat</th>
-              <th className="px-4 py-3.5 text-center">Status</th>
-              <th className="px-6 py-3.5 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-            {isLoading ? (
-              <tr><td colSpan={8} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Memuat data nilai...</td></tr>
-            ) : rows.length === 0 ? (
-              <tr><td colSpan={8} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Belum ada data nilai untuk filter ini.</td></tr>
-            ) : (
-              rows.map((r) => {
-                const final = calcFinalScore(r);
-                const st = gradeStatus(final);
-                return (
-                  <tr key={r.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <span className={`grid size-9 shrink-0 place-items-center rounded-full text-xs font-bold ${tone[r.avatarTone]}`}>{r.initials}</span>
-                        <div>
-                          <p className="font-semibold text-slate-900 dark:text-slate-100">{r.studentName}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">{r.studentNumber} - {r.subjectCode}</p>
+    <Card className="border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 dark:border-slate-800">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cari predikat atau rubrik..."
+            className="pl-9 h-9 text-xs sm:text-sm bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800"
+          />
+        </div>
+        <div className="text-xs text-slate-500 dark:text-slate-400">
+          Menampilkan <span className="font-semibold text-slate-800 dark:text-slate-200">{filtered.length}</span> dari {grades.length} standar penilaian
+        </div>
+      </div>
+
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-slate-50 dark:bg-slate-950/40">
+              <TableRow className="border-b border-slate-200 dark:border-slate-800">
+                <TableHead className="w-28 font-semibold text-slate-700 dark:text-slate-300">
+                  Predikat / Grade
+                </TableHead>
+                <TableHead className="w-44 font-semibold text-slate-700 dark:text-slate-300">
+                  Rentang Nilai
+                </TableHead>
+                <TableHead className="w-32 font-semibold text-slate-700 dark:text-slate-300">
+                  Skor Min
+                </TableHead>
+                <TableHead className="w-32 font-semibold text-slate-700 dark:text-slate-300">
+                  Skor Max
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                  Keterangan / Rubrik
+                </TableHead>
+                <TableHead className="w-24 text-right font-semibold text-slate-700 dark:text-slate-300">
+                  Aksi
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: skeleton preview
+                  <TableRow key={idx} className="border-b border-slate-100 dark:border-slate-800/60">
+                    <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-28" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
+                  </TableRow>
+                ))
+              ) : filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-44 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                        {search.trim()
+                          ? `Tidak ditemukan standar nilai dengan kata kunci "${search}".`
+                          : "Belum ada standar penilaian yang dikonfigurasi."}
+                      </p>
+                      {!search.trim() && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={onAdd}
+                          className="mt-2 gap-1 text-xs"
+                        >
+                          <Plus className="size-3.5" /> Tambah Standar Pertama
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filtered.map((item) => {
+                  const theme = getGradeColorBadge(item.grade);
+                  const rangeText = formatScoreRange(item.minimumScore, item.maximumScore);
+
+                  return (
+                    <TableRow
+                      key={item.id}
+                      className="border-b border-slate-100 dark:border-slate-800/60 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/40"
+                    >
+                      <TableCell>
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${theme.bg} ${theme.text} ${theme.border}`}
+                        >
+                          <span className={`size-1.5 rounded-full ${theme.dot}`} />
+                          {item.grade}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                          {rangeText}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        {item.minimumScore != null ? item.minimumScore.toFixed(2).replace(/\.00$/, "") : "-"}
+                      </TableCell>
+                      <TableCell className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        {item.maximumScore != null ? item.maximumScore.toFixed(2).replace(/\.00$/, "") : "-"}
+                      </TableCell>
+                      <TableCell className="text-xs text-slate-600 dark:text-slate-300">
+                        {item.description || (
+                          <span className="text-slate-400 dark:text-slate-500 italic">
+                            Tanpa keterangan
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onEdit(item)}
+                            title="Edit Standar Nilai"
+                            className="size-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 dark:hover:text-blue-400"
+                          >
+                            <Edit2 className="size-3.5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onDelete(item)}
+                            title="Hapus Standar Nilai"
+                            className="size-8 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-center">{score(r.tugas)}</td>
-                    <td className="px-4 py-4 text-center">{score(r.uts)}</td>
-                    <td className="px-4 py-4 text-center">{score(r.uas)}</td>
-                    <td className="px-4 py-4 text-center">
-                      {final == null ? <span className="italic text-slate-400">-</span> :
-                        <span className="font-bold text-slate-900 dark:text-slate-100">{final.toFixed(1)}</span>}
-                    </td>
-                    <td className="px-4 py-4 text-xs font-medium text-slate-600 dark:text-slate-300">{gradePredicate(final)}</td>
-                    <td className="px-4 py-4 text-center">
-                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                        st === "Lulus" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
-                        : st === "Remedial" ? "bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"}`}>{st}</span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button type="button" onClick={() => onEdit(r)}
-                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/50">
-                        <Pencil className="size-3.5" /> Edit
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-      <div className="border-t border-slate-200 px-6 py-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-        Menampilkan {rows.length} dari {totalCount} data nilai.
-      </div>
-    </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

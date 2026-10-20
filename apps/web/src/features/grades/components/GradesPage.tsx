@@ -1,98 +1,201 @@
-import { useMemo, useState } from "react";
-import { Download, GraduationCap } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 import { ApiError } from "@/lib/api";
-import { GradesFilterBar } from "./GradesFilterBar";
+import { GradesHeader } from "./GradesHeader";
 import { GradesStats } from "./GradesStats";
+import { GradesScaleVisual } from "./GradesScaleVisual";
 import { GradesTable } from "./GradesTable";
-import { EditGradeDialog } from "./EditGradeDialog";
-import { useGrades, useUpdateGrade } from "../hooks/useGrades";
-import { calcFinalScore, gradeStatus } from "../types";
-import type { GradeRow, UpdateGradeInput } from "../types";
+import { GradeDialog } from "./GradeDialog";
+import { DeleteGradeDialog } from "./DeleteGradeDialog";
+import {
+  useCreateGrade,
+  useDeleteGrade,
+  useGrades,
+  useUpdateGrade,
+} from "../hooks/useGrades";
+import type { GradeFormValues } from "../schemas/gradeSchema";
+import type { StandardGrade } from "../types";
 
-const CLASS_OPTIONS = ["Semua Kelas", "Kelas 7A", "Kelas 7B", "Kelas 8A", "Kelas 9A"];
-const SUBJECT_OPTIONS = ["Semua Mapel", "Matematika", "IPA", "Bahasa Indonesia", "Bahasa Inggris"];
-const SEMESTER_OPTIONS = ["Semester Ganjil", "Semester Genap"];
-
-function errorMessage(error: unknown): string {
-  // ApiError membawa pesan envelope backend + error per-field (errors: [{ path, message }]).
+function formatErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    const details = error.fieldErrors
-      .map((fieldError) => `${fieldError.field}: ${fieldError.message}`)
-      .join("; ");
-    return details ? `${error.message} — ${details}` : error.message;
+    if (error.fieldErrors && error.fieldErrors.length > 0) {
+      const details = error.fieldErrors
+        .map((f) => `${f.field}: ${f.message}`)
+        .join("; ");
+      return `${error.message} (${details})`;
+    }
+    return error.message;
   }
   if (error instanceof Error) return error.message;
-  return "Terjadi kesalahan. Silakan coba lagi.";
+  return "Terjadi kesalahan pada sistem. Silakan coba kembali.";
 }
+
 export function GradesPage() {
-  const [classFilter, setClassFilter] = useState("Semua Kelas");
-  const [subjectFilter, setSubjectFilter] = useState("Semua Mapel");
-  const [semesterFilter, setSemesterFilter] = useState("Semester Ganjil");
-  const [search, setSearch] = useState("");
-  const [editingRow, setEditingRow] = useState<GradeRow | null>(null);
-  const [notice, setNotice] = useState<{ kind: "success" | "error"; message: string } | null>(null);
-  const gradesQuery = useGrades("");
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editingGrade, setEditingGrade] = useState<StandardGrade | null>(null);
+  const [deletingGrade, setDeletingGrade] = useState<StandardGrade | null>(null);
+  const [notice, setNotice] = useState<{
+    kind: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  const gradesQuery = useGrades();
+  const createMutation = useCreateGrade();
   const updateMutation = useUpdateGrade();
-  const grades = useMemo(() => gradesQuery.data ?? [], [gradesQuery.data]);
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return grades.filter((row) => {
-      const mc = classFilter === "Semua Kelas" || row.className === classFilter;
-      const ms = subjectFilter === "Semua Mapel" || row.subjectName === subjectFilter;
-      const mm = row.semester === semesterFilter;
-      const mq = !q || row.studentName.toLowerCase().includes(q) || row.studentNumber.toLowerCase().includes(q) || row.subjectCode.toLowerCase().includes(q) || row.subjectName.toLowerCase().includes(q);
-      return mc && ms && mm && mq;
-    });
-  }, [grades, classFilter, subjectFilter, semesterFilter, search]);
-  const stats = useMemo(() => {
-    const finals = filtered.map((r) => calcFinalScore(r)).filter((v): v is number => v !== null);
-    const avg = finals.length > 0 ? finals.reduce((a, b) => a + b, 0) / finals.length : 0;
-    const passed = filtered.filter((r) => gradeStatus(calcFinalScore(r)) === "Lulus").length;
-    const remedial = filtered.filter((r) => gradeStatus(calcFinalScore(r)) === "Remedial").length;
-    return { total: filtered.length, average: avg, passed, remedial };
-  }, [filtered]);
-  const handleSave = async (input: UpdateGradeInput) => {
-    if (!editingRow) return;
+  const deleteMutation = useDeleteGrade();
+
+  const grades = gradesQuery.data ?? [];
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(null), 5000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+
+  const handleCreate = async (values: GradeFormValues) => {
     try {
-      await updateMutation.mutateAsync({ id: editingRow.id, input });
-      setEditingRow(null);
-      setNotice({ kind: "success", message: `Nilai ${editingRow.studentName} berhasil diperbarui.` });
+      await createMutation.mutateAsync({
+        grade: values.grade,
+        minimumScore: values.minimumScore,
+        maximumScore: values.maximumScore,
+        description: values.description ?? undefined,
+      });
+      setIsAddOpen(false);
+      setNotice({
+        kind: "success",
+        message: `Standar penilaian "${values.grade}" berhasil ditambahkan.`,
+      });
     } catch (err) {
-      setNotice({ kind: "error", message: errorMessage(err) });
+      setNotice({
+        kind: "error",
+        message: formatErrorMessage(err),
+      });
     }
   };
+
+  const handleUpdate = async (values: GradeFormValues) => {
+    if (!editingGrade) return;
+    try {
+      await updateMutation.mutateAsync({
+        id: editingGrade.id,
+        input: {
+          grade: values.grade,
+          minimumScore: values.minimumScore,
+          maximumScore: values.maximumScore,
+          description: values.description ?? undefined,
+        },
+      });
+      setEditingGrade(null);
+      setNotice({
+        kind: "success",
+        message: `Standar penilaian "${values.grade}" berhasil diperbarui.`,
+      });
+    } catch (err) {
+      setNotice({
+        kind: "error",
+        message: formatErrorMessage(err),
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingGrade) return;
+    try {
+      await deleteMutation.mutateAsync(deletingGrade.id);
+      setNotice({
+        kind: "success",
+        message: `Standar penilaian "${deletingGrade.grade}" berhasil dihapus.`,
+      });
+      setDeletingGrade(null);
+    } catch (err) {
+      setNotice({
+        kind: "error",
+        message: formatErrorMessage(err),
+      });
+    }
+  };
+
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-slate-900 dark:text-slate-50 sm:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
-        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400">
-              <GraduationCap className="size-3.5" /> Portal Akademik
-            </span>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Manajemen Nilai</h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola nilai tugas, UTS, dan UAS siswa per kelas dan mata pelajaran. Bobot: Tugas 30%, UTS 30%, UAS 40%. KKM 70.</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" className="h-10 border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-              <Download className="size-4" /> Export
-            </Button>
-          </div>
-        </header>
+        {/* Header */}
+        <GradesHeader onAdd={() => setIsAddOpen(true)} />
+
+        {/* Notice Alert */}
         {notice && (
-          <div role="status" className={`flex items-center justify-between rounded-lg border p-4 text-sm font-medium shadow-sm ${notice.kind === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300" : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"}`}>
+          <div
+            role="status"
+            className={`flex items-center justify-between rounded-xl border p-4 text-sm font-medium shadow-sm transition-all ${
+              notice.kind === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+                : "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
+            }`}
+          >
             <span>{notice.message}</span>
-            <button type="button" onClick={() => setNotice(null)} className="text-xs font-semibold hover:underline">Tutup</button>
+            <button
+              type="button"
+              onClick={() => setNotice(null)}
+              className="text-xs font-semibold hover:underline ml-4"
+            >
+              Tutup
+            </button>
           </div>
         )}
+
+        {/* Global Query Error */}
         {gradesQuery.isError && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">{errorMessage(gradesQuery.error)}</div>
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400">
+            {formatErrorMessage(gradesQuery.error)}
+          </div>
         )}
-        <GradesStats total={stats.total} average={stats.average} passed={stats.passed} remedial={stats.remedial} isLoading={gradesQuery.isPending} />
-        <GradesFilterBar classFilter={classFilter} subjectFilter={subjectFilter} semesterFilter={semesterFilter} search={search} classOptions={CLASS_OPTIONS} subjectOptions={SUBJECT_OPTIONS} semesterOptions={SEMESTER_OPTIONS} onClassChange={setClassFilter} onSubjectChange={setSubjectFilter} onSemesterChange={setSemesterFilter} onSearchChange={setSearch} />
-        <GradesTable rows={filtered} totalCount={grades.length} isLoading={gradesQuery.isPending} onEdit={setEditingRow} />
+
+        {/* Summary Stats */}
+        <GradesStats grades={grades} isLoading={gradesQuery.isPending} />
+
+        {/* Interactive Visual Scale Preview */}
+        {!gradesQuery.isPending && grades.length > 0 && (
+          <GradesScaleVisual grades={grades} />
+        )}
+
+        {/* Main Table */}
+        <GradesTable
+          grades={grades}
+          isLoading={gradesQuery.isPending}
+          onEdit={(item) => setEditingGrade(item)}
+          onDelete={(item) => setDeletingGrade(item)}
+          onAdd={() => setIsAddOpen(true)}
+        />
       </div>
-      {editingRow && (<EditGradeDialog row={editingRow} isSaving={updateMutation.isPending} onClose={() => setEditingRow(null)} onSave={handleSave} />)}
+
+      {/* Add Dialog */}
+      {isAddOpen && (
+        <GradeDialog
+          open={isAddOpen}
+          isSaving={createMutation.isPending}
+          onClose={() => setIsAddOpen(false)}
+          onSave={handleCreate}
+        />
+      )}
+
+      {/* Edit Dialog */}
+      {editingGrade && (
+        <GradeDialog
+          open={Boolean(editingGrade)}
+          grade={editingGrade}
+          isSaving={updateMutation.isPending}
+          onClose={() => setEditingGrade(null)}
+          onSave={handleUpdate}
+        />
+      )}
+
+      {/* Delete Dialog */}
+      {deletingGrade && (
+        <DeleteGradeDialog
+          grade={deletingGrade}
+          isDeleting={deleteMutation.isPending}
+          onClose={() => setDeletingGrade(null)}
+          onConfirm={handleDelete}
+        />
+      )}
     </main>
   );
 }
