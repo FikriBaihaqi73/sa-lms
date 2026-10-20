@@ -34,6 +34,18 @@ describe("RolesGuard", () => {
     await expect(guard.canActivate(createContext())).resolves.toBe(true);
   });
 
+  it("allows endpoints with an empty role override (self-service /me)", async () => {
+    // 0208: ProfileController uses class-level @Roles("superadmin","admin")
+    // with method-level @Roles() on GET/PATCH /profiles/me. The empty array
+    // from getAllAndOverride must let any authenticated user through while
+    // the privileged handlers stay admin-only.
+    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue([]);
+
+    await expect(
+      guard.canActivate(createContext({ sub: "student-id", role: "student" })),
+    ).resolves.toBe(true);
+  });
+
   it("allows a matching role from the JWT claim", async () => {
     jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["admin"]);
 

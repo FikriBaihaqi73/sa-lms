@@ -136,6 +136,40 @@ describe("AuthService register", () => {
     expect(registerSuperAdmin).not.toHaveBeenCalled();
   });
 
+  it("rejects a teacher role through public registration (0208)", async () => {
+    // Teacher accounts must only be created by an admin via POST /profiles
+    // (teacher roleId) + POST /teachers. Public self-registration for the
+    // teacher role is disabled at both the Zod schema and service layers.
+    jest
+      .spyOn(AuthRepository.prototype, "findUserByEmail")
+      .mockResolvedValue(null);
+    const createUser = jest.spyOn(AuthRepository.prototype, "createUser");
+    const findRole = jest.spyOn(AuthRepository.prototype, "findDefaultRole");
+    const registerInstitutionOwner = jest.spyOn(
+      AuthRepository.prototype,
+      "registerInstitutionOwner",
+    );
+
+    await expect(
+      service.register({ ...baseDto, role: "teacher" } as never),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(createUser).not.toHaveBeenCalled();
+    expect(findRole).not.toHaveBeenCalled();
+    expect(registerInstitutionOwner).not.toHaveBeenCalled();
+  });
+
+  it("rejects a guardian role through public registration (0208)", async () => {
+    jest
+      .spyOn(AuthRepository.prototype, "findUserByEmail")
+      .mockResolvedValue(null);
+    const createUser = jest.spyOn(AuthRepository.prototype, "createUser");
+
+    await expect(
+      service.register({ ...baseDto, role: "guardian" } as never),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(createUser).not.toHaveBeenCalled();
+  });
+
   it("rejects a duplicate email before creating anything", async () => {
     jest
       .spyOn(AuthRepository.prototype, "findUserByEmail")
