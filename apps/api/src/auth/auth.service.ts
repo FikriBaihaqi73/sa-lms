@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  HttpException,
   Injectable,
   ServiceUnavailableException,
   UnauthorizedException,
@@ -51,10 +52,27 @@ export class AuthService {
 
     try {
       if (dto.role === "student") {
-        return await this.authRepository.createUser({
-          email,
-          password,
-        });
+        const referral = await this.authRepository.findValidReferralInstitution(
+          dto.referralCode as string,
+        );
+        if (!referral) {
+          throw new ConflictException(
+            "Kode referral tidak ditemukan atau sudah kadaluwarsa",
+          );
+        }
+
+        const role = await this.authRepository.findDefaultRole("student");
+        if (!role) {
+          throw new ServiceUnavailableException(
+            "Registration is temporarily unavailable (missing default student role)",
+          );
+        }
+
+        return await this.authRepository.registerStudent(
+          { email, password },
+          referral.institutionId,
+          role.id,
+        );
       } else if (dto.role === "instansi") {
         const roleName = process.env.DEFAULT_INSTITUTION_ADMIN_ROLE ?? "admin";
         const role = await this.authRepository.findDefaultRole(roleName);
@@ -82,46 +100,63 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const email = dto.email.toLowerCase();
-    const user = await this.authRepository.findLoginUser(email);
-    if (
-      !user ||
-      !user.is_active ||
-      !(await this.verifyPassword(dto.password, user.password))
-    ) {
-      throw new UnauthorizedException("Invalid credentials");
+    try {
+      const email = dto.email.toLowerCase();
+      const user = await this.authRepository.findLoginUser(email);
+      if (
+        !user ||
+        !user.is_active ||
+        !(await this.verifyPassword(dto.password, user.password))
+      ) {
+        throw new UnauthorizedException("Email atau kata sandi salah");
+      }
+
+      if (!process.env.JWT_SECRET?.trim()) {
+        console.error("Login configuration error: JWT_SECRET is not configured");
+        throw new ServiceUnavailableException(
+          "Layanan login sementara tidak tersedia. Silakan hubungi administrator.",
+        );
+      }
+
+      await this.authRepository.updateLastLogin(user.id);
+
+      const profile = await this.profileRepository.findByUserId(user.id);
+      const role = profile?.role?.name?.trim().toLowerCase() ?? null;
+
+      const accessToken = await this.jwtService.signAsync({
+        sub: user.id,
+        email: user.email,
+        ...(role ? { role } : {}),
+      });
+      const updatedUser = await this.authRepository.updateAccessToken(
+        user.id,
+        accessToken,
+      );
+
+      return {
+        accessToken,
+        tokenType: "Bearer",
+        expiresIn: 900,
+        user: {
+          ...updatedUser,
+          ...(role
+            ? {
+                activeRole: role,
+                activeInstitutionId: profile?.institutionId ?? null,
+                activeProfileId: profile?.id ?? null,
+              }
+            : {}),
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      console.error("Login failed due to an unexpected infrastructure error", error);
+      throw new ServiceUnavailableException(
+        "Layanan login sementara tidak tersedia. Silakan coba lagi.",
+      );
     }
-
-    await this.authRepository.updateLastLogin(user.id);
-
-    const profile = await this.profileRepository.findByUserId(user.id);
-    const role = profile?.role?.name?.trim().toLowerCase() ?? null;
-
-    const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
-      email: user.email,
-      ...(role ? { role } : {}),
-    });
-    const updatedUser = await this.authRepository.updateAccessToken(
-      user.id,
-      accessToken,
-    );
-
-    return {
-      accessToken,
-      tokenType: "Bearer",
-      expiresIn: 900,
-      user: {
-        ...updatedUser,
-        ...(role
-          ? {
-              activeRole: role,
-              activeInstitutionId: profile?.institutionId ?? null,
-              activeProfileId: profile?.id ?? null,
-            }
-          : {}),
-      },
-    };
   }
 
   async logout(authorization?: string) {
@@ -176,6 +211,11 @@ export class AuthService {
     password: string,
     hash: string,
   ): Promise<boolean> {
-    return await bcrypt.compare(password, hash);
+    try {
+      return await bcrypt.compare(password, hash);
+    } catch (error) {
+      console.error("Password hash comparison failed", error);
+      return false;
+    }
   }
 }

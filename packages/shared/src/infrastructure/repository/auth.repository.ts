@@ -1,4 +1,4 @@
-import type { PrismaClient } from "#generated/client";
+import type { Prisma, PrismaClient } from "#generated/client";
 import { type RoleEntity, roleSelect } from "#selects/role.select";
 import {
   type UserEntity,
@@ -10,6 +10,10 @@ import {
 export interface CreateAuthenticatedUserInput {
   email: string;
   password: string;
+}
+
+interface ReferralInstitution {
+  institutionId: string;
 }
 
 export class AuthRepository {
@@ -29,10 +33,59 @@ export class AuthRepository {
     });
   }
 
+  async findValidReferralInstitution(
+    referralCode: string,
+  ): Promise<ReferralInstitution | null> {
+    const referralOwner = await this.prisma.student.findFirst({
+      where: {
+        referralCode: { equals: referralCode, mode: "insensitive" },
+        referralExpiresAt: { gt: new Date() },
+        deletedAt: null,
+        profile: { is: { deletedAt: null } },
+      },
+      select: {
+        profile: { select: { institutionId: true } },
+      },
+    });
+
+    if (!referralOwner?.profile) {
+      return null;
+    }
+
+    return { institutionId: referralOwner.profile.institutionId };
+  }
+
   async createUser(data: CreateAuthenticatedUserInput): Promise<UserEntity> {
     return this.prisma.users.create({
       data: { ...data, is_active: true },
       select: userSelect,
+    });
+  }
+
+  async registerStudent(
+    userPayload: CreateAuthenticatedUserInput,
+    institutionId: string,
+    roleId: string,
+  ): Promise<UserEntity> {
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const user = await tx.users.create({
+        data: { ...userPayload, is_active: true },
+      });
+
+      await tx.profile.create({
+        data: {
+          userId: user.id,
+          institutionId,
+          roleId,
+          fullName: user.email,
+          email: user.email,
+        },
+      });
+
+      return tx.users.findUniqueOrThrow({
+        where: { id: user.id },
+        select: userSelect,
+      });
     });
   }
 
@@ -98,7 +151,7 @@ export class AuthRepository {
     institutionName: string,
     roleId: string,
   ): Promise<UserEntity> {
-    return this.prisma.$transaction(async (tx: any) => {
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const user = await tx.users.create({
         data: { ...userPayload, is_active: true },
       });
@@ -134,7 +187,7 @@ export class AuthRepository {
     userPayload: CreateAuthenticatedUserInput,
     roleId: string,
   ): Promise<UserEntity> {
-    return this.prisma.$transaction(async (tx: any) => {
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const user = await tx.users.create({
         data: { ...userPayload, is_active: true },
       });

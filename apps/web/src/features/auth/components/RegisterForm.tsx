@@ -7,6 +7,7 @@ import {
 	GraduationCap,
 	Lock,
 	Mail,
+	KeyRound,
 	School,
 	Sparkles,
 	UserPlus,
@@ -55,6 +56,7 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 			password: "",
 			confirmPassword: "",
 			institutionName: undefined,
+			referralCode: undefined,
 		},
 	});
 
@@ -68,6 +70,7 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 				password: data.password,
 				role: data.role,
 				institutionName: data.institutionName,
+				referralCode: data.referralCode,
 			});
 			toast.success("Akun berhasil dibuat! Silakan masuk dengan akun baru Anda.");
 			onLoginClick();
@@ -148,14 +151,10 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 						)}
 					</div>
 
-					{/* Responsive Wider Form Grid */}
-					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						{/* Email Field - spans full width or conditionally with Institution */}
-						<div
-							className={`space-y-1.5 ${
-								selectedRole === "instansi" ? "sm:col-span-1" : "sm:col-span-2"
-							}`}
-						>
+						{/* Two-column grid for both registration roles. */}
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+							{/* Email is always the left column in the first row. */}
+							<div className="space-y-1.5 sm:col-span-1">
 							<Label
 								htmlFor="email"
 								className="text-xs font-semibold text-slate-700 dark:text-slate-300"
@@ -182,8 +181,8 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 							)}
 						</div>
 
-						{/* Institution Field (Visible only when role is instansi) */}
-						{selectedRole === "instansi" && (
+						{/* Institution/referral field changes with the selected role. */}
+						{selectedRole === "instansi" ? (
 							<div className="space-y-1.5 sm:col-span-1">
 								<Label
 									htmlFor="institutionName"
@@ -199,6 +198,7 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 										id="institutionName"
 										{...register("institutionName")}
 										type="text"
+										required
 										placeholder="SMA Negeri 1 ..."
 										className="h-11 pl-9 rounded-lg border-slate-200 bg-white/80 transition-all focus:border-blue-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950/70 dark:focus:bg-slate-950"
 									/>
@@ -206,6 +206,33 @@ export function RegisterForm({ onLoginClick }: { onLoginClick: () => void }) {
 								{errors.institutionName && (
 									<p className="text-xs font-medium text-red-500">
 										{errors.institutionName.message}
+									</p>
+								)}
+							</div>
+						) : (
+							<div className="space-y-1.5 sm:col-span-1">
+								<Label
+									htmlFor="referralCode"
+									className="text-xs font-semibold text-slate-700 dark:text-slate-300"
+								>
+									Kode Referral Sekolah
+								</Label>
+								<div className="relative">
+									<div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+										<KeyRound className="h-4 w-4" />
+									</div>
+									<Input
+										id="referralCode"
+										{...register("referralCode")}
+										type="text"
+										required
+										placeholder="Masukkan kode referral sekolah Anda"
+										className="h-11 pl-9 rounded-lg border-slate-200 bg-white/80 transition-all focus:border-blue-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950/70 dark:focus:bg-slate-950"
+									/>
+								</div>
+								{errors.referralCode && (
+									<p className="text-xs font-medium text-red-500">
+										{errors.referralCode.message}
 									</p>
 								)}
 							</div>
