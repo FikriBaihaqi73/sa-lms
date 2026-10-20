@@ -4,9 +4,7 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 
-const jwtSecret =
-  process.env.JWT_SECRET ||
-  "supersecretjwtkey_must_change_in_production_123456";
+const jwtSecret = process.env.JWT_SECRET?.trim() || "jwt-secret-not-configured";
 
 @Module({
   imports: [
