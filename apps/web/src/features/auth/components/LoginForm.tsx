@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ApiError } from "@/lib/api";
 import { useAuth } from "../hooks/useAuth";
 
 type LoginFormValues = z.infer<typeof LoginSchema>;
@@ -54,6 +55,10 @@ export function LoginForm({
 							: "/grades",
 			});
 		} catch (err) {
+			if (err instanceof ApiError && err.status >= 500) {
+				setError("Layanan login sedang bermasalah. Silakan coba lagi nanti.");
+				return;
+			}
 			const message =
 				err instanceof Error && err.message
 					? err.message

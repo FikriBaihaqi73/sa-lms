@@ -23,6 +23,15 @@ export const RegisterSchema = z
       .describe(
         "Name of the institution to be created (required if role is instansi)",
       ),
+    referralCode: z
+      .string()
+      .trim()
+      .min(3, "Kode referral minimal 3 karakter")
+      .max(100, "Kode referral maksimal 100 karakter")
+      .optional()
+      .describe(
+        "Active referral code from the institution (required if role is student)",
+      ),
   })
   .superRefine((data, ctx) => {
     if (data.role === "instansi" && !data.institutionName) {
@@ -30,6 +39,14 @@ export const RegisterSchema = z
         code: z.ZodIssueCode.custom,
         message: "Institution name is required when registering as instansi",
         path: ["institutionName"],
+      });
+    }
+
+    if (data.role === "student" && !data.referralCode) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Kode referral sekolah wajib diisi",
+        path: ["referralCode"],
       });
     }
   });

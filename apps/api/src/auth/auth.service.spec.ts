@@ -74,23 +74,50 @@ describe("AuthService register", () => {
     role: "student",
   } as RegisterDto;
 
-  it("registers a student without requiring any role lookup", async () => {
+  it("registers a student under the institution that owns a valid referral", async () => {
     const created = { id: "user-id", email: "new@example.com" };
     const findByEmail = jest
       .spyOn(AuthRepository.prototype, "findUserByEmail")
       .mockResolvedValue(null);
-    const createUser = jest
-      .spyOn(AuthRepository.prototype, "createUser")
+    jest
+      .spyOn(AuthRepository.prototype, "findValidReferralInstitution")
+      .mockResolvedValue({ institutionId: "institution-id" });
+    jest
+      .spyOn(AuthRepository.prototype, "findDefaultRole")
+      .mockResolvedValue({ id: "student-role-id" } as never);
+    const registerStudent = jest
+      .spyOn(AuthRepository.prototype, "registerStudent")
       .mockResolvedValue(created as never);
 
-    const result = await service.register(baseDto);
+    const result = await service.register({
+      ...baseDto,
+      referralCode: "SCH-2026",
+    });
 
     expect(result).toEqual(created);
     expect(findByEmail).toHaveBeenCalledWith("new@example.com");
-    expect(createUser).toHaveBeenCalledWith({
-      email: "new@example.com",
-      password: expect.any(String),
+    expect(registerStudent).toHaveBeenCalledWith(
+      { email: "new@example.com", password: expect.any(String) },
+      "institution-id",
+      "student-role-id",
+    );
+  });
+
+  it("rejects a missing, invalid, or expired student referral", async () => {
+    jest
+      .spyOn(AuthRepository.prototype, "findUserByEmail")
+      .mockResolvedValue(null);
+    jest
+      .spyOn(AuthRepository.prototype, "findValidReferralInstitution")
+      .mockResolvedValue(null);
+    const registerStudent = jest.spyOn(AuthRepository.prototype, "registerStudent");
+
+    await expect(
+      service.register({ ...baseDto, referralCode: "EXPIRED" }),
+    ).rejects.toMatchObject({
+      message: "Kode referral tidak ditemukan atau sudah kadaluwarsa",
     });
+    expect(registerStudent).not.toHaveBeenCalled();
   });
 
   it("registers an institution owner and attaches it to the default admin role", async () => {
@@ -228,5 +255,57 @@ describe("AuthService register", () => {
     await expect(service.register(instansiDto)).rejects.toBeInstanceOf(
       ConflictException,
     );
+  });
+});
+
+describe("AuthService login", () => {
+  const originalJwtSecret = process.env.JWT_SECRET;
+  let service: AuthService;
+  let jwtService: jest.Mocked<Pick<JwtService, "signAsync">>;
+
+  beforeEach(() => {
+    process.env.JWT_SECRET = "test-jwt-secret";
+    jwtService = { signAsync: jest.fn().mockResolvedValue("access-token") };
+    service = new AuthService(
+      {} as PrismaService,
+      jwtService as unknown as JwtService,
+    );
+  });
+
+  afterEach(() => {
+    if (originalJwtSecret === undefined) {
+      delete process.env.JWT_SECRET;
+    } else {
+      process.env.JWT_SECRET = originalJwtSecret;
+    }
+    jest.restoreAllMocks();
+  });
+
+  it("returns 401 instead of a server error for an unknown email", async () => {
+    jest
+      .spyOn(AuthRepository.prototype, "findLoginUser")
+      .mockResolvedValue(null);
+
+    await expect(
+      service.login({ email: "missing@example.com", password: "password123" }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it("returns 503 when JWT configuration is missing after valid credentials", async () => {
+    delete process.env.JWT_SECRET;
+    jest.spyOn(AuthRepository.prototype, "findLoginUser").mockResolvedValue({
+      id: "user-id",
+      email: "admin@example.com",
+      password: "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      is_active: true,
+    } as never);
+    const authService = service as unknown as {
+      verifyPassword(password: string, hash: string): Promise<boolean>;
+    };
+    jest.spyOn(authService, "verifyPassword").mockResolvedValue(true);
+
+    await expect(
+      service.login({ email: "admin@example.com", password: "password" }),
+    ).rejects.toBeInstanceOf(ServiceUnavailableException);
   });
 });
