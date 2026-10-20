@@ -17,10 +17,17 @@ import {
   UpdateProfileDto,
 } from "@repo/shared/schemas/profile.schema";
 import { ZodValidationPipe } from "nestjs-zod";
+import { Roles } from "../auth/roles.decorator";
 import { ProfileService } from "./profile.service";
 
 @ApiTags("Profiles")
 @ApiBearerAuth("JWT-auth")
+// Teacher (and every other elevated) role can only be granted through this
+// controller. Restrict it to platform / institution admins so a self-registered
+// student cannot self-assign the teacher role via POST /profiles.
+// Self-service `GET /profiles/me` and `PATCH /profiles/me` opt back out below
+// with an empty `@Roles()` (any authenticated user).
+@Roles("superadmin", "admin")
 @Controller("profiles")
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
@@ -37,6 +44,7 @@ export class ProfileController {
   }
 
   @Get("me")
+  @Roles()
   @ApiOperation({ summary: "Get current user profile" })
   async getMyProfile(@Req() req: { user?: { sub: string } }) {
     const userId = req.user?.sub;
@@ -51,6 +59,7 @@ export class ProfileController {
   }
 
   @Patch("me")
+  @Roles()
   @ApiOperation({ summary: "Update current user profile" })
   async updateMyProfile(
     @Req() req: { user?: { sub: string } },
