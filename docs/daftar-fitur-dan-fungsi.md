@@ -149,7 +149,7 @@ Master data ini bersifat universal lintas seluruh institusi dan dipelihara secar
 ### 3.7 Peminatan & Keahlian (Specialization Statuses)
 - **Rute Frontend**: `/specialization-statuses`
 - **Endpoint API**: `GET /specializations`, `POST /specializations`, `PATCH /specializations/:id`, `DELETE /specializations/:id`
-- **Hak Akses**: 👑 Superadmin
+- **Hak Akses**: 🛠️ Admin Institusi
 - **Fungsi Utama**:
   - Mengelola daftar konsentrasi peminatan keahlian (misal: *MIPA, IPS, Bahasa, Rekayasa Perangkat Lunak, Teknik Kendaraan Ringan*).
 

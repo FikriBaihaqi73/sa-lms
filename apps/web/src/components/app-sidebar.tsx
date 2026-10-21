@@ -84,7 +84,7 @@ export function AppSidebar() {
 								<NavItem to="/nationalities" icon={Globe} label="Kewarganegaraan" />
 								<NavItem to="/academic-statuses" icon={BookOpenCheck} label="Status Akademik" />
 								<NavItem to="/employment-statuses" icon={Briefcase} label="Status Kepegawaian" />
-								<NavItem to="/specializations" icon={Award} label="Peminatan & Keahlian" />
+
 								<NavItem to="/assignment-types" icon={BookOpen} label="Jenis Tugas" />
 								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Status Kehadiran" />
 							</div>
@@ -126,7 +126,8 @@ export function AppSidebar() {
 							<div className="space-y-0.5">
 								<NavItem to="/grades" icon={Award} label="Standar Penilaian" />
 								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran" />
-								<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
+								<NavItem to="/specializations" icon={Award} label="Peminatan & Keahlian" />
+		<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
 							</div>
 						</div>
 

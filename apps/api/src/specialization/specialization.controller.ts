@@ -1,30 +1,24 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
 import {
   CreateSpecializationDto,
   UpdateSpecializationDto,
 } from "@repo/shared/schemas/specialization.schema";
-import { Public } from "../auth/public.decorator";
+import { Roles } from "../auth/roles.decorator";
 import { SpecializationService } from "./specialization.service";
 
 @ApiTags("Specializations")
 @ApiBearerAuth("JWT-auth")
+// Specializations are managed by institution owners (Admin). Superadmin
+// platform accounts and other roles are excluded by the global RolesGuard.
+@Roles("admin")
 @Controller("specializations")
 export class SpecializationController {
   constructor(private readonly specializationService: SpecializationService) {}
 
   @Get()
-  @Public()
-  @ApiOperation({ summary: "Get all specializations" })
+  @ApiOperation({ summary: "Get specializations for the authenticated institution" })
   async findAll() {
     const specializations = await this.specializationService.findAll();
     return ResponseHelper.success(
@@ -34,7 +28,6 @@ export class SpecializationController {
   }
 
   @Get(":id")
-  @Public()
   @ApiOperation({ summary: "Get specialization by ID" })
   async findOne(@Param("id") id: string) {
     const specialization = await this.specializationService.findOne(id);
@@ -43,7 +36,6 @@ export class SpecializationController {
       "Specialization detail retrieved successfully",
     );
   }
-
 
   @Post()
   @ApiOperation({ summary: "Create a new specialization" })
