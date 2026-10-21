@@ -10,6 +10,11 @@ model Departments {
   code String @unique @db.VarChar
 
   // relations
+  institution_id String?      @db.Uuid
+  institution    Institution? @relation(fields: [institution_id], references: [id])
+
   teachers Teachers[]
   subjects Subject[]
+
+  @@index([institution_id])
 }

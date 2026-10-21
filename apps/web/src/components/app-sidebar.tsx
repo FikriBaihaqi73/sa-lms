@@ -6,6 +6,7 @@ import {
 	BookOpen,
 	BookOpenCheck,
 	Briefcase,
+	Building2,
 	ChevronRight,
 	Church,
 	ClipboardCheck,
@@ -114,6 +115,7 @@ export function AppSidebar() {
 								<NavItem to="/students" icon={GraduationCap} label="Siswa" />
 								<NavItem to="/student-guardians" icon={UsersRound} label="Relasi Wali Siswa" />
 								<NavItem to="/teachers" icon={Briefcase} label="Guru" />
+								<NavItem to="/departments" icon={Building2} label="Departemen" />
 								<NavItem to="/guardians" icon={HeartHandshake} label="Wali Murid" />
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
