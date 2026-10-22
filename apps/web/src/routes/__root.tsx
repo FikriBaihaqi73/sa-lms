@@ -22,12 +22,8 @@ const SUPERADMIN_ONLY_PREFIXES = [
 	"/nationalities",
 	"/academic-statuses",
 	"/employment-statuses",
-	"/specializations",
-	"/specialization-statuses",
 	"/attendance-statuses",
 	"/institutions",
-	"/specialization-statuses",
-	"/attendance-statuses",
 	"/assignment-types",
 	"/settings",
 	"/superadmin",
@@ -49,6 +45,8 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	// Academic years are institution-owned data, so Superadmin has no access.
 	"/academic-years",
 	"/departments",
+	"/specializations",
+	"/specialization-statuses",
 ];
 
 function AccessDenied({ message }: { message: string }) {

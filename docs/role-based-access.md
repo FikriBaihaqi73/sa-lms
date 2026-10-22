@@ -23,7 +23,6 @@ Superadmin mengelola platform secara keseluruhan dan institusi yang menggunakan 
   - `nationalities` (`/nationalities`)
   - `academic_statuses` (`/academic-statuses`)
   - `employment_statuses` (`/employment-statuses`)
-  - `specializations` (`/specialization-statuses`)
   - `attendance_statuses` (`/attendance-statuses`)
 - **Institution Management**:
   - `institutions` (`/institutions`)
@@ -41,6 +40,7 @@ Admin mengelola operasional harian institusi, pengguna (guru, siswa, wali), stru
   - `academic_statuses` (`/academic-statuses`)
   - `employment_statuses` (`/employment-statuses`)
   - `attendance_statuses` (`/attendance-statuses`)
+  - `specializations` (`/specialization-statuses`)
 - **Sistem & Pengaturan**:
   - `activity_logs` (`/activity-logs`)
   - `settings` (`/settings`)
