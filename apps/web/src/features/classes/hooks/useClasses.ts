@@ -5,7 +5,11 @@ import type { CreateClassInput, UpdateClassInput } from "../types";
 export const CLASSES_QUERY_KEY = ["classes"] as const;
 
 export const useClasses = (params?: { page?: number; limit?: number; search?: string }) =>
-  useQuery({ queryKey: [...CLASSES_QUERY_KEY, params], queryFn: () => getClassesApi(params) });
+  useQuery({
+    queryKey: [...CLASSES_QUERY_KEY, params?.page ?? 1, params?.limit ?? 10, params?.search ?? ""],
+    queryFn: () => getClassesApi(params),
+    placeholderData: (previousData) => previousData,
+  });
 
 export const useCreateClass = () => {
   const qc = useQueryClient();

@@ -117,8 +117,8 @@ function RootLayout() {
 
 	// Superadmin-only global master data & system access
 	const isSuperadminOnlyRoute = SUPERADMIN_ONLY_PREFIXES.some((prefix) =>
-		location.pathname.startsWith(prefix),
-	);
+    location.pathname.startsWith(prefix),
+  );
 	if (isSuperadminOnlyRoute && !isSuperadmin) {
 		return (
 			<AccessDenied

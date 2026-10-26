@@ -1,17 +1,20 @@
 import { createZodDto } from "nestjs-zod";
 import { z } from "zod";
 
+const GRADE_LEVEL_ERROR =
+  "Tingkatan kelas minimal 1 dan harus berupa bilangan bulat.";
 export const CreateClassSchema = z.object({
-  institution_id: z.uuid().describe("Institution ID"),
   homeroom_teacher_id: z.uuid().optional().describe("Homeroom teacher ID"),
   academic_year_id: z.uuid().describe("Academic year ID"),
   name: z.string().min(1).describe("Class name"),
-  grade_level: z.number().int().describe("Grade level"),
-  capacity: z.number().int().optional().describe("Class capacity"),
+  grade_level: z
+    .number()
+    .int(GRADE_LEVEL_ERROR)
+    .min(1, GRADE_LEVEL_ERROR)
+    .describe("Grade level"),
 });
 
 export const UpdateClassSchema = z.object({
-  institution_id: z.uuid().optional().describe("Institution ID"),
   homeroom_teacher_id: z
     .uuid()
     .nullable()
@@ -19,8 +22,12 @@ export const UpdateClassSchema = z.object({
     .describe("Homeroom teacher ID"),
   academic_year_id: z.uuid().optional().describe("Academic year ID"),
   name: z.string().min(1).optional().describe("Class name"),
-  grade_level: z.number().int().optional().describe("Grade level"),
-  capacity: z.number().int().nullable().optional().describe("Class capacity"),
+  grade_level: z
+    .number()
+    .int(GRADE_LEVEL_ERROR)
+    .min(1, GRADE_LEVEL_ERROR)
+    .optional()
+    .describe("Grade level"),
 });
 
 export const ClassQuerySchema = z.object({
