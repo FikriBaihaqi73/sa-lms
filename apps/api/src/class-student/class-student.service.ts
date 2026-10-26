@@ -21,11 +21,19 @@ export class ClassStudentService {
     );
   }
 
-  async findAll(page = 1, limit = 10, search?: string) {
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    classId?: string,
+    status?: string,
+  ) {
     const classStudents = await this.classStudentRepository.findAll({
       page,
       limit,
       ...(search !== undefined ? { search } : {}),
+      ...(classId ? { classId } : {}),
+      ...(status !== undefined ? { status } : {}),
     });
 
     return ResponseHelper.success(
@@ -40,6 +48,10 @@ export class ClassStudentService {
       throw new NotFoundException("Class student not found");
     }
     return classStudent;
+  }
+
+  async getSummary(classId?: string) {
+    return this.classStudentRepository.getSummary(classId);
   }
 
   async create(dto: CreateClassStudentDto) {
@@ -78,5 +90,13 @@ export class ClassStudentService {
     await this.findOne(id);
     await this.classStudentRepository.delete(id);
     return { success: true, id };
+  }
+
+  async restore(id: string) {
+    const classStudent = await this.classStudentRepository.findById(id);
+    if (!classStudent) {
+      throw new NotFoundException("Class student not found");
+    }
+    return this.classStudentRepository.restore(id);
   }
 }

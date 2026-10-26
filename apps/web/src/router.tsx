@@ -1,11 +1,12 @@
 import { createRouter } from "@tanstack/react-router";
 import { rootRoute } from "./routes/__root";
-import { academicYearsRoute } from "./routes/_settings/academic-years/index";
 import { academicStatusesRoute } from "./routes/_settings/academic-statuses/index";
+import { academicYearsRoute } from "./routes/_settings/academic-years/index";
 import { activityLogsRoute } from "./routes/_settings/activity-logs";
 import { assignmentTypesRoute } from "./routes/_settings/assignment-types/index";
-import { classesRoute } from "./routes/_settings/classes/index";
 import { attendanceStatusesRoute } from "./routes/_settings/attendance-statuses/index";
+import { classStudentsRoute } from "./routes/_settings/class-students/index";
+import { classesRoute } from "./routes/_settings/classes/index";
 import { departmentsRoute } from "./routes/_settings/departments/index";
 import { employmentStatusesRoute } from "./routes/_settings/employment-statuses/index";
 import { gradesRoute } from "./routes/_settings/grades/index";
@@ -16,12 +17,13 @@ import { profileRoute } from "./routes/_settings/profile/index";
 import { religionsRoute } from "./routes/_settings/religions/index";
 import { rolePermissionsRoute } from "./routes/_settings/role-permissions/index";
 import { rolesRoute } from "./routes/_settings/roles/index";
-import { settingsRouteDef } from "./routes/_settings/settings/index";
 import { semestersRoute } from "./routes/_settings/semesters/index";
+import { settingsRouteDef } from "./routes/_settings/settings/index";
+import { teachersRoute } from "./routes/_settings/teachers/index";
 import { usersRoute } from "./routes/_settings/users/index";
 import { indexRoute } from "./routes/_user/index";
-import { institutionsRoute } from "./routes/institutions/index";
 import { guardiansRoute } from "./routes/guardians/index";
+import { institutionsRoute } from "./routes/institutions/index";
 import { loginRoute } from "./routes/login/index";
 import { registerRoute } from "./routes/register/index";
 import { settingsRoute } from "./routes/settingsLayout";
@@ -29,9 +31,8 @@ import {
 	specializationStatusesRoute,
 	specializationsRoute,
 } from "./routes/specialization-statuses/index";
-import { studentsRoute } from "./routes/students/index";
 import { studentGuardiansRoute } from "./routes/student-guardians/index";
-import { teachersRoute } from "./routes/_settings/teachers/index";
+import { studentsRoute } from "./routes/students/index";
 import { userRoute } from "./routes/userLayout";
 
 const settingsTree = settingsRoute.addChildren([
@@ -55,10 +56,10 @@ const settingsTree = settingsRoute.addChildren([
 	teachersRoute,
 	departmentsRoute,
 	academicYearsRoute,
-classesRoute,
+	classesRoute,
+	classStudentsRoute,
 	semestersRoute,
 ]);
-
 
 const userTree = userRoute.addChildren([indexRoute]);
 

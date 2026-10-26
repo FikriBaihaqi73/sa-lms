@@ -30,16 +30,33 @@ export class ClassStudentController {
     @Query("page", new ParseIntPipe({ optional: true })) page?: number,
     @Query("limit", new ParseIntPipe({ optional: true })) limit?: number,
     @Query("search") search?: string,
+    @Query("classId") classId?: string,
+    @Query("status") status?: string,
   ) {
     const classStudents = await this.classStudentService.findAll(
       page,
       limit,
       search,
+      classId,
+      status,
     );
     return ResponseHelper.success(
       classStudents,
       "Class students retrieved successfully",
     );
+  }
+
+  /**
+   * PENTING: Route statis harus dideklarasikan SEBELUM route dinamis (:id)
+   * agar NestJS tidak salah menangkap string "summary" sebagai UUID parameter.
+   */
+  @Get("summary")
+  @ApiOperation({
+    summary: "Get class students summary statistics (4 stat cards)",
+  })
+  async getSummary(@Query("classId") classId?: string) {
+    const summary = await this.classStudentService.getSummary(classId);
+    return ResponseHelper.success(summary, "Summary retrieved successfully");
   }
 
   @Get(":id")
@@ -60,6 +77,36 @@ export class ClassStudentController {
       classStudent,
       "Student assigned to class successfully",
       201,
+    );
+  }
+
+  @Post("batch")
+  @ApiOperation({ summary: "Assign multiple students to a class at once" })
+  async createBatch(
+    @Body() body: { classId: string; studentIds: string[] },
+  ) {
+    const results = await Promise.all(
+      body.studentIds.map((studentId) =>
+        this.classStudentService.create({
+          classId: body.classId,
+          studentId,
+        }),
+      ),
+    );
+    return ResponseHelper.success(
+      { count: results.length },
+      "Students assigned to class successfully",
+      201,
+    );
+  }
+
+  @Post(":id/restore")
+  @ApiOperation({ summary: "Restore a previously removed student to a class" })
+  async restore(@Param("id") id: string) {
+    const classStudent = await this.classStudentService.restore(id);
+    return ResponseHelper.success(
+      classStudent,
+      "Student restored to class successfully",
     );
   }
 

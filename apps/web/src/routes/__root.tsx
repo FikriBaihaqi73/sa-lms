@@ -30,15 +30,12 @@ const SUPERADMIN_ONLY_PREFIXES = [
 ];
 
 // Pages accessible by Superadmin & Admin
-const ADMIN_ACCESSIBLE_PREFIXES = [
-	"/users",
-	"/activity-logs",
-	"/settings",
-];
+const ADMIN_ACCESSIBLE_PREFIXES = ["/users", "/activity-logs", "/settings"];
 
 // Student records belong to the institution owner/admin area, not Superadmin.
 const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/students",
+	"/class-students",
 	"/student-guardians",
 	"/teachers",
 	"/semesters",
@@ -109,16 +106,14 @@ function RootLayout() {
 	// Superadmin manages platform globally; academic grading standards are institution-scoped
 	if (location.pathname.startsWith("/grades") && isSuperadmin) {
 		return (
-			<AccessDenied
-				message="Halaman Standar Penilaian dikelola khusus pada lingkup institusi (Admin Institusi dan Guru)."
-			/>
+			<AccessDenied message="Halaman Standar Penilaian dikelola khusus pada lingkup institusi (Admin Institusi dan Guru)." />
 		);
 	}
 
 	// Superadmin-only global master data & system access
 	const isSuperadminOnlyRoute = SUPERADMIN_ONLY_PREFIXES.some((prefix) =>
-    location.pathname.startsWith(prefix),
-  );
+		location.pathname.startsWith(prefix),
+	);
 	if (isSuperadminOnlyRoute && !isSuperadmin) {
 		return (
 			<AccessDenied
@@ -127,8 +122,8 @@ function RootLayout() {
 		);
 	}
 
-	const isInstitutionAdminOnlyRoute = INSTITUTION_ADMIN_ONLY_PREFIXES.some((prefix) =>
-		location.pathname.startsWith(prefix),
+	const isInstitutionAdminOnlyRoute = INSTITUTION_ADMIN_ONLY_PREFIXES.some(
+		(prefix) => location.pathname.startsWith(prefix),
 	);
 	if (isInstitutionAdminOnlyRoute && !isInstitutionAdmin) {
 		return (
