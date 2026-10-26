@@ -2,11 +2,11 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	Activity,
 	Award,
-	CalendarRange,
 	BookOpen,
 	BookOpenCheck,
 	Briefcase,
 	Building2,
+	CalendarRange,
 	ChevronRight,
 	Church,
 	ClipboardCheck,
@@ -15,12 +15,12 @@ import {
 	HeartHandshake,
 	KeyRound,
 	LogOut,
+	type LucideIcon,
 	Settings2,
 	ShieldCheck,
 	UserRound,
 	Users,
 	UsersRound,
-	type LucideIcon,
 } from "lucide-react";
 import { SkyToggle } from "@/components/ui/sky-toggle";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -37,7 +37,8 @@ export function AppSidebar() {
 	const role = user?.role?.toLowerCase() || "admin";
 	const isSuperadmin = role === "superadmin";
 	const isAdmin = role === "admin" || !user?.role;
-	const isStudentOrTeacher = role === "student" || role === "teacher" || role === "guardian";
+	const isStudentOrTeacher =
+		role === "student" || role === "teacher" || role === "guardian";
 
 	return (
 		<aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
@@ -51,7 +52,11 @@ export function AppSidebar() {
 						Sistem Academic
 					</p>
 					<p className="mt-1 text-[10px] font-medium text-slate-500">
-						{isSuperadmin ? "Portal Superadmin" : isAdmin ? "Admin Institusi" : "Portal Akademik"}
+						{isSuperadmin
+							? "Portal Superadmin"
+							: isAdmin
+								? "Admin Institusi"
+								: "Portal Akademik"}
 					</p>
 				</div>
 			</div>
@@ -69,8 +74,16 @@ export function AppSidebar() {
 								<NavItem to="/users" icon={Users} label="Manajemen Pengguna" />
 								<NavItem to="/roles" icon={ShieldCheck} label="Peran" />
 								<NavItem to="/permissions" icon={KeyRound} label="Izin" />
-								<NavItem to="/role-permissions" icon={ShieldCheck} label="Izin Peran" />
-								<NavItem to="/activity-logs" icon={Activity} label="Log Aktivitas" />
+								<NavItem
+									to="/role-permissions"
+									icon={ShieldCheck}
+									label="Izin Peran"
+								/>
+								<NavItem
+									to="/activity-logs"
+									icon={Activity}
+									label="Log Aktivitas"
+								/>
 								<NavItem to="/settings" icon={Settings2} label="Pengaturan" />
 							</div>
 						</div>
@@ -80,14 +93,38 @@ export function AppSidebar() {
 								Master Data Global
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/jenjang-institusi" icon={GraduationCap} label="Jenjang Institusi" />
+								<NavItem
+									to="/jenjang-institusi"
+									icon={GraduationCap}
+									label="Jenjang Institusi"
+								/>
 								<NavItem to="/religions" icon={Church} label="Agama" />
-								<NavItem to="/nationalities" icon={Globe} label="Kewarganegaraan" />
-								<NavItem to="/academic-statuses" icon={BookOpenCheck} label="Status Akademik" />
-								<NavItem to="/employment-statuses" icon={Briefcase} label="Status Kepegawaian" />
+								<NavItem
+									to="/nationalities"
+									icon={Globe}
+									label="Kewarganegaraan"
+								/>
+								<NavItem
+									to="/academic-statuses"
+									icon={BookOpenCheck}
+									label="Status Akademik"
+								/>
+								<NavItem
+									to="/employment-statuses"
+									icon={Briefcase}
+									label="Status Kepegawaian"
+								/>
 
-								<NavItem to="/assignment-types" icon={BookOpen} label="Jenis Tugas" />
-								<NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Status Kehadiran" />
+								<NavItem
+									to="/assignment-types"
+									icon={BookOpen}
+									label="Jenis Tugas"
+								/>
+								<NavItem
+									to="/attendance-statuses"
+									icon={ClipboardCheck}
+									label="Status Kehadiran"
+								/>
 							</div>
 						</div>
 
@@ -96,7 +133,11 @@ export function AppSidebar() {
 								Manajemen Institusi
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/institutions" icon={Briefcase} label="Institusi" />
+								<NavItem
+									to="/institutions"
+									icon={Briefcase}
+									label="Institusi"
+								/>
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>
@@ -113,10 +154,28 @@ export function AppSidebar() {
 							<div className="space-y-0.5">
 								<NavItem to="/users" icon={Users} label="Data Pengguna" />
 								<NavItem to="/students" icon={GraduationCap} label="Siswa" />
-								<NavItem to="/student-guardians" icon={UsersRound} label="Relasi Wali Siswa" />
+								<NavItem
+									to="/student-guardians"
+									icon={UsersRound}
+									label="Relasi Wali Siswa"
+								/>
 								<NavItem to="/teachers" icon={Briefcase} label="Guru" />
-								<NavItem to="/departments" icon={Building2} label="Departemen" />
-								<NavItem to="/guardians" icon={HeartHandshake} label="Wali Murid" />
+								<NavItem
+									to="/departments"
+									icon={Building2}
+									label="Departemen"
+								/>
+								<NavItem
+									to="/guardians"
+									icon={HeartHandshake}
+									label="Wali Murid"
+								/>
+								<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
+								<NavItem
+									to="/class-students"
+									icon={UsersRound}
+									label="Kelas Siswa"
+								/>
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>
@@ -127,10 +186,21 @@ export function AppSidebar() {
 							</p>
 							<div className="space-y-0.5">
 								<NavItem to="/grades" icon={Award} label="Standar Penilaian" />
-								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran" />
-						<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
-								<NavItem to="/specializations" icon={Award} label="Peminatan & Keahlian" />
-		<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
+								<NavItem
+									to="/academic-years"
+									icon={BookOpen}
+									label="Tahun Ajaran"
+								/>
+								<NavItem
+									to="/specializations"
+									icon={Award}
+									label="Peminatan & Keahlian"
+								/>
+								<NavItem
+									to="/semesters"
+									icon={CalendarRange}
+									label="Semester"
+								/>
 							</div>
 						</div>
 
@@ -139,7 +209,11 @@ export function AppSidebar() {
 								Sistem & Pengaturan
 							</p>
 							<div className="space-y-0.5">
-								<NavItem to="/activity-logs" icon={Activity} label="Log Aktivitas" />
+								<NavItem
+									to="/activity-logs"
+									icon={Activity}
+									label="Log Aktivitas"
+								/>
 								<NavItem to="/settings" icon={Settings2} label="Pengaturan" />
 							</div>
 						</div>
@@ -173,13 +247,17 @@ export function AppSidebar() {
 			{/* User Profile Footer */}
 			<div className="mt-auto shrink-0 border-t border-slate-200 p-3 dark:border-slate-800">
 				<div className="flex items-center gap-2">
-					<Link to="/profile" className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-80 transition">
+					<Link
+						to="/profile"
+						className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-80 transition"
+					>
 						<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
 							{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 						</span>
 						<div className="min-w-0 flex-1">
 							<p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-100">
-								{user?.name || (isSuperadmin ? "Superadmin" : "Admin Institusi")}
+								{user?.name ||
+									(isSuperadmin ? "Superadmin" : "Admin Institusi")}
 							</p>
 							<p className="truncate text-[10px] text-slate-500 dark:text-slate-400">
 								{user?.email || "admin@nexora.com"}
@@ -200,7 +278,15 @@ export function AppSidebar() {
 	);
 }
 
-function NavItem({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {
+function NavItem({
+	to,
+	icon: Icon,
+	label,
+}: {
+	to: string;
+	icon: LucideIcon;
+	label: string;
+}) {
 	return (
 		<Link
 			to={to}
@@ -230,7 +316,10 @@ export function AppTopbar() {
 				<span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900" />
 				<UserRound className="h-4 w-4" />
 			</button>
-			<Link to="/profile" className="flex items-center gap-2.5 hover:opacity-80 transition">
+			<Link
+				to="/profile"
+				className="flex items-center gap-2.5 hover:opacity-80 transition"
+			>
 				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
 					{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 				</span>

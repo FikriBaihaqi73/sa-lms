@@ -18,6 +18,8 @@ export interface FindAllClassStudentInput {
   page?: number;
   limit?: number;
   search?: string;
+  classId?: string;
+  status?: string;
 }
 
 export interface FindAllClassStudentResult {
@@ -45,10 +47,7 @@ export class ClassStudentRepository {
 
   async findById(id: string): Promise<ClassStudentEntity | null> {
     return this.prisma.classStudent.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-      },
+      where: { id },
       select: classStudentSelect,
     });
   }
@@ -93,9 +92,11 @@ export class ClassStudentRepository {
     const page = Math.max(params.page ?? 1, 1);
     const limit = Math.min(Math.max(params.limit ?? 10, 1), 100);
     const search = params.search?.trim();
+    const isDeleted = params.status === "deleted";
 
     const where = {
-      deletedAt: null,
+      deletedAt: isDeleted ? { not: null } : null,
+      ...(params.classId ? { classId: params.classId } : {}),
       ...(search
         ? {
             OR: [
@@ -170,5 +171,55 @@ export class ClassStudentRepository {
       },
       select: classStudentSelect,
     });
+  }
+
+  async restore(id: string): Promise<ClassStudentEntity> {
+    return this.prisma.classStudent.update({
+      where: { id },
+      data: { deletedAt: null },
+      select: classStudentSelect,
+    });
+  }
+
+  async getSummary(classId?: string): Promise<{
+    totalActive: number;
+    recentJoined: number;
+    totalDeleted: number;
+    filledClassesCount: number;
+    totalClassesCount: number;
+  }> {
+    const classFilter = classId ? { classId } : {};
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const [totalActive, recentJoined, totalDeleted, filledClassesRaw, totalClassesCount] =
+      await Promise.all([
+        this.prisma.classStudent.count({
+          where: { ...classFilter, deletedAt: null },
+        }),
+        this.prisma.classStudent.count({
+          where: {
+            ...classFilter,
+            deletedAt: null,
+            createdAt: { gte: sevenDaysAgo },
+          },
+        }),
+        this.prisma.classStudent.count({
+          where: { ...classFilter, deletedAt: { not: null } },
+        }),
+        this.prisma.classStudent.groupBy({
+          by: ["classId"],
+          where: { deletedAt: null },
+          _count: { classId: true },
+        }),
+        this.prisma.classes.count(),
+      ]);
+
+    return {
+      totalActive,
+      recentJoined,
+      totalDeleted,
+      filledClassesCount: filledClassesRaw.length,
+      totalClassesCount,
+    };
   }
 }
