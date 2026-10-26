@@ -11,18 +11,17 @@ export interface CreateClassInput {
 }
 
 export interface UpdateClassInput {
-  institution_id?: string;
   homeroom_teacher_id?: string | null;
   academic_year_id?: string;
   name?: string;
   grade_level?: number;
-  capacity?: number | null;
 }
 
 export interface FindAllClassInput {
   page?: number;
   limit?: number;
   search?: string;
+  institution_id?: string;
 }
 
 export interface FindAllClassResult {
@@ -52,11 +51,12 @@ export class ClassRepository {
     });
   }
 
-  async findById(id: string): Promise<ClassEntity | null> {
+  async findById(id: string, institution_id?: string): Promise<ClassEntity | null> {
     return this.prisma.classes.findFirst({
       where: {
         id,
         deleted_at: null,
+        ...(institution_id !== undefined ? { institution_id } : {}),
       },
       select: classSelect,
     });
@@ -69,6 +69,9 @@ export class ClassRepository {
 
     const where = {
       deleted_at: null,
+      ...(params.institution_id !== undefined
+        ? { institution_id: params.institution_id }
+        : {}),
       ...(search
         ? {
             OR: [
@@ -135,9 +138,6 @@ export class ClassRepository {
     return this.prisma.classes.update({
       where: { id },
       data: {
-        ...(data.institution_id !== undefined && {
-          institution_id: data.institution_id,
-        }),
         ...(data.homeroom_teacher_id !== undefined && {
           homeroom_teacher_id: data.homeroom_teacher_id,
         }),
@@ -148,7 +148,6 @@ export class ClassRepository {
         ...(data.grade_level !== undefined && {
           grade_level: data.grade_level,
         }),
-        ...(data.capacity !== undefined && { capacity: data.capacity }),
       },
       select: classSelect,
     });

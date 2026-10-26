@@ -6,26 +6,26 @@ export interface ClassItem {
   name: string;
   grade_level: number;
   capacity?: number | null;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
+  institution?: { id: string; name: string; shortName?: string | null } | null;
+  academic_year?: { id: string; academic_year: string; is_active: boolean } | null;
+  homeroom_teacher?: { id: string; teacher_number: string; profile_id?: string | null } | null;
+  _count?: { classStudents: number };
 }
 
 export interface CreateClassInput {
-  institution_id: string;
-  homeroom_teacher_id?: string | null;
+  homeroom_teacher_id?: string;
   academic_year_id: string;
   name: string;
   grade_level: number;
-  capacity?: number | null;
 }
 
 export interface UpdateClassInput {
-  institution_id?: string;
   homeroom_teacher_id?: string | null;
   academic_year_id?: string;
   name?: string;
   grade_level?: number;
-  capacity?: number | null;
 }
 
 export interface ApiResponse<T> {
@@ -33,5 +33,15 @@ export interface ApiResponse<T> {
   code: number;
   message: string;
   data: T | null;
-  meta?: { total?: number; page?: number; limit?: number };
+  meta?: { total?: number; page?: number; limit?: number; totalPages?: number };
+}
+
+export interface ClassListResult {
+  data: ClassItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }

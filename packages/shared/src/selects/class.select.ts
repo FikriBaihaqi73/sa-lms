@@ -31,6 +31,13 @@ export const classSelect = {
       is_active: true,
     },
   },
+  _count: {
+    select: {
+      classStudents: {
+        where: { deletedAt: null },
+      },
+    },
+  },
 } satisfies Prisma.ClassesSelect;
 
 export type ClassSelectType = typeof classSelect;

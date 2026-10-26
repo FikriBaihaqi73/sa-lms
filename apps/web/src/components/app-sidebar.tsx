@@ -128,6 +128,7 @@ export function AppSidebar() {
 							<div className="space-y-0.5">
 								<NavItem to="/grades" icon={Award} label="Standar Penilaian" />
 								<NavItem to="/academic-years" icon={BookOpen} label="Tahun Ajaran" />
+						<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
 								<NavItem to="/specializations" icon={Award} label="Peminatan & Keahlian" />
 		<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
 							</div>

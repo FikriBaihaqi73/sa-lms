@@ -1,15 +1,33 @@
 import { apiFetch } from "@/lib/api";
-import type { ApiResponse, ClassItem, CreateClassInput, UpdateClassInput } from "../types";
+import type {
+  ApiResponse,
+  ClassItem,
+  ClassListResult,
+  CreateClassInput,
+  UpdateClassInput,
+} from "../types";
 
-export const getClassesApi = async (params?: { page?: number; limit?: number; search?: string }) => {
+export const getClassesApi = async (
+  params: { page?: number; limit?: number; search?: string } = {},
+): Promise<ClassListResult> => {
   const qs = new URLSearchParams();
-  if (params?.page) qs.set("page", String(params.page));
-  if (params?.limit) qs.set("limit", String(params.limit));
-  if (params?.search) qs.set("search", params.search);
-  const response: ApiResponse<ClassItem[] | { data: ClassItem[] }> = await apiFetch(`/classes?${qs.toString()}`);
-  const data = response.data;
-  const rawArray = Array.isArray(data) ? data : (data as any)?.data ?? [];
-  return { data: rawArray as ClassItem[], meta: response.meta };
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 10;
+  qs.set("page", String(page));
+  qs.set("limit", String(limit));
+  if (params.search?.trim()) qs.set("search", params.search.trim());
+
+  const response: ApiResponse<ClassItem[]> = await apiFetch(`/classes?${qs.toString()}`);
+  const meta = response.meta ?? { page, limit, total: 0, totalPages: 0 };
+  return {
+    data: response.data ?? [],
+    meta: {
+      page: meta.page ?? page,
+      limit: meta.limit ?? limit,
+      total: meta.total ?? 0,
+      totalPages: meta.totalPages ?? 0,
+    },
+  };
 };
 
 export const createClassApi = async (input: CreateClassInput) => {
