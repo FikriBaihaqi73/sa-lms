@@ -38,6 +38,7 @@ export function AppSidebar() {
 	const role = user?.role?.toLowerCase() || "admin";
 	const isSuperadmin = role === "superadmin";
 	const isAdmin = role === "admin" || !user?.role;
+	const hasExplicitAdminRole = user?.role?.trim().toLowerCase() === "admin";
 	const isStudentOrTeacher =
 		role === "student" || role === "teacher" || role === "guardian";
 
@@ -181,6 +182,11 @@ export function AppSidebar() {
 									icon={UsersRound}
 									label="Kelas Siswa"
 								/>
+								{hasExplicitAdminRole && <NavItem
+									to="/class-subjects"
+									icon={BookOpen}
+									label="Mata Pelajaran Kelas"
+								/>}
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>

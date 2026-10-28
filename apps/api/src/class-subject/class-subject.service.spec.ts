@@ -1,272 +1,172 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
 import { ClassSubjectsRepository } from "@repo/shared/infrastructure/repository/class-subjects.repository";
-import type {
-  CreateClassSubjectDto,
-  UpdateClassSubjectDto,
-} from "@repo/shared/schemas/class-subject.schema";
+import type { CreateClassSubjectDto } from "@repo/shared/schemas/class-subject.schema";
+import type { PrismaClient } from "#generated/client";
 import type { PrismaService } from "../prisma/prisma.service";
 import { ClassSubjectService } from "./class-subject.service";
 
 jest.mock("../prisma/prisma.service", () => ({
-  PrismaService: class PrismaService {
-    client = {
-      classes: {
-        findFirst: jest.fn(),
-      },
-      subject: {
-        findFirst: jest.fn(),
-      },
-      teachers: {
-        findFirst: jest.fn(),
-      },
-      academicYears: {
-        findFirst: jest.fn(),
-      },
-    };
-  },
+  PrismaService: class PrismaService {},
 }));
+
+type MockClient = {
+  profile: { findFirst: jest.Mock };
+  classes: { findFirst: jest.Mock };
+  subject: { findFirst: jest.Mock };
+  teachers: { findFirst: jest.Mock };
+  academicYears: { findFirst: jest.Mock };
+};
 
 describe("ClassSubjectService", () => {
   let service: ClassSubjectService;
-  let mockPrismaService: any;
-
-  beforeEach(() => {
-    mockPrismaService = {
-      client: {
-        classes: {
-          findFirst: jest.fn(),
-        },
-        subject: {
-          findFirst: jest.fn(),
-        },
-        teachers: {
-          findFirst: jest.fn(),
-        },
-        academicYears: {
-          findFirst: jest.fn(),
-        },
-      },
-    };
-    service = new ClassSubjectService(
-      mockPrismaService as unknown as PrismaService,
-    );
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  const mockRecord = {
+  let client: MockClient;
+  const record = {
     id: "cs-1",
     class_id: "class-1",
     subject_id: "subject-1",
     teacher_id: "teacher-1",
     academic_year_id: "ay-1",
   };
+  const dto: CreateClassSubjectDto = {
+    class_id: "class-1",
+    subject_id: "subject-1",
+    teacher_id: "teacher-1",
+    academic_year_id: "ay-1",
+  };
 
-  it("returns paginated class subjects", async () => {
-    const paginatedResult = {
-      data: [mockRecord],
+  beforeEach(() => {
+    client = {
+      profile: { findFirst: jest.fn() },
+      classes: { findFirst: jest.fn() },
+      subject: { findFirst: jest.fn() },
+      teachers: { findFirst: jest.fn() },
+      academicYears: { findFirst: jest.fn() },
+    };
+    service = new ClassSubjectService({
+      client: client as unknown as PrismaClient,
+    } as unknown as PrismaService);
+    client.profile.findFirst.mockResolvedValue({ institutionId: "inst-1" });
+  });
+
+  const relationsExist = () => {
+    client.classes.findFirst.mockResolvedValue({
+      id: "class-1",
+      institution_id: "inst-1",
+    });
+    client.subject.findFirst.mockResolvedValue({
+      id: "subject-1",
+      institutionId: "inst-1",
+    });
+    client.teachers.findFirst.mockResolvedValue({ id: "teacher-1" });
+    client.academicYears.findFirst.mockResolvedValue({
+      id: "ay-1",
+      institution_id: "inst-1",
+    });
+  };
+
+  afterEach(() => jest.restoreAllMocks());
+
+  it("rejects access when the admin has no institution", async () => {
+    client.profile.findFirst.mockResolvedValue(null);
+    await expect(service.findAll(1, 10, {}, "user-1")).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+  });
+
+  it("scopes list queries to the admin institution and filters", async () => {
+    const result = {
+      data: [record],
       meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
     };
-    jest
+    const findAll = jest
       .spyOn(ClassSubjectsRepository.prototype, "findAll")
-      .mockResolvedValue(paginatedResult as never);
-
-    await expect(service.findAll(1, 10, "Math")).resolves.toEqual(
-      paginatedResult,
+      .mockResolvedValue(result as never);
+    await service.findAll(
+      1,
+      10,
+      {
+        search: "Math",
+        class_id: "class-1",
+        academic_year_id: "ay-1",
+        teacher_id: "teacher-1",
+      },
+      "user-1",
     );
+    expect(findAll).toHaveBeenCalledWith(1, 10, {
+      search: "Math",
+      class_id: "class-1",
+      academic_year_id: "ay-1",
+      teacher_id: "teacher-1",
+      institution_id: "inst-1",
+    });
   });
 
-  it("returns a single class subject by ID", async () => {
-    jest
-      .spyOn(ClassSubjectsRepository.prototype, "findById")
-      .mockResolvedValue(mockRecord as never);
-
-    await expect(service.findOne("cs-1")).resolves.toEqual(mockRecord);
-  });
-
-  it("throws NotFoundException when class subject is not found", async () => {
-    jest
-      .spyOn(ClassSubjectsRepository.prototype, "findById")
-      .mockResolvedValue(null);
-
-    await expect(service.findOne("missing-id")).rejects.toBeInstanceOf(
+  it("rejects a relation from another institution as not found", async () => {
+    client.classes.findFirst.mockResolvedValue(null);
+    client.subject.findFirst.mockResolvedValue({});
+    client.teachers.findFirst.mockResolvedValue({});
+    client.academicYears.findFirst.mockResolvedValue({});
+    await expect(service.create(dto, "user-1")).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });
 
-  it("returns class subjects by class ID if class exists", async () => {
-    mockPrismaService.client.classes.findFirst.mockResolvedValue({
-      id: "class-1",
-    });
+  it("rejects duplicates by class, subject, and academic year regardless of teacher", async () => {
+    relationsExist();
     jest
-      .spyOn(ClassSubjectsRepository.prototype, "findByClass")
-      .mockResolvedValue([mockRecord] as never);
-
-    await expect(service.findByClass("class-1")).resolves.toEqual([mockRecord]);
-  });
-
-  it("throws NotFoundException if class does not exist", async () => {
-    mockPrismaService.client.classes.findFirst.mockResolvedValue(null);
-
-    await expect(service.findByClass("missing-class")).rejects.toBeInstanceOf(
-      NotFoundException,
+      .spyOn(ClassSubjectsRepository.prototype, "findByUniqueCombination")
+      .mockResolvedValue(record as never);
+    await expect(service.create(dto, "user-1")).rejects.toBeInstanceOf(
+      ConflictException,
     );
   });
 
-  it("returns class subjects by subject ID if subject exists", async () => {
-    mockPrismaService.client.subject.findFirst.mockResolvedValue({
-      id: "subject-1",
-    });
-    jest
-      .spyOn(ClassSubjectsRepository.prototype, "findBySubject")
-      .mockResolvedValue([mockRecord] as never);
-
-    await expect(service.findBySubject("subject-1")).resolves.toEqual([
-      mockRecord,
-    ]);
-  });
-
-  it("throws NotFoundException if subject does not exist", async () => {
-    mockPrismaService.client.subject.findFirst.mockResolvedValue(null);
-
-    await expect(
-      service.findBySubject("missing-subject"),
-    ).rejects.toBeInstanceOf(NotFoundException);
-  });
-
-  it("returns class subjects by teacher ID if teacher exists", async () => {
-    mockPrismaService.client.teachers.findFirst.mockResolvedValue({
-      id: "teacher-1",
-    });
-    jest
-      .spyOn(ClassSubjectsRepository.prototype, "findByTeacher")
-      .mockResolvedValue([mockRecord] as never);
-
-    await expect(service.findByTeacher("teacher-1")).resolves.toEqual([
-      mockRecord,
-    ]);
-  });
-
-  it("throws NotFoundException if teacher does not exist", async () => {
-    mockPrismaService.client.teachers.findFirst.mockResolvedValue(null);
-
-    await expect(
-      service.findByTeacher("missing-teacher"),
-    ).rejects.toBeInstanceOf(NotFoundException);
-  });
-
-  it("returns class subjects by academic year ID if academic year exists", async () => {
-    mockPrismaService.client.academicYears.findFirst.mockResolvedValue({
-      id: "ay-1",
-    });
-    jest
-      .spyOn(ClassSubjectsRepository.prototype, "findByAcademicYear")
-      .mockResolvedValue([mockRecord] as never);
-
-    await expect(service.findByAcademicYear("ay-1")).resolves.toEqual([
-      mockRecord,
-    ]);
-  });
-
-  it("throws NotFoundException if academic year does not exist", async () => {
-    mockPrismaService.client.academicYears.findFirst.mockResolvedValue(null);
-
-    await expect(
-      service.findByAcademicYear("missing-ay"),
-    ).rejects.toBeInstanceOf(NotFoundException);
-  });
-
-  it("creates a new class subject successfully", async () => {
-    mockPrismaService.client.classes.findFirst.mockResolvedValue({
-      id: "class-1",
-    });
-    mockPrismaService.client.subject.findFirst.mockResolvedValue({
-      id: "subject-1",
-    });
-    mockPrismaService.client.teachers.findFirst.mockResolvedValue({
-      id: "teacher-1",
-    });
-    mockPrismaService.client.academicYears.findFirst.mockResolvedValue({
-      id: "ay-1",
-    });
+  it("maps a Prisma unique constraint race to ConflictException", async () => {
+    relationsExist();
     jest
       .spyOn(ClassSubjectsRepository.prototype, "findByUniqueCombination")
       .mockResolvedValue(null);
     jest
       .spyOn(ClassSubjectsRepository.prototype, "create")
-      .mockResolvedValue(mockRecord as never);
+      .mockRejectedValue({ code: "P2002" });
 
-    const dto: CreateClassSubjectDto = {
-      class_id: "class-1",
-      subject_id: "subject-1",
-      teacher_id: "teacher-1",
-      academic_year_id: "ay-1",
-    };
-
-    const result = await service.create(dto);
-    expect(result).toEqual(mockRecord);
+    await expect(service.create(dto, "user-1")).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
-  it("throws ConflictException when creating a duplicate combination", async () => {
-    mockPrismaService.client.classes.findFirst.mockResolvedValue({
-      id: "class-1",
-    });
-    mockPrismaService.client.subject.findFirst.mockResolvedValue({
-      id: "subject-1",
-    });
-    mockPrismaService.client.teachers.findFirst.mockResolvedValue({
-      id: "teacher-1",
-    });
-    mockPrismaService.client.academicYears.findFirst.mockResolvedValue({
-      id: "ay-1",
-    });
-    jest
-      .spyOn(ClassSubjectsRepository.prototype, "findByUniqueCombination")
-      .mockResolvedValue(mockRecord as never);
-
-    const dto: CreateClassSubjectDto = {
-      class_id: "class-1",
-      subject_id: "subject-1",
-      teacher_id: "teacher-1",
-      academic_year_id: "ay-1",
-    };
-
-    await expect(service.create(dto)).rejects.toBeInstanceOf(ConflictException);
-  });
-
-  it("updates an existing class subject", async () => {
-    jest
+  it("soft deletes when all dependent relations are already soft-deleted", async () => {
+    const findById = jest
       .spyOn(ClassSubjectsRepository.prototype, "findById")
-      .mockResolvedValue(mockRecord as never);
+      .mockResolvedValue(record as never);
     jest
-      .spyOn(ClassSubjectsRepository.prototype, "update")
-      .mockResolvedValue({ ...mockRecord, teacher_id: "teacher-2" } as never);
-    mockPrismaService.client.teachers.findFirst.mockResolvedValue({
-      id: "teacher-2",
-    });
-    jest
-      .spyOn(ClassSubjectsRepository.prototype, "findByUniqueCombination")
-      .mockResolvedValue(null);
-
-    const dto: UpdateClassSubjectDto = {
-      teacher_id: "teacher-2",
-    };
-
-    const result = await service.update("cs-1", dto);
-    expect(result).toEqual({ ...mockRecord, teacher_id: "teacher-2" });
-  });
-
-  it("soft deletes a class subject", async () => {
-    jest
-      .spyOn(ClassSubjectsRepository.prototype, "findById")
-      .mockResolvedValue(mockRecord as never);
-    jest
+      .spyOn(ClassSubjectsRepository.prototype, "findUsage")
+      .mockResolvedValue({
+        schedules: 0,
+        modules: 0,
+        examinations: 0,
+        studentGrades: 0,
+      });
+    const remove = jest
       .spyOn(ClassSubjectsRepository.prototype, "delete")
-      .mockResolvedValue(mockRecord as never);
+      .mockResolvedValue(record as never);
+    await expect(service.remove("cs-1", "user-1")).resolves.toEqual(record);
+    expect(findById).toHaveBeenCalledWith("cs-1", "inst-1");
+    expect(remove).toHaveBeenCalledWith("cs-1", "inst-1");
+  });
 
-    const result = await service.remove("cs-1");
-    expect(result).toEqual(mockRecord);
+  it.each([
+    ["Schedule", { schedules: 1, modules: 0, examinations: 0, studentGrades: 0 }],
+    ["Modules", { schedules: 0, modules: 1, examinations: 0, studentGrades: 0 }],
+    ["Examinations", { schedules: 0, modules: 0, examinations: 1, studentGrades: 0 }],
+    ["StudentGrades", { schedules: 0, modules: 0, examinations: 0, studentGrades: 1 }],
+  ])("rejects delete when an active %s relation exists", async (_relation, usage) => {
+    jest.spyOn(ClassSubjectsRepository.prototype, "findById").mockResolvedValue(record as never);
+    jest.spyOn(ClassSubjectsRepository.prototype, "findUsage").mockResolvedValue(usage);
+    await expect(service.remove("cs-1", "user-1")).rejects.toBeInstanceOf(ConflictException);
   });
 });

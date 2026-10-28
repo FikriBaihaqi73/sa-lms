@@ -3,6 +3,7 @@ export interface AcademicYear {
 	id: string;
 	academic_year: string;
 	is_active: boolean;
+	institution_id: string | null;
 	created_at?: string;
 	updated_at?: string;
 }

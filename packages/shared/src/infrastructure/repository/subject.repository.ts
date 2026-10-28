@@ -37,21 +37,23 @@ export class SubjectRepository {
     });
   }
 
-  async findById(id: string): Promise<SubjectEntity | null> {
+  async findById(id: string, institutionId?: string): Promise<SubjectEntity | null> {
     return this.prisma.subject.findFirst({
       where: {
         id,
         deletedAt: null,
+        ...(institutionId !== undefined ? { institutionId } : {}),
       },
       select: subjectSelect,
     });
   }
 
-  async findByCode(code: string): Promise<SubjectEntity | null> {
+  async findByCode(code: string, institutionId?: string): Promise<SubjectEntity | null> {
     return this.prisma.subject.findFirst({
       where: {
         code,
         deletedAt: null,
+        ...(institutionId !== undefined ? { institutionId } : {}),
       },
       select: subjectSelect,
     });

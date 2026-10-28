@@ -22,3 +22,22 @@ export class CreateClassSubjectDto extends createZodDto(
 export class UpdateClassSubjectDto extends createZodDto(
   UpdateClassSubjectSchema,
 ) {}
+
+export const ClassSubjectQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1).describe("Page number"),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .default(10)
+    .describe("Number of items per page"),
+  search: z.string().optional().describe("Search class subject records"),
+  class_id: z.uuid().optional().describe("Class ID filter"),
+  academic_year_id: z.uuid().optional().describe("Academic year ID filter"),
+  teacher_id: z.uuid().optional().describe("Teacher ID filter"),
+});
+
+export class ClassSubjectQueryDto extends createZodDto(
+  ClassSubjectQuerySchema,
+) {}
