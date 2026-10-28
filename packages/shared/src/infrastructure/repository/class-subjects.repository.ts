@@ -20,6 +20,17 @@ export interface UpdateClassSubjectsInput {
 
 export interface ClassSubjectsSearchInput {
   search?: string | undefined;
+  class_id?: string | undefined;
+  academic_year_id?: string | undefined;
+  teacher_id?: string | undefined;
+  institution_id?: string | undefined;
+}
+
+export interface ClassSubjectsUsage {
+  schedules: number;
+  modules: number;
+  examinations: number;
+  studentGrades: number;
 }
 
 export interface ClassSubjectsPaginationResult {
@@ -47,41 +58,57 @@ export class ClassSubjectsRepository {
     });
   }
 
-  async findById(id: string): Promise<ClassSubjectsEntity | null> {
+  async findById(
+    id: string,
+    institution_id?: string,
+  ): Promise<ClassSubjectsEntity | null> {
     return this.prisma.classSubjects.findFirst({
       where: {
         id,
         deleted_at: null,
+        ...(institution_id !== undefined ? { class: { institution_id } } : {}),
       },
       select: classSubjectsSelect,
     });
   }
 
-  async findByClass(class_id: string): Promise<ClassSubjectsEntity[]> {
+  async findByClass(
+    class_id: string,
+    institution_id?: string,
+  ): Promise<ClassSubjectsEntity[]> {
     return this.prisma.classSubjects.findMany({
       where: {
         class_id,
         deleted_at: null,
+        ...(institution_id !== undefined ? { class: { institution_id } } : {}),
       },
       select: classSubjectsSelect,
     });
   }
 
-  async findBySubject(subject_id: string): Promise<ClassSubjectsEntity[]> {
+  async findBySubject(
+    subject_id: string,
+    institution_id?: string,
+  ): Promise<ClassSubjectsEntity[]> {
     return this.prisma.classSubjects.findMany({
       where: {
         subject_id,
         deleted_at: null,
+        ...(institution_id !== undefined ? { class: { institution_id } } : {}),
       },
       select: classSubjectsSelect,
     });
   }
 
-  async findByTeacher(teacher_id: string): Promise<ClassSubjectsEntity[]> {
+  async findByTeacher(
+    teacher_id: string,
+    institution_id?: string,
+  ): Promise<ClassSubjectsEntity[]> {
     return this.prisma.classSubjects.findMany({
       where: {
         teacher_id,
         deleted_at: null,
+        ...(institution_id !== undefined ? { class: { institution_id } } : {}),
       },
       select: classSubjectsSelect,
     });
@@ -89,11 +116,13 @@ export class ClassSubjectsRepository {
 
   async findByAcademicYear(
     academic_year_id: string,
+    institution_id?: string,
   ): Promise<ClassSubjectsEntity[]> {
     return this.prisma.classSubjects.findMany({
       where: {
         academic_year_id,
         deleted_at: null,
+        ...(institution_id !== undefined ? { class: { institution_id } } : {}),
       },
       select: classSubjectsSelect,
     });
@@ -102,16 +131,16 @@ export class ClassSubjectsRepository {
   async findByUniqueCombination(
     class_id: string,
     subject_id: string,
-    teacher_id: string,
     academic_year_id: string,
+    institution_id?: string,
   ): Promise<ClassSubjectsEntity | null> {
     return this.prisma.classSubjects.findFirst({
       where: {
         class_id,
         subject_id,
-        teacher_id,
         academic_year_id,
         deleted_at: null,
+        ...(institution_id !== undefined ? { class: { institution_id } } : {}),
       },
       select: classSubjectsSelect,
     });
@@ -127,6 +156,18 @@ export class ClassSubjectsRepository {
 
     const where: Prisma.ClassSubjectsWhereInput = {
       deleted_at: null,
+      ...(filters?.institution_id !== undefined
+        ? { class: { institution_id: filters.institution_id } }
+        : {}),
+      ...(filters?.class_id !== undefined
+        ? { class_id: filters.class_id }
+        : {}),
+      ...(filters?.academic_year_id !== undefined
+        ? { academic_year_id: filters.academic_year_id }
+        : {}),
+      ...(filters?.teacher_id !== undefined
+        ? { teacher_id: filters.teacher_id }
+        : {}),
       ...(search
         ? {
             OR: [
@@ -186,7 +227,12 @@ export class ClassSubjectsRepository {
   async update(
     id: string,
     data: UpdateClassSubjectsInput,
+    institution_id?: string,
   ): Promise<ClassSubjectsEntity> {
+    const current = await this.findById(id, institution_id);
+    if (!current) {
+      throw new Error("Class subject relation not found");
+    }
     return this.prisma.classSubjects.update({
       where: { id },
       data: {
@@ -201,7 +247,49 @@ export class ClassSubjectsRepository {
     });
   }
 
-  async delete(id: string): Promise<ClassSubjectsEntity> {
+  async findUsage(
+    id: string,
+    institution_id?: string,
+  ): Promise<ClassSubjectsUsage> {
+    const record = await this.prisma.classSubjects.findFirst({
+      where: {
+        id,
+        deleted_at: null,
+        ...(institution_id !== undefined ? { class: { institution_id } } : {}),
+      },
+      select: { id: true },
+    });
+    if (!record) {
+      return { schedules: 0, modules: 0, examinations: 0, studentGrades: 0 };
+    }
+
+    const [schedules, modules, examinations, studentGrades] = await Promise.all(
+      [
+        this.prisma.schedule.count({
+          where: { classSubjectId: id, deletedAt: null },
+        }),
+        this.prisma.modules.count({
+          where: { class_subject_id: id, deleted_at: null },
+        }),
+        this.prisma.examinations.count({
+          where: { classSubjectId: id, deletedAt: null },
+        }),
+        this.prisma.studentGrades.count({
+          where: { classSubjectId: id, deletedAt: null },
+        }),
+      ],
+    );
+    return { schedules, modules, examinations, studentGrades };
+  }
+
+  async delete(
+    id: string,
+    institution_id?: string,
+  ): Promise<ClassSubjectsEntity> {
+    const current = await this.findById(id, institution_id);
+    if (!current) {
+      throw new Error("Class subject relation not found");
+    }
     return this.prisma.classSubjects.update({
       where: { id },
       data: {

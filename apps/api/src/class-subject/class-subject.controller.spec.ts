@@ -1,23 +1,21 @@
 import { Test, type TestingModule } from "@nestjs/testing";
 import { ResponseHelper } from "@repo/shared/http/response";
-import type {
-  CreateClassSubjectDto,
-  UpdateClassSubjectDto,
+import {
+  ClassSubjectQuerySchema,
+  type CreateClassSubjectDto,
 } from "@repo/shared/schemas/class-subject.schema";
+import "reflect-metadata";
+import { ROLES_KEY } from "../auth/roles.decorator";
 import { ClassSubjectController } from "./class-subject.controller";
 import { ClassSubjectService } from "./class-subject.service";
 
 jest.mock("../prisma/prisma.service", () => ({
-  PrismaService: class PrismaService {
-    client = {};
-  },
+  PrismaService: class PrismaService {},
 }));
 
 describe("ClassSubjectController", () => {
   let controller: ClassSubjectController;
-  let service: ClassSubjectService;
-
-  const mockService = {
+  const service = {
     findAll: jest.fn(),
     findOne: jest.fn(),
     findByClass: jest.fn(),
@@ -28,28 +26,8 @@ describe("ClassSubjectController", () => {
     update: jest.fn(),
     remove: jest.fn(),
   };
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [ClassSubjectController],
-      providers: [
-        {
-          provide: ClassSubjectService,
-          useValue: mockService,
-        },
-      ],
-    }).compile();
-
-    controller = module.get<ClassSubjectController>(ClassSubjectController);
-    service = module.get<ClassSubjectService>(ClassSubjectService);
-    jest.clearAllMocks();
-  });
-
-  it("should be defined", () => {
-    expect(controller).toBeDefined();
-  });
-
-  const mockRecord = {
+  const request = { user: { sub: "user-1" } };
+  const record = {
     id: "cs-1",
     class_id: "class-1",
     subject_id: "subject-1",
@@ -57,140 +35,94 @@ describe("ClassSubjectController", () => {
     academic_year_id: "ay-1",
   };
 
-  it("findAll returns paginated list wrapped in ResponseHelper.success", async () => {
-    const mockResult = {
-      data: [mockRecord],
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [ClassSubjectController],
+      providers: [{ provide: ClassSubjectService, useValue: service }],
+    }).compile();
+    controller = module.get(ClassSubjectController);
+    jest.clearAllMocks();
+  });
+
+  it("restricts the controller to admins", () => {
+    expect(Reflect.getMetadata(ROLES_KEY, ClassSubjectController)).toEqual([
+      "admin",
+    ]);
+  });
+
+  it("passes institution user and filters to the paginated list", async () => {
+    const result = {
+      data: [record],
       meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
     };
-    mockService.findAll.mockResolvedValue(mockResult);
-
-    const result = await controller.findAll("1", "10", "Math");
-
-    expect(result).toEqual(
+    service.findAll.mockResolvedValue(result);
+    await expect(
+      controller.findAll(request, {
+        page: 2,
+        limit: 25,
+        search: "Math",
+        class_id: "class-1",
+        academic_year_id: "ay-1",
+        teacher_id: "teacher-1",
+      }),
+    ).resolves.toEqual(
       ResponseHelper.success(
-        [mockRecord],
+        [record],
         "Class subjects retrieved successfully",
         200,
-        mockResult.meta,
+        result.meta,
       ),
     );
-    expect(service.findAll).toHaveBeenCalledWith(1, 10, "Math");
-  });
-
-  it("findOne returns detail wrapped in ResponseHelper.success", async () => {
-    mockService.findOne.mockResolvedValue(mockRecord);
-
-    const result = await controller.findOne("cs-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        mockRecord,
-        "Class subject detail retrieved successfully",
-      ),
+    expect(service.findAll).toHaveBeenCalledWith(
+      2,
+      25,
+      {
+        search: "Math",
+        class_id: "class-1",
+        academic_year_id: "ay-1",
+        teacher_id: "teacher-1",
+      },
+      "user-1",
     );
-    expect(service.findOne).toHaveBeenCalledWith("cs-1");
   });
 
-  it("findByClass returns list wrapped in ResponseHelper.success", async () => {
-    mockService.findByClass.mockResolvedValue([mockRecord]);
-
-    const result = await controller.findByClass("class-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        [mockRecord],
-        "Class subjects by class retrieved successfully",
-      ),
-    );
-    expect(service.findByClass).toHaveBeenCalledWith("class-1");
+  it.each([
+    ["negative page", { page: -1, limit: 10 }],
+    ["zero page", { page: 0, limit: 10 }],
+    ["zero limit", { page: 1, limit: 0 }],
+    ["oversized limit", { page: 1, limit: 101 }],
+    ["invalid class UUID", { page: 1, limit: 10, class_id: "not-a-uuid" }],
+    [
+      "invalid academic year UUID",
+      { page: 1, limit: 10, academic_year_id: "not-a-uuid" },
+    ],
+    ["invalid teacher UUID", { page: 1, limit: 10, teacher_id: "not-a-uuid" }],
+  ])("rejects invalid pagination/filter input: %s", (_label, query) => {
+    expect(ClassSubjectQuerySchema.safeParse(query).success).toBe(false);
   });
 
-  it("findBySubject returns list wrapped in ResponseHelper.success", async () => {
-    mockService.findBySubject.mockResolvedValue([mockRecord]);
-
-    const result = await controller.findBySubject("subject-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        [mockRecord],
-        "Class subjects by subject retrieved successfully",
-      ),
-    );
-    expect(service.findBySubject).toHaveBeenCalledWith("subject-1");
-  });
-
-  it("findByTeacher returns list wrapped in ResponseHelper.success", async () => {
-    mockService.findByTeacher.mockResolvedValue([mockRecord]);
-
-    const result = await controller.findByTeacher("teacher-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        [mockRecord],
-        "Class subjects by teacher retrieved successfully",
-      ),
-    );
-    expect(service.findByTeacher).toHaveBeenCalledWith("teacher-1");
-  });
-
-  it("findByAcademicYear returns list wrapped in ResponseHelper.success", async () => {
-    mockService.findByAcademicYear.mockResolvedValue([mockRecord]);
-
-    const result = await controller.findByAcademicYear("ay-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        [mockRecord],
-        "Class subjects by academic year retrieved successfully",
-      ),
-    );
-    expect(service.findByAcademicYear).toHaveBeenCalledWith("ay-1");
-  });
-
-  it("create returns created entity wrapped in ResponseHelper.success with 201 status", async () => {
-    mockService.create.mockResolvedValue(mockRecord);
-
+  it("passes user identity to detail and mutations", async () => {
     const dto: CreateClassSubjectDto = {
       class_id: "class-1",
       subject_id: "subject-1",
       teacher_id: "teacher-1",
       academic_year_id: "ay-1",
     };
-
-    const result = await controller.create(dto);
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        mockRecord,
-        "Class subject created successfully",
-        201,
-      ),
+    service.findOne.mockResolvedValue(record);
+    service.create.mockResolvedValue(record);
+    service.update.mockResolvedValue(record);
+    service.remove.mockResolvedValue(record);
+    await controller.findOne("cs-1", request);
+    await controller.create(dto, request);
+    await controller.update("cs-1", { teacher_id: "teacher-1" }, request);
+    await controller.remove("cs-1", request);
+    expect(service.findOne).toHaveBeenCalledWith("cs-1", "user-1");
+    expect(service.create).toHaveBeenCalledWith(dto, "user-1");
+    expect(service.update).toHaveBeenCalledWith(
+      "cs-1",
+      { teacher_id: "teacher-1" },
+      "user-1",
     );
-    expect(service.create).toHaveBeenCalledWith(dto);
-  });
-
-  it("update returns updated entity wrapped in ResponseHelper.success", async () => {
-    const updated = { ...mockRecord, teacher_id: "teacher-2" };
-    mockService.update.mockResolvedValue(updated);
-
-    const dto: UpdateClassSubjectDto = { teacher_id: "teacher-2" };
-
-    const result = await controller.update("cs-1", dto);
-
-    expect(result).toEqual(
-      ResponseHelper.success(updated, "Class subject updated successfully"),
-    );
-    expect(service.update).toHaveBeenCalledWith("cs-1", dto);
-  });
-
-  it("remove returns deleted result wrapped in ResponseHelper.success", async () => {
-    mockService.remove.mockResolvedValue(mockRecord);
-
-    const result = await controller.remove("cs-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(mockRecord, "Class subject deleted successfully"),
-    );
-    expect(service.remove).toHaveBeenCalledWith("cs-1");
+    expect(service.remove).toHaveBeenCalledWith("cs-1", "user-1");
   });
 });

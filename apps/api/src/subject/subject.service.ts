@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -21,51 +22,79 @@ export class SubjectService {
     this.subjectRepository = new SubjectRepository(this.prisma.client);
   }
 
-  async create(data: CreateSubjectDto): Promise<SubjectEntity> {
-    const existing = await this.subjectRepository.findByCode(data.code);
+  private async institutionIdFor(userId: string): Promise<string> {
+    const profile = await this.prisma.client.profile.findFirst({
+      where: { userId, deletedAt: null },
+      select: { institutionId: true },
+    });
+    if (!profile) throw new ForbiddenException("Institution access is required");
+    return profile.institutionId;
+  }
+
+  async create(data: CreateSubjectDto, userId: string): Promise<SubjectEntity> {
+    const institutionId = await this.institutionIdFor(userId);
+    const existing = await this.subjectRepository.findByCode(
+      data.code,
+      institutionId,
+    );
     if (existing) {
       throw new ConflictException("Subject code already exists");
     }
-    return this.subjectRepository.create(data);
+    return this.subjectRepository.create({ ...data, institutionId });
   }
 
-  async findAll(query: SubjectQueryDto) {
-    const { page, limit, search, institutionId, departmentId } = query;
+  async findAll(query: SubjectQueryDto, userId: string) {
+    const { page, limit, search, departmentId } = query;
     return this.subjectRepository.findAll({
       page,
       limit,
       search,
-      institutionId,
+      institutionId: await this.institutionIdFor(userId),
       departmentId,
     });
   }
 
-  async findOne(id: string): Promise<SubjectEntity> {
-    const subject = await this.subjectRepository.findById(id);
+  async findOne(id: string, userId: string): Promise<SubjectEntity> {
+    const subject = await this.subjectRepository.findById(
+      id,
+      await this.institutionIdFor(userId),
+    );
     if (!subject) {
       throw new NotFoundException("Subject not found");
     }
     return subject;
   }
 
-  async update(id: string, data: UpdateSubjectDto): Promise<SubjectEntity> {
-    const subject = await this.subjectRepository.findById(id);
+  async update(
+    id: string,
+    data: UpdateSubjectDto,
+    userId: string,
+  ): Promise<SubjectEntity> {
+    const institutionId = await this.institutionIdFor(userId);
+    const subject = await this.subjectRepository.findById(id, institutionId);
     if (!subject) {
       throw new NotFoundException("Subject not found");
     }
 
     if (data.code && data.code !== subject.code) {
-      const existing = await this.subjectRepository.findByCode(data.code);
+      const existing = await this.subjectRepository.findByCode(
+        data.code,
+        institutionId,
+      );
       if (existing) {
         throw new ConflictException("Subject code already exists");
       }
     }
 
-    return this.subjectRepository.update(id, data);
+    const { institutionId: _clientInstitutionId, ...updateData } = data;
+    return this.subjectRepository.update(id, updateData);
   }
 
-  async remove(id: string): Promise<void> {
-    const subject = await this.subjectRepository.findById(id);
+  async remove(id: string, userId: string): Promise<void> {
+    const subject = await this.subjectRepository.findById(
+      id,
+      await this.institutionIdFor(userId),
+    );
     if (!subject) {
       throw new NotFoundException("Subject not found");
     }
