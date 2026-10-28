@@ -34,6 +34,7 @@ import { NotificationModule } from "./notification/notification.module";
 import { PermissionModule } from "./permission/permission.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ProfileModule } from "./profile/profile.module";
+import { ReferralCodesModule } from "./referral-codes/referral-codes.module";
 import { ReligionModule } from "./religion/religion.module";
 import { RoleModule } from "./role/role.module";
 import { RolePermissionModule } from "./role-permission/role-permission.module";
@@ -102,6 +103,7 @@ import { UserModule } from "./user/user.module";
     SettingsModule,
     SemesterModule,
     ClassAnnouncementsModule,
+    ReferralCodesModule,
   ],
   controllers: [AppController],
   providers: [

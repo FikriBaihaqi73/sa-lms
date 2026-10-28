@@ -81,7 +81,7 @@ describe("AuthService register", () => {
       .mockResolvedValue(null);
     jest
       .spyOn(AuthRepository.prototype, "findValidReferralInstitution")
-      .mockResolvedValue({ institutionId: "institution-id" });
+      .mockResolvedValue({ referralId: "ref-1", institutionId: "institution-id" });
     jest
       .spyOn(AuthRepository.prototype, "findDefaultRole")
       .mockResolvedValue({ id: "student-role-id" } as never);
@@ -98,7 +98,7 @@ describe("AuthService register", () => {
     expect(findByEmail).toHaveBeenCalledWith("new@example.com");
     expect(registerStudent).toHaveBeenCalledWith(
       { email: "new@example.com", password: expect.any(String) },
-      "institution-id",
+      { referralId: "ref-1", institutionId: "institution-id" },
       "student-role-id",
     );
   });

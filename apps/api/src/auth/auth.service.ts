@@ -70,7 +70,7 @@ export class AuthService {
 
         return await this.authRepository.registerStudent(
           { email, password },
-          referral.institutionId,
+          referral,
           role.id,
         );
       } else if (dto.role === "instansi") {

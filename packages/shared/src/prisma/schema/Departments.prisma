@@ -15,6 +15,7 @@ model Departments {
 
   teachers Teachers[]
   subjects Subject[]
+  referralCodes ReferralCodes[]
 
   @@index([institution_id])
 }

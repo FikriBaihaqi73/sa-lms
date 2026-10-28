@@ -12,8 +12,11 @@ export interface CreateAuthenticatedUserInput {
   password: string;
 }
 
-interface ReferralInstitution {
+export interface ReferralInstitution {
+  referralId: string;
   institutionId: string;
+  departmentId?: string | null;
+  enrollmentYear?: number | null;
 }
 
 export class AuthRepository {
@@ -36,23 +39,41 @@ export class AuthRepository {
   async findValidReferralInstitution(
     referralCode: string,
   ): Promise<ReferralInstitution | null> {
-    const referralOwner = await this.prisma.student.findFirst({
+    const code = await this.prisma.referralCodes.findFirst({
       where: {
-        referralCode: { equals: referralCode, mode: "insensitive" },
-        referralExpiresAt: { gt: new Date() },
-        deletedAt: null,
-        profile: { is: { deletedAt: null } },
+        code: { equals: referralCode, mode: "insensitive" },
+        is_active: true,
+        deleted_at: null,
       },
       select: {
-        profile: { select: { institutionId: true } },
+        id: true,
+        institution_id: true,
+        department_id: true,
+        enrollment_year: true,
+        usage_quota: true,
+        used_count: true,
+        expires_at: true,
       },
     });
 
-    if (!referralOwner?.profile) {
+    if (!code) {
       return null;
     }
 
-    return { institutionId: referralOwner.profile.institutionId };
+    if (code.expires_at && code.expires_at < new Date()) {
+      return null;
+    }
+
+    if (code.usage_quota !== null && code.used_count >= code.usage_quota) {
+      return null;
+    }
+
+    return {
+      referralId: code.id,
+      institutionId: code.institution_id,
+      departmentId: code.department_id,
+      enrollmentYear: code.enrollment_year,
+    };
   }
 
   async createUser(data: CreateAuthenticatedUserInput): Promise<UserEntity> {
@@ -64,21 +85,57 @@ export class AuthRepository {
 
   async registerStudent(
     userPayload: CreateAuthenticatedUserInput,
-    institutionId: string,
+    referral: ReferralInstitution,
     roleId: string,
   ): Promise<UserEntity> {
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      await tx.referralCodes.update({
+        where: { id: referral.referralId },
+        data: { used_count: { increment: 1 } },
+      });
+
       const user = await tx.users.create({
         data: { ...userPayload, is_active: true },
       });
 
-      await tx.profile.create({
+      const profile = await tx.profile.create({
         data: {
           userId: user.id,
-          institutionId,
+          institutionId: referral.institutionId,
           roleId,
           fullName: user.email,
           email: user.email,
+        },
+      });
+
+      let academicStatus = await tx.academicStatuses.findFirst({
+        where: {
+          name: { in: ["Aktif", "aktif", "Active", "active"] },
+          deleted_at: null,
+        },
+      });
+
+      if (!academicStatus) {
+        academicStatus = await tx.academicStatuses.findFirst({
+          where: { deleted_at: null },
+        });
+      }
+
+      if (!academicStatus) {
+        academicStatus = await tx.academicStatuses.create({
+          data: { name: "Aktif", description: "Status aktif standar" },
+        });
+      }
+
+      const studentNumber = `STU-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      await tx.student.create({
+        data: {
+          profileId: profile.id,
+          academicStatusId: academicStatus.id,
+          studentNumber,
+          enrollmentYear: referral.enrollmentYear ?? new Date().getFullYear(),
+          departmentId: referral.departmentId ?? null,
         },
       });
 
