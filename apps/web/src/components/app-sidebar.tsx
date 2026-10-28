@@ -18,6 +18,7 @@ import {
 	type LucideIcon,
 	Settings2,
 	ShieldCheck,
+	UserPlus,
 	UserRound,
 	Users,
 	UsersRound,
@@ -153,7 +154,11 @@ export function AppSidebar() {
 							</p>
 							<div className="space-y-0.5">
 								<NavItem to="/users" icon={Users} label="Data Pengguna" />
-								<NavItem to="/students" icon={GraduationCap} label="Siswa" />
+								<NavItem
+									to="/referral-codes"
+									icon={UserPlus}
+									label="Tambah Siswa"
+								/>
 								<NavItem
 									to="/student-guardians"
 									icon={UsersRound}

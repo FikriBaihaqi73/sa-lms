@@ -29,5 +29,6 @@ model Institution {
   departments      Departments[]
 
   academic_years   AcademicYears[]
+  referralCodes    ReferralCodes[]
   @@map("institutions")
 }

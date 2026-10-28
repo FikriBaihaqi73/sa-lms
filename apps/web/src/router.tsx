@@ -25,6 +25,7 @@ import { indexRoute } from "./routes/_user/index";
 import { guardiansRoute } from "./routes/guardians/index";
 import { institutionsRoute } from "./routes/institutions/index";
 import { loginRoute } from "./routes/login/index";
+import { referralCodesRoute } from "./routes/referral-codes/index";
 import { registerRoute } from "./routes/register/index";
 import { settingsRoute } from "./routes/settingsLayout";
 import {
@@ -68,6 +69,7 @@ const routeTree = rootRoute.addChildren([
 	userTree,
 	institutionsRoute,
 	studentsRoute,
+	referralCodesRoute,
 	studentGuardiansRoute,
 	guardiansRoute,
 	loginRoute,
