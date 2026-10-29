@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createTeacherApi,
   deleteTeacherApi,
+  getDepartmentsApi,
   getEmploymentStatusesApi,
   getSpecializationsApi,
   getTeacherByIdApi,
@@ -19,6 +20,7 @@ export const TEACHER_STATS_QUERY_KEY = ["teacher-stats"] as const;
 export const TEACHER_PROFILES_QUERY_KEY = ["teacher-form-profiles"] as const;
 export const EMPLOYMENT_STATUSES_QUERY_KEY = ["employment-statuses"] as const;
 export const SPECIALIZATIONS_QUERY_KEY = ["specializations"] as const;
+export const TEACHER_DEPARTMENTS_QUERY_KEY = ["teacher-departments"] as const;
 
 export const useTeachers = (params: GetTeachersParams) =>
   useQuery({
@@ -72,6 +74,13 @@ export const useSpecializations = () =>
   useQuery({
     queryKey: SPECIALIZATIONS_QUERY_KEY,
     queryFn: getSpecializationsApi,
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const useTeacherDepartments = () =>
+  useQuery({
+    queryKey: TEACHER_DEPARTMENTS_QUERY_KEY,
+    queryFn: getDepartmentsApi,
     staleTime: 5 * 60 * 1000,
   });
 

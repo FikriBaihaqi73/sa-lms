@@ -16,6 +16,7 @@ export interface TeacherProfile {
 export interface Teacher {
   id: string;
   profile_id?: string | null;
+  department_id?: string | null;
   specialization_id?: string | null;
   employment_status_id?: string | null;
   teacher_number: string;
@@ -23,6 +24,7 @@ export interface Teacher {
   created_at: string;
   updated_at: string;
   profile?: TeacherProfile | null;
+  department?: { id: string; name: string; code?: string | null } | null;
   employment_status?: { id: string; name: string } | null;
   specialization?: { id: string; name: string } | null;
   _count?: { classSubjects: number };
@@ -58,6 +60,7 @@ export interface TeacherFormProfile {
 export interface TeacherReference {
   id: string;
   name: string;
+  code?: string | null;
 }
 
 export interface TeacherClassAssignment {
@@ -73,6 +76,7 @@ export interface TeacherClassAssignment {
 export interface CreateTeacherInput {
   profile_id?: string;
   teacher_number: string;
+  department_id?: string;
   specialization_id?: string;
   employment_status_id?: string;
   join_date?: string;
@@ -80,6 +84,7 @@ export interface CreateTeacherInput {
 
 export interface UpdateTeacherInput {
   teacher_number?: string;
+  department_id?: string | null;
   specialization_id?: string | null;
   employment_status_id?: string | null;
   join_date?: string | null;

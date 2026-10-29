@@ -85,6 +85,12 @@ export function EditTeacherSheetBody({ teacher, assignments, assignmentsLoading 
               {teacher.specialization?.name ?? "—"}
             </dd>
           </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500 dark:text-slate-400">Departemen</dt>
+            <dd className="font-medium text-slate-900 dark:text-slate-100">
+              {teacher.department?.name ? `${teacher.department.name}${teacher.department.code ? ` (${teacher.department.code})` : ""}` : "—"}
+            </dd>
+          </div>
         </dl>
       </section>
       <section className="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
@@ -123,6 +129,7 @@ export function EditTeacherSheet({ open, teacher, assignments, assignmentsLoadin
               onSave({
                 profile_id: teacher.profile_id ?? "",
                 teacher_number: teacher.teacher_number,
+                department_id: teacher.department_id ?? "",
                 specialization_id: teacher.specialization_id ?? "",
                 employment_status_id: teacher.employment_status_id ?? "",
                 join_date: teacher.join_date ? teacher.join_date.slice(0, 10) : "",
