@@ -10,6 +10,7 @@ import {
 	ChevronRight,
 	Church,
 	ClipboardCheck,
+	GitFork,
 	Globe,
 	GraduationCap,
 	HeartHandshake,
@@ -212,6 +213,11 @@ export function AppSidebar() {
 									to="/semesters"
 									icon={CalendarRange}
 									label="Semester"
+								/>
+								<NavItem
+									to="/subject-prerequisites"
+									icon={GitFork}
+									label="Prasyarat Mata Kuliah"
 								/>
 							</div>
 						</div>

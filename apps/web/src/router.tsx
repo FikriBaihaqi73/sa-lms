@@ -21,6 +21,7 @@ import { rolesRoute } from "./routes/_settings/roles/index";
 import { semestersRoute } from "./routes/_settings/semesters/index";
 import { subjectsRoute } from "./routes/_settings/subjects/index";
 import { settingsRouteDef } from "./routes/_settings/settings/index";
+import { subjectPrerequisitesRoute } from "./routes/_settings/subject-prerequisites/index";
 import { teachersRoute } from "./routes/_settings/teachers/index";
 import { usersRoute } from "./routes/_settings/users/index";
 import { indexRoute } from "./routes/_user/index";
@@ -62,6 +63,7 @@ const settingsTree = settingsRoute.addChildren([
 	classesRoute,
 	classStudentsRoute,
 	classSubjectsRoute,
+	subjectPrerequisitesRoute,
 	semestersRoute,
 	subjectsRoute,
 ]);

@@ -47,6 +47,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/specializations",
 	"/specialization-statuses",
 	"/class-subjects",
+	"/subject-prerequisites",
 ];
 
 function AccessDenied({ message }: { message: string }) {
