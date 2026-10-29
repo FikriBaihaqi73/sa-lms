@@ -1,4 +1,4 @@
-import type { RegisterSchema } from "@repo/shared/schemas/auth.schema";
+import type { RegisterSchema } from "@repo/shared/schemas/auth-validation.schema";
 import type * as z from "zod";
 import { apiFetch } from "@/lib/api";
 

@@ -27,7 +27,13 @@ export const CreateSubjectSchema = z.object({
   departmentId: z.uuid().optional().describe("Department ID"),
 });
 
-export const UpdateSubjectSchema = CreateSubjectSchema.partial();
+export const UpdateSubjectSchema = CreateSubjectSchema.partial().extend({
+  departmentId: z
+    .uuid()
+    .nullable()
+    .optional()
+    .describe("Department ID; null clears the department assignment"),
+});
 
 export class CreateSubjectDto extends createZodDto(CreateSubjectSchema) {}
 export class UpdateSubjectDto extends createZodDto(UpdateSubjectSchema) {}

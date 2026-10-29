@@ -177,6 +177,7 @@ export function AppSidebar() {
 									label="Wali Murid"
 								/>
 								<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
+								<NavItem to="/subjects" icon={BookOpen} label="Mata Pelajaran" />
 								<NavItem
 									to="/class-students"
 									icon={UsersRound}

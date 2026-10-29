@@ -24,6 +24,9 @@ describe("SubjectService", () => {
       profile: {
         findFirst: jest.fn(),
       },
+      departments: {
+        findFirst: jest.fn(),
+      },
       subject: {
         create: jest.fn(),
         findFirst: jest.fn(),
@@ -65,6 +68,7 @@ describe("SubjectService", () => {
     // override the internal repository for testing
     Object.defineProperty(service, "subjectRepository", { value: mockRepository, writable: true });
     mockPrismaService.client.profile.findFirst.mockResolvedValue({ institutionId: "institution-a" });
+    mockPrismaService.client.departments.findFirst.mockResolvedValue({ id: "department-a" });
   });
 
   afterEach(() => {
@@ -99,6 +103,33 @@ describe("SubjectService", () => {
 
       await expect(service.create(createDto, "user-a")).rejects.toThrow(
         ConflictException,
+      );
+      expect(mockRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("rejects a department outside the admin's institution", async () => {
+      mockPrismaService.client.departments.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.create(
+          {
+            code: "SUB01",
+            name: "Math",
+            institutionId: "client-institution",
+            departmentId: "foreign-department",
+          },
+          "user-a",
+        ),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(mockPrismaService.client.departments.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            id: "foreign-department",
+            institution_id: "institution-a",
+            deleted_at: null,
+          },
+        }),
       );
       expect(mockRepository.create).not.toHaveBeenCalled();
     });
@@ -168,6 +199,30 @@ describe("SubjectService", () => {
       mockRepository.findById.mockResolvedValue(null);
 
       await expect(service.update("99", {}, "user-a")).rejects.toThrow(NotFoundException);
+    });
+
+    it("rejects assigning a department outside the admin's institution", async () => {
+      mockRepository.findById.mockResolvedValue({ id: "subject-a", institutionId: "institution-a" });
+      mockPrismaService.client.departments.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.update("subject-a", { departmentId: "foreign-department" }, "user-a"),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("allows clearing an existing department assignment", async () => {
+      const existing = { id: "subject-a", departmentId: "department-a" };
+      const updated = { ...existing, departmentId: null };
+      mockRepository.findById.mockResolvedValue(existing);
+      mockRepository.update.mockResolvedValue(updated);
+
+      await expect(
+        service.update("subject-a", { departmentId: null }, "user-a"),
+      ).resolves.toEqual(updated);
+
+      expect(mockRepository.update).toHaveBeenCalledWith("subject-a", { departmentId: null });
     });
   });
 

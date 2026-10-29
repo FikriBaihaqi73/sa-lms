@@ -25,7 +25,10 @@
 
     /* Path alias */
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@repo/shared/schemas/auth-validation.schema": [
+        "../../packages/shared/src/schemas/auth-validation.schema.ts"
+      ]
     }
   },
   "include": ["src"]
