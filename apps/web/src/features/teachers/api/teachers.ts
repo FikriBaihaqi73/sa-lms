@@ -5,6 +5,7 @@ import type {
   TeacherClassAssignment,
   TeacherFormProfile,
   TeacherListResult,
+  TeacherPageMeta,
   TeacherReference,
   TeacherStats,
   UpdateTeacherInput,
@@ -12,7 +13,7 @@ import type {
 
 interface ApiResponse<T> {
   data: T;
-  meta?: unknown;
+  meta?: TeacherPageMeta;
 }
 
 export interface GetTeachersParams {
@@ -40,15 +41,54 @@ export const getTeachersApi = async ({
   if (status?.trim()) params.set("status", status.trim());
   if (specialization?.trim()) params.set("specialization", specialization.trim());
 
-  const response: ApiResponse<TeacherListResult | null> = await apiFetch(
-    `/teachers?${params.toString()}`,
-  );
-  return response.data ?? emptyTeacherPage(page, limit);
+  const response = (await apiFetch(`/teachers?${params.toString()}`)) as {
+    data?: Teacher[] | { data?: Teacher[]; meta?: TeacherPageMeta } | null;
+    meta?: TeacherPageMeta;
+  };
+
+  // Case 1: Backend returns { data: Teacher[], meta: TeacherPageMeta }
+  if (Array.isArray(response?.data)) {
+    const meta = (response.meta as TeacherPageMeta) ?? {
+      page,
+      limit,
+      total: response.data.length,
+      totalPages: Math.ceil(response.data.length / limit) || 1,
+    };
+    return {
+      data: response.data,
+      meta,
+    };
+  }
+
+  // Case 2: Backend returns { data: { data: Teacher[], meta: TeacherPageMeta } }
+  if (response?.data && Array.isArray(response.data.data)) {
+    const meta = (response.data.meta as TeacherPageMeta) ?? {
+      page,
+      limit,
+      total: response.data.data.length,
+      totalPages: Math.ceil(response.data.data.length / limit) || 1,
+    };
+    return {
+      data: response.data.data,
+      meta,
+    };
+  }
+
+  return emptyTeacherPage(page, limit);
+};
+
+const defaultTeacherStats: TeacherStats = {
+  total: 0,
+  tetapCount: 0,
+  honorerCount: 0,
+  specializationCount: 0,
+  totalClassAssignments: 0,
+  unassignedCount: 0,
 };
 
 export const getTeacherStatsApi = async (): Promise<TeacherStats> => {
-  const response: ApiResponse<TeacherStats> = await apiFetch("/teachers/stats");
-  return response.data;
+  const response: ApiResponse<TeacherStats | null> = await apiFetch("/teachers/stats");
+  return response.data ?? defaultTeacherStats;
 };
 
 export const getTeacherByIdApi = async (id: string): Promise<Teacher> => {
@@ -99,6 +139,13 @@ export const getEmploymentStatusesApi = async (): Promise<TeacherReference[]> =>
 export const getSpecializationsApi = async (): Promise<TeacherReference[]> => {
   const response: ApiResponse<{ data: TeacherReference[] } | TeacherReference[] | null> =
     await apiFetch("/specializations");
+  if (Array.isArray(response.data)) return response.data;
+  return response.data?.data ?? [];
+};
+
+export const getDepartmentsApi = async (): Promise<TeacherReference[]> => {
+  const response: ApiResponse<{ data: TeacherReference[] } | TeacherReference[] | null> =
+    await apiFetch("/departments?page=1&limit=100");
   if (Array.isArray(response.data)) return response.data;
   return response.data?.data ?? [];
 };

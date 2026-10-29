@@ -162,4 +162,74 @@ describe("DepartmentsService", () => {
     expect(deleteResult).toEqual({ success: true, id: "dept-1" });
     expect(remove).toHaveBeenCalledWith("dept-1", "inst-123");
   });
+
+  describe("create", () => {
+    it("creates a department when name and code are unique", async () => {
+      jest
+        .spyOn(DepartmentRepository.prototype, "findByName")
+        .mockResolvedValue(null);
+      jest
+        .spyOn(DepartmentRepository.prototype, "findByCode")
+        .mockResolvedValue(null);
+      const createSpy = jest
+        .spyOn(DepartmentRepository.prototype, "create")
+        .mockResolvedValue({
+          id: "dept-1",
+          name: "Science",
+          code: "SCI",
+          created_at: new Date(),
+          updated_at: new Date(),
+          deleted_at: null,
+          teachers: [],
+          subjects: [],
+        });
+
+      const result = await service.create({ name: "Science", code: "SCI" });
+      expect(result).toEqual(
+        expect.objectContaining({ name: "Science", code: "SCI" }),
+      );
+      expect(createSpy).toHaveBeenCalledWith({ name: "Science", code: "SCI" });
+    });
+
+    it("throws ConflictException when department name already exists", async () => {
+      jest
+        .spyOn(DepartmentRepository.prototype, "findByName")
+        .mockResolvedValue({
+          id: "dept-1",
+          name: "Science",
+          code: "SCI",
+          created_at: new Date(),
+          updated_at: new Date(),
+          deleted_at: null,
+          teachers: [],
+          subjects: [],
+        });
+
+      await expect(
+        service.create({ name: "Science", code: "NEW-SCI" }),
+      ).rejects.toThrow("Department name already exists");
+    });
+
+    it("throws ConflictException when department code already exists", async () => {
+      jest
+        .spyOn(DepartmentRepository.prototype, "findByName")
+        .mockResolvedValue(null);
+      jest
+        .spyOn(DepartmentRepository.prototype, "findByCode")
+        .mockResolvedValue({
+          id: "dept-2",
+          name: "Old Science",
+          code: "SCI",
+          created_at: new Date(),
+          updated_at: new Date(),
+          deleted_at: null,
+          teachers: [],
+          subjects: [],
+        });
+
+      await expect(
+        service.create({ name: "Science", code: "SCI" }),
+      ).rejects.toThrow("Department code already exists");
+    });
+  });
 });

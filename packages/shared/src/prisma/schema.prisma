@@ -8,6 +8,8 @@ generator client {
   provider = "prisma-client"
   output   = "../generated"
   moduleFormat        = "esm"
+  provider            = "prisma-client"
+  output              = "../generated"
   importFileExtension = "js"
 }
 

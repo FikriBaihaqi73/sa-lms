@@ -69,6 +69,18 @@ export function TeacherRow({
         {teacher.teacher_number || "—"}
       </td>
       <td className="px-5 py-4 text-slate-600 dark:text-slate-300">
+        {teacher.department?.name ? (
+          <span>
+            {teacher.department.name}
+            {teacher.department.code ? (
+              <span className="ml-1 text-xs text-slate-400">({teacher.department.code})</span>
+            ) : null}
+          </span>
+        ) : (
+          <span className="text-slate-400">—</span>
+        )}
+      </td>
+      <td className="px-5 py-4 text-slate-600 dark:text-slate-300">
         {teacher.specialization?.name ?? "—"}
       </td>
       <td className="px-5 py-4">

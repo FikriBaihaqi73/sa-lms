@@ -6,6 +6,7 @@ interface AddTeacherDialogProps {
   open: boolean;
   statuses: TeacherReference[];
   specializations: TeacherReference[];
+  departments?: TeacherReference[];
   isSaving: boolean;
   onClose: () => void;
   onSave: (values: TeacherFormValues) => Promise<void>;

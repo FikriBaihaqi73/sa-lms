@@ -29,6 +29,7 @@ export function toCreateInput(values: TeacherFormValues) {
   return {
     ...(values.profile_id ? { profile_id: values.profile_id } : {}),
     teacher_number: values.teacher_number.trim(),
+    ...(values.department_id ? { department_id: values.department_id } : {}),
     ...(values.specialization_id ? { specialization_id: values.specialization_id } : {}),
     ...(values.employment_status_id ? { employment_status_id: values.employment_status_id } : {}),
     ...(values.join_date ? { join_date: values.join_date } : {}),
@@ -38,6 +39,7 @@ export function toCreateInput(values: TeacherFormValues) {
 export function toUpdateInput(values: TeacherFormValues) {
   return {
     teacher_number: values.teacher_number.trim(),
+    department_id: values.department_id || null,
     specialization_id: values.specialization_id || null,
     employment_status_id: values.employment_status_id || null,
     join_date: values.join_date || null,
