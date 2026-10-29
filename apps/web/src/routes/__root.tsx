@@ -43,6 +43,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	// Academic years are institution-owned data, so Superadmin has no access.
 	"/academic-years",
 	"/departments",
+	"/subjects",
 	"/specializations",
 	"/specialization-statuses",
 	"/class-subjects",

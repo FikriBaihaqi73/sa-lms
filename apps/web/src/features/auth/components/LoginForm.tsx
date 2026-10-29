@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "@repo/shared/schemas/auth.schema";
+import { LoginSchema } from "@repo/shared/schemas/auth-validation.schema";
 import { useNavigate } from "@tanstack/react-router";
 import { BookOpenCheck, Eye, EyeOff, Lock, Mail, Sparkles } from "lucide-react";
 import { useState } from "react";

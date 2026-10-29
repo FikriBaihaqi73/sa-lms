@@ -17,7 +17,7 @@ export interface UpdateSubjectInput {
   credits?: number | undefined;
   description?: string | undefined;
   institutionId?: string | undefined;
-  departmentId?: string | undefined;
+  departmentId?: string | null | undefined;
 }
 
 export class SubjectRepository {

@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import type { SubjectEntity } from "@repo/shared/entities/subject.entity";
+import { DepartmentRepository } from "@repo/shared/infrastructure/repository/departments.repository";
 import { SubjectRepository } from "@repo/shared/infrastructure/repository/subject.repository";
 import type {
   CreateSubjectDto,
@@ -17,9 +18,11 @@ import { PrismaService } from "../prisma/prisma.service";
 @Injectable()
 export class SubjectService {
   private readonly subjectRepository: SubjectRepository;
+  private readonly departmentRepository: DepartmentRepository;
 
   constructor(private readonly prisma: PrismaService) {
     this.subjectRepository = new SubjectRepository(this.prisma.client);
+    this.departmentRepository = new DepartmentRepository(this.prisma.client);
   }
 
   private async institutionIdFor(userId: string): Promise<string> {
@@ -31,8 +34,24 @@ export class SubjectService {
     return profile.institutionId;
   }
 
+  private async assertDepartmentInInstitution(
+    departmentId: string | null | undefined,
+    institutionId: string,
+  ): Promise<void> {
+    if (departmentId == null) return;
+
+    const department = await this.departmentRepository.findById(
+      departmentId,
+      institutionId,
+    );
+    if (!department) {
+      throw new NotFoundException("Department not found");
+    }
+  }
+
   async create(data: CreateSubjectDto, userId: string): Promise<SubjectEntity> {
     const institutionId = await this.institutionIdFor(userId);
+    await this.assertDepartmentInInstitution(data.departmentId, institutionId);
     const existing = await this.subjectRepository.findByCode(
       data.code,
       institutionId,
@@ -75,6 +94,8 @@ export class SubjectService {
     if (!subject) {
       throw new NotFoundException("Subject not found");
     }
+
+    await this.assertDepartmentInInstitution(data.departmentId, institutionId);
 
     if (data.code && data.code !== subject.code) {
       const existing = await this.subjectRepository.findByCode(

@@ -11,6 +11,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      "@repo/shared/schemas/auth-validation.schema": fileURLToPath(
+        new URL("../../packages/shared/src/schemas/auth-validation.schema.ts", import.meta.url),
+      ),
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },

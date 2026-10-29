@@ -5,6 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
+  provider = "prisma-client"
+  output   = "../generated"
+  moduleFormat        = "esm"
   provider            = "prisma-client"
   output              = "../generated"
   importFileExtension = "js"

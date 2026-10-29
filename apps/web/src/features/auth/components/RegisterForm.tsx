@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RegisterSchema } from "@repo/shared/schemas/auth.schema";
+import { RegisterSchema } from "@repo/shared/schemas/auth-validation.schema";
 import {
 	Building2,
 	Eye,
