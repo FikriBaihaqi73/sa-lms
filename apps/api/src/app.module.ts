@@ -87,7 +87,6 @@ import { UserModule } from "./user/user.module";
     StudentModule,
     ClassStudentModule,
     ClassModule,
-    ClassModule,
     SubjectModule,
     SubjectPrerequisiteModule,
     ClassSubjectModule,
