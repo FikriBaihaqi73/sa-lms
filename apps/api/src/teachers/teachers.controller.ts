@@ -21,7 +21,7 @@ import { TeachersService } from "./teachers.service";
 
 @ApiTags("Teachers")
 @ApiBearerAuth("JWT-auth")
-@Roles("admin")
+@Roles("admin", "superadmin")
 @Controller("teachers")
 export class TeachersController {
   constructor(private readonly teachersService: TeachersService) {}

@@ -13,6 +13,7 @@ interface TeacherDialogProps {
   open: boolean;
   statuses: TeacherReference[];
   specializations: TeacherReference[];
+  departments?: TeacherReference[];
   isSaving: boolean;
   onClose: () => void;
   onSave: (values: TeacherFormValues) => Promise<void>;
@@ -21,6 +22,7 @@ interface TeacherDialogProps {
 const EMPTY_VALUES: TeacherFormInput = {
   profile_id: "",
   teacher_number: "",
+  department_id: "",
   specialization_id: "",
   employment_status_id: "",
   join_date: "",
@@ -31,6 +33,7 @@ export function TeacherDialogForm({
   open,
   statuses,
   specializations,
+  departments = [],
   isSaving,
   onClose,
   onSave,
@@ -110,6 +113,19 @@ export function TeacherDialogForm({
               </Select>
               {errors.specialization_id && <p className="text-xs font-medium text-red-500">{errors.specialization_id.message}</p>}
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="teacher-department" className="text-sm font-semibold">Departemen</Label>
+            <Select id="teacher-department" {...register("department_id")} className="h-11">
+              <option value="">Tanpa departemen</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                  {dept.code ? ` (${dept.code})` : ""}
+                </option>
+              ))}
+            </Select>
+            {errors.department_id && <p className="text-xs font-medium text-red-500">{errors.department_id.message}</p>}
           </div>
           <div className="flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
             <Button type="button" variant="outline" onClick={onClose} disabled={isSaving} className="h-10 px-4 text-sm font-semibold">

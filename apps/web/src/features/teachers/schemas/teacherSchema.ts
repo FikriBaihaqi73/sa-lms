@@ -15,6 +15,7 @@ export const teacherFormSchema = z.object({
     .max(100, "NIP maksimal 100 karakter.")
     .describe("Nomor Induk Pegawai atau nomor registrasi guru"),
   specialization_id: optionalUuid.describe("Spesialisasi guru"),
+  department_id: optionalUuid.describe("Departemen guru"),
   employment_status_id: optionalUuid.describe("Status kepegawaian guru"),
   join_date: z
     .string()

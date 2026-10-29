@@ -33,10 +33,13 @@ export const CreateTeacherSchema = z.object({
     .describe("Unique identification/registration number for the teacher"),
   join_date: z
     .string()
-    .datetime()
+    .refine(
+      (val) => !Number.isNaN(Date.parse(val)),
+      "Teacher join date must be a valid date format (YYYY-MM-DD or ISO 8601)",
+    )
     .optional()
     .nullable()
-    .describe("Teacher join date (ISO 8601 format)"),
+    .describe("Teacher join date (YYYY-MM-DD or ISO 8601 format)"),
 });
 
 export const UpdateTeacherSchema = CreateTeacherSchema.partial();

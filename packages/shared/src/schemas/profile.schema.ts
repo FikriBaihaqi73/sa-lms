@@ -9,7 +9,14 @@ export const CreateProfileSchema = z.object({
   identityNumber: z.string().max(255).optional().describe("Identity number"),
   gender: z.string().max(50).optional().describe("Gender"),
   birthPlace: z.string().max(255).optional().describe("Birth place"),
-  birthDate: z.string().datetime().optional().describe("Birth date (ISO 8601)"),
+  birthDate: z
+    .string()
+    .refine(
+      (val) => !Number.isNaN(Date.parse(val)),
+      "Birth date must be a valid date format (YYYY-MM-DD or ISO 8601)",
+    )
+    .optional()
+    .describe("Birth date (YYYY-MM-DD or ISO 8601)"),
   religionId: z.string().uuid().optional().describe("Religion ID"),
   nationalityId: z.string().uuid().optional().describe("Nationality ID"),
   address: z.string().optional().describe("Address"),

@@ -38,6 +38,13 @@ export const teacherSelect = {
       name: true,
     },
   },
+  department: {
+    select: {
+      id: true,
+      name: true,
+      code: true,
+    },
+  },
   _count: {
     select: {
       classSubjects: true,

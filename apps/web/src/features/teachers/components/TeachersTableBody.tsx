@@ -66,6 +66,7 @@ export function TeachersTable({
             <tr>
               <th className="px-5 py-3.5">Guru</th>
               <th className="px-5 py-3.5">NIP</th>
+              <th className="px-5 py-3.5">Departemen</th>
               <th className="px-5 py-3.5">Spesialisasi</th>
               <th className="px-5 py-3.5">Status</th>
               <th className="px-5 py-3.5">Kelas Diampu</th>
