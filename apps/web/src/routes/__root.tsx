@@ -25,7 +25,6 @@ const SUPERADMIN_ONLY_PREFIXES = [
 	"/attendance-statuses",
 	"/institutions",
 	"/assignment-types",
-	"/settings",
 	"/superadmin",
 ];
 
@@ -47,6 +46,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/specializations",
 	"/specialization-statuses",
 	"/class-subjects",
+	"/settings/classrooms",
 ];
 
 function AccessDenied({ message }: { message: string }) {
@@ -103,7 +103,7 @@ function RootLayout() {
 
 	const role = user?.role?.toLowerCase() || "admin";
 	const isSuperadmin = role === "superadmin";
-	const isAdmin = role === "admin" || isSuperadmin;
+	const isAdmin = role === "admin";
 	const isInstitutionAdmin = role === "admin" || !user?.role;
 	const hasExplicitAdminRole = user?.role?.trim().toLowerCase() === "admin";
 

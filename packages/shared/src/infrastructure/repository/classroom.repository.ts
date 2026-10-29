@@ -58,6 +58,16 @@ export class ClassroomRepository {
     });
   }
 
+  async findByRoomCode(roomCode: string): Promise<ClassroomEntity | null> {
+    return this.prisma.classroom.findFirst({
+      where: {
+        roomCode,
+        deletedAt: null,
+      },
+      select: classroomSelect,
+    });
+  }
+
   async findAll(
     page: number,
     limit: number,

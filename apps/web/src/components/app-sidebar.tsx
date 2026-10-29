@@ -209,11 +209,16 @@ export function AppSidebar() {
 									label="Peminatan & Keahlian"
 								/>
 								<NavItem
-									to="/semesters"
-									icon={CalendarRange}
-									label="Semester"
-								/>
-							</div>
+										to="/semesters"
+										icon={CalendarRange}
+										label="Semester"
+									/>
+								<NavItem
+										to="/settings/classrooms"
+										icon={Building2}
+										label="Ruang Kelas"
+									/>
+								</div>
 						</div>
 
 						<div>

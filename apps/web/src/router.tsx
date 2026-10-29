@@ -8,6 +8,7 @@ import { attendanceStatusesRoute } from "./routes/_settings/attendance-statuses/
 import { classStudentsRoute } from "./routes/_settings/class-students/index";
 import { classSubjectsRoute } from "./routes/_settings/class-subjects/index";
 import { classesRoute } from "./routes/_settings/classes/index";
+import { classroomsRoute } from "./routes/_settings/classrooms/index";
 import { departmentsRoute } from "./routes/_settings/departments/index";
 import { employmentStatusesRoute } from "./routes/_settings/employment-statuses/index";
 import { gradesRoute } from "./routes/_settings/grades/index";
@@ -19,8 +20,8 @@ import { religionsRoute } from "./routes/_settings/religions/index";
 import { rolePermissionsRoute } from "./routes/_settings/role-permissions/index";
 import { rolesRoute } from "./routes/_settings/roles/index";
 import { semestersRoute } from "./routes/_settings/semesters/index";
-import { subjectsRoute } from "./routes/_settings/subjects/index";
 import { settingsRouteDef } from "./routes/_settings/settings/index";
+import { subjectsRoute } from "./routes/_settings/subjects/index";
 import { teachersRoute } from "./routes/_settings/teachers/index";
 import { usersRoute } from "./routes/_settings/users/index";
 import { indexRoute } from "./routes/_user/index";
@@ -64,6 +65,7 @@ const settingsTree = settingsRoute.addChildren([
 	classSubjectsRoute,
 	semestersRoute,
 	subjectsRoute,
+	classroomsRoute,
 ]);
 
 const userTree = userRoute.addChildren([indexRoute]);
