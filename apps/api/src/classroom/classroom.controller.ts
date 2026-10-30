@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
@@ -16,6 +17,7 @@ import {
 } from "@repo/shared/schemas/classroom.schema";
 import { ZodValidationPipe } from "nestjs-zod";
 import { ClassroomService } from "./classroom.service";
+import type { Request } from "express";
 
 @ApiTags("Classrooms")
 @ApiBearerAuth("JWT-auth")
@@ -26,13 +28,16 @@ export class ClassroomController {
   @Get()
   @ApiOperation({ summary: "Get all classrooms with pagination and search" })
   async findAll(
+    @Req() req: Request & { user: { sub: string } },
     @Query("page") page: string = "1",
     @Query("limit") limit: string = "10",
     @Query("search") search?: string,
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
+    const userId = req.user.sub;
     const result = await this.classroomService.findAll(
+      userId,
       pageNumber,
       limitNumber,
       {
@@ -50,8 +55,12 @@ export class ClassroomController {
 
   @Get(":id")
   @ApiOperation({ summary: "Get a classroom by ID" })
-  async findOne(@Param("id") id: string) {
-    const classroom = await this.classroomService.findOne(id);
+  async findOne(
+    @Req() req: Request & { user: { sub: string } },
+    @Param("id") id: string,
+  ) {
+    const userId = req.user.sub;
+    const classroom = await this.classroomService.findOne(id, userId);
     return ResponseHelper.success(
       classroom,
       "Classroom detail retrieved successfully",
@@ -60,8 +69,12 @@ export class ClassroomController {
 
   @Post()
   @ApiOperation({ summary: "Create a classroom" })
-  async create(@Body(new ZodValidationPipe()) dto: CreateClassroomDto) {
-    const classroom = await this.classroomService.create(dto);
+  async create(
+    @Req() req: Request & { user: { sub: string } },
+    @Body(new ZodValidationPipe()) dto: CreateClassroomDto,
+  ) {
+    const userId = req.user.sub;
+    const classroom = await this.classroomService.create(userId, dto);
     return ResponseHelper.success(
       classroom,
       "Classroom created successfully",
@@ -72,17 +85,23 @@ export class ClassroomController {
   @Patch(":id")
   @ApiOperation({ summary: "Update a classroom" })
   async update(
+    @Req() req: Request & { user: { sub: string } },
     @Param("id") id: string,
     @Body(new ZodValidationPipe()) dto: UpdateClassroomDto,
   ) {
-    const classroom = await this.classroomService.update(id, dto);
+    const userId = req.user.sub;
+    const classroom = await this.classroomService.update(id, userId, dto);
     return ResponseHelper.success(classroom, "Classroom updated successfully");
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Soft-delete a classroom" })
-  async remove(@Param("id") id: string) {
-    const result = await this.classroomService.remove(id);
+  async remove(
+    @Req() req: Request & { user: { sub: string } },
+    @Param("id") id: string,
+  ) {
+    const userId = req.user.sub;
+    const result = await this.classroomService.remove(id, userId);
     return ResponseHelper.success(result, "Classroom deleted successfully");
   }
 }

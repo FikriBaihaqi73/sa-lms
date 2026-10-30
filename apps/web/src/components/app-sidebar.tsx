@@ -178,17 +178,23 @@ export function AppSidebar() {
 									label="Wali Murid"
 								/>
 								<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
-								<NavItem to="/subjects" icon={BookOpen} label="Mata Pelajaran" />
+								<NavItem
+									to="/subjects"
+									icon={BookOpen}
+									label="Mata Pelajaran"
+								/>
 								<NavItem
 									to="/class-students"
 									icon={UsersRound}
 									label="Kelas Siswa"
 								/>
-								{hasExplicitAdminRole && <NavItem
-									to="/class-subjects"
-									icon={BookOpen}
-									label="Mata Pelajaran Kelas"
-								/>}
+								{hasExplicitAdminRole && (
+									<NavItem
+										to="/class-subjects"
+										icon={BookOpen}
+										label="Mata Pelajaran Kelas"
+									/>
+								)}
 								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
 							</div>
 						</div>
@@ -218,6 +224,11 @@ export function AppSidebar() {
 									to="/subject-prerequisites"
 									icon={GitFork}
 									label="Prasyarat Mata Kuliah"
+								/>
+								<NavItem
+									to="/settings/classrooms"
+									icon={Building2}
+									label="Ruang Kelas"
 								/>
 							</div>
 						</div>
