@@ -48,11 +48,12 @@ export class ClassroomRepository {
     });
   }
 
-  async findById(id: string): Promise<ClassroomEntity | null> {
+  async findById(id: string, institutionId?: string): Promise<ClassroomEntity | null> {
     return this.prisma.classroom.findFirst({
       where: {
         id,
         deletedAt: null,
+        ...(institutionId ? { institutionId } : {}),
       },
       select: classroomSelect,
     });
@@ -72,6 +73,7 @@ export class ClassroomRepository {
     page: number,
     limit: number,
     filters?: ClassroomSearchInput,
+    institutionId?: string,
   ): Promise<{
     data: ClassroomEntity[];
     meta: {
@@ -84,6 +86,7 @@ export class ClassroomRepository {
     const skip = (page - 1) * limit;
     const where = {
       deletedAt: null,
+      ...(institutionId ? { institutionId } : {}),
       ...(filters?.search
         ? {
             OR: [

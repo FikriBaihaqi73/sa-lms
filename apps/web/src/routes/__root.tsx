@@ -46,6 +46,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/specializations",
 	"/specialization-statuses",
 	"/class-subjects",
+	"/subject-prerequisites",
 	"/settings/classrooms",
 ];
 
@@ -107,8 +108,13 @@ function RootLayout() {
 	const isInstitutionAdmin = role === "admin" || !user?.role;
 	const hasExplicitAdminRole = user?.role?.trim().toLowerCase() === "admin";
 
-	if (location.pathname.startsWith("/class-subjects") && !hasExplicitAdminRole) {
-		return <AccessDenied message="Halaman ini membutuhkan hak akses Admin Institusi." />;
+	if (
+		location.pathname.startsWith("/class-subjects") &&
+		!hasExplicitAdminRole
+	) {
+		return (
+			<AccessDenied message="Halaman ini membutuhkan hak akses Admin Institusi." />
+		);
 	}
 
 	// Superadmin manages platform globally; academic grading standards are institution-scoped

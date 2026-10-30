@@ -18,6 +18,7 @@ import { ClassroomHeader } from "./ClassroomHeader";
 import { ClassroomStats } from "./ClassroomStats";
 import { ClassroomTable } from "./ClassroomTable";
 import { DeleteClassroomDialog } from "./DeleteClassroomDialog";
+import { ChevronDown } from "lucide-react";
 
 function errorMessage(error: unknown): string {
 	if (error instanceof ApiError) {
@@ -263,22 +264,24 @@ export function ClassroomPage() {
 								Menampilkan {displayRows.length} dari {totalRooms} data
 							</span>
 							<div className="flex items-center gap-3">
-								<label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-									Per halaman
-									<select
-										value={limit}
-										onChange={(event) => {
-											setLimit(Number(event.target.value));
-											setCurrentPage(1);
-										}}
-										className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
-									>
-										<option value={5}>5</option>
-										<option value={10}>10</option>
-										<option value={20}>20</option>
-										<option value={50}>50</option>
-									</select>
-								</label>
+    							<label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+        							<div className="relative">
+            							<select
+                						value={limit}
+                						onChange={(event) => {
+                    					setLimit(Number(event.target.value));
+                    					setCurrentPage(1);
+                						}}
+                						className="w-full appearance-none rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 pr-8 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+            							>
+                							<option value={5}>5 Perhalaman</option>
+                							<option value={10}>10 Perhalaman</option>
+                							<option value={20}>20 Perhalaman</option>
+                							<option value={50}>50 Perhalaman</option>
+            							</select>
+            							<ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+        							</div>
+    							</label>
 								<div className="flex items-center gap-3">
 									<button
 										type="button"
@@ -286,10 +289,19 @@ export function ClassroomPage() {
 											setCurrentPage((page) => Math.max(1, page - 1))
 										}
 										disabled={currentPage <= 1}
-										className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300"
+										className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-sm font-medium text-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300"
 										aria-label="Halaman sebelumnya"
 									>
-										Sebelumnya
+										&lt;
+									</button>
+									<button
+										type="button"
+										onClick={() => setCurrentPage(currentPage)}
+										className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-700 text-sm font-semibold text-white disabled:opacity-50"
+										aria-current="page"
+										aria-label={`Halaman ${currentPage}`}
+									>
+										{currentPage}
 									</button>
 									<button
 										type="button"
@@ -299,19 +311,10 @@ export function ClassroomPage() {
 											)
 										}
 										disabled={currentPage >= meta.totalPages}
-										className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300"
+										className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-sm font-medium text-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300"
 										aria-label="Halaman berikutnya"
 									>
-										Berikutnya
-									</button>
-									<button
-										type="button"
-										onClick={() => setCurrentPage(currentPage)}
-										className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-700 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-50"
-										aria-current="page"
-										aria-label={`Halaman ${currentPage}`}
-									>
-										{currentPage}
+										&gt;
 									</button>
 								</div>
 							</div>

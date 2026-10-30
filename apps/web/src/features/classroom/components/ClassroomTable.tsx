@@ -79,7 +79,7 @@ export function ClassroomTable({
 							<th className="px-5 py-3.5">Lantai</th>
 							<th className="px-5 py-3.5">Kapasitas</th>
 							{config.scheduleCount && <th className="px-5 py-3.5">Jadwal</th>}
-							<th className="px-5 py-3.5 text-right">Aksi</th>
+							<th className="px-5 py-3.5 text-right">Jadwal</th>
 						</tr>
 					</thead>
 					<tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -131,25 +131,23 @@ export function ClassroomTable({
 									<td className="px-5 py-4" />
 								)}
 								<td className="px-5 py-4 text-right">
-									<div className="flex items-center justify-end gap-1.5 opacity-90 transition-opacity group-hover:opacity-100">
-										<Button
-											variant="outline"
-											size="sm"
+									<div className="flex items-center justify-end gap-3 opacity-90 transition-opacity group-hover:opacity-100">
+										<button
+											type="button"
 											onClick={() => onEdit(item)}
-											className="h-8 px-2.5 text-slate-700 dark:border-slate-700 dark:text-slate-300"
+											className="text-sm font-medium text-slate-300 hover:text-white dark:text-slate-400 dark:hover:text-slate-200"
 											title="Ubah"
 										>
 											Ubah
-										</Button>
-										<Button
-											variant="outline"
-											size="sm"
+										</button>
+										<button
+											type="button"
 											onClick={() => onDelete(item)}
-											className="h-8 px-2.5 text-red-600 dark:border-slate-700 dark:text-red-400"
+											className="text-sm font-medium text-red-400 hover:text-red-300 dark:text-red-400 dark:hover:text-red-300"
 											title="Hapus"
 										>
 											Hapus
-										</Button>
+										</button>
 									</div>
 								</td>
 							</tr>
