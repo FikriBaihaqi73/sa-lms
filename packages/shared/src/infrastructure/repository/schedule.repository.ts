@@ -5,20 +5,23 @@ export interface CreateScheduleInput {
   classSubjectId: string;
   classroomId: string;
   day: string;
-  startTime?: Date | null;
-  endTime?: Date | null;
+  startTime?: Date | null | undefined;
+  endTime?: Date | null | undefined;
 }
 
 export interface UpdateScheduleInput {
-  classSubjectId?: string;
-  classroomId?: string;
-  day?: string;
-  startTime?: Date | null;
-  endTime?: Date | null;
+  classSubjectId?: string | undefined;
+  classroomId?: string | undefined;
+  day?: string | undefined;
+  startTime?: Date | null | undefined;
+  endTime?: Date | null | undefined;
 }
 
 export interface ScheduleSearchInput {
   search?: string | undefined;
+  day?: string | undefined;
+  classroomId?: string | undefined;
+  classSubjectId?: string | undefined;
 }
 
 export class ScheduleRepository {
@@ -81,17 +84,62 @@ export class ScheduleRepository {
     };
   }> {
     const skip = (page - 1) * limit;
-    const where = {
+    const where: Prisma.ScheduleWhereInput = {
       deletedAt: null,
+      ...(filters?.day ? { day: filters.day } : {}),
+      ...(filters?.classroomId ? { classroomId: filters.classroomId } : {}),
+      ...(filters?.classSubjectId
+        ? { classSubjectId: filters.classSubjectId }
+        : {}),
       ...(filters?.search
         ? {
-            day: {
-              contains: filters.search,
-              mode: "insensitive",
-            },
+            OR: [
+              {
+                day: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                classroom: {
+                  roomName: {
+                    contains: filters.search,
+                    mode: "insensitive",
+                  },
+                },
+              },
+              {
+                classroom: {
+                  roomCode: {
+                    contains: filters.search,
+                    mode: "insensitive",
+                  },
+                },
+              },
+              {
+                classSubject: {
+                  subject: {
+                    name: {
+                      contains: filters.search,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+              {
+                classSubject: {
+                  class: {
+                    name: {
+                      contains: filters.search,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            ],
           }
         : {}),
-    } satisfies Prisma.ScheduleWhereInput;
+    };
 
     const [data, totalData] = await Promise.all([
       this.prisma.schedule.findMany({

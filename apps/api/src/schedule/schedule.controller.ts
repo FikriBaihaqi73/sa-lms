@@ -15,10 +15,12 @@ import {
   UpdateScheduleDto,
 } from "@repo/shared/schemas/schedule.schema";
 import { ZodValidationPipe } from "nestjs-zod";
+import { Roles } from "../auth/roles.decorator";
 import { ScheduleService } from "./schedule.service";
 
 @ApiTags("Schedules")
 @ApiBearerAuth("JWT-auth")
+@Roles("admin", "superadmin")
 @Controller("schedules")
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
@@ -29,11 +31,17 @@ export class ScheduleController {
     @Query("page") page: string = "1",
     @Query("limit") limit: string = "10",
     @Query("search") search?: string,
+    @Query("day") day?: string,
+    @Query("classroomId") classroomId?: string,
+    @Query("classSubjectId") classSubjectId?: string,
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
     const result = await this.scheduleService.findAll(pageNumber, limitNumber, {
       search,
+      day,
+      classroomId,
+      classSubjectId,
     });
 
     return ResponseHelper.success(

@@ -6,6 +6,7 @@ import {
 	BookOpenCheck,
 	Briefcase,
 	Building2,
+	Calendar,
 	CalendarRange,
 	ChevronRight,
 	Church,
@@ -213,6 +214,11 @@ export function AppSidebar() {
 									to="/semesters"
 									icon={CalendarRange}
 									label="Semester"
+								/>
+								<NavItem
+									to="/schedules"
+									icon={Calendar}
+									label="Jadwal Pelajaran"
 								/>
 								<NavItem
 									to="/subject-prerequisites"

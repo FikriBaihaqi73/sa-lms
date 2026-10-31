@@ -1,10 +1,30 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { ScheduleRepository } from "@repo/shared/infrastructure/repository/schedule.repository";
+import {
+  ScheduleRepository,
+  type ScheduleSearchInput,
+} from "@repo/shared/infrastructure/repository/schedule.repository";
 import type {
   CreateScheduleDto,
   UpdateScheduleDto,
 } from "@repo/shared/schemas/schedule.schema";
 import { PrismaService } from "../prisma/prisma.service";
+
+function parseTimeString(
+  timeStr: string | null | undefined,
+): Date | null | undefined {
+  if (timeStr === undefined) return undefined;
+  if (timeStr === null || timeStr.trim() === "") return null;
+  const trimmed = timeStr.trim();
+  if (/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/.test(trimmed)) {
+    const parts = trimmed.split(":");
+    const hours = (parts[0] ?? "00").padStart(2, "0");
+    const minutes = (parts[1] ?? "00").padStart(2, "0");
+    const seconds = (parts[2] ?? "00").padStart(2, "0");
+    return new Date(`1970-01-01T${hours}:${minutes}:${seconds}.000Z`);
+  }
+  const parsed = new Date(trimmed);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
 
 @Injectable()
 export class ScheduleService {
@@ -14,11 +34,7 @@ export class ScheduleService {
     this.scheduleRepository = new ScheduleRepository(this.prisma.client);
   }
 
-  async findAll(
-    page: number,
-    limit: number,
-    filters?: { search?: string | undefined },
-  ) {
+  async findAll(page: number, limit: number, filters?: ScheduleSearchInput) {
     return this.scheduleRepository.findAll(page, limit, filters);
   }
 
@@ -29,19 +45,21 @@ export class ScheduleService {
   }
 
   async create(dto: CreateScheduleDto) {
+    const startTime = parseTimeString(dto.startTime);
+    const endTime = parseTimeString(dto.endTime);
     return this.scheduleRepository.create({
       classSubjectId: dto.classSubjectId,
       classroomId: dto.classroomId,
       day: dto.day,
-      ...(dto.startTime !== undefined
-        ? { startTime: new Date(dto.startTime) }
-        : {}),
-      ...(dto.endTime !== undefined ? { endTime: new Date(dto.endTime) } : {}),
+      ...(startTime !== undefined ? { startTime } : {}),
+      ...(endTime !== undefined ? { endTime } : {}),
     });
   }
 
   async update(id: string, dto: UpdateScheduleDto) {
     await this.findOne(id);
+    const startTime = parseTimeString(dto.startTime);
+    const endTime = parseTimeString(dto.endTime);
     return this.scheduleRepository.update(id, {
       ...(dto.classSubjectId !== undefined
         ? { classSubjectId: dto.classSubjectId }
@@ -50,10 +68,8 @@ export class ScheduleService {
         ? { classroomId: dto.classroomId }
         : {}),
       ...(dto.day !== undefined ? { day: dto.day } : {}),
-      ...(dto.startTime !== undefined
-        ? { startTime: new Date(dto.startTime) }
-        : {}),
-      ...(dto.endTime !== undefined ? { endTime: new Date(dto.endTime) } : {}),
+      ...(startTime !== undefined ? { startTime } : {}),
+      ...(endTime !== undefined ? { endTime } : {}),
     });
   }
 

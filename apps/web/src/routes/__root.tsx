@@ -47,6 +47,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/specializations",
 	"/specialization-statuses",
 	"/class-subjects",
+	"/schedules",
 	"/subject-prerequisites",
 ];
 
@@ -166,3 +167,4 @@ function RootLayout() {
 		</div>
 	);
 }
+
