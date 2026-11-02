@@ -59,6 +59,21 @@ export class ClassStudentController {
     return ResponseHelper.success(summary, "Summary retrieved successfully");
   }
 
+  @Get("candidates")
+  @ApiOperation({
+    summary: "Get candidate students available to be assigned to a class",
+  })
+  async getCandidates(@Query("classId") classId?: string) {
+    if (!classId) {
+      return ResponseHelper.success([], "No classId provided");
+    }
+    const candidates = await this.classStudentService.getCandidates(classId);
+    return ResponseHelper.success(
+      candidates,
+      "Candidate students retrieved successfully",
+    );
+  }
+
   @Get(":id")
   @ApiOperation({ summary: "Get class student by ID" })
   async findOne(@Param("id") id: string) {
