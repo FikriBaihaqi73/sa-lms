@@ -49,8 +49,8 @@ function toCreatePayload(
 		roomCode: values.roomCode.trim().toUpperCase(),
 		roomName: values.roomName.trim(),
 		building: normalizeOptionalString(values.building),
-		floor: values.floor,
-		capacity: values.capacity,
+		floor: values.floor ?? null,
+		capacity: values.capacity ?? null,
 		description: normalizeOptionalString(values.description),
 	};
 }
@@ -84,7 +84,7 @@ export function ClassroomPage() {
 	const updateMutation = useUpdateClassroom();
 	const deleteMutation = useDeleteClassroom();
 
-	const rows = listQuery.data?.data ?? [];
+	const rows = useMemo(() => listQuery.data?.data ?? [], [listQuery.data?.data]);
 	const meta = listQuery.data?.meta ?? null;
 
 	const buildings = useMemo(() => {
@@ -154,8 +154,8 @@ export function ClassroomPage() {
 					roomCode: values.roomCode.trim().toUpperCase(),
 					roomName: values.roomName.trim(),
 					building: normalizeOptionalString(values.building),
-					floor: values.floor,
-					capacity: values.capacity,
+					floor: values.floor ?? null,
+					capacity: values.capacity ?? null,
 					description: normalizeOptionalString(values.description),
 				},
 			});

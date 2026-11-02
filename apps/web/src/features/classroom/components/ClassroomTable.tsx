@@ -105,10 +105,12 @@ export function ClassroomTable({
 									{item.building ?? ""}
 								</td>
 								<td className="px-5 py-4 text-slate-600 dark:text-slate-400">
-									{item.floor ? `Lantai ${item.floor}` : ""}
+									{item.floor !== null && item.floor !== undefined
+										? `Lantai ${item.floor}`
+										: "-"}
 								</td>
 								<td className="px-5 py-4 text-slate-600 dark:text-slate-400">
-									{item.capacity ? `${item.capacity} kursi` : ""}
+									{item.capacity ? `${item.capacity} kursi` : "-"}
 								</td>
 								{config.scheduleCount ? (
 									<td className="px-5 py-4 text-slate-600 dark:text-slate-400">

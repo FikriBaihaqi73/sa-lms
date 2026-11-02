@@ -16,23 +16,30 @@ export const classroomFormSchema = z
 			.string()
 			.trim()
 			.max(255, "Gedung maksimal 255 karakter")
-			.transform((v) => (v === "" ? undefined : v))
+			.nullable()
 			.optional(),
 		floor: z
-			.number()
+			.number({ message: "Lantai harus berupa bilangan bulat." })
 			.int("Lantai harus berupa bilangan bulat.")
 			.min(0, "Lantai tidak boleh negatif.")
+			.nullable()
 			.optional(),
 		capacity: z
-			.number()
+			.number({ message: "Kapasitas harus berupa bilangan bulat." })
 			.int("Kapasitas harus berupa bilangan bulat.")
 			.min(1, "Kapasitas minimal 1 kursi.")
+			.nullable()
 			.optional(),
-		description: z.string().trim().optional(),
+		description: z.string().trim().nullable().optional(),
 	})
 	.refine(
 		(data) => {
-			if (data.floor !== undefined && data.capacity !== undefined) {
+			if (
+				data.floor !== undefined &&
+				data.floor !== null &&
+				data.capacity !== undefined &&
+				data.capacity !== null
+			) {
 				return data.capacity >= data.floor;
 			}
 			return true;
