@@ -80,6 +80,28 @@ export class ProfileController {
     return ResponseHelper.success(updated, "Profile updated successfully");
   }
 
+  @Get("student-options")
+  @Roles("admin")
+  @ApiOperation({
+    summary: "Get institution-scoped profiles available for student creation",
+  })
+  async studentOptions(
+    @Req() req: { user: { sub: string } },
+    @Query("page", new ParseIntPipe({ optional: true })) page?: number,
+    @Query("limit", new ParseIntPipe({ optional: true })) limit?: number,
+    @Query("search") search?: string,
+  ) {
+    return ResponseHelper.success(
+      await this.profileService.studentOptions(
+        req.user.sub,
+        page,
+        limit,
+        search,
+      ),
+      "Student profile options retrieved successfully",
+    );
+  }
+
   @Get(":id")
   @ApiOperation({ summary: "Get profile by ID" })
   async findOne(@Param("id") id: string) {

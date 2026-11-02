@@ -181,7 +181,8 @@ describe("DepartmentsService", () => {
           updated_at: new Date(),
           deleted_at: null,
           teachers: [],
-          subjects: [],
+          institution_id: null,
+          _count: { subjects: 0, teachers: 0 },
         });
 
       const result = await service.create({ name: "Science", code: "SCI" });
@@ -202,7 +203,8 @@ describe("DepartmentsService", () => {
           updated_at: new Date(),
           deleted_at: null,
           teachers: [],
-          subjects: [],
+          institution_id: null,
+          _count: { subjects: 0, teachers: 0 },
         });
 
       await expect(
@@ -224,7 +226,8 @@ describe("DepartmentsService", () => {
           updated_at: new Date(),
           deleted_at: null,
           teachers: [],
-          subjects: [],
+          institution_id: null,
+          _count: { subjects: 0, teachers: 0 },
         });
 
       await expect(

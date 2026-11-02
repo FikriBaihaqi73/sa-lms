@@ -5,6 +5,7 @@ import {
   type CreateClassSubjectDto,
 } from "@repo/shared/schemas/class-subject.schema";
 import "reflect-metadata";
+import type { Request } from "express";
 import { ROLES_KEY } from "../auth/roles.decorator";
 import { ClassSubjectController } from "./class-subject.controller";
 import { ClassSubjectService } from "./class-subject.service";
@@ -26,7 +27,7 @@ describe("ClassSubjectController", () => {
     update: jest.fn(),
     remove: jest.fn(),
   };
-  const request = { user: { sub: "user-1" } };
+  const request = { user: { sub: "user-1" } } as Request & { user: { sub: string } };
   const record = {
     id: "cs-1",
     class_id: "class-1",

@@ -57,11 +57,17 @@ export class StudentRepository {
     });
   }
 
-  async findById(id: string): Promise<StudentEntity | null> {
+  async findById(
+    id: string,
+    institutionId?: string,
+  ): Promise<StudentEntity | null> {
     return this.prisma.student.findFirst({
       where: {
         id,
         deletedAt: null,
+        ...(institutionId !== undefined
+          ? { profile: { institutionId } }
+          : {}),
       },
       select: studentSelect,
     });
@@ -172,10 +178,17 @@ export class StudentRepository {
     };
   }
 
-  async update(id: string, data: UpdateStudentInput): Promise<StudentEntity> {
+  async update(
+    id: string,
+    data: UpdateStudentInput,
+    institutionId?: string,
+  ): Promise<StudentEntity> {
     return this.prisma.student.update({
       where: {
         id,
+        ...(institutionId !== undefined
+          ? { profile: { institutionId } }
+          : {}),
       },
       data: {
         ...(data.departmentId !== undefined && {
@@ -203,10 +216,16 @@ export class StudentRepository {
     });
   }
 
-  async delete(id: string): Promise<StudentEntity> {
+  async delete(
+    id: string,
+    institutionId?: string,
+  ): Promise<StudentEntity> {
     return this.prisma.student.update({
       where: {
         id,
+        ...(institutionId !== undefined
+          ? { profile: { institutionId } }
+          : {}),
       },
       data: {
         deletedAt: new Date(),

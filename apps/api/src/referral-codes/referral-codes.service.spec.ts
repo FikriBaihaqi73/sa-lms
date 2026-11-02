@@ -91,6 +91,7 @@ describe("ReferralCodesService", () => {
       const response = await service.create(
         {
           usageQuota: 10,
+          isActive: true,
           enrollmentYear: 2026,
           departmentId: "dept-uuid-1",
         },
@@ -113,6 +114,7 @@ describe("ReferralCodesService", () => {
         service.create(
           {
             code: "REF-2026-ABC123",
+            isActive: true,
           },
           "user-uuid-1",
         ),
@@ -132,6 +134,7 @@ describe("ReferralCodesService", () => {
         service.create(
           {
             departmentId: "dept-not-found",
+            isActive: true,
           },
           "user-uuid-1",
         ),
@@ -157,6 +160,8 @@ describe("ReferralCodesService", () => {
       );
 
       expect(response.status).toBe("success");
+      expect(response.data).not.toBeNull();
+      if (!response.data) throw new Error("Missing response data");
       expect(response.data.data).toHaveLength(1);
     });
   });
@@ -194,6 +199,8 @@ describe("ReferralCodesService", () => {
 
       const response = await service.update("ref-uuid-1", { usageQuota: 25 });
       expect(response.status).toBe("success");
+      expect(response.data).not.toBeNull();
+      if (!response.data) throw new Error("Missing response data");
       expect(response.data.usage_quota).toBe(25);
     });
 
@@ -219,6 +226,8 @@ describe("ReferralCodesService", () => {
 
       const response = await service.toggleActive("ref-uuid-1");
       expect(response.status).toBe("success");
+      expect(response.data).not.toBeNull();
+      if (!response.data) throw new Error("Missing response data");
       expect(response.data.is_active).toBe(false);
       expect(response.message).toContain("dinonaktifkan");
     });
@@ -235,6 +244,8 @@ describe("ReferralCodesService", () => {
 
       const response = await service.delete("ref-uuid-1");
       expect(response.status).toBe("success");
+      expect(response.data).not.toBeNull();
+      if (!response.data) throw new Error("Missing response data");
       expect(response.data.deleted_at).toBeDefined();
     });
   });

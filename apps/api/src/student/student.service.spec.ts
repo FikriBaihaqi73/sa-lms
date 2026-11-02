@@ -1,5 +1,14 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
-import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
+import type { StudentEntity } from "@repo/shared/entities/student.entity";
+import {
+  type FindAllStudentResult,
+  StudentRepository,
+} from "@repo/shared/infrastructure/repository/students.repository";
 import type {
   CreateStudentDto,
   UpdateStudentDto,
@@ -17,6 +26,9 @@ jest.mock("../prisma/prisma.service", () => ({
         count: jest.fn(),
         update: jest.fn(),
       },
+      profile: {
+        findFirst: jest.fn(),
+      },
     };
   },
 }));
@@ -24,6 +36,7 @@ jest.mock("../prisma/prisma.service", () => ({
 describe("StudentService", () => {
   let service: StudentService;
   const mockPrismaClient = {
+    departments: { findFirst: jest.fn() },
     student: {
       create: jest.fn(),
       findFirst: jest.fn(),
@@ -31,13 +44,20 @@ describe("StudentService", () => {
       count: jest.fn(),
       update: jest.fn(),
     },
+    profile: {
+      findFirst: jest.fn(),
+    },
   };
 
   const mockPrismaService = {
     client: mockPrismaClient,
   } as unknown as PrismaService;
 
-  const sampleStudentEntity = {
+  const ADMIN_USER_ID = "admin-user-uuid-a";
+  const INSTITUTION_A = "institution-uuid-a";
+  const INSTITUTION_B = "institution-uuid-b";
+
+  const sampleStudentEntity: StudentEntity = {
     id: "student-uuid-1",
     profileId: "profile-uuid-1",
     departmentId: "dept-uuid-1",
@@ -51,14 +71,37 @@ describe("StudentService", () => {
     deletedAt: null,
     profile: {
       id: "profile-uuid-1",
+      userId: "user-uuid-1",
+      institutionId: INSTITUTION_A,
+      roleId: "role-uuid-1",
       fullName: "Budi Santoso",
+      identityNumber: null,
+      gender: null,
+      birthPlace: null,
+      birthDate: null,
+      religionId: null,
+      nationalityId: null,
+      address: null,
+      phoneNumber: null,
       email: "budi@example.com",
+      photoUrl: null,
+      institution: {
+        id: INSTITUTION_A,
+        name: "Institution A",
+        shortName: "Inst A",
+      },
+      role: {
+        id: "role-uuid-1",
+        name: "student",
+      },
     },
+    assignmentSubmissions: [],
   };
 
   beforeEach(() => {
     service = new StudentService(mockPrismaService);
     jest.clearAllMocks();
+    mockPrismaClient.departments.findFirst.mockResolvedValue({ id: "dept-uuid-1" });
     jest
       .spyOn(StudentRepository.prototype, "findByProfileId")
       .mockResolvedValue(null);
@@ -73,6 +116,10 @@ describe("StudentService", () => {
 
   describe("create", () => {
     it("throws ConflictException when profile is already registered as a student", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        id: "profile-uuid-1",
+        institutionId: INSTITUTION_A,
+      });
       jest
         .spyOn(StudentRepository.prototype, "findByProfileId")
         .mockResolvedValue(sampleStudentEntity);
@@ -83,12 +130,16 @@ describe("StudentService", () => {
         studentNumber: "20260001",
       };
 
-      await expect(service.create(dto)).rejects.toBeInstanceOf(
+      await expect(service.create(dto, ADMIN_USER_ID)).rejects.toBeInstanceOf(
         ConflictException,
       );
     });
 
     it("throws ConflictException when student number is already in use", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        id: "profile-uuid-2",
+        institutionId: INSTITUTION_A,
+      });
       jest
         .spyOn(StudentRepository.prototype, "findByStudentNumber")
         .mockResolvedValue(sampleStudentEntity);
@@ -99,12 +150,86 @@ describe("StudentService", () => {
         studentNumber: "20260001",
       };
 
-      await expect(service.create(dto)).rejects.toBeInstanceOf(
+      await expect(service.create(dto, ADMIN_USER_ID)).rejects.toBeInstanceOf(
         ConflictException,
       );
     });
 
+    it("throws ForbiddenException when profile belongs to a different institution", async () => {
+      mockPrismaClient.profile.findFirst.mockImplementation(
+        async ({ where }: { where: { userId?: string; id?: string } }) => {
+          if (where.userId) {
+            return { id: "admin-profile-uuid", institutionId: INSTITUTION_A };
+          }
+          if (where.id === "profile-uuid-2") {
+            return { id: "profile-uuid-2", institutionId: INSTITUTION_B };
+          }
+          return null;
+        },
+      );
+
+      const dto: CreateStudentDto = {
+        profileId: "profile-uuid-2",
+        academicStatusId: "status-uuid-1",
+        studentNumber: "20260002",
+      };
+
+      await expect(service.create(dto, ADMIN_USER_ID)).rejects.toBeInstanceOf(
+        ForbiddenException,
+      );
+    });
+
+    it("throws ForbiddenException when user has no profile/institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue(null);
+
+      const dto: CreateStudentDto = {
+        academicStatusId: "status-uuid-1",
+        studentNumber: "20260003",
+      };
+
+      await expect(service.create(dto, ADMIN_USER_ID)).rejects.toBeInstanceOf(
+        ForbiddenException,
+      );
+    });
+
+    it("creates a student successfully when profile belongs to same institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        id: "profile-uuid-1",
+        institutionId: INSTITUTION_A,
+      });
+      jest
+        .spyOn(StudentRepository.prototype, "create")
+        .mockResolvedValue(sampleStudentEntity);
+
+      const dto: CreateStudentDto = {
+        profileId: "profile-uuid-1",
+        departmentId: "dept-uuid-1",
+        academicStatusId: "status-uuid-1",
+        studentNumber: "20260002",
+        enrollmentYear: 2026,
+        referralCode: "REF-2026-ABC",
+        referralExpiresAt: "2026-12-31",
+      };
+
+      const result = await service.create(dto, ADMIN_USER_ID);
+
+      expect(mockPrismaClient.profile.findFirst).toHaveBeenCalledWith({
+        where: { userId: ADMIN_USER_ID, deletedAt: null },
+        select: { institutionId: true },
+      });
+      expect(result).toEqual({
+        code: 200,
+        status: "success",
+        message: "Student successfully created",
+        data: sampleStudentEntity,
+      });
+    });
+
     it("creates a student with referralCode and referralExpiresAt", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        id: "profile-uuid-1",
+        institutionId: INSTITUTION_A,
+      });
       const createSpy = jest
         .spyOn(StudentRepository.prototype, "create")
         .mockResolvedValue(sampleStudentEntity);
@@ -119,7 +244,7 @@ describe("StudentService", () => {
         referralExpiresAt: "2026-12-31",
       };
 
-      const result = await service.create(dto);
+      const result = await service.create(dto, ADMIN_USER_ID);
 
       expect(createSpy).toHaveBeenCalledWith({
         profileId: "profile-uuid-1",
@@ -139,7 +264,11 @@ describe("StudentService", () => {
     });
 
     it("creates a student with minimal fields", async () => {
-      const studentWithoutOptional = {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        id: "profile-uuid-1",
+        institutionId: INSTITUTION_A,
+      });
+      const studentWithoutOptional: StudentEntity = {
         ...sampleStudentEntity,
         departmentId: null,
         enrollmentYear: null,
@@ -157,7 +286,7 @@ describe("StudentService", () => {
         studentNumber: "20260002",
       };
 
-      const result = await service.create(dto);
+      const result = await service.create(dto, ADMIN_USER_ID);
 
       expect(createSpy).toHaveBeenCalledWith({
         profileId: "profile-uuid-1",
@@ -167,8 +296,11 @@ describe("StudentService", () => {
       expect(result.data).toEqual(studentWithoutOptional);
     });
 
-    it("creates a student without profileId (profileId is omitted)", async () => {
-      const studentWithoutProfile = {
+    it("rejects a student without profileId", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
+      const studentWithoutProfile: StudentEntity = {
         ...sampleStudentEntity,
         profileId: null,
         profile: null,
@@ -188,20 +320,19 @@ describe("StudentService", () => {
         studentNumber: "20260003",
       };
 
-      const result = await service.create(dto);
+      await expect(service.create(dto, ADMIN_USER_ID)).rejects.toBeInstanceOf(BadRequestException);
 
       expect(findProfileSpy).not.toHaveBeenCalled();
-      expect(createSpy).toHaveBeenCalledWith({
-        academicStatusId: "status-uuid-1",
-        studentNumber: "20260003",
-      });
-      expect(result.data).toEqual(studentWithoutProfile);
+      expect(createSpy).not.toHaveBeenCalled();
     });
   });
 
   describe("findAll", () => {
     it("returns paginated students with default parameters", async () => {
-      const pagedResult = {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
+      const pagedResult: FindAllStudentResult = {
         data: [sampleStudentEntity],
         meta: {
           page: 1,
@@ -215,11 +346,16 @@ describe("StudentService", () => {
         .spyOn(StudentRepository.prototype, "findAll")
         .mockResolvedValue(pagedResult);
 
-      const result = await service.findAll();
+      const result = await service.findAll(ADMIN_USER_ID);
 
+      expect(mockPrismaClient.profile.findFirst).toHaveBeenCalledWith({
+        where: { userId: ADMIN_USER_ID, deletedAt: null },
+        select: { institutionId: true },
+      });
       expect(findAllSpy).toHaveBeenCalledWith({
         page: 1,
         limit: 10,
+        institutionId: INSTITUTION_A,
       });
       expect(result).toEqual({
         code: 200,
@@ -230,7 +366,10 @@ describe("StudentService", () => {
     });
 
     it("passes search query and custom pagination", async () => {
-      const pagedResult = {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
+      const pagedResult: FindAllStudentResult = {
         data: [sampleStudentEntity],
         meta: {
           page: 2,
@@ -244,25 +383,51 @@ describe("StudentService", () => {
         .spyOn(StudentRepository.prototype, "findAll")
         .mockResolvedValue(pagedResult);
 
-      const result = await service.findAll(2, 5, "REF-2026");
+      const result = await service.findAll(ADMIN_USER_ID, 2, 5, "REF-2026");
 
       expect(findAllSpy).toHaveBeenCalledWith({
         page: 2,
         limit: 5,
+        institutionId: INSTITUTION_A,
         search: "REF-2026",
       });
       expect(result.data).toEqual(pagedResult);
     });
+
+    it("throws ForbiddenException when user has no institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.findAll(ADMIN_USER_ID, 1, 10),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+    });
+
+    it("rejects a profile without an institution id", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: null,
+      });
+
+      await expect(service.findAll(ADMIN_USER_ID)).rejects.toBeInstanceOf(
+        ForbiddenException,
+      );
+    });
   });
 
   describe("findById", () => {
-    it("returns a student by ID", async () => {
+    it("returns a student by ID within the same institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
       jest
         .spyOn(StudentRepository.prototype, "findById")
         .mockResolvedValue(sampleStudentEntity);
 
-      const result = await service.findById("student-uuid-1");
+      const result = await service.findById(ADMIN_USER_ID, "student-uuid-1");
 
+      expect(mockPrismaClient.profile.findFirst).toHaveBeenCalledWith({
+        where: { userId: ADMIN_USER_ID, deletedAt: null },
+        select: { institutionId: true },
+      });
       expect(result).toEqual({
         code: 200,
         status: "success",
@@ -271,23 +436,36 @@ describe("StudentService", () => {
       });
     });
 
-    it("throws NotFoundException when student is not found", async () => {
+    it("throws NotFoundException when student belongs to another institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
       jest
         .spyOn(StudentRepository.prototype, "findById")
         .mockResolvedValue(null);
 
-      await expect(service.findById("non-existent")).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.findById(ADMIN_USER_ID, "student-uuid-other-institution"),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it("throws ForbiddenException when user has no institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.findById(ADMIN_USER_ID, "student-uuid-1"),
+      ).rejects.toBeInstanceOf(ForbiddenException);
     });
   });
 
   describe("update", () => {
-    it("updates student with new referralCode and referralExpiresAt", async () => {
-      const updatedEntity = {
+    it("updates student within the same institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
+      const updatedEntity: StudentEntity = {
         ...sampleStudentEntity,
         referralCode: "NEW-CODE",
-        referralExpiresAt: new Date("2027-01-01T00:00:00.000Z"),
       };
 
       jest
@@ -300,15 +478,15 @@ describe("StudentService", () => {
 
       const dto: UpdateStudentDto = {
         referralCode: "NEW-CODE",
-        referralExpiresAt: "2027-01-01",
       };
 
-      const result = await service.update("student-uuid-1", dto);
+      const result = await service.update(ADMIN_USER_ID, "student-uuid-1", dto);
 
-      expect(updateSpy).toHaveBeenCalledWith("student-uuid-1", {
-        referralCode: "NEW-CODE",
-        referralExpiresAt: "2027-01-01",
-      });
+      expect(updateSpy).toHaveBeenCalledWith(
+        "student-uuid-1",
+        { referralCode: "NEW-CODE" },
+        INSTITUTION_A,
+      );
       expect(result).toEqual({
         code: 200,
         status: "success",
@@ -317,19 +495,37 @@ describe("StudentService", () => {
       });
     });
 
-    it("throws NotFoundException when updating non-existent student", async () => {
+    it("throws NotFoundException when updating student from another institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
       jest
         .spyOn(StudentRepository.prototype, "findById")
         .mockResolvedValue(null);
 
       await expect(
-        service.update("non-existent", { studentNumber: "20269999" }),
+        service.update(ADMIN_USER_ID, "student-uuid-1", {
+          studentNumber: "20269999",
+        }),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it("throws ForbiddenException when user has no institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.update(ADMIN_USER_ID, "student-uuid-1", {
+          studentNumber: "20269999",
+        }),
+      ).rejects.toBeInstanceOf(ForbiddenException);
     });
   });
 
   describe("delete", () => {
-    it("deletes student when found", async () => {
+    it("deletes student within the same institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
       jest
         .spyOn(StudentRepository.prototype, "findById")
         .mockResolvedValue(sampleStudentEntity);
@@ -338,9 +534,9 @@ describe("StudentService", () => {
         .spyOn(StudentRepository.prototype, "delete")
         .mockResolvedValue(sampleStudentEntity);
 
-      const result = await service.delete("student-uuid-1");
+      const result = await service.delete(ADMIN_USER_ID, "student-uuid-1");
 
-      expect(deleteSpy).toHaveBeenCalledWith("student-uuid-1");
+      expect(deleteSpy).toHaveBeenCalledWith("student-uuid-1", INSTITUTION_A);
       expect(result).toEqual({
         code: 200,
         status: "success",
@@ -349,14 +545,25 @@ describe("StudentService", () => {
       });
     });
 
-    it("throws NotFoundException when deleting non-existent student", async () => {
+    it("throws NotFoundException when deleting student from another institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue({
+        institutionId: INSTITUTION_A,
+      });
       jest
         .spyOn(StudentRepository.prototype, "findById")
         .mockResolvedValue(null);
 
-      await expect(service.delete("non-existent")).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.delete(ADMIN_USER_ID, "student-uuid-1"),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it("throws ForbiddenException when user has no institution", async () => {
+      mockPrismaClient.profile.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.delete(ADMIN_USER_ID, "student-uuid-1"),
+      ).rejects.toBeInstanceOf(ForbiddenException);
     });
   });
 });
