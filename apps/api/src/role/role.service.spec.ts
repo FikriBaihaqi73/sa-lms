@@ -191,6 +191,7 @@ describe("RoleService", () => {
 
       const dto: CreateRoleDto = {
         name: "Teacher",
+        permissionIds: [],
       };
 
       await expect(service.create(dto)).rejects.toThrow(ConflictException);

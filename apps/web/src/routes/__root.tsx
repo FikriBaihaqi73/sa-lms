@@ -102,10 +102,10 @@ function RootLayout() {
 		return null;
 	}
 
-	const role = user?.role?.toLowerCase() || "admin";
+	const role = user?.role?.toLowerCase() ?? null;
 	const isSuperadmin = role === "superadmin";
 	const isAdmin = role === "admin";
-	const isInstitutionAdmin = role === "admin" || !user?.role;
+	const isInstitutionAdmin = role === "admin";
 	const hasExplicitAdminRole = user?.role?.trim().toLowerCase() === "admin";
 
 	if (

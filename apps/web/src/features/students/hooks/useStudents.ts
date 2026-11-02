@@ -43,7 +43,12 @@ export const useCreateStudent = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateStudentInput) => createStudentApi(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: STUDENTS_QUERY_KEY }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: STUDENTS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: ["student-profile-options"] }),
+      ]);
+    },
   });
 };
 

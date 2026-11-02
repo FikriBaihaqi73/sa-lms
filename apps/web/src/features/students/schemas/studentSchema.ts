@@ -12,7 +12,7 @@ const optionalUuid = z
   .or(z.literal(""));
 
 export const studentFormSchema = z.object({
-  profileId: optionalUuid.describe("Profil mahasiswa (opsional)"),
+  profileId: z.string().uuid("Profil mahasiswa wajib dipilih.").describe("Profil mahasiswa (wajib)"),
   departmentId: optionalUuid.describe("Departemen mahasiswa"),
   academicStatusId: z.string().uuid("Status akademik wajib dipilih."),
   studentNumber: z.string().trim().min(1, "Nomor mahasiswa wajib diisi."),

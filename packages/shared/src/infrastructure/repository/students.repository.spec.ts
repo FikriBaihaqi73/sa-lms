@@ -150,6 +150,38 @@ describe("StudentRepository", () => {
 
       expect(result).toBeNull();
     });
+
+    it("filters by institutionId when finding by ID", async () => {
+      student.findFirst.mockResolvedValue(sampleStudent);
+
+      const result = await repository.findById("student-uuid-1", "institution-uuid-a");
+
+      expect(result).toEqual(sampleStudent);
+      expect(student.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: "student-uuid-1",
+          deletedAt: null,
+          profile: { institutionId: "institution-uuid-a" },
+        },
+        select: expect.any(Object),
+      });
+    });
+
+    it("returns null when student belongs to another institution", async () => {
+      student.findFirst.mockResolvedValue(null);
+
+      const result = await repository.findById("student-uuid-1", "institution-uuid-b");
+
+      expect(result).toBeNull();
+      expect(student.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: "student-uuid-1",
+          deletedAt: null,
+          profile: { institutionId: "institution-uuid-b" },
+        },
+        select: expect.any(Object),
+      });
+    });
   });
 
   describe("findByStudentNumber", () => {
@@ -208,6 +240,35 @@ describe("StudentRepository", () => {
         skip: 0,
         take: 10,
         orderBy: { createdAt: "desc" },
+      });
+    });
+
+    it("filters by institutionId in findAll", async () => {
+      student.findMany.mockResolvedValue([sampleStudent]);
+      student.count.mockResolvedValue(1);
+
+      const result = await repository.findAll({
+        page: 1,
+        limit: 10,
+        institutionId: "institution-uuid-a",
+      });
+
+      expect(result.data).toEqual([sampleStudent]);
+      expect(student.findMany).toHaveBeenCalledWith({
+        where: {
+          deletedAt: null,
+          profile: { institutionId: "institution-uuid-a" },
+        },
+        select: expect.any(Object),
+        skip: 0,
+        take: 10,
+        orderBy: { createdAt: "desc" },
+      });
+      expect(student.count).toHaveBeenCalledWith({
+        where: {
+          deletedAt: null,
+          profile: { institutionId: "institution-uuid-a" },
+        },
       });
     });
 
@@ -291,6 +352,32 @@ describe("StudentRepository", () => {
         select: expect.any(Object),
       });
     });
+
+    it("filters by institutionId when updating", async () => {
+      const updated = {
+        ...sampleStudent,
+        referralCode: "NEW-CODE",
+      };
+      student.update.mockResolvedValue(updated);
+
+      const result = await repository.update(
+        "student-uuid-1",
+        { referralCode: "NEW-CODE" },
+        "institution-uuid-a",
+      );
+
+      expect(result).toEqual(updated);
+      expect(student.update).toHaveBeenCalledWith({
+        where: {
+          id: "student-uuid-1",
+          profile: { institutionId: "institution-uuid-a" },
+        },
+        data: {
+          referralCode: "NEW-CODE",
+        },
+        select: expect.any(Object),
+      });
+    });
   });
 
   describe("delete", () => {
@@ -306,6 +393,29 @@ describe("StudentRepository", () => {
       expect(result).toEqual(deletedStudent);
       expect(student.update).toHaveBeenCalledWith({
         where: { id: "student-uuid-1" },
+        data: { deletedAt: expect.any(Date) },
+        select: expect.any(Object),
+      });
+    });
+
+    it("filters by institutionId when deleting", async () => {
+      const deletedStudent = {
+        ...sampleStudent,
+        deletedAt: new Date(),
+      };
+      student.update.mockResolvedValue(deletedStudent);
+
+      const result = await repository.delete(
+        "student-uuid-1",
+        "institution-uuid-a",
+      );
+
+      expect(result).toEqual(deletedStudent);
+      expect(student.update).toHaveBeenCalledWith({
+        where: {
+          id: "student-uuid-1",
+          profile: { institutionId: "institution-uuid-a" },
+        },
         data: { deletedAt: expect.any(Date) },
         select: expect.any(Object),
       });

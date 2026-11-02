@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { ProfileRepository } from "@repo/shared/infrastructure/repository/profile.repository";
 import type {
   CreateProfileDto,
@@ -20,6 +24,21 @@ export class ProfileService {
       limit,
       ...(search !== undefined ? { search } : {}),
     });
+  }
+
+  async studentOptions(userId: string, page = 1, limit = 20, search?: string) {
+    const profile = await this.prisma.client.profile.findFirst({
+      where: { userId, deletedAt: null },
+      select: { institutionId: true },
+    });
+    if (!profile?.institutionId)
+      throw new ForbiddenException("Institution access is required");
+    return this.profileRepository.studentOptions(
+      profile.institutionId,
+      page,
+      limit,
+      search,
+    );
   }
 
   async findOne(id: string) {

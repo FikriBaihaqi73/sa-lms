@@ -161,6 +161,9 @@ export function AppSidebar() {
 									icon={UserPlus}
 									label="Tambah Siswa"
 								/>
+								{hasExplicitAdminRole && (
+									<NavItem to="/students" icon={GraduationCap} label="Data Siswa" />
+								)}
 								<NavItem
 									to="/student-guardians"
 									icon={UsersRound}

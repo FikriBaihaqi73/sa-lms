@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { useStudentProfilesForInstitution } from "../hooks/useStudentProfilesForInstitution";
+import { useDebounce } from "@/hooks/useDebounce";
 import { studentFormSchema, type StudentFormInput, type StudentFormValues } from "../schemas/studentSchema";
 import { defaultReferralExpiry, generateReferralCode, isReferralExpired } from "../utils/referralCode";
 import type { Student, StudentDepartment } from "../types";
@@ -55,6 +57,11 @@ export function StudentDialog({ open, student, departments, academicStatuses, is
     resolver: zodResolver(studentFormSchema),
     defaultValues: EMPTY_VALUES,
   });
+
+  // Hook to fetch profiles belonging to the admin's institution
+  const [profileSearch, setProfileSearch] = useState("");
+  const debouncedProfileSearch = useDebounce(profileSearch);
+  const { data: profiles, isLoading: loadingProfiles, isError: errorProfiles, hasNextPage, fetchNextPage, isFetchingNextPage } = useStudentProfilesForInstitution(debouncedProfileSearch, open && !isEditing);
 
   const [referralCode, referralExpiresAt] = useWatch({
     control,
@@ -124,6 +131,25 @@ export function StudentDialog({ open, student, departments, academicStatuses, is
         </div>
 
         <form onSubmit={handleSubmit(onSave)} className="space-y-4 p-6">
+          <div className="space-y-2">
+            <Label htmlFor="student-profile" className="text-sm font-semibold">Profil Siswa <span className="text-red-500">*</span></Label>
+            {isEditing ? (
+              <><input type="hidden" {...register("profileId")} /><p className="text-sm">{student?.profile?.fullName || "Profil tidak tersedia"}</p></>
+            ) : (
+              <>
+              <Input aria-label="Cari profil siswa" value={profileSearch} onChange={(event) => { setProfileSearch(event.target.value); setValue("profileId", "", { shouldValidate: false }); }} placeholder="Cari nama atau email" />
+              <Select id="student-profile" {...register("profileId")} className="h-11" disabled={isSaving || loadingProfiles}>
+                <option value="">Pilih profil siswa</option>
+                {loadingProfiles && <option disabled>Memuat profil…</option>}
+                {errorProfiles && <option disabled>Gagal memuat profil</option>}
+                {!loadingProfiles && !errorProfiles && !profiles?.pages.some((page) => page.data.length) && <option disabled>Tidak ada profil tersedia</option>}
+                {profiles?.pages.flatMap((page) => page.data).map((p) => <option key={p.id} value={p.id}>{p.fullName}{p.email ? ` (${p.email})` : ""}</option>)}
+              </Select>
+              {hasNextPage && <Button type="button" variant="outline" disabled={isFetchingNextPage} onClick={() => void fetchNextPage()}>{isFetchingNextPage ? "Memuat..." : "Muat profil berikutnya"}</Button>}
+              </>
+            )}
+            {errors.profileId && <p className="text-xs font-medium text-red-500">{errors.profileId.message}</p>}
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="student-number" className="text-sm font-semibold">
