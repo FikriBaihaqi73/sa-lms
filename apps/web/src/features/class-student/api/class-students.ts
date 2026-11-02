@@ -237,10 +237,22 @@ export async function getCandidateStudentsApi(
 	classId: string,
 ): Promise<CandidateStudentItem[]> {
 	try {
-		const response: ApiResponse<CandidateStudentItem[]> = await apiFetch(
+		const response = (await apiFetch(
 			`/class-students/candidates?classId=${encodeURIComponent(classId)}`,
-		);
-		return response.data ?? [];
+		)) as ApiResponse<CandidateStudentItem[] | { data?: CandidateStudentItem[] }>;
+
+		const raw = response.data;
+		if (Array.isArray(raw)) {
+			return raw;
+		}
+		if (
+			raw &&
+			typeof raw === "object" &&
+			Array.isArray((raw as { data?: CandidateStudentItem[] }).data)
+		) {
+			return (raw as { data: CandidateStudentItem[] }).data;
+		}
+		return [];
 	} catch {
 		// Fallback: ambil daftar siswa aktif dari /students
 		interface RawStudent {
@@ -250,10 +262,17 @@ export async function getCandidateStudentsApi(
 				fullName?: string;
 			} | null;
 		}
-		const response: ApiResponse<RawStudent[]> = await apiFetch(
-			"/students?limit=100",
-		);
-		const rawStudents = response.data ?? [];
+		const response = (await apiFetch("/students?limit=100")) as
+			| ApiResponse<RawStudent[] | { data?: RawStudent[] }>
+			| undefined;
+
+		const raw = response?.data;
+		const rawStudents: RawStudent[] = Array.isArray(raw)
+			? raw
+			: Array.isArray((raw as { data?: RawStudent[] })?.data)
+				? (raw as { data: RawStudent[] }).data
+				: [];
+
 		return rawStudents.map((s) => ({
 			id: s.id,
 			studentNumber: s.studentNumber,
