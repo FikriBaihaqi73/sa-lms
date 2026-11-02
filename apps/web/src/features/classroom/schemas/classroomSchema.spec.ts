@@ -129,4 +129,76 @@ describe("classroomFormSchema", () => {
 		const result = classroomFormSchema.safeParse({ ...validForm, floor: 0 });
 		expect(result.success).toBe(true);
 	});
+
+	it("accepts null floor and null capacity", () => {
+		const result = classroomFormSchema.safeParse({
+			...validForm,
+			floor: null,
+			capacity: null,
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.floor).toBeNull();
+			expect(result.data.capacity).toBeNull();
+		}
+	});
+
+	it("accepts undefined floor and undefined capacity", () => {
+		const result = classroomFormSchema.safeParse({
+			...validForm,
+			floor: undefined,
+			capacity: undefined,
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.floor).toBeUndefined();
+			expect(result.data.capacity).toBeUndefined();
+		}
+	});
+
+	it("rejects non-numeric string for floor and capacity", () => {
+		expect(classroomFormSchema.safeParse({ ...validForm, floor: "abc" }).success).toBe(false);
+		expect(classroomFormSchema.safeParse({ ...validForm, capacity: "xyz" }).success).toBe(false);
+	});
+
+	it("accepts floor when capacity is null", () => {
+		const result = classroomFormSchema.safeParse({
+			...validForm,
+			floor: 5,
+			capacity: null,
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.floor).toBe(5);
+			expect(result.data.capacity).toBeNull();
+		}
+	});
+
+	it("accepts capacity when floor is null", () => {
+		const result = classroomFormSchema.safeParse({
+			...validForm,
+			floor: null,
+			capacity: 20,
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.floor).toBeNull();
+			expect(result.data.capacity).toBe(20);
+		}
+	});
+
+	it("accepts omitted floor and capacity", () => {
+		const withoutFloorAndCapacity = {
+			roomCode: validForm.roomCode,
+			roomName: validForm.roomName,
+			building: validForm.building,
+			description: validForm.description,
+		};
+		const result = classroomFormSchema.safeParse(withoutFloorAndCapacity);
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.floor).toBeUndefined();
+			expect(result.data.capacity).toBeUndefined();
+		}
+	});
 });

@@ -19,6 +19,7 @@ import { profileRoute } from "./routes/_settings/profile/index";
 import { religionsRoute } from "./routes/_settings/religions/index";
 import { rolePermissionsRoute } from "./routes/_settings/role-permissions/index";
 import { rolesRoute } from "./routes/_settings/roles/index";
+import { schedulesRoute } from "./routes/_settings/schedules/index";
 import { semestersRoute } from "./routes/_settings/semesters/index";
 import { settingsRouteDef } from "./routes/_settings/settings/index";
 import { subjectPrerequisitesRoute } from "./routes/_settings/subject-prerequisites/index";

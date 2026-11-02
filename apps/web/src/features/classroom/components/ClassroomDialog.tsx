@@ -42,10 +42,10 @@ export function ClassroomDialog({
 		defaultValues: {
 			roomCode: "",
 			roomName: "",
-			building: undefined,
-			floor: undefined,
-			capacity: undefined,
-			description: undefined,
+			building: "",
+			floor: null,
+			capacity: null,
+			description: "",
 		},
 	});
 
@@ -55,19 +55,19 @@ export function ClassroomDialog({
 				reset({
 					roomCode: classroom.roomCode,
 					roomName: classroom.roomName,
-					building: classroom.building ?? undefined,
-					floor: classroom.floor ?? undefined,
-					capacity: classroom.capacity ?? undefined,
-					description: classroom.description ?? undefined,
+					building: classroom.building ?? "",
+					floor: classroom.floor ?? null,
+					capacity: classroom.capacity ?? null,
+					description: classroom.description ?? "",
 				});
 			} else {
 				reset({
 					roomCode: "",
 					roomName: "",
-					building: undefined,
-					floor: undefined,
-					capacity: undefined,
-					description: undefined,
+					building: "",
+					floor: null,
+					capacity: null,
+					description: "",
 				});
 			}
 		}
@@ -143,11 +143,13 @@ export function ClassroomDialog({
 								type="number"
 								min={0}
 								{...register("floor", {
-									valueAsNumber: true,
-									setValueAs: (value) =>
-										typeof value === "number" && Number.isNaN(value)
-											? undefined
-											: value,
+									setValueAs: (value) => {
+										if (value === "" || value === null || value === undefined) {
+											return null;
+										}
+										const num = Number(value);
+										return Number.isNaN(num) ? null : num;
+									},
 								})}
 								className="dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
 							/>
@@ -162,11 +164,13 @@ export function ClassroomDialog({
 								type="number"
 								min={1}
 								{...register("capacity", {
-									valueAsNumber: true,
-									setValueAs: (value) =>
-										typeof value === "number" && Number.isNaN(value)
-											? undefined
-											: value,
+									setValueAs: (value) => {
+										if (value === "" || value === null || value === undefined) {
+											return null;
+										}
+										const num = Number(value);
+										return Number.isNaN(num) ? null : num;
+									},
 								})}
 								className="dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
 							/>

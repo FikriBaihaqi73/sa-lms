@@ -8,20 +8,20 @@ export interface CreateClassroomInput {
   institutionId: string;
   roomCode: string;
   roomName: string;
-  building?: string;
-  floor?: number;
-  capacity?: number;
-  description?: string;
+  building?: string | null;
+  floor?: number | null;
+  capacity?: number | null;
+  description?: string | null;
 }
 
 export interface UpdateClassroomInput {
   institutionId?: string;
   roomCode?: string;
   roomName?: string;
-  building?: string;
-  floor?: number;
-  capacity?: number;
-  description?: string;
+  building?: string | null;
+  floor?: number | null;
+  capacity?: number | null;
+  description?: string | null;
 }
 
 export interface ClassroomSearchInput {
