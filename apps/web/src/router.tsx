@@ -66,6 +66,7 @@ const settingsTree = settingsRoute.addChildren([
 	classSubjectsRoute,
 	subjectPrerequisitesRoute,
 	semestersRoute,
+	schedulesRoute,
 	subjectsRoute,
 	classroomsRoute,
 ]);

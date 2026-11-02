@@ -1,4 +1,6 @@
 import type { Prisma } from "#generated/client";
+import { classSubjectsSelect } from "./class-subjects.select.js";
+import { classroomSelect } from "./classroom.select.js";
 
 export const scheduleSelect = {
   id: true,
@@ -7,7 +9,12 @@ export const scheduleSelect = {
   day: true,
   startTime: true,
   endTime: true,
-  classroom: true,
+  classroom: {
+    select: classroomSelect,
+  },
+  classSubject: {
+    select: classSubjectsSelect,
+  },
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
