@@ -54,6 +54,11 @@ export class ClassStudentService {
     return this.classStudentRepository.getSummary(classId);
   }
 
+  async getCandidates(classId: string) {
+    if (!classId) return [];
+    return this.classStudentRepository.findCandidates(classId);
+  }
+
   async create(dto: CreateClassStudentDto) {
     const existing = await this.classStudentRepository.findByClassAndStudent(
       dto.classId,
@@ -62,6 +67,19 @@ export class ClassStudentService {
     if (existing) {
       throw new ConflictException("Student is already assigned to this class");
     }
+
+    const softDeleted = await this.prisma.client.classStudent.findFirst({
+      where: {
+        classId: dto.classId,
+        studentId: dto.studentId,
+        deletedAt: { not: null },
+      },
+    });
+
+    if (softDeleted) {
+      return this.classStudentRepository.restore(softDeleted.id);
+    }
+
     return this.classStudentRepository.create(dto);
   }
 

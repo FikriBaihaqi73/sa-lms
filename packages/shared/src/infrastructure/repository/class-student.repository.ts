@@ -32,6 +32,14 @@ export interface FindAllClassStudentResult {
   };
 }
 
+export interface CandidateStudentEntity {
+  id: string;
+  studentNumber: string;
+  fullName: string;
+  isPreviouslyRemoved?: boolean;
+  currentClassName?: string | null;
+}
+
 export class ClassStudentRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -221,5 +229,135 @@ export class ClassStudentRepository {
       filledClassesCount: filledClassesRaw.length,
       totalClassesCount,
     };
+  }
+
+  async findCandidates(classId: string): Promise<CandidateStudentEntity[]> {
+    const targetClass = await this.prisma.classes.findFirst({
+      where: { id: classId, deleted_at: null },
+      select: { id: true, institution_id: true, name: true },
+    });
+
+    if (!targetClass) {
+      return [];
+    }
+
+    // Auto-create Student records for any profiles with student role in this institution that don't have a Student record yet
+    try {
+      const orphanProfiles = await this.prisma.profile.findMany({
+        where: {
+          institutionId: targetClass.institution_id,
+          deletedAt: null,
+          role: {
+            name: { in: ["student", "Student", "siswa", "Siswa"], mode: "insensitive" },
+          },
+          student: null,
+        },
+        select: {
+          id: true,
+          identityNumber: true,
+        },
+      });
+
+      if (orphanProfiles.length > 0) {
+        let defaultStatus = await this.prisma.academicStatuses.findFirst({
+          where: {
+            name: { in: ["Aktif", "aktif", "Active", "active"] },
+            deleted_at: null,
+          },
+        });
+        if (!defaultStatus) {
+          defaultStatus = await this.prisma.academicStatuses.findFirst({
+            where: { deleted_at: null },
+          });
+        }
+
+        if (defaultStatus) {
+          for (const op of orphanProfiles) {
+            const sNum =
+              op.identityNumber ||
+              `STU-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
+            try {
+              await this.prisma.student.create({
+                data: {
+                  profileId: op.id,
+                  academicStatusId: defaultStatus.id,
+                  studentNumber: sNum,
+                  enrollmentYear: new Date().getFullYear(),
+                },
+              });
+            } catch {
+              // ignore duplicate or concurrent insert
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore orphan check failure if roles/statuses not configured
+    }
+
+    // Query active students belonging to the target class's institution
+    const students = await this.prisma.student.findMany({
+      where: {
+        deletedAt: null,
+        profile: {
+          institutionId: targetClass.institution_id,
+          deletedAt: null,
+        },
+      },
+      select: {
+        id: true,
+        studentNumber: true,
+        profile: {
+          select: {
+            fullName: true,
+          },
+        },
+        classStudents: {
+          select: {
+            id: true,
+            classId: true,
+            deletedAt: true,
+            classes: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        studentNumber: "asc",
+      },
+    });
+
+    const candidates: CandidateStudentEntity[] = [];
+
+    for (const student of students) {
+      const activeInThisClass = student.classStudents.some(
+        (cs) => cs.classId === classId && cs.deletedAt === null,
+      );
+      if (activeInThisClass) {
+        continue;
+      }
+
+      const isPreviouslyRemoved = student.classStudents.some(
+        (cs) => cs.classId === classId && cs.deletedAt !== null,
+      );
+
+      const activeOtherClass = student.classStudents.find(
+        (cs) => cs.classId !== classId && cs.deletedAt === null,
+      );
+
+      candidates.push({
+        id: student.id,
+        studentNumber: student.studentNumber,
+        fullName: student.profile?.fullName || `Siswa #${student.studentNumber}`,
+        isPreviouslyRemoved,
+        currentClassName: activeOtherClass?.classes?.name ?? null,
+      });
+    }
+
+    return candidates;
   }
 }

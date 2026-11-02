@@ -83,8 +83,8 @@ export function ClassStudentDialog({
 		const q = studentSearch.toLowerCase();
 		return candidates.filter(
 			(c) =>
-				c.fullName.toLowerCase().includes(q) ||
-				c.studentNumber.toLowerCase().includes(q),
+				(c.fullName?.toLowerCase() ?? "").includes(q) ||
+				(c.studentNumber?.toLowerCase() ?? "").includes(q),
 		);
 	}, [candidates, studentSearch]);
 
