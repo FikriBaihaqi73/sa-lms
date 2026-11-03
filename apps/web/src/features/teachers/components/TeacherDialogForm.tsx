@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { teacherFormSchema, type TeacherFormInput, type TeacherFormValues } from "../schemas/teacherSchema";
-import type { TeacherReference } from "../types";
+import type { TeacherFormProfile, TeacherReference } from "../types";
 
 interface TeacherDialogProps {
   open: boolean;
   statuses: TeacherReference[];
   specializations: TeacherReference[];
   departments?: TeacherReference[];
+  profiles: TeacherFormProfile[];
   isSaving: boolean;
   onClose: () => void;
   onSave: (values: TeacherFormValues) => Promise<void>;
@@ -37,6 +38,7 @@ export function TeacherDialogForm({
   isSaving,
   onClose,
   onSave,
+  profiles,
   title,
   subtitle,
   submitLabel,
@@ -78,6 +80,14 @@ export function TeacherDialogForm({
           </button>
         </div>
         <form onSubmit={handleSubmit(onSave)} className="space-y-4 p-6">
+          <div className="space-y-2">
+            <Label htmlFor="teacher-profile" className="text-sm font-semibold">Profil guru <span className="text-red-500">*</span></Label>
+            <Select id="teacher-profile" {...register("profile_id")} className="h-11">
+              <option value="">Pilih profil guru</option>
+              {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.fullName}{profile.email ? ` (${profile.email})` : ""}</option>)}
+            </Select>
+            {errors.profile_id && <p className="text-xs font-medium text-red-500">{errors.profile_id.message}</p>}
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="teacher-number" className="text-sm font-semibold">

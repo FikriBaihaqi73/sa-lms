@@ -84,4 +84,11 @@ describe("ClassSubjectDialog", () => {
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
   });
+
+  it("shows the teacher name with number and preserves the selected teacher in edit mode", () => {
+    renderDialog();
+    const select = screen.getByLabelText("Guru Pengampu") as HTMLSelectElement;
+    expect(select.value).toBe(item.teacher_id);
+    expect(screen.getByRole("option", { name: "Guru (G-1)" })).not.toBeNull();
+  });
 });

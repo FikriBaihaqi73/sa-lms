@@ -27,7 +27,7 @@ export type TeachersPageState = ReturnType<typeof useTeachersPageState>;
 
 export function toCreateInput(values: TeacherFormValues) {
   return {
-    ...(values.profile_id ? { profile_id: values.profile_id } : {}),
+    profile_id: values.profile_id,
     teacher_number: values.teacher_number.trim(),
     ...(values.department_id ? { department_id: values.department_id } : {}),
     ...(values.specialization_id ? { specialization_id: values.specialization_id } : {}),
@@ -38,6 +38,7 @@ export function toCreateInput(values: TeacherFormValues) {
 
 export function toUpdateInput(values: TeacherFormValues) {
   return {
+    ...(values.profile_id ? { profile_id: values.profile_id } : {}),
     teacher_number: values.teacher_number.trim(),
     department_id: values.department_id || null,
     specialization_id: values.specialization_id || null,

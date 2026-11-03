@@ -5,9 +5,7 @@ export const CreateTeacherSchema = z.object({
   profile_id: z
     .string()
     .uuid("Invalid UUID format for profile_id")
-    .optional()
-    .nullable()
-    .describe("Optional Profile ID (UUID) associated with the teacher"),
+    .describe("Required Profile ID (UUID) associated with the teacher"),
   department_id: z
     .string()
     .uuid("Invalid UUID format for department_id")
