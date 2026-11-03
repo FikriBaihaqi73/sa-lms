@@ -1,5 +1,5 @@
 import { TeacherDialogForm } from "./TeacherDialogForm";
-import type { TeacherReference } from "../types";
+import type { TeacherFormProfile, TeacherReference } from "../types";
 import type { TeacherFormValues } from "../schemas/teacherSchema";
 
 interface AddTeacherDialogProps {
@@ -7,6 +7,7 @@ interface AddTeacherDialogProps {
   statuses: TeacherReference[];
   specializations: TeacherReference[];
   departments?: TeacherReference[];
+  profiles: TeacherFormProfile[];
   isSaving: boolean;
   onClose: () => void;
   onSave: (values: TeacherFormValues) => Promise<void>;

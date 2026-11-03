@@ -12,6 +12,7 @@ import {
   useSpecializations,
   useTeacherClassSubjects,
   useTeacherDepartments,
+  useTeacherProfiles,
   useTeachers,
   useTeacherStats,
   useUpdateTeacher,
@@ -37,6 +38,7 @@ export function useTeachersPageController() {
   const statusesQuery = useEmploymentStatuses();
   const specializationsQuery = useSpecializations();
   const departmentsQuery = useTeacherDepartments();
+  const profilesQuery = useTeacherProfiles();
   const assignmentsQuery = useTeacherClassSubjects(state.editingTeacher?.id);
   const createMutation = useCreateTeacher();
   const updateMutation = useUpdateTeacher();
@@ -78,7 +80,7 @@ export function useTeachersPageController() {
     }
   }
 
-  return { state, teachersQuery, statsQuery, statusesQuery, specializationsQuery, departmentsQuery, assignmentsQuery, createMutation, updateMutation, deleteMutation, teachers, meta, totalPages, handleCreate, handleUpdate, handleDelete };
+  return { state, teachersQuery, statsQuery, statusesQuery, specializationsQuery, departmentsQuery, profilesQuery, assignmentsQuery, createMutation, updateMutation, deleteMutation, teachers, meta, totalPages, handleCreate, handleUpdate, handleDelete };
 }
 
 export type TeachersPageController = ReturnType<typeof useTeachersPageController>;
@@ -86,7 +88,7 @@ export type TeachersPageController = ReturnType<typeof useTeachersPageController
 
 export function TeachersPageLayout({ controller }: { controller: TeachersPageController }) {
   const { state, teachersQuery, statsQuery, statusesQuery } = controller;
-  const { specializationsQuery, departmentsQuery, assignmentsQuery, createMutation, updateMutation } = controller;
+  const { specializationsQuery, departmentsQuery, profilesQuery, assignmentsQuery, createMutation, updateMutation } = controller;
   const { deleteMutation, teachers, meta, handleCreate, handleUpdate, handleDelete } = controller;
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:p-6 lg:p-8">
@@ -122,6 +124,7 @@ export function TeachersPageLayout({ controller }: { controller: TeachersPageCon
           statuses={statusesQuery.data ?? []}
           specializations={specializationsQuery.data ?? []}
           departments={departmentsQuery.data ?? []}
+          profiles={profilesQuery.data ?? []}
           isSaving={createMutation.isPending}
           onClose={() => state.setIsAdding(false)}
           onSave={handleCreate}

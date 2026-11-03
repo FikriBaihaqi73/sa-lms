@@ -25,6 +25,7 @@ export interface FindAllTeachersInput {
   search?: string;
   employmentStatusId?: string;
   specializationId?: string;
+  institutionId?: string;
 }
 
 export interface FindAllTeachersResult {
@@ -76,6 +77,16 @@ export class TeacherRepository {
     });
   }
 
+  async findByIdInInstitution(
+    id: string,
+    institutionId: string,
+  ): Promise<TeacherEntity | null> {
+    return this.prisma.teachers.findFirst({
+      where: { id, deleted_at: null, profile: { institutionId } },
+      select: teacherSelect,
+    });
+  }
+
   async findByTeacherNumber(
     teacher_number: string,
   ): Promise<TeacherEntity | null> {
@@ -103,6 +114,9 @@ export class TeacherRepository {
         ? { employment_status_id: employmentStatusId }
         : {}),
       ...(specializationId ? { specialization_id: specializationId } : {}),
+      ...(params.institutionId
+        ? { profile: { institutionId: params.institutionId } }
+        : {}),
       ...(search
         ? {
             OR: [
@@ -144,7 +158,7 @@ export class TeacherRepository {
     };
   }
 
-  async getStats(): Promise<TeacherStatsResult> {
+  async getStats(institutionId?: string): Promise<TeacherStatsResult> {
     const [
       total,
       teachers,
@@ -152,18 +166,41 @@ export class TeacherRepository {
       totalClassAssignments,
       unassignedCount,
     ] = await Promise.all([
-      this.prisma.teachers.count({ where: { deleted_at: null } }),
+      this.prisma.teachers.count({
+        where: {
+          deleted_at: null,
+          ...(institutionId ? { profile: { institutionId } } : {}),
+        },
+      }),
       this.prisma.teachers.findMany({
-        where: { deleted_at: null },
+        where: {
+          deleted_at: null,
+          ...(institutionId ? { profile: { institutionId } } : {}),
+        },
         select: {
           employment_status: { select: { name: true } },
         },
       }),
-      this.prisma.specializations.count({ where: { deleted_at: null } }),
-      this.prisma.classSubjects.count({ where: { deleted_at: null } }),
+      this.prisma.specializations.count({
+        where: {
+          deleted_at: null,
+          ...(institutionId
+            ? { teachers: { some: { profile: { institutionId } } } }
+            : {}),
+        },
+      }),
+      this.prisma.classSubjects.count({
+        where: {
+          deleted_at: null,
+          ...(institutionId
+            ? { class: { institution_id: institutionId } }
+            : {}),
+        },
+      }),
       this.prisma.teachers.count({
         where: {
           deleted_at: null,
+          ...(institutionId ? { profile: { institutionId } } : {}),
           classSubjects: { none: { deleted_at: null } },
         },
       }),

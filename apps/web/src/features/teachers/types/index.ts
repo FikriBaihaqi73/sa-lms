@@ -74,7 +74,7 @@ export interface TeacherClassAssignment {
 }
 
 export interface CreateTeacherInput {
-  profile_id?: string;
+  profile_id: string;
   teacher_number: string;
   department_id?: string;
   specialization_id?: string;
@@ -83,6 +83,7 @@ export interface CreateTeacherInput {
 }
 
 export interface UpdateTeacherInput {
+  profile_id?: string;
   teacher_number?: string;
   department_id?: string | null;
   specialization_id?: string | null;

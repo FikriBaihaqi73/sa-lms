@@ -36,7 +36,7 @@ export function ClassSubjectDialog({ open, item, options, isSaving, serverError,
   }, [serverError, setError]);
 
   const fieldError = (field: keyof ClassSubjectFormInput) => errors[field]?.message;
-  const teacherName = (teacher: ClassSubjectOptions["teachers"][number]) => teacher.profile?.fullName ?? teacher.teacher_number;
+  const teacherName = (teacher: ClassSubjectOptions["teachers"][number]) => teacher.profile?.fullName ? `${teacher.profile.fullName} (${teacher.teacher_number})` : `Tanpa nama - ${teacher.teacher_number}`;
   const academicYears = options?.academicYears ?? [];
   const itemAcademicYear = item?.academic_year;
   const displayAcademicYears = itemAcademicYear && itemAcademicYear.institution_id !== null && !academicYears.some((year) => year.id === itemAcademicYear.id)

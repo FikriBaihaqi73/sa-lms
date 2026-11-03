@@ -10,12 +10,14 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import {
   CreateTeacherDto,
   UpdateTeacherDto,
 } from "@repo/shared/schemas/teacher.schema";
+import type { Request } from "express";
 import { Roles } from "../auth/roles.decorator";
 import { TeachersService } from "./teachers.service";
 
@@ -29,8 +31,11 @@ export class TeachersController {
   @Post()
   @ApiOperation({ summary: "Create a new teacher" })
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createTeacherDto: CreateTeacherDto) {
-    return this.teachersService.create(createTeacherDto);
+  create(
+    @Body() createTeacherDto: CreateTeacherDto,
+    @Req() request: Request & { user: { sub: string } },
+  ) {
+    return this.teachersService.create(createTeacherDto, request.user.sub);
   }
 
   @Get()
@@ -38,6 +43,7 @@ export class TeachersController {
     summary: "Retrieve teachers with search, filter, and pagination",
   })
   findAll(
+    @Req() request: Request & { user: { sub: string } },
     @Query("page", new ParseIntPipe({ optional: true })) page?: number,
     @Query("limit", new ParseIntPipe({ optional: true })) limit?: number,
     @Query("search") search?: string,
@@ -45,6 +51,7 @@ export class TeachersController {
     @Query("specialization") specialization?: string,
   ) {
     return this.teachersService.findAll(
+      request.user.sub,
       page ?? 1,
       limit ?? 10,
       search,
@@ -55,25 +62,35 @@ export class TeachersController {
 
   @Get("stats")
   @ApiOperation({ summary: "Retrieve teacher aggregate stats" })
-  getStats() {
-    return this.teachersService.getStats();
+  getStats(@Req() request: Request & { user: { sub: string } }) {
+    return this.teachersService.getStats(request.user.sub);
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Retrieve a teacher by ID" })
-  findById(@Param("id") id: string) {
-    return this.teachersService.findById(id);
+  findById(
+    @Param("id") id: string,
+    @Req() request: Request & { user: { sub: string } },
+  ) {
+    return this.teachersService.findById(id, request.user.sub);
   }
 
   @Patch(":id")
   @ApiOperation({ summary: "Update a teacher" })
-  update(@Param("id") id: string, @Body() updateTeacherDto: UpdateTeacherDto) {
-    return this.teachersService.update(id, updateTeacherDto);
+  update(
+    @Param("id") id: string,
+    @Body() updateTeacherDto: UpdateTeacherDto,
+    @Req() request: Request & { user: { sub: string } },
+  ) {
+    return this.teachersService.update(id, updateTeacherDto, request.user.sub);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete a teacher" })
-  delete(@Param("id") id: string) {
-    return this.teachersService.delete(id);
+  delete(
+    @Param("id") id: string,
+    @Req() request: Request & { user: { sub: string } },
+  ) {
+    return this.teachersService.delete(id, request.user.sub);
   }
 }

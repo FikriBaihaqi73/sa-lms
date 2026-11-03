@@ -7,7 +7,7 @@ const optionalUuid = z
   .or(z.literal(""));
 
 export const teacherFormSchema = z.object({
-  profile_id: optionalUuid.describe("Profil guru (opsional)"),
+  profile_id: z.string().uuid("Profil guru wajib dipilih.").describe("Profil guru wajib dipilih"),
   teacher_number: z
     .string()
     .trim()

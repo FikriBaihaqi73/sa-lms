@@ -32,11 +32,16 @@ export function ClassSubjectPage() {
   const { profile } = useProfile();
   const scopedOptions = useMemo(() => {
     if (!optionsQuery.data) return undefined;
+    const selectedTeacher = dialogItem?.teacher;
+    const teachers = dialogItem?.teacher_id && selectedTeacher && !optionsQuery.data.teachers.some((teacher) => teacher.id === dialogItem.teacher_id)
+      ? [...optionsQuery.data.teachers, selectedTeacher]
+      : optionsQuery.data.teachers;
     return {
       ...optionsQuery.data,
+      teachers,
       academicYears: filterAcademicYears(optionsQuery.data.academicYears, profile?.institutionId),
     };
-  }, [optionsQuery.data, profile?.institutionId]);
+  }, [dialogItem, optionsQuery.data, profile?.institutionId]);
   const activeAcademicYearId = scopedOptions?.academicYears.find((year) => year.is_active)?.id;
   const effectiveAcademicYearId = academicYearQueryId(academicYearFilter, activeAcademicYearId);
   const listQuery = useClassSubjects({ page, limit, search: debouncedSearch, class_id: classId, academic_year_id: effectiveAcademicYearId });
