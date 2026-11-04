@@ -11,6 +11,7 @@ import {
 	ChevronRight,
 	Church,
 	ClipboardCheck,
+	ClipboardList,
 	GitFork,
 	Globe,
 	GraduationCap,
@@ -238,6 +239,11 @@ export function AppSidebar() {
 									to="/settings/classrooms"
 									icon={Building2}
 									label="Ruang Kelas"
+								/>
+								<NavItem
+									to="/settings/study-plans"
+									icon={ClipboardList}
+									label="Rencana Studi"
 								/>
 							</div>
 						</div>

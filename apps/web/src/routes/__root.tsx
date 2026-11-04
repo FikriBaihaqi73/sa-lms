@@ -49,6 +49,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/schedules",
 	"/subject-prerequisites",
 	"/settings/classrooms",
+	"/settings/study-plans",
 ];
 
 function AccessDenied({ message }: { message: string }) {
