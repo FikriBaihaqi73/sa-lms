@@ -277,12 +277,16 @@ Master data ini bersifat universal lintas seluruh institusi dan dipelihara secar
 
 ## 6. Presensi & Kegiatan Belajar Mengajar (Attendance & Teaching)
 
-### 6.1 Presensi Siswa (Attendances)
-- **Endpoint API**: `GET /attendances`, `POST /attendances`, `PATCH /attendances/:id`
-- **Hak Akses**: 👨‍🏫 Guru, 🛠️ Admin Institusi, 🎓 Siswa (Lihat milik sendiri), 👨‍👩‍👧 Wali
+### 6.1 Presensi & Absensi Siswa (Attendances)
+- **Rute Frontend**: /attendances (Menu: *Konfigurasi Akademik* ➔ *Presensi & Absensi*)
+- **Endpoint API**: GET /attendances, GET /attendances/summary, POST /attendances, PATCH /attendances/:id, DELETE /attendances/:id
+- **Hak Akses**: 🛠️ Admin Institusi (Isolasi multi-tenant per institusi), 👨‍🏫 Guru, 🎓 Siswa (Melihat milik sendiri), 👨‍👩‍👧 Wali
 - **Fungsi Utama**:
-  - Guru mencatat kehadiran siswa per pertemuan kelas (Hadir, Sakit, Izin, Alpa).
-  - Sistem menyediakan rekapitulasi persentase kehadiran siswa untuk syarat mengikuti ujian.
+  - Panel Admin menyajikan monitoring dan rekapitulasi kehadiran siswa secara sistematis dan real-time.
+  - Dashboard statistik interaktif menampilkan 6 indikator utama: Total Presensi, Hadir, Izin, Sakit, Alpa, serta Tingkat Kehadiran (%).
+  - Filter pencarian dinamis berdasarkan nama siswa, NISN, mata pelajaran, tanggal kehadiran, kelas, dan status kehadiran.
+  - Fitur pencatatan presensi manual (*Create*), pembaruan data kehadiran (*Update*), dan penghapusan presensi (*Delete*) dengan dialog konfirmasi aman.
+  - Menghitung persentase kehadiran untuk evaluasi keaktifan dan syarat kelayakan mengikuti ujian akhir.
 
 ### 6.2 Jurnal Mengajar Guru (Teaching Journals)
 - **Endpoint API**: `GET /teaching-journals`, `POST /teaching-journals`, `PATCH /teaching-journals/:id`

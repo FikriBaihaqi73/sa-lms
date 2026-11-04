@@ -1,4 +1,4 @@
-import type { PrismaClient } from "#generated/client";
+import type { Prisma, PrismaClient } from "#generated/client";
 import {
   type AttendanceEntity,
   attendanceSelect,
@@ -26,10 +26,110 @@ export interface AttendanceSearchInput {
   student_id?: string | undefined;
   attendance_status_id?: string | undefined;
   attendance_date?: string | undefined;
+  class_id?: string | undefined;
+}
+
+export interface AttendancePaginationMeta {
+  totalData: number;
+  totalPages: number;
+  currentPage: number;
+  perPage: number;
+}
+
+export interface AttendanceSummary {
+  total: number;
+  present: number;
+  permission: number;
+  sick: number;
+  absent: number;
+  attendanceRate: number;
 }
 
 export class AttendanceRepository {
   constructor(private readonly prisma: PrismaClient) {}
+
+  private buildWhere(
+    filters?: AttendanceSearchInput,
+    institutionId?: string,
+  ): Prisma.AttendancesWhereInput {
+    const where: Prisma.AttendancesWhereInput = {
+      deleted_at: null,
+      ...(institutionId
+        ? {
+            schedule: {
+              classSubject: {
+                class: {
+                  institution_id: institutionId,
+                  deleted_at: null,
+                },
+                deleted_at: null,
+              },
+              deletedAt: null,
+            },
+          }
+        : {}),
+      ...(filters?.schedule_id ? { schedule_id: filters.schedule_id } : {}),
+      ...(filters?.student_id ? { student_id: filters.student_id } : {}),
+      ...(filters?.attendance_status_id
+        ? { attendance_status_id: filters.attendance_status_id }
+        : {}),
+      ...(filters?.attendance_date
+        ? { attendance_date: new Date(filters.attendance_date) }
+        : {}),
+    };
+
+    if (filters?.class_id) {
+      where.schedule = {
+        ...(where.schedule as Prisma.ScheduleWhereInput),
+        classSubject: {
+          class_id: filters.class_id,
+          deleted_at: null,
+          ...(institutionId
+            ? { class: { institution_id: institutionId, deleted_at: null } }
+            : {}),
+        },
+      };
+    }
+
+    if (filters?.search && filters.search.trim()) {
+      const term = filters.search.trim();
+      where.OR = [
+        { notes: { contains: term, mode: "insensitive" } },
+        {
+          student: {
+            profile: {
+              fullName: { contains: term, mode: "insensitive" },
+            },
+          },
+        },
+        {
+          student: {
+            studentNumber: { contains: term, mode: "insensitive" },
+          },
+        },
+        {
+          schedule: {
+            classSubject: {
+              subject: {
+                name: { contains: term, mode: "insensitive" },
+              },
+            },
+          },
+        },
+        {
+          schedule: {
+            classSubject: {
+              class: {
+                name: { contains: term, mode: "insensitive" },
+              },
+            },
+          },
+        },
+      ];
+    }
+
+    return where;
+  }
 
   async create(data: CreateAttendanceInput): Promise<AttendanceEntity> {
     return this.prisma.attendances.create({
@@ -44,31 +144,74 @@ export class AttendanceRepository {
     });
   }
 
-  async findById(id: string): Promise<AttendanceEntity | null> {
+  async findById(
+    id: string,
+    institutionId?: string,
+  ): Promise<AttendanceEntity | null> {
     return this.prisma.attendances.findFirst({
       where: {
         id,
         deleted_at: null,
+        ...(institutionId
+          ? {
+              schedule: {
+                classSubject: {
+                  class: {
+                    institution_id: institutionId,
+                    deleted_at: null,
+                  },
+                },
+              },
+            }
+          : {}),
       },
       select: attendanceSelect,
     });
   }
 
-  async findBySchedule(schedule_id: string): Promise<AttendanceEntity[]> {
+  async findBySchedule(
+    schedule_id: string,
+    institutionId?: string,
+  ): Promise<AttendanceEntity[]> {
     return this.prisma.attendances.findMany({
       where: {
         schedule_id,
         deleted_at: null,
+        ...(institutionId
+          ? {
+              schedule: {
+                classSubject: {
+                  class: {
+                    institution_id: institutionId,
+                    deleted_at: null,
+                  },
+                },
+              },
+            }
+          : {}),
       },
       select: attendanceSelect,
     });
   }
 
-  async findByStudent(student_id: string): Promise<AttendanceEntity[]> {
+  async findByStudent(
+    student_id: string,
+    institutionId?: string,
+  ): Promise<AttendanceEntity[]> {
     return this.prisma.attendances.findMany({
       where: {
         student_id,
         deleted_at: null,
+        ...(institutionId
+          ? {
+              student: {
+                profile: {
+                  institutionId,
+                  deletedAt: null,
+                },
+              },
+            }
+          : {}),
       },
       select: attendanceSelect,
     });
@@ -108,28 +251,10 @@ export class AttendanceRepository {
     page: number,
     limit: number,
     filters?: AttendanceSearchInput,
-  ): Promise<{ data: AttendanceEntity[]; meta: any }> {
+    institutionId?: string,
+  ): Promise<{ data: AttendanceEntity[]; meta: AttendancePaginationMeta }> {
     const skip = (page - 1) * limit;
-
-    const where: any = {
-      deleted_at: null,
-      ...(filters?.search
-        ? {
-            notes: {
-              contains: filters.search,
-              mode: "insensitive",
-            },
-          }
-        : {}),
-      ...(filters?.schedule_id ? { schedule_id: filters.schedule_id } : {}),
-      ...(filters?.student_id ? { student_id: filters.student_id } : {}),
-      ...(filters?.attendance_status_id
-        ? { attendance_status_id: filters.attendance_status_id }
-        : {}),
-      ...(filters?.attendance_date
-        ? { attendance_date: new Date(filters.attendance_date) }
-        : {}),
-    };
+    const where = this.buildWhere(filters, institutionId);
 
     const [data, totalData] = await Promise.all([
       this.prisma.attendances.findMany({
@@ -156,6 +281,54 @@ export class AttendanceRepository {
         currentPage: page,
         perPage: limit,
       },
+    };
+  }
+
+  async getSummary(
+    filters?: AttendanceSearchInput,
+    institutionId?: string,
+  ): Promise<AttendanceSummary> {
+    const where = this.buildWhere(filters, institutionId);
+
+    const records = await this.prisma.attendances.findMany({
+      where,
+      select: {
+        attendance_status: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    let present = 0;
+    let permission = 0;
+    let sick = 0;
+    let absent = 0;
+
+    for (const record of records) {
+      const name = record.attendance_status?.name?.toLowerCase().trim() ?? "";
+      if (name.includes("hadir") || name === "present") {
+        present++;
+      } else if (name.includes("izin") || name.includes("permit")) {
+        permission++;
+      } else if (name.includes("sakit") || name.includes("sick")) {
+        sick++;
+      } else {
+        absent++;
+      }
+    }
+
+    const total = records.length;
+    const attendanceRate = total > 0 ? Math.round((present / total) * 100) : 0;
+
+    return {
+      total,
+      present,
+      permission,
+      sick,
+      absent,
+      attendanceRate,
     };
   }
 

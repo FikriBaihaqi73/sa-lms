@@ -3,7 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { AttendanceRepository } from "@repo/shared/infrastructure/repository/attendance.repository";
+import {
+  type AttendanceSearchInput,
+  AttendanceRepository,
+} from "@repo/shared/infrastructure/repository/attendance.repository";
 import { AttendanceStatusRepository } from "@repo/shared/infrastructure/repository/attendance-status.repository";
 import { ScheduleRepository } from "@repo/shared/infrastructure/repository/schedule.repository";
 import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
@@ -29,29 +32,40 @@ export class AttendanceService {
     this.studentRepository = new StudentRepository(this.prisma.client);
   }
 
+  private async institutionIdFor(userId?: string): Promise<string | undefined> {
+    if (!userId) return undefined;
+    const profile = await this.prisma.client.profile.findFirst({
+      where: { userId, deletedAt: null },
+      select: { institutionId: true },
+    });
+    return profile?.institutionId ?? undefined;
+  }
+
   async findAll(
     page: number,
     limit: number,
-    filters?: {
-      search?: string | undefined;
-      schedule_id?: string | undefined;
-      student_id?: string | undefined;
-      attendance_status_id?: string | undefined;
-      attendance_date?: string | undefined;
-    },
+    filters?: AttendanceSearchInput,
+    userId?: string,
   ) {
-    return this.attendanceRepository.findAll(page, limit, filters);
+    const institutionId = await this.institutionIdFor(userId);
+    return this.attendanceRepository.findAll(page, limit, filters, institutionId);
   }
 
-  async findOne(id: string) {
-    const attendance = await this.attendanceRepository.findById(id);
+  async getSummary(filters?: AttendanceSearchInput, userId?: string) {
+    const institutionId = await this.institutionIdFor(userId);
+    return this.attendanceRepository.getSummary(filters, institutionId);
+  }
+
+  async findOne(id: string, userId?: string) {
+    const institutionId = await this.institutionIdFor(userId);
+    const attendance = await this.attendanceRepository.findById(id, institutionId);
     if (!attendance) {
       throw new NotFoundException("Attendance not found");
     }
     return attendance;
   }
 
-  async create(dto: CreateAttendanceDto) {
+  async create(dto: CreateAttendanceDto, userId?: string) {
     await this.ensureRelationsExist(dto);
     const attendanceDate = this.toDate(dto.attendance_date);
     await this.ensureAttendanceDoesNotExist(
@@ -69,8 +83,8 @@ export class AttendanceService {
     });
   }
 
-  async update(id: string, dto: UpdateAttendanceDto) {
-    const current = await this.findOne(id);
+  async update(id: string, dto: UpdateAttendanceDto, userId?: string) {
+    const current = await this.findOne(id, userId);
     const scheduleId = dto.schedule_id ?? current.schedule_id;
     const studentId = dto.student_id ?? current.student_id;
     const attendanceDate =
@@ -106,8 +120,8 @@ export class AttendanceService {
     });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, userId?: string) {
+    await this.findOne(id, userId);
     await this.attendanceRepository.delete(id);
     return { success: true, id };
   }

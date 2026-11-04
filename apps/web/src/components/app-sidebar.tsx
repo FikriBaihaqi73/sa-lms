@@ -231,6 +231,7 @@ export function AppSidebar() {
 									label="Jadwal Pelajaran"
 								/>
 								{hasExplicitAdminRole && <NavItem to="/teaching-journals" icon={BookOpenCheck} label="Jurnal Mengajar" />}
+								{hasExplicitAdminRole && <NavItem to="/attendances" icon={ClipboardCheck} label="Presensi & Absensi" />}
 								<NavItem
 									to="/subject-prerequisites"
 									icon={GitFork}
