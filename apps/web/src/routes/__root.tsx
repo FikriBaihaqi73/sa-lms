@@ -48,6 +48,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/class-subjects",
 	"/schedules",
 	"/teaching-journals",
+	"/attendances",
 	"/subject-prerequisites",
 	"/settings/classrooms",
 	"/settings/study-plans",

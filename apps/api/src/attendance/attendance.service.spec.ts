@@ -13,9 +13,18 @@ jest.mock("../prisma/prisma.service", () => ({
 
 describe("AttendanceService", () => {
   let service: AttendanceService;
+  let mockPrisma: PrismaService;
 
   beforeEach(() => {
-    service = new AttendanceService({} as PrismaService);
+    mockPrisma = {
+      client: {
+        profile: {
+          findFirst: jest.fn().mockResolvedValue({ institutionId: "inst-1" }),
+        },
+      },
+    } as unknown as PrismaService;
+
+    service = new AttendanceService(mockPrisma);
     jest
       .spyOn(ScheduleRepository.prototype, "findById")
       .mockResolvedValue({ id: "schedule-id" } as never);
@@ -79,9 +88,9 @@ describe("AttendanceService", () => {
       schedule_id: "schedule-id",
       student_id: "student-id",
       attendance_status_id: "status-id",
-    } as CreateAttendanceDto);
-    await service.update("attendance-id", { notes: "Present" });
-    await expect(service.remove("attendance-id")).resolves.toEqual({
+    } as CreateAttendanceDto, "user-1");
+    await service.update("attendance-id", { notes: "Present" }, "user-1");
+    await expect(service.remove("attendance-id", "user-1")).resolves.toEqual({
       success: true,
       id: "attendance-id",
     });
@@ -94,5 +103,27 @@ describe("AttendanceService", () => {
     });
     expect(update).toHaveBeenCalledWith("attendance-id", { notes: "Present" });
     expect(remove).toHaveBeenCalledWith("attendance-id");
+  });
+
+  it("scopes findAll and getSummary by institutionId", async () => {
+    const findAllSpy = jest.spyOn(AttendanceRepository.prototype, "findAll").mockResolvedValue({
+      data: [],
+      meta: { totalData: 0, totalPages: 0, currentPage: 1, perPage: 10 },
+    });
+    const summarySpy = jest.spyOn(AttendanceRepository.prototype, "getSummary").mockResolvedValue({
+      total: 10,
+      present: 8,
+      permission: 1,
+      sick: 1,
+      absent: 0,
+      attendanceRate: 80,
+    });
+
+    await service.findAll(1, 10, { search: "test" }, "user-1");
+    expect(findAllSpy).toHaveBeenCalledWith(1, 10, { search: "test" }, "inst-1");
+
+    const summary = await service.getSummary({ search: "test" }, "user-1");
+    expect(summarySpy).toHaveBeenCalledWith({ search: "test" }, "inst-1");
+    expect(summary.total).toBe(10);
   });
 });
