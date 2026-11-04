@@ -28,6 +28,8 @@ The three IDs are required; the date and notes are optional. The schedule, stude
 
 ## Teaching journals
 
+Access requires a valid bearer token and an active profile and institution. Admins can only list and read journals within their institution. Teachers can list and read journals for their assigned schedules and can create journals only for those schedules. Only teachers can update or delete journals, and only when `created_by` identifies the requesting user and the schedule is still assigned to that teacher. Journals without a recorded creator cannot be updated or deleted through this API. Missing or inaccessible journals and schedules return 404; missing institution context or an unauthorized role returns 403. Create records the authenticated user as `created_by`.
+
 | Method | URL | Purpose |
 | --- | --- | --- |
 | GET | `/teaching-journals` | List active journals. |
