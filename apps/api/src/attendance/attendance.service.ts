@@ -65,7 +65,7 @@ export class AttendanceService {
     return attendance;
   }
 
-  async create(dto: CreateAttendanceDto, userId?: string) {
+  async create(dto: CreateAttendanceDto, _userId?: string) {
     await this.ensureRelationsExist(dto);
     const attendanceDate = this.toDate(dto.attendance_date);
     await this.ensureAttendanceDoesNotExist(

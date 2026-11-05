@@ -78,7 +78,6 @@ export class TeachingJournalController {
     );
   }
 
-  @Roles("teacher")
   @Post()
   @ApiOperation({ summary: "Create a teaching journal" })
   async create(
@@ -96,7 +95,6 @@ export class TeachingJournalController {
     );
   }
 
-  @Roles("teacher")
   @Patch(":id")
   @ApiOperation({ summary: "Update a teaching journal" })
   async update(
@@ -115,7 +113,6 @@ export class TeachingJournalController {
     );
   }
 
-  @Roles("teacher")
   @Delete(":id")
   @ApiOperation({ summary: "Soft-delete a teaching journal" })
   async remove(
