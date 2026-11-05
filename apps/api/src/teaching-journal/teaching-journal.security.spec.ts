@@ -7,7 +7,7 @@ jest.mock("../prisma/prisma.service", () => ({
 }));
 
 describe("Teaching journal role metadata", () => {
-  it("allows admin and teacher to read", () => {
+  it("allows admin and teacher to access all endpoints", () => {
     expect(Reflect.getMetadata(ROLES_KEY, TeachingJournalController)).toEqual([
       "admin",
       "teacher",
@@ -24,17 +24,23 @@ describe("Teaching journal role metadata", () => {
         TeachingJournalController.prototype.findOne,
       ),
     ).toBeUndefined();
-  });
-  it.each([
-    "create",
-    "update",
-    "remove",
-  ] as const)("restricts %s to teacher", (method) => {
     expect(
       Reflect.getMetadata(
         ROLES_KEY,
-        TeachingJournalController.prototype[method],
+        TeachingJournalController.prototype.create,
       ),
-    ).toEqual(["teacher"]);
+    ).toBeUndefined();
+    expect(
+      Reflect.getMetadata(
+        ROLES_KEY,
+        TeachingJournalController.prototype.update,
+      ),
+    ).toBeUndefined();
+    expect(
+      Reflect.getMetadata(
+        ROLES_KEY,
+        TeachingJournalController.prototype.remove,
+      ),
+    ).toBeUndefined();
   });
 });
