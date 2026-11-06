@@ -1,5 +1,6 @@
 export interface AttendanceStatus {
   id: string;
+  institution_id: string;
   name: string;
   description: string | null;
   created_at?: string;

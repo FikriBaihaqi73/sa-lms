@@ -1,9 +1,10 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
 import { AttendanceStatusRepository } from "@repo/shared/infrastructure/repository/attendance-status.repository";
-import type {
-  CreateAttendanceStatusDto,
-  UpdateAttendanceStatusDto,
-} from "@repo/shared/schemas/attendance-status.schema";
+import type { CreateAttendanceStatusDto } from "@repo/shared/schemas/attendance-status.schema";
 import type { PrismaService } from "../prisma/prisma.service";
 import { AttendanceStatusService } from "./attendance-status.service";
 
@@ -13,77 +14,106 @@ jest.mock("../prisma/prisma.service", () => ({
 
 describe("AttendanceStatusService", () => {
   let service: AttendanceStatusService;
+  let profileFindFirst: jest.Mock;
 
   beforeEach(() => {
-    service = new AttendanceStatusService({} as PrismaService);
+    profileFindFirst = jest.fn().mockResolvedValue({ institutionId: "inst-1" });
+    service = new AttendanceStatusService({
+      client: { profile: { findFirst: profileFindFirst } },
+    } as unknown as PrismaService);
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
+  afterEach(() => jest.restoreAllMocks());
+
+  it("requires an institution profile", async () => {
+    profileFindFirst.mockResolvedValue(null);
+
+    await expect(
+      service.findAll(1, 10, undefined, "user-1"),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
-  it("returns all active attendance statuses", async () => {
+  it("scopes list and detail lookups to the caller institution", async () => {
     const result = {
-      data: [{ id: "present-id", name: "Present" }],
-      meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
+      data: [],
+      meta: { totalData: 0, totalPages: 0, currentPage: 1, perPage: 10 },
     };
-    jest
+    const findAll = jest
       .spyOn(AttendanceStatusRepository.prototype, "findAll")
-      .mockResolvedValue(result as never);
-
-    await expect(service.findAll(1, 10, "Present")).resolves.toEqual(result);
-  });
-
-  it("rejects a missing attendance status", async () => {
-    jest
+      .mockResolvedValue(result);
+    const findById = jest
       .spyOn(AttendanceStatusRepository.prototype, "findById")
       .mockResolvedValue(null);
 
-    await expect(service.findOne("missing-id")).rejects.toBeInstanceOf(
-      NotFoundException,
+    await expect(service.findAll(1, 10, "Present", "user-1")).resolves.toEqual(
+      result,
     );
+    await expect(
+      service.findOne("missing-id", "user-1"),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(findAll).toHaveBeenCalledWith("inst-1", 1, 10, "Present");
+    expect(findById).toHaveBeenCalledWith("inst-1", "missing-id");
   });
 
-  it("rejects a duplicate name during creation", async () => {
+  it("rejects an active duplicate name in the same institution", async () => {
     jest
       .spyOn(AttendanceStatusRepository.prototype, "findByName")
       .mockResolvedValue({ id: "present-id" } as never);
 
     await expect(
-      service.create({ name: "Present" } as CreateAttendanceStatusDto),
+      service.create(
+        { name: "Present" } as CreateAttendanceStatusDto,
+        "user-1",
+      ),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
-  it("allows retaining the same name when updating", async () => {
-    jest
-      .spyOn(AttendanceStatusRepository.prototype, "findById")
-      .mockResolvedValue({ id: "present-id" } as never);
+  it("maps a unique race to a conflict", async () => {
     jest
       .spyOn(AttendanceStatusRepository.prototype, "findByName")
-      .mockResolvedValue({ id: "present-id" } as never);
-    const update = jest
-      .spyOn(AttendanceStatusRepository.prototype, "update")
-      .mockResolvedValue({ id: "present-id" } as never);
+      .mockResolvedValue(null);
+    jest
+      .spyOn(AttendanceStatusRepository.prototype, "create")
+      .mockRejectedValue({ code: "P2002" });
 
-    await service.update("present-id", {
-      name: "Present",
-    } as UpdateAttendanceStatusDto);
-
-    expect(update).toHaveBeenCalledWith("present-id", { name: "Present" });
+    await expect(
+      service.create(
+        { name: "Present" } as CreateAttendanceStatusDto,
+        "user-1",
+      ),
+    ).rejects.toThrow(
+      "Attendance status name already exists in this institution",
+    );
   });
 
-  it("soft-deletes an existing attendance status", async () => {
+  it("blocks deleting a status used by active attendance records", async () => {
     jest
       .spyOn(AttendanceStatusRepository.prototype, "findById")
       .mockResolvedValue({ id: "present-id" } as never);
+    jest
+      .spyOn(AttendanceStatusRepository.prototype, "countUsage")
+      .mockResolvedValue(1);
+
+    await expect(service.remove("present-id", "user-1")).rejects.toThrow(
+      "Attendance status is still used by attendance records",
+    );
+  });
+
+  it("allows deleting an unused scoped status", async () => {
+    jest
+      .spyOn(AttendanceStatusRepository.prototype, "findById")
+      .mockResolvedValue({ id: "present-id" } as never);
+    jest
+      .spyOn(AttendanceStatusRepository.prototype, "countUsage")
+      .mockResolvedValue(0);
     const remove = jest
       .spyOn(AttendanceStatusRepository.prototype, "delete")
       .mockResolvedValue({ id: "present-id" } as never);
 
-    await expect(service.remove("present-id")).resolves.toEqual({
+    await expect(service.remove("present-id", "user-1")).resolves.toEqual({
       success: true,
       id: "present-id",
     });
-    expect(remove).toHaveBeenCalledWith("present-id");
+    expect(remove).toHaveBeenCalledWith("inst-1", "present-id");
   });
 });

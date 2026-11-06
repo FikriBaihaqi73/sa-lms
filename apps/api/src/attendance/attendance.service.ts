@@ -1,11 +1,12 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import {
-  type AttendanceSearchInput,
   AttendanceRepository,
+  type AttendanceSearchInput,
 } from "@repo/shared/infrastructure/repository/attendance.repository";
 import { AttendanceStatusRepository } from "@repo/shared/infrastructure/repository/attendance-status.repository";
 import { ScheduleRepository } from "@repo/shared/infrastructure/repository/schedule.repository";
@@ -38,7 +39,10 @@ export class AttendanceService {
       where: { userId, deletedAt: null },
       select: { institutionId: true },
     });
-    return profile?.institutionId ?? undefined;
+    if (!profile?.institutionId) {
+      throw new ForbiddenException("Institution access is required");
+    }
+    return profile.institutionId;
   }
 
   async findAll(
@@ -48,7 +52,12 @@ export class AttendanceService {
     userId?: string,
   ) {
     const institutionId = await this.institutionIdFor(userId);
-    return this.attendanceRepository.findAll(page, limit, filters, institutionId);
+    return this.attendanceRepository.findAll(
+      page,
+      limit,
+      filters,
+      institutionId,
+    );
   }
 
   async getSummary(filters?: AttendanceSearchInput, userId?: string) {
@@ -58,7 +67,10 @@ export class AttendanceService {
 
   async findOne(id: string, userId?: string) {
     const institutionId = await this.institutionIdFor(userId);
-    const attendance = await this.attendanceRepository.findById(id, institutionId);
+    const attendance = await this.attendanceRepository.findById(
+      id,
+      institutionId,
+    );
     if (!attendance) {
       throw new NotFoundException("Attendance not found");
     }
@@ -66,7 +78,8 @@ export class AttendanceService {
   }
 
   async create(dto: CreateAttendanceDto, userId?: string) {
-    await this.ensureRelationsExist(dto);
+    const institutionId = await this.institutionIdFor(userId);
+    await this.ensureRelationsExist(dto, institutionId);
     const attendanceDate = this.toDate(dto.attendance_date);
     await this.ensureAttendanceDoesNotExist(
       dto.schedule_id,
@@ -85,6 +98,7 @@ export class AttendanceService {
 
   async update(id: string, dto: UpdateAttendanceDto, userId?: string) {
     const current = await this.findOne(id, userId);
+    const institutionId = await this.institutionIdFor(userId);
     const scheduleId = dto.schedule_id ?? current.schedule_id;
     const studentId = dto.student_id ?? current.student_id;
     const attendanceDate =
@@ -92,12 +106,15 @@ export class AttendanceService {
         ? (current.attendance_date ?? undefined)
         : this.toDate(dto.attendance_date);
 
-    await this.ensureRelationsExist({
-      schedule_id: scheduleId,
-      student_id: studentId,
-      attendance_status_id:
-        dto.attendance_status_id ?? current.attendance_status_id,
-    });
+    await this.ensureRelationsExist(
+      {
+        schedule_id: scheduleId,
+        student_id: studentId,
+        attendance_status_id:
+          dto.attendance_status_id ?? current.attendance_status_id,
+      },
+      institutionId,
+    );
     await this.ensureAttendanceDoesNotExist(
       scheduleId,
       studentId,
@@ -126,18 +143,32 @@ export class AttendanceService {
     return { success: true, id };
   }
 
-  private async ensureRelationsExist(data: {
-    schedule_id: string;
-    student_id: string;
-    attendance_status_id: string;
-  }) {
+  private async ensureRelationsExist(
+    data: {
+      schedule_id: string;
+      student_id: string;
+      attendance_status_id: string;
+    },
+    institutionId?: string,
+  ) {
     const [schedule, student, attendanceStatus] = await Promise.all([
       this.scheduleRepository.findById(data.schedule_id),
-      this.studentRepository.findById(data.student_id),
-      this.attendanceStatusRepository.findById(data.attendance_status_id),
+      this.studentRepository.findById(data.student_id, institutionId),
+      institutionId
+        ? this.attendanceStatusRepository.findById(
+            institutionId,
+            data.attendance_status_id,
+          )
+        : Promise.resolve(null),
     ]);
 
     if (!schedule) throw new NotFoundException("Schedule not found");
+    if (
+      institutionId &&
+      schedule.classSubject?.class?.institution_id !== institutionId
+    ) {
+      throw new NotFoundException("Schedule not found");
+    }
     if (!student) throw new NotFoundException("Student not found");
     if (!attendanceStatus) {
       throw new NotFoundException("Attendance status not found");

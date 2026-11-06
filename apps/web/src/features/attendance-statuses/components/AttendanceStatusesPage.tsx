@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
+import { ApiError } from '@/lib/api';
+import { Button } from '@/components/ui/button';
 import { AttendanceStatusHeader } from './AttendanceStatusHeader';
 import { AttendanceStatusStats } from './AttendanceStatusStats';
 import { AttendanceStatusesTable } from './AttendanceStatusesTable';
@@ -15,6 +17,11 @@ import type { AttendanceStatus } from '../types';
 import type { AttendanceStatusFormValues } from '../schemas/attendanceStatusSchema';
 
 function errorMessage(error: unknown): string {
+  if (error instanceof ApiError && error.status === 409) {
+    return error.message.toLowerCase().includes('used')
+      ? 'Status masih digunakan oleh data presensi dan tidak bisa dihapus'
+      : 'Nama status sudah dipakai di institusi ini';
+  }
   return error instanceof Error ? error.message : 'Terjadi kesalahan. Silakan coba lagi.';
 }
 
@@ -27,6 +34,7 @@ export function AttendanceStatusesPage() {
   const [editingItem, setEditingItem] = useState<AttendanceStatus | null>(null);
   const [deletingItem, setDeletingItem] = useState<AttendanceStatus | null>(null);
   const [notice, setNotice] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
+  const [serverError, setServerError] = useState<{ field: string; message: string } | null>(null);
 
   const normalizedSearch = debouncedSearch.trim();
   const statusesQuery = useAttendanceStatuses({ page: currentPage, limit, search: normalizedSearch });
@@ -44,22 +52,40 @@ export function AttendanceStatusesPage() {
   }, [notice]);
 
   const handleCreate = async (values: AttendanceStatusFormValues) => {
+    setServerError(null);
     try {
       await createMutation.mutateAsync({ name: values.name, description: values.description || undefined });
       setIsAdding(false);
       setNotice({ kind: 'success', message: 'Status kehadiran berhasil ditambahkan.' });
     } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        setServerError({ field: 'name', message: 'Nama status sudah dipakai di institusi ini' });
+        return;
+      }
+      if (error instanceof ApiError && error.fieldErrors[0]) {
+        setServerError(error.fieldErrors[0]);
+        return;
+      }
       setNotice({ kind: 'error', message: errorMessage(error) });
     }
   };
 
   const handleUpdate = async (values: AttendanceStatusFormValues) => {
     if (!editingItem) return;
+    setServerError(null);
     try {
       await updateMutation.mutateAsync({ id: editingItem.id, input: { name: values.name, description: values.description || undefined } });
       setEditingItem(null);
       setNotice({ kind: 'success', message: 'Status kehadiran berhasil diperbarui.' });
     } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        setServerError({ field: 'name', message: 'Nama status sudah dipakai di institusi ini' });
+        return;
+      }
+      if (error instanceof ApiError && error.fieldErrors[0]) {
+        setServerError(error.fieldErrors[0]);
+        return;
+      }
       setNotice({ kind: 'error', message: errorMessage(error) });
     }
   };
@@ -81,7 +107,7 @@ export function AttendanceStatusesPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <AttendanceStatusHeader onAdd={() => setIsAdding(true)} />
         {notice && <div role="status" className={`fixed right-4 top-4 z-[60] rounded-xl border p-4 text-sm font-medium text-white shadow-lg ${notice.kind === 'success' ? 'border-emerald-500 bg-emerald-600' : 'border-red-500 bg-red-600'}`}>{notice.message}</div>}
-        {statusesQuery.isError && <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">{errorMessage(statusesQuery.error)}</div>}
+        {statusesQuery.isError && <div className="flex items-center justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400"><span>{errorMessage(statusesQuery.error)}</span><Button type="button" variant="outline" onClick={() => void statusesQuery.refetch()}>Coba lagi</Button></div>}
         <AttendanceStatusStats total={meta?.total ?? 0} isLoading={statusesQuery.isPending} />
         <AttendanceStatusesTable
           attendanceStatuses={statuses}
@@ -101,8 +127,8 @@ export function AttendanceStatusesPage() {
           </select>
         </div>
       </div>
-      {isAdding && <AttendanceStatusDialog open={isAdding} isSaving={createMutation.isPending} onClose={() => setIsAdding(false)} onSave={handleCreate} />}
-      {editingItem && <AttendanceStatusDialog open={Boolean(editingItem)} attendanceStatus={editingItem} isSaving={updateMutation.isPending} onClose={() => setEditingItem(null)} onSave={handleUpdate} />}
+      {isAdding && <AttendanceStatusDialog open={isAdding} isSaving={createMutation.isPending} serverError={serverError} onFieldChange={() => setServerError(null)} onClose={() => { setServerError(null); setIsAdding(false); }} onSave={handleCreate} />}
+      {editingItem && <AttendanceStatusDialog open={Boolean(editingItem)} attendanceStatus={editingItem} isSaving={updateMutation.isPending} serverError={serverError} onFieldChange={() => setServerError(null)} onClose={() => { setServerError(null); setEditingItem(null); }} onSave={handleUpdate} />}
       {deletingItem && <DeleteAttendanceStatusDialog attendanceStatus={deletingItem} isDeleting={deleteMutation.isPending} onClose={() => setDeletingItem(null)} onConfirm={handleDelete} />}
     </main>
   );

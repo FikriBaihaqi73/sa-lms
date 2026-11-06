@@ -2,6 +2,7 @@ import type { Prisma } from "#generated/client";
 
 export const attendanceStatusSelect = {
   id: true,
+  institution_id: true,
   name: true,
   description: true,
   created_at: true,

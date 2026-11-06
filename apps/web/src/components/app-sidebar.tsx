@@ -125,11 +125,6 @@ export function AppSidebar() {
 									icon={BookOpen}
 									label="Jenis Tugas"
 								/>
-								<NavItem
-									to="/attendance-statuses"
-									icon={ClipboardCheck}
-									label="Status Kehadiran"
-								/>
 							</div>
 						</div>
 
@@ -230,6 +225,7 @@ export function AppSidebar() {
 									icon={Calendar}
 									label="Jadwal Pelajaran"
 								/>
+                {hasExplicitAdminRole && <NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Status Kehadiran" />}
 								{hasExplicitAdminRole && <NavItem to="/teaching-journals" icon={BookOpenCheck} label="Jurnal Mengajar" />}
 								{hasExplicitAdminRole && <NavItem to="/attendances" icon={ClipboardCheck} label="Presensi & Absensi" />}
 								<NavItem

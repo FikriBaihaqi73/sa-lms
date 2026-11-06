@@ -12,7 +12,8 @@
         "format": "biome check --write",
         "lint": "biome check",
         "seed:roles": "tsx src/script/seed-roles.ts",
-        "seed:users": "tsx src/script/seed-users.ts"
+        "seed:users": "tsx src/script/seed-users.ts",
+        "seed:attendance-statuses": "tsx src/script/seed-attendance-statuses.ts"
     },
     "exports": {
         "./*": {

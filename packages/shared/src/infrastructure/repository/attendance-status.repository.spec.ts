@@ -10,92 +10,109 @@ describe("AttendanceStatusRepository", () => {
     findMany: jest.fn(),
     count: jest.fn(),
     update: jest.fn(),
+    updateMany: jest.fn(),
   };
-  const prisma = { attendanceStatuses } as unknown as PrismaClient;
+  const attendances = { count: jest.fn() };
+  const prisma = { attendanceStatuses, attendances } as unknown as PrismaClient;
   const repository = new AttendanceStatusRepository(prisma);
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("creates a status and stores a missing description as null", async () => {
-    const status = { id: "present-id", name: "Present", description: null };
+  it("creates a status with its institution and null description", async () => {
+    const status = { id: "present-id", institution_id: "inst-1" };
+    attendanceStatuses.findFirst.mockResolvedValue(null);
     attendanceStatuses.create.mockResolvedValue(status);
 
-    await expect(repository.create({ name: "Present" })).resolves.toEqual(
-      status,
-    );
+    await expect(
+      repository.create("inst-1", { name: "Present" }),
+    ).resolves.toEqual(status);
     expect(attendanceStatuses.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: { name: "Present", description: null },
+        data: { institution_id: "inst-1", name: "Present", description: null },
       }),
     );
   });
 
-  it("only returns active statuses when finding one by ID or name", async () => {
-    attendanceStatuses.findFirst.mockResolvedValue(null);
+  it("restores a soft-deleted status instead of inserting a duplicate", async () => {
+    attendanceStatuses.findFirst.mockResolvedValue({
+      id: "deleted-id",
+      deleted_at: new Date(),
+    });
+    attendanceStatuses.update.mockResolvedValue({ id: "deleted-id" });
 
-    await expect(repository.findById("missing-id")).resolves.toBeNull();
-    await expect(repository.findByName("Absent")).resolves.toBeNull();
+    await repository.create("inst-1", { name: "Present", description: "Back" });
+
+    expect(attendanceStatuses.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "deleted-id" },
+        data: { deleted_at: null, description: "Back" },
+      }),
+    );
+    expect(attendanceStatuses.create).not.toHaveBeenCalled();
+  });
+
+  it("scopes lookups and lists to the institution", async () => {
+    attendanceStatuses.findFirst.mockResolvedValue(null);
+    attendanceStatuses.findMany.mockResolvedValue([]);
+    attendanceStatuses.count.mockResolvedValue(0);
+
+    await repository.findById("inst-1", "missing-id");
+    await repository.findByName("inst-1", "Absent");
+    await repository.findAll("inst-1");
 
     expect(attendanceStatuses.findFirst).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        where: { id: "missing-id", deleted_at: null },
+        where: { id: "missing-id", institution_id: "inst-1", deleted_at: null },
       }),
     );
     expect(attendanceStatuses.findFirst).toHaveBeenNthCalledWith(
       2,
-      expect.objectContaining({ where: { name: "Absent", deleted_at: null } }),
-    );
-  });
-
-  it("lists only active statuses", async () => {
-    const statuses = [{ id: "present-id", name: "Present" }];
-    attendanceStatuses.findMany.mockResolvedValue(statuses);
-    attendanceStatuses.count.mockResolvedValue(statuses.length);
-
-    await expect(repository.findAll()).resolves.toEqual({
-      data: statuses,
-      meta: {
-        totalData: 1,
-        totalPages: 1,
-        currentPage: 1,
-        perPage: 10,
-      },
-    });
-    expect(attendanceStatuses.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { deleted_at: null } }),
-    );
-    expect(attendanceStatuses.count).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { deleted_at: null } }),
-    );
-  });
-
-  it("updates only the supplied fields", async () => {
-    const status = { id: "late-id", name: "Late", description: null };
-    attendanceStatuses.update.mockResolvedValue(status);
-
-    await expect(
-      repository.update("late-id", { name: "Late" }),
-    ).resolves.toEqual(status);
-    expect(attendanceStatuses.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: "late-id" },
-        data: { name: "Late" },
+        where: { institution_id: "inst-1", name: "Absent", deleted_at: null },
+      }),
+    );
+    expect(attendanceStatuses.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { institution_id: "inst-1", deleted_at: null },
       }),
     );
   });
 
-  it("soft-deletes a status", async () => {
-    const status = { id: "absent-id", name: "Absent" };
-    attendanceStatuses.update.mockResolvedValue(status);
+  it("counts only active attendance records for a scoped status", async () => {
+    attendances.count.mockResolvedValue(3);
 
-    await expect(repository.delete("absent-id")).resolves.toEqual(status);
-    expect(attendanceStatuses.update).toHaveBeenCalledWith(
+    await expect(repository.countUsage("inst-1", "status-id")).resolves.toBe(3);
+    expect(attendances.count).toHaveBeenCalledWith({
+      where: {
+        attendance_status_id: "status-id",
+        deleted_at: null,
+        attendance_status: { institution_id: "inst-1" },
+      },
+    });
+  });
+
+  it("updates and soft-deletes only an active scoped row", async () => {
+    attendanceStatuses.updateMany.mockResolvedValue({ count: 1 });
+    attendanceStatuses.findFirst
+      .mockResolvedValueOnce({ id: "status-id" })
+      .mockResolvedValueOnce({ id: "status-id", deleted_at: new Date() });
+
+    await repository.update("inst-1", "status-id", { name: "Late" });
+    await repository.delete("inst-1", "status-id");
+
+    expect(attendanceStatuses.updateMany).toHaveBeenNthCalledWith(
+      1,
       expect.objectContaining({
-        where: { id: "absent-id" },
-        data: { deleted_at: expect.any(Date) },
+        where: { id: "status-id", institution_id: "inst-1", deleted_at: null },
+      }),
+    );
+    expect(attendanceStatuses.updateMany).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        where: { id: "status-id", institution_id: "inst-1", deleted_at: null },
       }),
     );
   });
