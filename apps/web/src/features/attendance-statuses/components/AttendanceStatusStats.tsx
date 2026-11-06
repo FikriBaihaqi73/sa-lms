@@ -32,7 +32,7 @@ export function AttendanceStatusStats({ total, isLoading }: AttendanceStatusStat
         </div>
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Cakupan Akses</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Pengaturan Global</p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Per Institusi</p>
         </div>
       </div>
     </div>

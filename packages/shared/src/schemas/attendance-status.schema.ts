@@ -2,7 +2,10 @@ import { createZodDto } from "nestjs-zod/dto";
 import { z } from "zod";
 
 export const CreateAttendanceStatusSchema = z.object({
-  name: z.string().min(1).describe("Attendance status name"),
+  name: z
+    .string()
+    .min(1)
+    .describe("Attendance status name within the institution"),
   description: z.string().optional().describe("Attendance status description"),
 });
 

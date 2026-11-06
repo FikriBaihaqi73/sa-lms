@@ -14,9 +14,11 @@ interface AttendanceStatusDialogProps {
   isSaving: boolean;
   onClose: () => void;
   onSave: (values: AttendanceStatusFormValues) => Promise<void>;
+  serverError?: { field: string; message: string } | null;
+  onFieldChange?: () => void;
 }
 
-export function AttendanceStatusDialog({ open, attendanceStatus, isSaving, onClose, onSave }: AttendanceStatusDialogProps) {
+export function AttendanceStatusDialog({ open, attendanceStatus, isSaving, onClose, onSave, serverError, onFieldChange }: AttendanceStatusDialogProps) {
   const isEditing = Boolean(attendanceStatus);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<AttendanceStatusFormValues>({
     resolver: zodResolver(attendanceStatusFormSchema),
@@ -28,6 +30,9 @@ export function AttendanceStatusDialog({ open, attendanceStatus, isSaving, onClo
   }, [attendanceStatus, reset]);
 
   if (!open) return null;
+
+  const nameField = register('name');
+  const descriptionField = register('description');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="attendance-status-dialog-title">
@@ -45,12 +50,13 @@ export function AttendanceStatusDialog({ open, attendanceStatus, isSaving, onClo
         <form onSubmit={handleSubmit(onSave)} className="space-y-4 p-6">
           <div className="space-y-2">
             <Label htmlFor="attendance-status-name" className="text-sm font-semibold">Nama <span className="text-red-500">*</span></Label>
-            <Input id="attendance-status-name" {...register('name')} placeholder="Contoh: Hadir, Izin, Sakit" className="h-11" disabled={isSaving} />
+            <Input id="attendance-status-name" {...nameField} onChange={(event) => { nameField.onChange(event); onFieldChange?.(); }} placeholder="Contoh: Hadir, Izin, Sakit" className="h-11" disabled={isSaving} />
             {errors.name && <p className="text-xs font-medium text-red-500">{errors.name.message}</p>}
+            {serverError?.field === 'name' && <p className="text-xs font-medium text-red-500">{serverError.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="attendance-status-description" className="text-sm font-semibold">Deskripsi <span className="text-xs font-normal text-slate-500">(Opsional)</span></Label>
-            <textarea id="attendance-status-description" {...register('description')} rows={3} placeholder="Tambahkan deskripsi status kehadiran..." disabled={isSaving} className="w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-900/30" />
+            <textarea id="attendance-status-description" {...descriptionField} onChange={(event) => { descriptionField.onChange(event); onFieldChange?.(); }} rows={3} placeholder="Tambahkan deskripsi status kehadiran..." disabled={isSaving} className="w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-900/30" />
             {errors.description && <p className="text-xs font-medium text-red-500">{errors.description.message}</p>}
           </div>
           <div className="flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">

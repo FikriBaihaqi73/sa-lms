@@ -25,9 +25,10 @@ describe("AttendanceService", () => {
     } as unknown as PrismaService;
 
     service = new AttendanceService(mockPrisma);
-    jest
-      .spyOn(ScheduleRepository.prototype, "findById")
-      .mockResolvedValue({ id: "schedule-id" } as never);
+    jest.spyOn(ScheduleRepository.prototype, "findById").mockResolvedValue({
+      id: "schedule-id",
+      classSubject: { class: { institution_id: "inst-1" } },
+    } as never);
     jest
       .spyOn(StudentRepository.prototype, "findById")
       .mockResolvedValue({ id: "student-id" } as never);
@@ -62,8 +63,44 @@ describe("AttendanceService", () => {
         student_id: "student-id",
         attendance_status_id: "status-id",
         attendance_date: "2026-09-10T00:00:00.000Z",
-      } as CreateAttendanceDto),
+      } as CreateAttendanceDto, "user-1"),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it("rejects a status or schedule from another institution", async () => {
+    jest
+      .spyOn(AttendanceStatusRepository.prototype, "findById")
+      .mockResolvedValue(null);
+
+    await expect(
+      service.create(
+        {
+          schedule_id: "schedule-id",
+          student_id: "student-id",
+          attendance_status_id: "foreign-status-id",
+        } as CreateAttendanceDto,
+        "user-1",
+      ),
+    ).rejects.toThrow("Attendance status not found");
+
+    jest
+      .spyOn(AttendanceStatusRepository.prototype, "findById")
+      .mockResolvedValue({ id: "status-id" } as never);
+    jest.spyOn(ScheduleRepository.prototype, "findById").mockResolvedValue({
+      id: "schedule-id",
+      classSubject: { class: { institution_id: "other-inst" } },
+    } as never);
+
+    await expect(
+      service.create(
+        {
+          schedule_id: "schedule-id",
+          student_id: "student-id",
+          attendance_status_id: "status-id",
+        } as CreateAttendanceDto,
+        "user-1",
+      ),
+    ).rejects.toThrow("Schedule not found");
   });
 
   it("creates, updates, and soft-deletes an attendance record", async () => {
@@ -84,11 +121,14 @@ describe("AttendanceService", () => {
       .spyOn(AttendanceRepository.prototype, "delete")
       .mockResolvedValue({ id: "attendance-id" } as never);
 
-    await service.create({
-      schedule_id: "schedule-id",
-      student_id: "student-id",
-      attendance_status_id: "status-id",
-    } as CreateAttendanceDto, "user-1");
+    await service.create(
+      {
+        schedule_id: "schedule-id",
+        student_id: "student-id",
+        attendance_status_id: "status-id",
+      } as CreateAttendanceDto,
+      "user-1",
+    );
     await service.update("attendance-id", { notes: "Present" }, "user-1");
     await expect(service.remove("attendance-id", "user-1")).resolves.toEqual({
       success: true,
@@ -106,21 +146,30 @@ describe("AttendanceService", () => {
   });
 
   it("scopes findAll and getSummary by institutionId", async () => {
-    const findAllSpy = jest.spyOn(AttendanceRepository.prototype, "findAll").mockResolvedValue({
-      data: [],
-      meta: { totalData: 0, totalPages: 0, currentPage: 1, perPage: 10 },
-    });
-    const summarySpy = jest.spyOn(AttendanceRepository.prototype, "getSummary").mockResolvedValue({
-      total: 10,
-      present: 8,
-      permission: 1,
-      sick: 1,
-      absent: 0,
-      attendanceRate: 80,
-    });
+    const findAllSpy = jest
+      .spyOn(AttendanceRepository.prototype, "findAll")
+      .mockResolvedValue({
+        data: [],
+        meta: { totalData: 0, totalPages: 0, currentPage: 1, perPage: 10 },
+      });
+    const summarySpy = jest
+      .spyOn(AttendanceRepository.prototype, "getSummary")
+      .mockResolvedValue({
+        total: 10,
+        present: 8,
+        permission: 1,
+        sick: 1,
+        absent: 0,
+        attendanceRate: 80,
+      });
 
     await service.findAll(1, 10, { search: "test" }, "user-1");
-    expect(findAllSpy).toHaveBeenCalledWith(1, 10, { search: "test" }, "inst-1");
+    expect(findAllSpy).toHaveBeenCalledWith(
+      1,
+      10,
+      { search: "test" },
+      "inst-1",
+    );
 
     const summary = await service.getSummary({ search: "test" }, "user-1");
     expect(summarySpy).toHaveBeenCalledWith({ search: "test" }, "inst-1");

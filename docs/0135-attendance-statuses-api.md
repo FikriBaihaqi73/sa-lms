@@ -1,42 +1,64 @@
-# Attendance statuses API
+# Attendance Statuses API
 
-The API exposes CRUD operations for the attendance status reference data used by attendance records. All JSON requests require `Content-Type: application/json`; every response uses `{ "status", "message", "data", "code" }`.
+API ini mengelola referensi status kehadiran per institusi. Seluruh endpoint membutuhkan JWT dan hanya dapat digunakan oleh role `admin` (Admin Institusi). Superadmin tidak lagi mengelola halaman ini.
 
-| Method | URL | Purpose |
+| Method | URL | Keterangan |
 | --- | --- | --- |
-| `GET` | `/attendance-statuses` | List active attendance statuses |
-| `GET` | `/attendance-statuses/:id` | Get one active status |
-| `POST` | `/attendance-statuses` | Create a status |
-| `PATCH` | `/attendance-statuses/:id` | Update supplied fields |
-| `DELETE` | `/attendance-statuses/:id` | Soft-delete a status |
+| `GET` | `/attendance-statuses` | Daftar status aktif pada institusi admin |
+| `GET` | `/attendance-statuses/:id` | Detail status aktif pada institusi admin |
+| `POST` | `/attendance-statuses` | Membuat status pada institusi admin |
+| `PATCH` | `/attendance-statuses/:id` | Mengubah status milik institusi admin |
+| `DELETE` | `/attendance-statuses/:id` | Soft-delete status yang tidak sedang dipakai |
 
-## Requests
+## Request
 
-Create a status:
+Header:
 
-```json
-{ "name": "Present", "description": "Student attended the lesson" }
+```http
+Authorization: Bearer <access_token>
+Content-Type: application/json
 ```
 
-Update requests use the same fields, but all are optional:
+Body create:
 
 ```json
-{ "description": "Student was present for the scheduled lesson" }
+{ "name": "Hadir", "description": "Siswa hadir mengikuti pembelajaran" }
 ```
 
-`name` must be a non-empty string and must be unique among active statuses. `description` is optional.
+Body update menerima `name` dan `description` secara opsional. `institution_id` tidak boleh dikirim client; server mengambilnya dari profile user yang login.
 
-## Responses and frontend flow
+## Scoping
 
-Successful creation returns HTTP `201`:
+Semua operasi memakai `institution_id` dari profile user. ID status milik institusi lain diperlakukan sebagai `404`, sehingga keberadaannya tidak bocor.
+
+Nama unik per institusi melalui `(institution_id, name)`. Jika create memakai nama dari baris soft-deleted pada institusi yang sama, baris tersebut dipulihkan dan deskripsinya diperbarui.
+
+## Respons error
+
+Duplicate name:
 
 ```json
 {
-  "status": "success",
-  "message": "Attendance status created successfully",
-  "data": { "id": "uuid", "name": "Present", "description": "Student attended the lesson" },
-  "code": 201
+  "status": "error",
+  "code": 409,
+  "message": "Attendance status name already exists in this institution",
+  "data": null
 }
 ```
 
-Load `GET /attendance-statuses` to populate attendance-status selectors. After a create or update, merge the returned `data` into the local list; after delete, remove its ID from the list. A nonexistent or already-deleted ID returns `404`, while a duplicate name returns `409`. Validation errors identify the invalid field through the standard validation response.
+Status yang masih dipakai attendance aktif tidak dapat dihapus:
+
+```json
+{
+  "status": "error",
+  "code": 409,
+  "message": "Attendance status is still used by attendance records",
+  "data": null
+}
+```
+
+User tanpa institusi mendapat `403` dengan pesan `Institution access is required`.
+
+## Seed default
+
+`pnpm --filter @repo/shared seed:attendance-statuses` memastikan `Hadir`, `Izin`, `Sakit`, dan `Alpa` tersedia untuk setiap institusi. Script idempotent dan tidak dijalankan otomatis oleh auth registration.

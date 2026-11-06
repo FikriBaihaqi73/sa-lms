@@ -6,12 +6,16 @@ model AttendanceStatuses {
   deleted_at DateTime? @db.Timestamp
 
   // attributes
-  name        String  @unique @db.VarChar
-  description String? @db.VarChar
+  institution_id String   @db.Uuid
+  name          String   @db.VarChar
+  description   String?  @db.VarChar
 
   // relations
+  institution Institution @relation(fields: [institution_id], references: [id])
   attendances Attendances[]
 
+  @@unique([institution_id, name])
   @@index([name])
+  @@index([institution_id])
   @@map("attendance_statuses")
 }

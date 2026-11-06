@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
@@ -14,11 +15,14 @@ import {
   CreateAttendanceStatusDto,
   UpdateAttendanceStatusDto,
 } from "@repo/shared/schemas/attendance-status.schema";
+import type { Request } from "express";
 import { ZodValidationPipe } from "nestjs-zod";
+import { Roles } from "../auth/roles.decorator";
 import { AttendanceStatusService } from "./attendance-status.service";
 
 @ApiTags("Attendance Statuses")
 @ApiBearerAuth("JWT-auth")
+@Roles("admin")
 @Controller("attendance-statuses")
 export class AttendanceStatusController {
   constructor(
@@ -28,6 +32,7 @@ export class AttendanceStatusController {
   @Get()
   @ApiOperation({ summary: "Get all attendance statuses" })
   async findAll(
+    @Req() req: Request & { user: { sub: string } },
     @Query("page") page = "1",
     @Query("limit") limit = "10",
     @Query("search") search?: string,
@@ -38,6 +43,7 @@ export class AttendanceStatusController {
       pageNumber,
       limitNumber,
       search,
+      req.user.sub,
     );
     return ResponseHelper.success(
       result.data,
@@ -49,18 +55,24 @@ export class AttendanceStatusController {
 
   @Get(":id")
   @ApiOperation({ summary: "Get attendance status by ID" })
-  async findOne(@Param("id") id: string) {
+  async findOne(
+    @Param("id") id: string,
+    @Req() req: Request & { user: { sub: string } },
+  ) {
     return ResponseHelper.success(
-      await this.attendanceStatusService.findOne(id),
+      await this.attendanceStatusService.findOne(id, req.user.sub),
       "Attendance status detail retrieved successfully",
     );
   }
 
   @Post()
   @ApiOperation({ summary: "Create a new attendance status" })
-  async create(@Body(new ZodValidationPipe()) dto: CreateAttendanceStatusDto) {
+  async create(
+    @Body(new ZodValidationPipe()) dto: CreateAttendanceStatusDto,
+    @Req() req: Request & { user: { sub: string } },
+  ) {
     return ResponseHelper.success(
-      await this.attendanceStatusService.create(dto),
+      await this.attendanceStatusService.create(dto, req.user.sub),
       "Attendance status created successfully",
       201,
     );
@@ -71,18 +83,22 @@ export class AttendanceStatusController {
   async update(
     @Param("id") id: string,
     @Body(new ZodValidationPipe()) dto: UpdateAttendanceStatusDto,
+    @Req() req: Request & { user: { sub: string } },
   ) {
     return ResponseHelper.success(
-      await this.attendanceStatusService.update(id, dto),
+      await this.attendanceStatusService.update(id, dto, req.user.sub),
       "Attendance status updated successfully",
     );
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete an attendance status" })
-  async remove(@Param("id") id: string) {
+  async remove(
+    @Param("id") id: string,
+    @Req() req: Request & { user: { sub: string } },
+  ) {
     return ResponseHelper.success(
-      await this.attendanceStatusService.remove(id),
+      await this.attendanceStatusService.remove(id, req.user.sub),
       "Attendance status deleted successfully",
     );
   }

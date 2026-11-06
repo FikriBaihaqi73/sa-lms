@@ -27,6 +27,7 @@ model Institution {
   classrooms       Classroom[]
   guardians        Guardian[]
   departments      Departments[]
+  attendance_statuses AttendanceStatuses[]
 
   academic_years   AcademicYears[]
   referralCodes    ReferralCodes[]
