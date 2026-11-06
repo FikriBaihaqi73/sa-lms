@@ -55,19 +55,42 @@ describe("TeachingJournalService security", () => {
     );
     expect(find).toHaveBeenCalledWith("b", { institutionId: "A" });
   });
-  it.each([
-    "create",
-    "update",
-    "remove",
-  ])("rejects admin %s", async (action) => {
+  it("allows admin create, update, and remove scoped to institution", async () => {
     profile.mockResolvedValue(admin);
-    const op =
-      action === "create"
-        ? service.create({ schedule_id: "s" }, "u")
-        : action === "update"
-          ? service.update("j", {}, "u")
-          : service.remove("j", "u");
-    await expect(op).rejects.toBeInstanceOf(ForbiddenException);
+    const create = jest
+      .spyOn(TeachingJournalRepository.prototype, "create")
+      .mockResolvedValue({ id: "j-admin" } as never);
+    const update = jest
+      .spyOn(TeachingJournalRepository.prototype, "update")
+      .mockResolvedValue({ id: "j-admin" } as never);
+    const remove = jest
+      .spyOn(TeachingJournalRepository.prototype, "delete")
+      .mockResolvedValue(true);
+
+    await expect(service.create({ schedule_id: "s" }, "u")).resolves.toEqual({
+      id: "j-admin",
+    });
+    expect(create).toHaveBeenCalledWith(
+      { schedule_id: "s" },
+      { institutionId: "A" },
+      "u",
+    );
+
+    await expect(service.update("j", { topic: "test" }, "u")).resolves.toEqual({
+      id: "j-admin",
+    });
+    expect(update).toHaveBeenCalledWith(
+      "j",
+      { topic: "test" },
+      { institutionId: "A" },
+      "u",
+    );
+
+    await expect(service.remove("j", "u")).resolves.toEqual({
+      success: true,
+      id: "j",
+    });
+    expect(remove).toHaveBeenCalledWith("j", { institutionId: "A" }, "u");
   });
   it("denies missing institution or teacher profile", async () => {
     profile

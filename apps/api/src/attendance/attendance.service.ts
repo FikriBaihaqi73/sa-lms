@@ -80,6 +80,7 @@ export class AttendanceService {
   async create(dto: CreateAttendanceDto, userId?: string) {
     const institutionId = await this.institutionIdFor(userId);
     await this.ensureRelationsExist(dto, institutionId);
+    
     const attendanceDate = this.toDate(dto.attendance_date);
     await this.ensureAttendanceDoesNotExist(
       dto.schedule_id,

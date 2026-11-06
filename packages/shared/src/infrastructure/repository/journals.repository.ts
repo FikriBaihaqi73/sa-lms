@@ -174,7 +174,7 @@ export class TeachingJournalRepository {
           where: {
             id,
             deleted_at: null,
-            created_by: userId,
+            ...(scope.teacherId ? { created_by: userId } : {}),
             schedule: scheduleScope(scope),
           },
           data: {
@@ -204,7 +204,7 @@ export class TeachingJournalRepository {
           where: {
             id,
             deleted_at: null,
-            created_by: userId,
+            ...(scope.teacherId ? { created_by: userId } : {}),
             schedule: scheduleScope(scope),
           },
           select: teachingJournalSelect,
@@ -223,7 +223,7 @@ export class TeachingJournalRepository {
       where: {
         id,
         deleted_at: null,
-        created_by: userId,
+        ...(scope.teacherId ? { created_by: userId } : {}),
         schedule: scheduleScope(scope),
       },
       data: {
