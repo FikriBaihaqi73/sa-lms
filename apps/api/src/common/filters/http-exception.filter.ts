@@ -9,7 +9,23 @@ export class AllExceptionsFilter {
 
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
-      const message = exception.message;
+      const responseBody = exception.getResponse();
+      if (
+        typeof responseBody === "object" &&
+        responseBody !== null &&
+        "errors" in responseBody
+      ) {
+        response.status(status).json(responseBody);
+        return;
+      }
+      const message =
+        typeof responseBody === "object" &&
+        responseBody !== null &&
+        "message" in responseBody &&
+        typeof (responseBody as { message: unknown }).message === "string"
+          ? (responseBody as { message: string }).message
+          : exception.message;
+
       response.status(status).json({
         status: "error",
         message,
@@ -35,6 +51,8 @@ export class AllExceptionsFilter {
       });
       return;
     }
+
+    console.error("Unhandled Exception caught by AllExceptionsFilter:", exception);
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       status: "error",
