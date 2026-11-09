@@ -217,7 +217,9 @@ describe("UserService", () => {
 
     it("hashes the password before creating a user", async () => {
       mockCaller("admin", INSTITUTION_A);
-      jest.spyOn(UserRepository.prototype, "findByEmail").mockResolvedValue(null);
+      jest
+        .spyOn(UserRepository.prototype, "findByEmail")
+        .mockResolvedValue(null);
       const create = jest
         .spyOn(UserRepository.prototype, "create")
         .mockResolvedValue({ id: "user-id" } as never);
@@ -238,7 +240,9 @@ describe("UserService", () => {
 
     it("never grants superadmin or another institution through the request", async () => {
       mockCaller("admin", INSTITUTION_A);
-      jest.spyOn(UserRepository.prototype, "findByEmail").mockResolvedValue(null);
+      jest
+        .spyOn(UserRepository.prototype, "findByEmail")
+        .mockResolvedValue(null);
       const create = jest
         .spyOn(UserRepository.prototype, "create")
         .mockResolvedValue({ id: "user-id" } as never);

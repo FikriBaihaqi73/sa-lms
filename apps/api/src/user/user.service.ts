@@ -71,6 +71,7 @@ export class UserService {
     limit = 10,
     search: string | undefined,
     userId: string,
+    status?: "active" | "deleted" | "all",
   ) {
     const institutionId = await this.institutionScopeFor(userId);
     return this.userRepository.findAll({
@@ -78,6 +79,7 @@ export class UserService {
       limit,
       ...(search !== undefined ? { search } : {}),
       ...(institutionId !== undefined ? { institution_id: institutionId } : {}),
+      ...(status !== undefined ? { status } : {}),
     });
   }
 
