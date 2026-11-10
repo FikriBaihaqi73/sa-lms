@@ -1,4 +1,5 @@
-import { Plus, Ticket } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { GraduationCap, Plus, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ReferralCodesHeaderProps {
@@ -19,7 +20,17 @@ export function ReferralCodesHeader({ onOpenCreate }: ReferralCodesHeaderProps) 
           Kelola kuota, jurusan, masa berlaku, dan distribusi kode referral pendaftaran mandiri calon siswa.
         </p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          asChild
+          variant="outline"
+          className="h-10 gap-2 border-slate-200 bg-white font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          <Link to="/students">
+            <GraduationCap className="size-4 text-blue-600 dark:text-blue-400" />
+            Data Siswa
+          </Link>
+        </Button>
         <Button
           type="button"
           onClick={onOpenCreate}
