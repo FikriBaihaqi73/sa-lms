@@ -80,7 +80,7 @@ export const AttendanceFilter: React.FC<AttendanceFilterProps> = ({
 	return (
 		<div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-slate-800/90 bg-[#111927] p-2.5 shadow-sm">
 			{/* 1. Search Input */}
-			<div className="relative min-w-[160px] flex-1 sm:max-w-[220px]">
+			<div className="relative min-w-[150px] flex-1 sm:max-w-[210px]">
 				<Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-500" />
 				<input
 					type="text"
@@ -92,7 +92,7 @@ export const AttendanceFilter: React.FC<AttendanceFilterProps> = ({
 			</div>
 
 			{/* 2. Class Selector (Tanpa Opsi 'Semua') */}
-			<div className="min-w-[130px] sm:max-w-[180px]">
+			<div className="min-w-[130px] sm:max-w-[170px]">
 				<select
 					value={classId}
 					onChange={(e) => onClassChange(e.target.value)}
@@ -113,8 +113,8 @@ export const AttendanceFilter: React.FC<AttendanceFilterProps> = ({
 				</select>
 			</div>
 
-			{/* 3. Schedule Selector (Fixed Width 405px, Truncate di Trigger, Tanpa Opsi 'Semua') */}
-			<div className="w-[405px] min-w-[405px] max-w-[405px] shrink-0">
+			{/* 3. Schedule Selector (Lebar Proporsional, Truncate di Trigger, Tanpa Opsi 'Semua') */}
+			<div className="min-w-[180px] sm:max-w-[230px] flex-1">
 				<select
 					value={scheduleId}
 					onChange={(e) => onScheduleChange(e.target.value)}
@@ -136,7 +136,7 @@ export const AttendanceFilter: React.FC<AttendanceFilterProps> = ({
 			</div>
 
 			{/* 4. Academic Year Selector (Nama & Status Lengkap, Tanpa Opsi 'Semua') */}
-			<div className="min-w-[150px] sm:max-w-[210px]">
+			<div className="min-w-[140px] sm:max-w-[190px]">
 				<select
 					value={academicYearId}
 					onChange={(e) => onAcademicYearChange?.(e.target.value)}
@@ -163,7 +163,7 @@ export const AttendanceFilter: React.FC<AttendanceFilterProps> = ({
 			</div>
 
 			{/* 5. Period (Bulan Dinamis Mengikuti Tahun Sistem Berjalan) */}
-			<div className="min-w-[130px]">
+			<div className="min-w-[120px] sm:max-w-[145px]">
 				<select
 					value={month}
 					onChange={handleMonthSelectChange}
@@ -179,7 +179,7 @@ export const AttendanceFilter: React.FC<AttendanceFilterProps> = ({
 			</div>
 
 			{/* 6. Status Selector */}
-			<div className="min-w-[110px]">
+			<div className="min-w-[100px] sm:max-w-[125px]">
 				<select
 					value={statusFilter}
 					onChange={(e) => onStatusFilterChange(e.target.value)}

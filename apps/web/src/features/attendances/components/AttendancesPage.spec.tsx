@@ -172,7 +172,7 @@ describe("AttendancesPage", () => {
 
 	afterEach(cleanup);
 
-	it("renders page header, filter bar, and student row in matrix without summary cards", async () => {
+	it("renders page header, summary stats cards, filter bar, and student row in matrix", async () => {
 		renderPage();
 
 		// Header
@@ -180,9 +180,13 @@ describe("AttendancesPage", () => {
 		expect(screen.getByText("Set Semua Hadir Hari Ini")).toBeTruthy();
 		expect(screen.getByText("Ekspor Rekap")).toBeTruthy();
 
-		// Summary cards are removed
-		expect(screen.queryByText("Total Presensi")).toBeNull();
-		expect(screen.queryByText("Tingkat Kehadiran")).toBeNull();
+		// 6 Summary cards
+		expect(screen.getByText("Total Presensi")).toBeTruthy();
+		expect(screen.getByText("Hadir")).toBeTruthy();
+		expect(screen.getByText("Izin")).toBeTruthy();
+		expect(screen.getByText("Sakit")).toBeTruthy();
+		expect(screen.getByText("Alpa")).toBeTruthy();
+		expect(screen.getByText("Tingkat Kehadiran")).toBeTruthy();
 
 		// Student in table
 		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();

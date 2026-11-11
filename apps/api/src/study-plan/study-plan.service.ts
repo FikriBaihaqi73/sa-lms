@@ -39,6 +39,7 @@ export class StudyPlanService {
       student_id?: string | undefined;
       class_subject_id?: string | undefined;
       academic_year_id?: string | undefined;
+      department_id?: string | undefined;
     },
   ) {
     return this.studyPlanRepository.findAll(page, limit, filters);
@@ -51,37 +52,85 @@ export class StudyPlanService {
   }
 
   async create(dto: CreateStudyPlanDto) {
-    await this.ensureRelationsExist(dto);
+    const classSubject = await this.classSubjectsRepository.findById(
+      dto.class_subject_id,
+    );
+    if (!classSubject) throw new NotFoundException("Class subject not found");
+
+    const resolvedAcademicYearId =
+      dto.academic_year_id ?? classSubject.academic_year_id;
+
+    if (
+      dto.academic_year_id &&
+      dto.academic_year_id !== classSubject.academic_year_id
+    ) {
+      throw new ConflictException(
+        "Tahun ajaran tidak sesuai dengan mata pelajaran kelas yang dipilih",
+      );
+    }
+
+    const student = await this.studentRepository.findById(dto.student_id);
+    if (!student) throw new NotFoundException("Student not found");
+
+    const academicYear = await this.academicYearRepository.findById(
+      resolvedAcademicYearId,
+    );
+    if (!academicYear) throw new NotFoundException("Academic year not found");
+
     await this.ensureUnique(
       dto.student_id,
       dto.class_subject_id,
-      dto.academic_year_id,
+      resolvedAcademicYearId,
     );
-    return this.studyPlanRepository.create(dto);
+
+    return this.studyPlanRepository.create({
+      student_id: dto.student_id,
+      class_subject_id: dto.class_subject_id,
+      academic_year_id: resolvedAcademicYearId,
+    });
   }
 
   async update(id: string, dto: UpdateStudyPlanDto) {
     const current = await this.findOne(id);
+    const targetClassSubjectId =
+      dto.class_subject_id ?? current.class_subject_id;
+    const classSubject =
+      await this.classSubjectsRepository.findById(targetClassSubjectId);
+    if (!classSubject) throw new NotFoundException("Class subject not found");
+
+    const targetAcademicYearId =
+      dto.academic_year_id ??
+      (dto.class_subject_id
+        ? classSubject.academic_year_id
+        : current.academic_year_id);
+
     const values = {
       student_id: dto.student_id ?? current.student_id,
-      class_subject_id: dto.class_subject_id ?? current.class_subject_id,
-      academic_year_id: dto.academic_year_id ?? current.academic_year_id,
+      class_subject_id: targetClassSubjectId,
+      academic_year_id: targetAcademicYearId,
     };
-    await this.ensureRelationsExist(values);
+
+    const student = await this.studentRepository.findById(values.student_id);
+    if (!student) throw new NotFoundException("Student not found");
+
+    const academicYear = await this.academicYearRepository.findById(
+      values.academic_year_id,
+    );
+    if (!academicYear) throw new NotFoundException("Academic year not found");
+
     await this.ensureUnique(
       values.student_id,
       values.class_subject_id,
       values.academic_year_id,
       id,
     );
+
     return this.studyPlanRepository.update(id, {
       ...(dto.student_id !== undefined ? { student_id: dto.student_id } : {}),
       ...(dto.class_subject_id !== undefined
         ? { class_subject_id: dto.class_subject_id }
         : {}),
-      ...(dto.academic_year_id !== undefined
-        ? { academic_year_id: dto.academic_year_id }
-        : {}),
+      academic_year_id: values.academic_year_id,
     });
   }
 
@@ -89,17 +138,6 @@ export class StudyPlanService {
     await this.findOne(id);
     await this.studyPlanRepository.delete(id);
     return { success: true, id };
-  }
-
-  private async ensureRelationsExist(data: CreateStudyPlanDto) {
-    const [student, classSubject, academicYear] = await Promise.all([
-      this.studentRepository.findById(data.student_id),
-      this.classSubjectsRepository.findById(data.class_subject_id),
-      this.academicYearRepository.findById(data.academic_year_id),
-    ]);
-    if (!student) throw new NotFoundException("Student not found");
-    if (!classSubject) throw new NotFoundException("Class subject not found");
-    if (!academicYear) throw new NotFoundException("Academic year not found");
   }
 
   private async ensureUnique(
@@ -115,7 +153,9 @@ export class StudyPlanService {
         academicYearId,
       );
     if (existing && existing.id !== excludedId) {
-      throw new ConflictException("Study plan already exists");
+      throw new ConflictException(
+        "Siswa sudah terdaftar pada mata pelajaran kelas ini untuk tahun ajaran yang dipilih.",
+      );
     }
   }
 }

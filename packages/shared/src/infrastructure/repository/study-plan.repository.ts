@@ -21,6 +21,7 @@ export interface StudyPlanSearchInput {
   student_id?: string | undefined;
   class_subject_id?: string | undefined;
   academic_year_id?: string | undefined;
+  department_id?: string | undefined;
 }
 
 export class StudyPlanRepository {
@@ -78,6 +79,20 @@ export class StudyPlanRepository {
                 },
               },
               {
+                student: {
+                  is: {
+                    profile: {
+                      is: {
+                        fullName: {
+                          contains: filters.search,
+                          mode: "insensitive",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              {
                 classSubject: {
                   is: {
                     subject: {
@@ -124,6 +139,19 @@ export class StudyPlanRepository {
         : {}),
       ...(filters?.academic_year_id
         ? { academic_year_id: filters.academic_year_id }
+        : {}),
+      ...(filters?.department_id
+        ? {
+            classSubject: {
+              is: {
+                subject: {
+                  is: {
+                    departmentId: filters.department_id,
+                  },
+                },
+              },
+            },
+          }
         : {}),
     } satisfies Prisma.StudyPlansWhereInput;
 

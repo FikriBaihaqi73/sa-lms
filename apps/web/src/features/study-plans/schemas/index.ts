@@ -9,4 +9,3 @@ export const studyPlanFormSchema = z.object({
 });
 
 export type StudyPlanFormValues = z.infer<typeof studyPlanFormSchema>;
-

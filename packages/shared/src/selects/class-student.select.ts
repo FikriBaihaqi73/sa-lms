@@ -21,6 +21,13 @@ export const classStudentSelect = {
       studentNumber: true,
       profileId: true,
       academicStatusId: true,
+      profile: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+        },
+      },
     },
   },
 } satisfies Prisma.ClassStudentSelect;
