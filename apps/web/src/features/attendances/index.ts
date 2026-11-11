@@ -1,5 +1,9 @@
+export * from "./api";
+export * from "./components/attendance-filter";
+export * from "./components/attendance-matrix-table";
+export * from "./components/attendance-note-popover";
+export * from "./components/attendance-stats";
+export * from "./components/attendances-page";
+export * from "./hooks";
+export * from "./schemas";
 export * from "./types";
-export * from "./api/attendances";
-export * from "./hooks/useAttendances";
-export * from "./components/AttendancesPage";
-

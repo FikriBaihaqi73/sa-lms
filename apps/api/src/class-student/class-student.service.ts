@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { ResponseHelper } from "@repo/shared/http/response";
 import { ClassStudentRepository } from "@repo/shared/infrastructure/repository/class-student.repository";
 import type {
   CreateClassStudentDto,
@@ -36,10 +35,7 @@ export class ClassStudentService {
       ...(status !== undefined ? { status } : {}),
     });
 
-    return ResponseHelper.success(
-      classStudents,
-      "Class students retrieved successfully",
-    );
+    return classStudents;
   }
 
   async findOne(id: string) {
