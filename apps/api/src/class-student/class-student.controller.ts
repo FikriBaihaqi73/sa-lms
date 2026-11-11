@@ -41,8 +41,10 @@ export class ClassStudentController {
       status,
     );
     return ResponseHelper.success(
-      classStudents,
+      classStudents.data,
       "Class students retrieved successfully",
+      200,
+      classStudents.meta,
     );
   }
 
@@ -97,9 +99,7 @@ export class ClassStudentController {
 
   @Post("batch")
   @ApiOperation({ summary: "Assign multiple students to a class at once" })
-  async createBatch(
-    @Body() body: { classId: string; studentIds: string[] },
-  ) {
+  async createBatch(@Body() body: { classId: string; studentIds: string[] }) {
     const results = await Promise.all(
       body.studentIds.map((studentId) =>
         this.classStudentService.create({

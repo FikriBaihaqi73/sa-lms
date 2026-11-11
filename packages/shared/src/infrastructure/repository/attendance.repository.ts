@@ -9,7 +9,7 @@ export interface CreateAttendanceInput {
   student_id: string;
   attendance_status_id: string;
   attendance_date?: Date | undefined;
-  notes?: string | undefined;
+  notes?: string | null | undefined;
 }
 
 export interface UpdateAttendanceInput {
@@ -17,7 +17,15 @@ export interface UpdateAttendanceInput {
   student_id?: string | undefined;
   attendance_status_id?: string | undefined;
   attendance_date?: Date | undefined;
-  notes?: string | undefined;
+  notes?: string | null | undefined;
+}
+
+export interface UpsertAttendanceInput {
+  schedule_id: string;
+  student_id: string;
+  attendance_status_id: string;
+  attendance_date: Date;
+  notes?: string | null | undefined;
 }
 
 export interface AttendanceSearchInput {
@@ -27,6 +35,10 @@ export interface AttendanceSearchInput {
   attendance_status_id?: string | undefined;
   attendance_date?: string | undefined;
   class_id?: string | undefined;
+  start_date?: string | undefined;
+  end_date?: string | undefined;
+  month?: number | string | undefined;
+  year?: number | string | undefined;
 }
 
 export interface AttendancePaginationMeta {
@@ -73,10 +85,38 @@ export class AttendanceRepository {
       ...(filters?.attendance_status_id
         ? { attendance_status_id: filters.attendance_status_id }
         : {}),
-      ...(filters?.attendance_date
-        ? { attendance_date: new Date(filters.attendance_date) }
-        : {}),
     };
+
+    if (filters?.start_date && filters?.end_date) {
+      const startDateStr = filters.start_date.split("T")[0];
+      const endDateStr = filters.end_date.split("T")[0];
+      where.attendance_date = {
+        gte: new Date(`${startDateStr}T00:00:00.000Z`),
+        lte: new Date(`${endDateStr}T23:59:59.999Z`),
+      };
+    } else if (filters?.start_date) {
+      const startDateStr = filters.start_date.split("T")[0];
+      where.attendance_date = {
+        gte: new Date(`${startDateStr}T00:00:00.000Z`),
+      };
+    } else if (filters?.end_date) {
+      const endDateStr = filters.end_date.split("T")[0];
+      where.attendance_date = {
+        lte: new Date(`${endDateStr}T23:59:59.999Z`),
+      };
+    } else if (filters?.month && filters?.year) {
+      const m = Number(filters.month);
+      const y = Number(filters.year);
+      const start = new Date(Date.UTC(y, m - 1, 1, 0, 0, 0));
+      const end = new Date(Date.UTC(y, m, 0, 23, 59, 59, 999));
+      where.attendance_date = {
+        gte: start,
+        lte: end,
+      };
+    } else if (filters?.attendance_date) {
+      const dateStr = filters.attendance_date.split("T")[0];
+      where.attendance_date = new Date(`${dateStr}T00:00:00.000Z`);
+    }
 
     if (filters?.class_id) {
       where.schedule = {
@@ -142,6 +182,62 @@ export class AttendanceRepository {
       },
       select: attendanceSelect,
     });
+  }
+
+  async upsert(data: UpsertAttendanceInput): Promise<AttendanceEntity> {
+    return this.prisma.attendances.upsert({
+      where: {
+        schedule_id_student_id_attendance_date: {
+          schedule_id: data.schedule_id,
+          student_id: data.student_id,
+          attendance_date: data.attendance_date,
+        },
+      },
+      create: {
+        schedule_id: data.schedule_id,
+        student_id: data.student_id,
+        attendance_status_id: data.attendance_status_id,
+        attendance_date: data.attendance_date,
+        notes: data.notes ?? null,
+      },
+      update: {
+        attendance_status_id: data.attendance_status_id,
+        ...(data.notes !== undefined ? { notes: data.notes } : {}),
+        deleted_at: null,
+      },
+      select: attendanceSelect,
+    }) as unknown as Promise<AttendanceEntity>;
+  }
+
+  async bulkUpsert(
+    records: UpsertAttendanceInput[],
+  ): Promise<AttendanceEntity[]> {
+    return this.prisma.$transaction(
+      records.map((item) =>
+        this.prisma.attendances.upsert({
+          where: {
+            schedule_id_student_id_attendance_date: {
+              schedule_id: item.schedule_id,
+              student_id: item.student_id,
+              attendance_date: item.attendance_date,
+            },
+          },
+          create: {
+            schedule_id: item.schedule_id,
+            student_id: item.student_id,
+            attendance_status_id: item.attendance_status_id,
+            attendance_date: item.attendance_date,
+            notes: item.notes ?? null,
+          },
+          update: {
+            attendance_status_id: item.attendance_status_id,
+            ...(item.notes !== undefined ? { notes: item.notes } : {}),
+            deleted_at: null,
+          },
+          select: attendanceSelect,
+        }),
+      ),
+    ) as unknown as Promise<AttendanceEntity[]>;
   }
 
   async findById(
@@ -262,9 +358,7 @@ export class AttendanceRepository {
         skip,
         take: limit,
         select: attendanceSelect,
-        orderBy: {
-          created_at: "desc",
-        },
+        orderBy: [{ attendance_date: "asc" }, { created_at: "desc" }],
       }),
       this.prisma.attendances.count({
         where,

@@ -21,6 +21,8 @@ describe("AttendanceController", () => {
     getSummary: jest.fn(),
     findOne: jest.fn(),
     create: jest.fn(),
+    upsert: jest.fn(),
+    bulkUpsert: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
   };
@@ -53,12 +55,12 @@ describe("AttendanceController", () => {
   describe("role authorization", () => {
     const reflector = new Reflector();
 
-    it("restricts the controller to the admin role only", () => {
+    it("allows admin and teacher roles", () => {
       const requiredRoles = reflector.get<string[]>(
         ROLES_KEY,
         AttendanceController,
       );
-      expect(requiredRoles).toEqual(["admin"]);
+      expect(requiredRoles).toEqual(["admin", "teacher"]);
     });
   });
 
@@ -87,6 +89,10 @@ describe("AttendanceController", () => {
         "stat-1",
         "2026-11-04",
         "class-1",
+        "2026-11-01",
+        "2026-11-30",
+        "11",
+        "2026",
       );
 
       expect(result).toEqual(
@@ -107,6 +113,10 @@ describe("AttendanceController", () => {
           attendance_status_id: "stat-1",
           attendance_date: "2026-11-04",
           class_id: "class-1",
+          start_date: "2026-11-01",
+          end_date: "2026-11-30",
+          month: 11,
+          year: 2026,
         },
         ADMIN_USER_ID,
       );
@@ -131,6 +141,8 @@ describe("AttendanceController", () => {
         undefined,
         undefined,
         "class-1",
+        "2026-11-01",
+        "2026-11-30",
       );
 
       expect(result).toEqual(
@@ -147,12 +159,16 @@ describe("AttendanceController", () => {
           attendance_status_id: undefined,
           attendance_date: undefined,
           class_id: "class-1",
+          start_date: "2026-11-01",
+          end_date: "2026-11-30",
+          month: undefined,
+          year: undefined,
         },
         ADMIN_USER_ID,
       );
     });
 
-    it("findOne forwards id and authenticated admin user id", async () => {
+    it("findOne forwards id and authenticated user id", async () => {
       mockService.findOne.mockResolvedValue(mockRecord);
 
       const result = await controller.findOne("att-1", asAdminRequest());
@@ -166,7 +182,7 @@ describe("AttendanceController", () => {
       expect(service.findOne).toHaveBeenCalledWith("att-1", ADMIN_USER_ID);
     });
 
-    it("create forwards dto and authenticated admin user id", async () => {
+    it("create forwards dto and authenticated user id", async () => {
       mockService.create.mockResolvedValue(mockRecord);
       const dto = {
         schedule_id: "sched-1",
@@ -186,22 +202,88 @@ describe("AttendanceController", () => {
       expect(service.create).toHaveBeenCalledWith(dto, ADMIN_USER_ID);
     });
 
-    it("update forwards id, dto, and authenticated admin user id", async () => {
-      mockService.update.mockResolvedValue(mockRecord);
-      const dto = { notes: "Izin surat dokter" };
+    it("upsert forwards dto and returns 200 success", async () => {
+      mockService.upsert.mockResolvedValue(mockRecord);
+      const dto = {
+        schedule_id: "sched-1",
+        student_id: "stud-1",
+        attendance_status_id: "stat-1",
+        attendance_date: "2026-11-10",
+        notes: "Catatan",
+      };
 
-      const result = await controller.update("att-1", dto as never, asAdminRequest());
+      const result = await controller.upsert(dto as never, asAdminRequest());
 
       expect(result).toEqual(
         ResponseHelper.success(
           mockRecord,
-          "Attendance updated successfully",
+          "Attendance upserted successfully",
+          200,
         ),
+      );
+      expect(service.upsert).toHaveBeenCalledWith(dto, ADMIN_USER_ID);
+    });
+
+    it("bulkUpsert forwards dto and records bulk attendances", async () => {
+      mockService.bulkUpsert.mockResolvedValue([mockRecord]);
+      const dto = {
+        schedule_id: "sched-1",
+        attendance_status_id: "stat-1",
+        attendance_date: "2026-11-10",
+      };
+
+      const result = await controller.bulkUpsert(
+        dto as never,
+        asAdminRequest(),
+      );
+
+      expect(result).toEqual(
+        ResponseHelper.success(
+          [mockRecord],
+          "Bulk attendance recorded successfully",
+          200,
+        ),
+      );
+      expect(service.bulkUpsert).toHaveBeenCalledWith(dto, ADMIN_USER_ID);
+    });
+
+    it("bulk alias works identically to bulkUpsert", async () => {
+      mockService.bulkUpsert.mockResolvedValue([mockRecord]);
+      const dto = {
+        schedule_id: "sched-1",
+        attendance_status_id: "stat-1",
+        attendance_date: "2026-11-10",
+      };
+
+      const result = await controller.bulk(dto as never, asAdminRequest());
+
+      expect(result).toEqual(
+        ResponseHelper.success(
+          [mockRecord],
+          "Bulk attendance recorded successfully",
+          200,
+        ),
+      );
+      expect(service.bulkUpsert).toHaveBeenCalledWith(dto, ADMIN_USER_ID);
+    });
+
+    it("update forwards id, dto, and authenticated user id", async () => {
+      mockService.update.mockResolvedValue(mockRecord);
+      const dto = { notes: "Izin surat dokter" };
+
+      const result = await controller.update(
+        "att-1",
+        dto as never,
+        asAdminRequest(),
+      );
+
+      expect(result).toEqual(
+        ResponseHelper.success(mockRecord, "Attendance updated successfully"),
       );
       expect(service.update).toHaveBeenCalledWith("att-1", dto, ADMIN_USER_ID);
     });
 
-    it("remove forwards id and authenticated admin user id", async () => {
+    it("remove forwards id and authenticated user id", async () => {
       mockService.remove.mockResolvedValue({ success: true, id: "att-1" });
 
       const result = await controller.remove("att-1", asAdminRequest());
@@ -216,4 +298,3 @@ describe("AttendanceController", () => {
     });
   });
 });
-
