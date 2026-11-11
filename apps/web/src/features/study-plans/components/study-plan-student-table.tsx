@@ -247,7 +247,7 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 													className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-[11px] font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
 												>
 													<Plus className="size-3" />
-													<span>+ Mapel</span>
+													<span>Mapel</span>
 												</button>
 											</div>
 										</td>

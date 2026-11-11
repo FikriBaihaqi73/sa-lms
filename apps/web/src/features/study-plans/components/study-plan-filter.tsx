@@ -150,7 +150,9 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						<option value="">Semua Bidang / Departemen</option>
 						{departmentOptions.map((dept) => (
 							<option key={dept.id} value={dept.id}>
-								{dept.name} ({dept.code})
+								{dept.id === "umum" || !dept.code
+									? dept.name
+									: `${dept.name} (${dept.code})`}
 							</option>
 						))}
 					</select>
