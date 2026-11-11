@@ -15,6 +15,7 @@ import {
 } from "../hooks";
 import type {
 	ClassSubjectOption,
+	DepartmentOption,
 	StudentKrsSummary,
 	StudentOption,
 	StudyPlan,
@@ -150,7 +151,8 @@ export const StudyPlansPage: React.FC = () => {
 		limit: isLogView ? limit : 1000,
 		search: debouncedSearch.trim() || undefined,
 		academic_year_id: academicYearId || undefined,
-		department_id: departmentId || undefined,
+		department_id:
+			departmentId && departmentId !== "umum" ? departmentId : undefined,
 		class_subject_id: classSubjectId || undefined,
 	});
 
@@ -220,6 +222,70 @@ export const StudyPlansPage: React.FC = () => {
 		return Array.from(map.values());
 	}, [allClassSubjects, rawStudyPlans, deactivatedIds]);
 
+	// Derive available departments strictly for the active academic year
+	const availableDepartmentsForFilter: DepartmentOption[] = useMemo(() => {
+		const csInYear = mergedClassSubjects.filter((cs) => {
+			if (
+				academicYearId &&
+				cs.academicYearId &&
+				cs.academicYearId !== academicYearId
+			) {
+				return false;
+			}
+			return true;
+		});
+
+		const deptIdsInYear = new Set<string>();
+		let hasUmum = false;
+
+		for (const cs of csInYear) {
+			if (cs.departmentId) {
+				deptIdsInYear.add(cs.departmentId);
+			} else {
+				hasUmum = true;
+			}
+		}
+
+		const list: DepartmentOption[] = [];
+		for (const d of departments) {
+			if (deptIdsInYear.has(d.id)) {
+				list.push(d);
+			}
+		}
+
+		for (const cs of csInYear) {
+			if (cs.departmentId && !list.some((d) => d.id === cs.departmentId)) {
+				list.push({
+					id: cs.departmentId,
+					name: cs.departmentName || "Bidang",
+					code: "MAPEL",
+				});
+			}
+		}
+
+		if (hasUmum) {
+			list.push({
+				id: "umum",
+				name: "Umum / Tanpa Bidang",
+				code: "UMUM",
+			});
+		}
+
+		return list;
+	}, [mergedClassSubjects, academicYearId, departments]);
+
+	// Auto-reset departmentId if the selected department is not available in the new academic year
+	useEffect(() => {
+		if (departmentId) {
+			const isStillAvailable = availableDepartmentsForFilter.some(
+				(d) => d.id === departmentId,
+			);
+			if (!isStillAvailable) {
+				setDepartmentId("");
+			}
+		}
+	}, [departmentId, availableDepartmentsForFilter]);
+
 	// Filtered ClassSubjects options for dropdown based on department and academic year
 	const filteredClassSubjectsOptions = useMemo(() => {
 		return mergedClassSubjects.filter((cs) => {
@@ -229,6 +295,9 @@ export const StudyPlansPage: React.FC = () => {
 				cs.academicYearId !== academicYearId
 			) {
 				return false;
+			}
+			if (departmentId === "umum") {
+				return !cs.departmentId;
 			}
 			if (departmentId && cs.departmentId !== departmentId) {
 				return false;
@@ -306,7 +375,17 @@ export const StudyPlansPage: React.FC = () => {
 			const userPlans = spByStudent.get(s.id) || [];
 
 			// If departmentId is filtered, check if student or their plans match the department
-			if (departmentId) {
+			if (departmentId === "umum") {
+				const hasPlanInUmum = userPlans.some(
+					(p) =>
+						!p.classSubject?.subject?.department?.id &&
+						!p.classSubject?.subject?.departmentId,
+				);
+				const studentInUmum = !s.departmentId;
+				if (!hasPlanInUmum && !studentInUmum) {
+					continue;
+				}
+			} else if (departmentId) {
 				const studentMatchesDept = s.departmentId === departmentId;
 				const hasPlanInDept = userPlans.some(
 					(p) =>
@@ -361,7 +440,12 @@ export const StudyPlansPage: React.FC = () => {
 		for (const sp of rawStudyPlans) {
 			if (sp.student_id && !studentMap.has(sp.student_id)) {
 				// If departmentId is filtered, check if study plan matches department
-				if (departmentId) {
+				if (departmentId === "umum") {
+					const deptMatch =
+						!sp.classSubject?.subject?.department?.id &&
+						!sp.classSubject?.subject?.departmentId;
+					if (!deptMatch) continue;
+				} else if (departmentId) {
 					const deptMatch =
 						sp.classSubject?.subject?.department?.id === departmentId ||
 						sp.classSubject?.subject?.departmentId === departmentId;
@@ -470,6 +554,18 @@ export const StudyPlansPage: React.FC = () => {
 		deactivatedIds,
 	]);
 
+	// Log View: Filter raw study plans if "umum" is selected (client-side)
+	const displayStudyPlans = useMemo(() => {
+		if (departmentId === "umum") {
+			return rawStudyPlans.filter(
+				(sp) =>
+					!sp.classSubject?.subject?.departmentId &&
+					!sp.classSubject?.subject?.department?.id,
+			);
+		}
+		return rawStudyPlans;
+	}, [rawStudyPlans, departmentId]);
+
 	// 11. Students option list enriched with currentCredits, departmentName, and className
 	const enrichedStudentsOptions: StudentOption[] = useMemo(() => {
 		const creditsMap = new Map<string, number>();
@@ -536,24 +632,48 @@ export const StudyPlansPage: React.FC = () => {
 
 	const handleSaveStudyPlan = async (values: {
 		student_id: string;
-		class_subject_id: string;
 		academic_year_id: string;
+		class_subject_id?: string;
+		class_subject_ids?: string[];
 	}) => {
 		try {
 			if (editingStudyPlan) {
+				const csId =
+					values.class_subject_id || values.class_subject_ids?.[0] || "";
 				await updateMutation.mutateAsync({
 					id: editingStudyPlan.id,
-					input: values,
+					input: {
+						student_id: values.student_id,
+						class_subject_id: csId,
+						academic_year_id: values.academic_year_id,
+					},
 				});
 				setNotice({
 					kind: "success",
 					message: "Rencana studi berhasil diperbarui.",
 				});
 			} else {
-				await createMutation.mutateAsync(values);
+				const ids =
+					values.class_subject_ids && values.class_subject_ids.length > 0
+						? values.class_subject_ids
+						: values.class_subject_id
+							? [values.class_subject_id]
+							: [];
+
+				if (ids.length === 0) return;
+
+				await Promise.all(
+					ids.map((csId) =>
+						createMutation.mutateAsync({
+							student_id: values.student_id,
+							class_subject_id: csId,
+							academic_year_id: values.academic_year_id,
+						}),
+					),
+				);
 				setNotice({
 					kind: "success",
-					message: "Siswa berhasil didaftarkan ke mata pelajaran kelas (KRS).",
+					message: `${ids.length} mata pelajaran berhasil didaftarkan ke rencana studi siswa (KRS).`,
 				});
 			}
 			setIsDialogOpen(false);
@@ -704,7 +824,7 @@ export const StudyPlansPage: React.FC = () => {
 					academicYearOptions={academicYears}
 					departmentId={departmentId}
 					onDepartmentChange={setDepartmentId}
-					departmentOptions={departments}
+					departmentOptions={availableDepartmentsForFilter}
 					classSubjectId={classSubjectId}
 					onClassSubjectChange={setClassSubjectId}
 					classSubjectOptions={filteredClassSubjectsOptions}
@@ -746,7 +866,7 @@ export const StudyPlansPage: React.FC = () => {
 
 				{viewMode === "log_view" && (
 					<StudyPlanLogTable
-						studyPlans={rawStudyPlans}
+						studyPlans={displayStudyPlans}
 						meta={meta}
 						isLoading={isStudyPlansLoading}
 						isError={isStudyPlansError}
@@ -773,6 +893,7 @@ export const StudyPlansPage: React.FC = () => {
 					classSubjects={mergedClassSubjects}
 					academicYears={academicYears}
 					departments={departments}
+					existingStudyPlans={rawStudyPlans}
 					deactivatedIds={deactivatedIds}
 					isSubmitting={createMutation.isPending || updateMutation.isPending}
 					activeAcademicYearId={academicYearId}
