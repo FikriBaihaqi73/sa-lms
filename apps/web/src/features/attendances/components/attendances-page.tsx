@@ -18,6 +18,7 @@ import type { AttendanceMatrixStudentRow, AttendanceMonthDay } from "../types";
 import { AttendanceFilter } from "./attendance-filter";
 import { AttendanceMatrixTable } from "./attendance-matrix-table";
 import { AttendanceNoteDialog } from "./attendance-note-popover";
+import { AttendanceStats } from "./attendance-stats";
 
 const DAY_NAMES = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 
@@ -353,6 +354,34 @@ export const AttendancesPage: React.FC = () => {
 		statusOptions,
 		selectedClass,
 	]);
+
+	// Summary Stats computed dynamically from current matrix rows
+	const summaryData = useMemo(() => {
+		let totalPresent = 0;
+		let totalPermission = 0;
+		let totalSick = 0;
+		let totalAbsent = 0;
+
+		for (const row of matrixRows) {
+			totalPresent += row.totalPresent;
+			totalPermission += row.totalPermission;
+			totalSick += row.totalSick;
+			totalAbsent += row.totalAbsent;
+		}
+
+		const total = totalPresent + totalPermission + totalSick + totalAbsent;
+		const attendanceRate =
+			total > 0 ? Math.round((totalPresent / total) * 100) : 0;
+
+		return {
+			total,
+			present: totalPresent,
+			permission: totalPermission,
+			sick: totalSick,
+			absent: totalAbsent,
+			attendanceRate,
+		};
+	}, [matrixRows]);
 
 	// Handlers
 	const handleResetFilters = () => {
@@ -713,6 +742,12 @@ export const AttendancesPage: React.FC = () => {
 						</button>
 					</div>
 				</header>
+
+				{/* 6 Kartu Statistik Ringkasan (1:1 Sesuai Referensi Gambar 2) */}
+				<AttendanceStats
+					summary={summaryData}
+					isLoading={isAttendancesLoading}
+				/>
 
 				{/* Bar Filter Matrix Compact */}
 				<AttendanceFilter

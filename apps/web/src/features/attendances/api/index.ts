@@ -219,6 +219,12 @@ interface RawClassItem {
 	name: string;
 	grade_level?: number | null;
 	academic_year_id?: string | null;
+	academicYearId?: string | null;
+	academic_year?: {
+		id?: string;
+		academic_year?: string;
+		is_active?: boolean;
+	} | null;
 }
 
 export const getClassesOptions = async (): Promise<ClassOption[]> => {
@@ -229,7 +235,11 @@ export const getClassesOptions = async (): Promise<ClassOption[]> => {
 			id: cls.id,
 			name: cls.name,
 			grade_level: cls.grade_level,
-			academic_year_id: cls.academic_year_id,
+			academic_year_id:
+				cls.academic_year_id ||
+				cls.academic_year?.id ||
+				cls.academicYearId ||
+				null,
 		}));
 	} catch {
 		return [];
@@ -383,14 +393,20 @@ export const getAcademicYearsOptions = async (): Promise<
 
 interface RawClassStudentItem {
 	studentId?: string;
+	student_id?: string;
 	class?: {
+		name?: string;
+	} | null;
+	classes?: {
 		name?: string;
 	} | null;
 	student?: {
 		id: string;
 		studentNumber?: string | null;
+		student_number?: string | null;
 		profile?: {
-			fullName: string;
+			fullName?: string | null;
+			full_name?: string | null;
 		} | null;
 	} | null;
 }
@@ -407,10 +423,14 @@ export const getClassStudentsOptions = async (
 
 		return items
 			.map((cs) => {
-				const id = cs.student?.id ?? cs.studentId ?? "";
-				const studentNumber = cs.student?.studentNumber ?? "-";
-				const fullName = cs.student?.profile?.fullName ?? "Siswa";
-				const className = cs.class?.name;
+				const id = cs.student?.id ?? cs.studentId ?? cs.student_id ?? "";
+				const studentNumber =
+					cs.student?.studentNumber ?? cs.student?.student_number ?? "-";
+				const fullName =
+					cs.student?.profile?.fullName ??
+					cs.student?.profile?.full_name ??
+					"Siswa";
+				const className = cs.classes?.name ?? cs.class?.name;
 				return {
 					studentId: id,
 					studentNumber,

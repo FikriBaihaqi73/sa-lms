@@ -34,6 +34,7 @@ export class StudyPlanController {
     @Query("student_id") student_id?: string,
     @Query("class_subject_id") class_subject_id?: string,
     @Query("academic_year_id") academic_year_id?: string,
+    @Query("department_id") department_id?: string,
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
@@ -45,6 +46,7 @@ export class StudyPlanController {
         student_id,
         class_subject_id,
         academic_year_id,
+        department_id,
       },
     );
     return ResponseHelper.success(
