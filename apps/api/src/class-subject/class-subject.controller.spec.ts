@@ -27,7 +27,9 @@ describe("ClassSubjectController", () => {
     update: jest.fn(),
     remove: jest.fn(),
   };
-  const request = { user: { sub: "user-1" } } as Request & { user: { sub: string } };
+  const request = { user: { sub: "user-1" } } as Request & {
+    user: { sub: string };
+  };
   const record = {
     id: "cs-1",
     class_id: "class-1",

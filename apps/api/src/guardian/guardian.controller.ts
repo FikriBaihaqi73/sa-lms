@@ -9,13 +9,13 @@ import {
   Query,
   Req,
 } from "@nestjs/common";
-import type { Request } from "express";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
 import {
   CreateGuardianDto,
   UpdateGuardianDto,
 } from "@repo/shared/schemas/guardian.schema";
+import type { Request } from "express";
 import { ZodValidationPipe } from "nestjs-zod";
 import { Roles } from "../auth/roles.decorator";
 import { GuardianService } from "./guardian.service";
@@ -37,9 +37,14 @@ export class GuardianController {
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
-    const result = await this.guardianService.findAll(request.user.sub, pageNumber, limitNumber, {
-      search,
-    });
+    const result = await this.guardianService.findAll(
+      request.user.sub,
+      pageNumber,
+      limitNumber,
+      {
+        search,
+      },
+    );
 
     return ResponseHelper.success(
       result.data,
@@ -51,7 +56,10 @@ export class GuardianController {
 
   @Get(":id")
   @ApiOperation({ summary: "Get a guardian by ID" })
-  async findOne(@Param("id") id: string, @Req() request: Request & { user: { sub: string } }) {
+  async findOne(
+    @Param("id") id: string,
+    @Req() request: Request & { user: { sub: string } },
+  ) {
     const guardian = await this.guardianService.findOne(id, request.user.sub);
     return ResponseHelper.success(
       guardian,
@@ -61,7 +69,10 @@ export class GuardianController {
 
   @Post()
   @ApiOperation({ summary: "Create a guardian" })
-  async create(@Body(new ZodValidationPipe()) dto: CreateGuardianDto, @Req() request: Request & { user: { sub: string } }) {
+  async create(
+    @Body(new ZodValidationPipe()) dto: CreateGuardianDto,
+    @Req() request: Request & { user: { sub: string } },
+  ) {
     const guardian = await this.guardianService.create(dto, request.user.sub);
     return ResponseHelper.success(
       guardian,
@@ -74,15 +85,23 @@ export class GuardianController {
   @ApiOperation({ summary: "Update a guardian" })
   async update(
     @Param("id") id: string,
-    @Body(new ZodValidationPipe()) dto: UpdateGuardianDto, @Req() request: Request & { user: { sub: string } },
+    @Body(new ZodValidationPipe()) dto: UpdateGuardianDto,
+    @Req() request: Request & { user: { sub: string } },
   ) {
-    const guardian = await this.guardianService.update(id, dto, request.user.sub);
+    const guardian = await this.guardianService.update(
+      id,
+      dto,
+      request.user.sub,
+    );
     return ResponseHelper.success(guardian, "Guardian updated successfully");
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Soft-delete a guardian" })
-  async remove(@Param("id") id: string, @Req() request: Request & { user: { sub: string } }) {
+  async remove(
+    @Param("id") id: string,
+    @Req() request: Request & { user: { sub: string } },
+  ) {
     const result = await this.guardianService.remove(id, request.user.sub);
     return ResponseHelper.success(result, "Guardian deleted successfully");
   }

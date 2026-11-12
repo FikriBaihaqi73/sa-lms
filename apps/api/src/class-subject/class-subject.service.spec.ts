@@ -160,13 +160,31 @@ describe("ClassSubjectService", () => {
   });
 
   it.each([
-    ["Schedule", { schedules: 1, modules: 0, examinations: 0, studentGrades: 0 }],
-    ["Modules", { schedules: 0, modules: 1, examinations: 0, studentGrades: 0 }],
-    ["Examinations", { schedules: 0, modules: 0, examinations: 1, studentGrades: 0 }],
-    ["StudentGrades", { schedules: 0, modules: 0, examinations: 0, studentGrades: 1 }],
+    [
+      "Schedule",
+      { schedules: 1, modules: 0, examinations: 0, studentGrades: 0 },
+    ],
+    [
+      "Modules",
+      { schedules: 0, modules: 1, examinations: 0, studentGrades: 0 },
+    ],
+    [
+      "Examinations",
+      { schedules: 0, modules: 0, examinations: 1, studentGrades: 0 },
+    ],
+    [
+      "StudentGrades",
+      { schedules: 0, modules: 0, examinations: 0, studentGrades: 1 },
+    ],
   ])("rejects delete when an active %s relation exists", async (_relation, usage) => {
-    jest.spyOn(ClassSubjectsRepository.prototype, "findById").mockResolvedValue(record as never);
-    jest.spyOn(ClassSubjectsRepository.prototype, "findUsage").mockResolvedValue(usage);
-    await expect(service.remove("cs-1", "user-1")).rejects.toBeInstanceOf(ConflictException);
+    jest
+      .spyOn(ClassSubjectsRepository.prototype, "findById")
+      .mockResolvedValue(record as never);
+    jest
+      .spyOn(ClassSubjectsRepository.prototype, "findUsage")
+      .mockResolvedValue(usage);
+    await expect(service.remove("cs-1", "user-1")).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 });

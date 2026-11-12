@@ -18,8 +18,8 @@ import {
   SubjectQueryDto,
   UpdateSubjectDto,
 } from "@repo/shared/schemas/subject.schema";
-import { ZodValidationPipe } from "nestjs-zod";
 import type { Request } from "express";
+import { ZodValidationPipe } from "nestjs-zod";
 import { Roles } from "../auth/roles.decorator";
 import { SubjectService } from "./subject.service";
 
@@ -35,7 +35,10 @@ export class SubjectController {
     @Body(new ZodValidationPipe()) createSubjectDto: CreateSubjectDto,
     @Req() request: Request & { user: { sub: string } },
   ) {
-    const data = await this.subjectService.create(createSubjectDto, request.user.sub);
+    const data = await this.subjectService.create(
+      createSubjectDto,
+      request.user.sub,
+    );
     return ResponseHelper.success({
       message: "Subject created successfully",
       data,
@@ -80,7 +83,11 @@ export class SubjectController {
     @Body(new ZodValidationPipe()) updateSubjectDto: UpdateSubjectDto,
     @Req() request: Request & { user: { sub: string } },
   ) {
-    const data = await this.subjectService.update(id, updateSubjectDto, request.user.sub);
+    const data = await this.subjectService.update(
+      id,
+      updateSubjectDto,
+      request.user.sub,
+    );
     return ResponseHelper.success({
       message: "Subject updated successfully",
       data,

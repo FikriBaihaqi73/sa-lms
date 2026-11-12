@@ -16,8 +16,8 @@ import {
   CreateClassDto,
   UpdateClassDto,
 } from "@repo/shared/schemas/class.schema";
-import { ZodValidationPipe } from "nestjs-zod";
 import type { Request } from "express";
+import { ZodValidationPipe } from "nestjs-zod";
 import { Roles } from "../auth/roles.decorator";
 import { ClassService } from "./class.service";
 

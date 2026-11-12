@@ -62,4 +62,6 @@ export const LoginSchema = z.object({
     .describe("Account password"),
 });
 
-export const LogoutSchema = z.object({}).describe("Empty body for logout request");
+export const LogoutSchema = z
+  .object({})
+  .describe("Empty body for logout request");

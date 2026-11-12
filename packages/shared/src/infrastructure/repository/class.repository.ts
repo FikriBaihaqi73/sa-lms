@@ -51,7 +51,10 @@ export class ClassRepository {
     });
   }
 
-  async findById(id: string, institution_id?: string): Promise<ClassEntity | null> {
+  async findById(
+    id: string,
+    institution_id?: string,
+  ): Promise<ClassEntity | null> {
     return this.prisma.classes.findFirst({
       where: {
         id,

@@ -12,8 +12,8 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
 import {
-  CreateClassSubjectDto,
   ClassSubjectQueryDto,
+  CreateClassSubjectDto,
   UpdateClassSubjectDto,
 } from "@repo/shared/schemas/class-subject.schema";
 import type { Request } from "express";
@@ -46,7 +46,9 @@ export class ClassSubjectController {
         ...(query.academic_year_id !== undefined
           ? { academic_year_id: query.academic_year_id }
           : {}),
-        ...(query.teacher_id !== undefined ? { teacher_id: query.teacher_id } : {}),
+        ...(query.teacher_id !== undefined
+          ? { teacher_id: query.teacher_id }
+          : {}),
       },
       request.user.sub,
     );

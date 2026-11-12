@@ -101,7 +101,9 @@ describe("StudentService", () => {
   beforeEach(() => {
     service = new StudentService(mockPrismaService);
     jest.clearAllMocks();
-    mockPrismaClient.departments.findFirst.mockResolvedValue({ id: "dept-uuid-1" });
+    mockPrismaClient.departments.findFirst.mockResolvedValue({
+      id: "dept-uuid-1",
+    });
     jest
       .spyOn(StudentRepository.prototype, "findByProfileId")
       .mockResolvedValue(null);
@@ -320,7 +322,9 @@ describe("StudentService", () => {
         studentNumber: "20260003",
       };
 
-      await expect(service.create(dto, ADMIN_USER_ID)).rejects.toBeInstanceOf(BadRequestException);
+      await expect(service.create(dto, ADMIN_USER_ID)).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
 
       expect(findProfileSpy).not.toHaveBeenCalled();
       expect(createSpy).not.toHaveBeenCalled();

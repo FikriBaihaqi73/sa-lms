@@ -46,10 +46,17 @@ describe("DepartmentsController", () => {
     expect(service.findOne).toHaveBeenCalledWith("dept-1", "user-1");
 
     await controller.create({ name: "A", code: "A1" }, req);
-    expect(service.create).toHaveBeenCalledWith({ name: "A", code: "A1" }, "user-1");
+    expect(service.create).toHaveBeenCalledWith(
+      { name: "A", code: "A1" },
+      "user-1",
+    );
 
     await controller.update("dept-1", { name: "B" }, req);
-    expect(service.update).toHaveBeenCalledWith("dept-1", { name: "B" }, "user-1");
+    expect(service.update).toHaveBeenCalledWith(
+      "dept-1",
+      { name: "B" },
+      "user-1",
+    );
 
     await controller.remove("dept-1", req);
     expect(service.remove).toHaveBeenCalledWith("dept-1", "user-1");

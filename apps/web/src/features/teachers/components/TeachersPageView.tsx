@@ -84,6 +84,7 @@ export function useTeachersPageController() {
 				kind: "success",
 				message: "Akun login dan data guru berhasil dibuat.",
 			});
+			await Promise.all([teachersQuery.refetch(), statsQuery.refetch()]);
 		} catch (error) {
 			const msg = parseErrorMessage(error);
 			state.setNotice({ kind: "error", message: msg });
@@ -98,6 +99,7 @@ export function useTeachersPageController() {
 				kind: "success",
 				message: "Perubahan data guru berhasil disimpan.",
 			});
+			await Promise.all([teachersQuery.refetch(), statsQuery.refetch()]);
 		} catch (error) {
 			const msg = parseErrorMessage(error);
 			state.setNotice({ kind: "error", message: msg });
@@ -113,6 +115,7 @@ export function useTeachersPageController() {
 				kind: "success",
 				message: "Data guru berhasil dihapus.",
 			});
+			await Promise.all([teachersQuery.refetch(), statsQuery.refetch()]);
 		} catch (error) {
 			const msg = parseErrorMessage(error);
 			state.setNotice({ kind: "error", message: msg });

@@ -66,9 +66,16 @@ describe("SubjectService", () => {
     mockRepository.delete = mockPrismaService.client.subject.update;
 
     // override the internal repository for testing
-    Object.defineProperty(service, "subjectRepository", { value: mockRepository, writable: true });
-    mockPrismaService.client.profile.findFirst.mockResolvedValue({ institutionId: "institution-a" });
-    mockPrismaService.client.departments.findFirst.mockResolvedValue({ id: "department-a" });
+    Object.defineProperty(service, "subjectRepository", {
+      value: mockRepository,
+      writable: true,
+    });
+    mockPrismaService.client.profile.findFirst.mockResolvedValue({
+      institutionId: "institution-a",
+    });
+    mockPrismaService.client.departments.findFirst.mockResolvedValue({
+      id: "department-a",
+    });
   });
 
   afterEach(() => {
@@ -88,8 +95,14 @@ describe("SubjectService", () => {
 
       const result = await service.create(createDto, "user-a");
 
-      expect(mockRepository.findByCode).toHaveBeenCalledWith("SUB01", "institution-a");
-      expect(mockRepository.create).toHaveBeenCalledWith({ ...createDto, institutionId: "institution-a" });
+      expect(mockRepository.findByCode).toHaveBeenCalledWith(
+        "SUB01",
+        "institution-a",
+      );
+      expect(mockRepository.create).toHaveBeenCalledWith({
+        ...createDto,
+        institutionId: "institution-a",
+      });
       expect(result).toEqual(expectedResult);
     });
 
@@ -122,7 +135,9 @@ describe("SubjectService", () => {
         ),
       ).rejects.toThrow(NotFoundException);
 
-      expect(mockPrismaService.client.departments.findFirst).toHaveBeenCalledWith(
+      expect(
+        mockPrismaService.client.departments.findFirst,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             id: "foreign-department",
@@ -141,9 +156,15 @@ describe("SubjectService", () => {
       mockRepository.findAll.mockResolvedValue(expectedResult);
 
       const query = { page: 1, limit: 10 };
-      const result = await service.findAll({ ...query, institutionId: "institution-b" }, "user-a");
+      const result = await service.findAll(
+        { ...query, institutionId: "institution-b" },
+        "user-a",
+      );
 
-      expect(mockRepository.findAll).toHaveBeenCalledWith({ ...query, institutionId: "institution-a" });
+      expect(mockRepository.findAll).toHaveBeenCalledWith({
+        ...query,
+        institutionId: "institution-a",
+      });
       expect(result).toEqual(expectedResult);
     });
   });
@@ -155,14 +176,19 @@ describe("SubjectService", () => {
 
       const result = await service.findOne("1", "user-a");
 
-      expect(mockRepository.findById).toHaveBeenCalledWith("1", "institution-a");
+      expect(mockRepository.findById).toHaveBeenCalledWith(
+        "1",
+        "institution-a",
+      );
       expect(result).toEqual(expectedResult);
     });
 
     it("should throw NotFoundException if not found", async () => {
       mockRepository.findById.mockResolvedValue(null);
 
-      await expect(service.findOne("99", "user-a")).rejects.toThrow(NotFoundException);
+      await expect(service.findOne("99", "user-a")).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -177,7 +203,10 @@ describe("SubjectService", () => {
 
       const result = await service.update("1", updateDto, "user-a");
 
-      expect(mockRepository.findById).toHaveBeenCalledWith("1", "institution-a");
+      expect(mockRepository.findById).toHaveBeenCalledWith(
+        "1",
+        "institution-a",
+      );
       expect(mockRepository.update).toHaveBeenCalledWith("1", updateDto);
       expect(result).toEqual(expectedResult);
     });
@@ -198,15 +227,24 @@ describe("SubjectService", () => {
     it("should throw NotFoundException if subject not found", async () => {
       mockRepository.findById.mockResolvedValue(null);
 
-      await expect(service.update("99", {}, "user-a")).rejects.toThrow(NotFoundException);
+      await expect(service.update("99", {}, "user-a")).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it("rejects assigning a department outside the admin's institution", async () => {
-      mockRepository.findById.mockResolvedValue({ id: "subject-a", institutionId: "institution-a" });
+      mockRepository.findById.mockResolvedValue({
+        id: "subject-a",
+        institutionId: "institution-a",
+      });
       mockPrismaService.client.departments.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.update("subject-a", { departmentId: "foreign-department" }, "user-a"),
+        service.update(
+          "subject-a",
+          { departmentId: "foreign-department" },
+          "user-a",
+        ),
       ).rejects.toThrow(NotFoundException);
 
       expect(mockRepository.update).not.toHaveBeenCalled();
@@ -222,7 +260,9 @@ describe("SubjectService", () => {
         service.update("subject-a", { departmentId: null }, "user-a"),
       ).resolves.toEqual(updated);
 
-      expect(mockRepository.update).toHaveBeenCalledWith("subject-a", { departmentId: null });
+      expect(mockRepository.update).toHaveBeenCalledWith("subject-a", {
+        departmentId: null,
+      });
     });
   });
 
@@ -234,31 +274,44 @@ describe("SubjectService", () => {
 
       await service.remove("1", "user-a");
 
-      expect(mockRepository.findById).toHaveBeenCalledWith("1", "institution-a");
+      expect(mockRepository.findById).toHaveBeenCalledWith(
+        "1",
+        "institution-a",
+      );
       expect(mockRepository.delete).toHaveBeenCalledWith("1");
     });
 
     it("should throw NotFoundException if subject not found", async () => {
       mockRepository.findById.mockResolvedValue(null);
 
-      await expect(service.remove("99", "user-a")).rejects.toThrow(NotFoundException);
+      await expect(service.remove("99", "user-a")).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   it("does not return a subject from another institution", async () => {
     mockRepository.findById.mockResolvedValue(null);
 
-    await expect(service.findOne("subject-b", "user-a")).rejects.toThrow(NotFoundException);
-    expect(mockRepository.findById).toHaveBeenCalledWith("subject-b", "institution-a");
+    await expect(service.findOne("subject-b", "user-a")).rejects.toThrow(
+      NotFoundException,
+    );
+    expect(mockRepository.findById).toHaveBeenCalledWith(
+      "subject-b",
+      "institution-a",
+    );
   });
 
   it("does not update a subject from another institution", async () => {
     mockRepository.findById.mockResolvedValue(null);
 
-    await expect(service.update("subject-b", { name: "Changed" }, "user-a")).rejects.toThrow(
-      NotFoundException,
+    await expect(
+      service.update("subject-b", { name: "Changed" }, "user-a"),
+    ).rejects.toThrow(NotFoundException);
+    expect(mockRepository.findById).toHaveBeenCalledWith(
+      "subject-b",
+      "institution-a",
     );
-    expect(mockRepository.findById).toHaveBeenCalledWith("subject-b", "institution-a");
     expect(mockRepository.update).not.toHaveBeenCalled();
   });
 
@@ -268,15 +321,25 @@ describe("SubjectService", () => {
     await expect(service.remove("subject-b", "user-a")).rejects.toThrow(
       NotFoundException,
     );
-    expect(mockRepository.findById).toHaveBeenCalledWith("subject-b", "institution-a");
+    expect(mockRepository.findById).toHaveBeenCalledWith(
+      "subject-b",
+      "institution-a",
+    );
     expect(mockRepository.delete).not.toHaveBeenCalled();
   });
 
   it("ignores the client institution filter", async () => {
     mockRepository.findAll.mockResolvedValue({ data: [], total: 0 });
 
-    await service.findAll({ page: 1, limit: 10, institutionId: "institution-b" }, "user-a");
+    await service.findAll(
+      { page: 1, limit: 10, institutionId: "institution-b" },
+      "user-a",
+    );
 
-    expect(mockRepository.findAll).toHaveBeenCalledWith({ page: 1, limit: 10, institutionId: "institution-a" });
+    expect(mockRepository.findAll).toHaveBeenCalledWith({
+      page: 1,
+      limit: 10,
+      institutionId: "institution-a",
+    });
   });
 });

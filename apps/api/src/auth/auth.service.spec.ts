@@ -81,7 +81,10 @@ describe("AuthService register", () => {
       .mockResolvedValue(null);
     jest
       .spyOn(AuthRepository.prototype, "findValidReferralInstitution")
-      .mockResolvedValue({ referralId: "ref-1", institutionId: "institution-id" });
+      .mockResolvedValue({
+        referralId: "ref-1",
+        institutionId: "institution-id",
+      });
     jest
       .spyOn(AuthRepository.prototype, "findDefaultRole")
       .mockResolvedValue({ id: "student-role-id" } as never);
@@ -110,7 +113,10 @@ describe("AuthService register", () => {
     jest
       .spyOn(AuthRepository.prototype, "findValidReferralInstitution")
       .mockResolvedValue(null);
-    const registerStudent = jest.spyOn(AuthRepository.prototype, "registerStudent");
+    const registerStudent = jest.spyOn(
+      AuthRepository.prototype,
+      "registerStudent",
+    );
 
     await expect(
       service.register({ ...baseDto, referralCode: "EXPIRED" }),

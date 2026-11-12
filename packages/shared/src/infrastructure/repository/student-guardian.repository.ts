@@ -32,7 +32,10 @@ export class StudentGuardianRepository {
     });
   }
 
-  async findById(id: string, institutionId: string): Promise<StudentGuardianEntity | null> {
+  async findById(
+    id: string,
+    institutionId: string,
+  ): Promise<StudentGuardianEntity | null> {
     return this.prisma.studentGuardian.findFirst({
       where: {
         id,
@@ -60,7 +63,8 @@ export class StudentGuardianRepository {
   async findAll(
     page = 1,
     limit = 10,
-    search?: string, institutionId?: string,
+    search?: string,
+    institutionId?: string,
   ): Promise<{ data: StudentGuardianEntity[]; meta: any }> {
     const skip = (page - 1) * limit;
     const whereCondition = {
@@ -138,7 +142,10 @@ export class StudentGuardianRepository {
     };
   }
 
-  async findByStudentId(studentId: string, institutionId: string): Promise<StudentGuardianEntity[]> {
+  async findByStudentId(
+    studentId: string,
+    institutionId: string,
+  ): Promise<StudentGuardianEntity[]> {
     return this.prisma.studentGuardian.findMany({
       where: {
         studentId,
@@ -149,7 +156,10 @@ export class StudentGuardianRepository {
     });
   }
 
-  async findByGuardianId(guardianId: string, institutionId: string): Promise<StudentGuardianEntity[]> {
+  async findByGuardianId(
+    guardianId: string,
+    institutionId: string,
+  ): Promise<StudentGuardianEntity[]> {
     return this.prisma.studentGuardian.findMany({
       where: {
         guardianId,

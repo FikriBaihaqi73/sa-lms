@@ -57,6 +57,7 @@ export function ClassesPage() {
       setIsAdding(false);
       setCurrentPage(1);
       setNotice({ kind: "success", message: "Kelas berhasil ditambahkan." });
+      await listQuery.refetch();
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }
@@ -76,6 +77,7 @@ export function ClassesPage() {
       });
       setEditing(null);
       setNotice({ kind: "success", message: "Kelas berhasil diperbarui." });
+      await listQuery.refetch();
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }
@@ -87,6 +89,7 @@ export function ClassesPage() {
       await deleteMutation.mutateAsync(deleting.id);
       setDeleting(null);
       setNotice({ kind: "success", message: "Kelas berhasil dihapus." });
+      await listQuery.refetch();
     } catch (error) {
       setNotice({ kind: "error", message: errorMessage(error) });
     }

@@ -1,7 +1,4 @@
-import {
-  ConflictException,
-  NotFoundException,
-} from "@nestjs/common";
+import { ConflictException, NotFoundException } from "@nestjs/common";
 import { SpecializationService } from "./specialization.service";
 
 jest.mock("../prisma/prisma.service", () => ({
@@ -47,7 +44,9 @@ describe("SpecializationService", () => {
 
   describe("findAll", () => {
     it("returns all active specializations", async () => {
-      mockPrisma.client.specializations.findMany.mockResolvedValue([sampleSpecialization]);
+      mockPrisma.client.specializations.findMany.mockResolvedValue([
+        sampleSpecialization,
+      ]);
 
       const result = await service.findAll();
 
@@ -58,7 +57,9 @@ describe("SpecializationService", () => {
 
   describe("findOne", () => {
     it("returns specialization by ID", async () => {
-      mockPrisma.client.specializations.findFirst.mockResolvedValue(sampleSpecialization);
+      mockPrisma.client.specializations.findFirst.mockResolvedValue(
+        sampleSpecialization,
+      );
 
       const result = await service.findOne("spec-uuid-1");
 
@@ -77,7 +78,9 @@ describe("SpecializationService", () => {
   describe("create", () => {
     it("creates specialization after trimming name", async () => {
       mockPrisma.client.specializations.findFirst.mockResolvedValue(null);
-      mockPrisma.client.specializations.create.mockResolvedValue(sampleSpecialization);
+      mockPrisma.client.specializations.create.mockResolvedValue(
+        sampleSpecialization,
+      );
 
       const result = await service.create({
         name: "  Rekayasa Perangkat Lunak  ",
@@ -102,7 +105,9 @@ describe("SpecializationService", () => {
     });
 
     it("throws ConflictException when specialization name already exists", async () => {
-      mockPrisma.client.specializations.findFirst.mockResolvedValue(sampleSpecialization);
+      mockPrisma.client.specializations.findFirst.mockResolvedValue(
+        sampleSpecialization,
+      );
 
       await expect(
         service.create({
@@ -149,7 +154,9 @@ describe("SpecializationService", () => {
 
   describe("remove", () => {
     it("soft deletes specialization", async () => {
-      mockPrisma.client.specializations.findFirst.mockResolvedValue(sampleSpecialization);
+      mockPrisma.client.specializations.findFirst.mockResolvedValue(
+        sampleSpecialization,
+      );
       mockPrisma.client.specializations.update.mockResolvedValue({
         ...sampleSpecialization,
         deleted_at: new Date(),

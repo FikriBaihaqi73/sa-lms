@@ -41,6 +41,21 @@ export class ProfileService {
     );
   }
 
+  async teacherOptions(userId: string, page = 1, limit = 20, search?: string) {
+    const profile = await this.prisma.client.profile.findFirst({
+      where: { userId, deletedAt: null },
+      select: { institutionId: true },
+    });
+    if (!profile?.institutionId)
+      throw new ForbiddenException("Institution access is required");
+    return this.profileRepository.teacherOptions(
+      profile.institutionId,
+      page,
+      limit,
+      search,
+    );
+  }
+
   async findOne(id: string) {
     const profile = await this.profileRepository.findById(id);
     if (!profile) {

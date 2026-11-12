@@ -133,8 +133,12 @@ export class ClassSubjectService {
         id,
         {
           ...(dto.class_id !== undefined ? { class_id: dto.class_id } : {}),
-          ...(dto.subject_id !== undefined ? { subject_id: dto.subject_id } : {}),
-          ...(dto.teacher_id !== undefined ? { teacher_id: dto.teacher_id } : {}),
+          ...(dto.subject_id !== undefined
+            ? { subject_id: dto.subject_id }
+            : {}),
+          ...(dto.teacher_id !== undefined
+            ? { teacher_id: dto.teacher_id }
+            : {}),
           ...(dto.academic_year_id !== undefined
             ? { academic_year_id: dto.academic_year_id }
             : {}),

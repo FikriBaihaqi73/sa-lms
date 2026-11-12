@@ -92,6 +92,7 @@ export function SubjectsPage() {
 		}
 
 		closeFormDialog();
+		await subjectsQuery.refetch();
 	};
 
 	const confirmDelete = async () => {
@@ -101,6 +102,7 @@ export function SubjectsPage() {
 		toast.success(`Mata pelajaran “${deleting.name}” berhasil dihapus.`);
 		if (subjects.length === 1 && page > 1) setPage((currentPage) => currentPage - 1);
 		setDeleting(null);
+		await subjectsQuery.refetch();
 	};
 
 	return (

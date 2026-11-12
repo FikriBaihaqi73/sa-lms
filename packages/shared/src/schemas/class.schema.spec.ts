@@ -7,12 +7,18 @@ const validCreate = {
 };
 
 describe("Class schemas", () => {
-  it.each([-1, 0, 1.5])("rejects invalid create grade level %s", (grade_level) => {
-    expect(CreateClassSchema.safeParse({ ...validCreate, grade_level }).success).toBe(false);
+  it.each([
+    -1, 0, 1.5,
+  ])("rejects invalid create grade level %s", (grade_level) => {
+    expect(
+      CreateClassSchema.safeParse({ ...validCreate, grade_level }).success,
+    ).toBe(false);
   });
 
   it.each([1, 3, 12])("accepts valid create grade level %s", (grade_level) => {
-    expect(CreateClassSchema.safeParse({ ...validCreate, grade_level }).success).toBe(true);
+    expect(
+      CreateClassSchema.safeParse({ ...validCreate, grade_level }).success,
+    ).toBe(true);
   });
 
   it("accepts create without institution and capacity", () => {
@@ -21,7 +27,9 @@ describe("Class schemas", () => {
     expect(CreateClassSchema.shape).not.toHaveProperty("capacity");
   });
 
-  it.each([-1, 0, 1.5])("rejects invalid update grade level %s", (grade_level) => {
+  it.each([
+    -1, 0, 1.5,
+  ])("rejects invalid update grade level %s", (grade_level) => {
     expect(UpdateClassSchema.safeParse({ grade_level }).success).toBe(false);
   });
 

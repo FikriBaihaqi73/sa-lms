@@ -154,7 +154,10 @@ describe("StudentRepository", () => {
     it("filters by institutionId when finding by ID", async () => {
       student.findFirst.mockResolvedValue(sampleStudent);
 
-      const result = await repository.findById("student-uuid-1", "institution-uuid-a");
+      const result = await repository.findById(
+        "student-uuid-1",
+        "institution-uuid-a",
+      );
 
       expect(result).toEqual(sampleStudent);
       expect(student.findFirst).toHaveBeenCalledWith({
@@ -170,7 +173,10 @@ describe("StudentRepository", () => {
     it("returns null when student belongs to another institution", async () => {
       student.findFirst.mockResolvedValue(null);
 
-      const result = await repository.findById("student-uuid-1", "institution-uuid-b");
+      const result = await repository.findById(
+        "student-uuid-1",
+        "institution-uuid-b",
+      );
 
       expect(result).toBeNull();
       expect(student.findFirst).toHaveBeenCalledWith({

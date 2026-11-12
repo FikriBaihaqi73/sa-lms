@@ -139,6 +139,7 @@ export function ClassroomPage() {
 			setCurrentPage(1);
 			setNotice({ kind: "success", message: "Ruang kelas ditambahkan" });
 			toast.success("Ruang kelas ditambahkan");
+			await listQuery.refetch();
 		} catch (error) {
 			setNotice({ kind: "error", message: errorMessage(error) });
 			toast.error(errorMessage(error));
@@ -162,6 +163,7 @@ export function ClassroomPage() {
 			setEditing(null);
 			setNotice({ kind: "success", message: "Perubahan disimpan" });
 			toast.success("Perubahan disimpan");
+			await listQuery.refetch();
 		} catch (error) {
 			setNotice({ kind: "error", message: errorMessage(error) });
 			toast.error(errorMessage(error));
@@ -175,6 +177,7 @@ export function ClassroomPage() {
 			setDeleting(null);
 			setNotice({ kind: "success", message: "Ruang kelas dihapus" });
 			toast.success("Ruang kelas dihapus");
+			await listQuery.refetch();
 		} catch (error) {
 			setNotice({ kind: "error", message: errorMessage(error) });
 			toast.error(errorMessage(error));

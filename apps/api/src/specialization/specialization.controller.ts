@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
 import {
@@ -18,7 +26,9 @@ export class SpecializationController {
   constructor(private readonly specializationService: SpecializationService) {}
 
   @Get()
-  @ApiOperation({ summary: "Get specializations for the authenticated institution" })
+  @ApiOperation({
+    summary: "Get specializations for the authenticated institution",
+  })
   async findAll() {
     const specializations = await this.specializationService.findAll();
     return ResponseHelper.success(

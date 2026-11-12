@@ -9,13 +9,27 @@ export const CreateClassroomSchema = z.object({
 
   roomName: z.string().min(1).max(255).describe("Classroom room name"),
 
-  building: z.string().max(255).optional().nullable().describe("Classroom building"),
+  building: z
+    .string()
+    .max(255)
+    .optional()
+    .nullable()
+    .describe("Classroom building"),
 
   floor: z.number().int().optional().nullable().describe("Classroom floor"),
 
-  capacity: z.number().int().optional().nullable().describe("Classroom capacity"),
+  capacity: z
+    .number()
+    .int()
+    .optional()
+    .nullable()
+    .describe("Classroom capacity"),
 
-  description: z.string().optional().nullable().describe("Classroom description"),
+  description: z
+    .string()
+    .optional()
+    .nullable()
+    .describe("Classroom description"),
 });
 
 export const UpdateClassroomSchema = CreateClassroomSchema.partial();

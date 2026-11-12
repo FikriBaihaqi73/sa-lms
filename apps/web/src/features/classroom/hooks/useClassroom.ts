@@ -29,8 +29,8 @@ export const useCreateClassroom = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (input: CreateClassroomInput) => createClassroomApi(input),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: CLASSROOMS_QUERY_KEY });
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: CLASSROOMS_QUERY_KEY });
 		},
 	});
 };
@@ -40,8 +40,8 @@ export const useUpdateClassroom = () => {
 	return useMutation({
 		mutationFn: ({ id, input }: { id: string; input: UpdateClassroomInput }) =>
 			updateClassroomApi(id, input),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: CLASSROOMS_QUERY_KEY });
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: CLASSROOMS_QUERY_KEY });
 		},
 	});
 };
@@ -50,8 +50,8 @@ export const useDeleteClassroom = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (id: string) => deleteClassroomApi(id),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: CLASSROOMS_QUERY_KEY });
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: CLASSROOMS_QUERY_KEY });
 		},
 	});
 };

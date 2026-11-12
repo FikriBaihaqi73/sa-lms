@@ -52,7 +52,12 @@ export interface FindAllProfileResult {
 export class ProfileRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async studentOptions(institutionId: string, page: number, limit: number, search?: string) {
+  async studentOptions(
+    institutionId: string,
+    page: number,
+    limit: number,
+    search?: string,
+  ) {
     const currentPage = Math.max(1, page);
     const pageSize = Math.min(100, Math.max(1, limit));
     const term = search?.trim();
@@ -60,16 +65,77 @@ export class ProfileRepository {
       institutionId,
       deletedAt: null,
       student: { is: null },
-      ...(term ? { OR: [
-        { fullName: { contains: term, mode: "insensitive" as const } },
-        { email: { contains: term, mode: "insensitive" as const } },
-      ] } : {}),
+      ...(term
+        ? {
+            OR: [
+              { fullName: { contains: term, mode: "insensitive" as const } },
+              { email: { contains: term, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
     };
     const [data, total] = await Promise.all([
-      this.prisma.profile.findMany({ where, select: { id: true, fullName: true, email: true }, orderBy: [{ fullName: "asc" }, { id: "asc" }], skip: (currentPage - 1) * pageSize, take: pageSize }),
+      this.prisma.profile.findMany({
+        where,
+        select: { id: true, fullName: true, email: true },
+        orderBy: [{ fullName: "asc" }, { id: "asc" }],
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+      }),
       this.prisma.profile.count({ where }),
     ]);
-    return { data, meta: { page: currentPage, limit: pageSize, total, totalPages: Math.ceil(total / pageSize) } };
+    return {
+      data,
+      meta: {
+        page: currentPage,
+        limit: pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    };
+  }
+
+  async teacherOptions(
+    institutionId: string,
+    page: number,
+    limit: number,
+    search?: string,
+  ) {
+    const currentPage = Math.max(1, page);
+    const pageSize = Math.min(100, Math.max(1, limit));
+    const term = search?.trim();
+    const where = {
+      institutionId,
+      deletedAt: null,
+      teacher: { is: null },
+      ...(term
+        ? {
+            OR: [
+              { fullName: { contains: term, mode: "insensitive" as const } },
+              { email: { contains: term, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
+    };
+    const [data, total] = await Promise.all([
+      this.prisma.profile.findMany({
+        where,
+        select: { id: true, fullName: true, email: true },
+        orderBy: [{ fullName: "asc" }, { id: "asc" }],
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.profile.count({ where }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: currentPage,
+        limit: pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    };
   }
 
   async create(data: CreateProfileInput): Promise<ProfileEntity> {

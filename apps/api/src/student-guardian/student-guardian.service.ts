@@ -1,11 +1,10 @@
 import {
   ConflictException,
-
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
 import { StudentGuardianRepository } from "@repo/shared/infrastructure/repository/student-guardian.repository";
+import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
 import type {
   CreateStudentGuardianDto,
   UpdateStudentGuardianDto,
@@ -23,13 +22,21 @@ export class StudentGuardianService {
   }
 
   private async institutionIdFor(userId: string): Promise<string> {
-    const profile = await this.prisma.client.profile.findFirst({ where: { userId, deletedAt: null }, select: { institutionId: true } });
+    const profile = await this.prisma.client.profile.findFirst({
+      where: { userId, deletedAt: null },
+      select: { institutionId: true },
+    });
     if (!profile) throw new NotFoundException("Institution profile not found");
     return profile.institutionId;
   }
 
   async findAll(userId: string, page = 1, limit = 10, search?: string) {
-    return this.repository.findAll(page, limit, search, await this.institutionIdFor(userId));
+    return this.repository.findAll(
+      page,
+      limit,
+      search,
+      await this.institutionIdFor(userId),
+    );
   }
 
   async studentOptions(userId: string, page = 1, limit = 20, search?: string) {
@@ -42,7 +49,10 @@ export class StudentGuardianService {
   }
 
   async findOne(id: string, userId: string) {
-    const record = await this.repository.findById(id, await this.institutionIdFor(userId));
+    const record = await this.repository.findById(
+      id,
+      await this.institutionIdFor(userId),
+    );
     if (!record) {
       throw new NotFoundException("Student guardian relation not found");
     }
@@ -111,7 +121,11 @@ export class StudentGuardianService {
 
     if (dto.studentId !== undefined && dto.studentId !== current.studentId) {
       const student = await this.prisma.client.student.findFirst({
-        where: { id: dto.studentId, deletedAt: null, profile: { institutionId } },
+        where: {
+          id: dto.studentId,
+          deletedAt: null,
+          profile: { institutionId },
+        },
       });
       if (!student) {
         throw new NotFoundException("Student not found");

@@ -132,14 +132,34 @@ export const deleteTeacherApi = async (id: string): Promise<{ id: string }> => {
 	return response.data ?? { id };
 };
 
-export const getTeacherProfilesApi = async (): Promise<
-	TeacherFormProfile[]
-> => {
-	const response: ApiResponse<
-		{ data: TeacherFormProfile[] } | TeacherFormProfile[] | null
-	> = await apiFetch("/profiles?page=1&limit=100");
-	if (Array.isArray(response.data)) return response.data;
-	return response.data?.data ?? [];
+export const getTeacherProfilesApi = async (): Promise<TeacherFormProfile[]> => {
+	try {
+		const response = (await apiFetch(
+			"/profiles/teacher-options?page=1&limit=100",
+		)) as {
+			data?: { data?: TeacherFormProfile[] } | TeacherFormProfile[] | null;
+		};
+		if (Array.isArray(response?.data)) return response.data;
+		if (
+			response?.data &&
+			Array.isArray((response.data as { data?: TeacherFormProfile[] }).data)
+		) {
+			return (response.data as { data: TeacherFormProfile[] }).data;
+		}
+		return [];
+	} catch {
+		const fallback = (await apiFetch("/profiles?page=1&limit=100")) as {
+			data?: { data?: TeacherFormProfile[] } | TeacherFormProfile[] | null;
+		};
+		if (Array.isArray(fallback?.data)) return fallback.data;
+		if (
+			fallback?.data &&
+			Array.isArray((fallback.data as { data?: TeacherFormProfile[] }).data)
+		) {
+			return (fallback.data as { data: TeacherFormProfile[] }).data;
+		}
+		return [];
+	}
 };
 
 export const getEmploymentStatusesApi = async (): Promise<

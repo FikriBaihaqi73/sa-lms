@@ -34,7 +34,8 @@ export class SpecializationService {
 
   async create(dto: CreateSpecializationDto) {
     const trimmedName = dto.name.trim();
-    const existing = await this.specializationRepository.findByName(trimmedName);
+    const existing =
+      await this.specializationRepository.findByName(trimmedName);
     if (existing) {
       throw new ConflictException("Specialization name already exists");
     }
@@ -72,4 +73,3 @@ export class SpecializationService {
     return { success: true, id };
   }
 }
-

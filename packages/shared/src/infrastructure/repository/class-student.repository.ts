@@ -199,28 +199,33 @@ export class ClassStudentRepository {
     const classFilter = classId ? { classId } : {};
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-    const [totalActive, recentJoined, totalDeleted, filledClassesRaw, totalClassesCount] =
-      await Promise.all([
-        this.prisma.classStudent.count({
-          where: { ...classFilter, deletedAt: null },
-        }),
-        this.prisma.classStudent.count({
-          where: {
-            ...classFilter,
-            deletedAt: null,
-            createdAt: { gte: sevenDaysAgo },
-          },
-        }),
-        this.prisma.classStudent.count({
-          where: { ...classFilter, deletedAt: { not: null } },
-        }),
-        this.prisma.classStudent.groupBy({
-          by: ["classId"],
-          where: { deletedAt: null },
-          _count: { classId: true },
-        }),
-        this.prisma.classes.count(),
-      ]);
+    const [
+      totalActive,
+      recentJoined,
+      totalDeleted,
+      filledClassesRaw,
+      totalClassesCount,
+    ] = await Promise.all([
+      this.prisma.classStudent.count({
+        where: { ...classFilter, deletedAt: null },
+      }),
+      this.prisma.classStudent.count({
+        where: {
+          ...classFilter,
+          deletedAt: null,
+          createdAt: { gte: sevenDaysAgo },
+        },
+      }),
+      this.prisma.classStudent.count({
+        where: { ...classFilter, deletedAt: { not: null } },
+      }),
+      this.prisma.classStudent.groupBy({
+        by: ["classId"],
+        where: { deletedAt: null },
+        _count: { classId: true },
+      }),
+      this.prisma.classes.count(),
+    ]);
 
     return {
       totalActive,
@@ -248,7 +253,10 @@ export class ClassStudentRepository {
           institutionId: targetClass.institution_id,
           deletedAt: null,
           role: {
-            name: { in: ["student", "Student", "siswa", "Siswa"], mode: "insensitive" },
+            name: {
+              in: ["student", "Student", "siswa", "Siswa"],
+              mode: "insensitive",
+            },
           },
           student: null,
         },
@@ -352,7 +360,8 @@ export class ClassStudentRepository {
       candidates.push({
         id: student.id,
         studentNumber: student.studentNumber,
-        fullName: student.profile?.fullName || `Siswa #${student.studentNumber}`,
+        fullName:
+          student.profile?.fullName || `Siswa #${student.studentNumber}`,
         isPreviouslyRemoved,
         currentClassName: activeOtherClass?.classes?.name ?? null,
       });

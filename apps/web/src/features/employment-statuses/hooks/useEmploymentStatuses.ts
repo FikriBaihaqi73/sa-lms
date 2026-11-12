@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getEmploymentStatuses,
   createEmploymentStatus,
@@ -7,7 +7,7 @@ import {
 } from '../api/employment-statuses';
 import type { EmploymentStatusFormValues } from '../schemas/employmentStatusSchema';
 
-export const EMPLOYMENT_STATUSES_QUERY_KEY = ['employment-statuses'];
+export const EMPLOYMENT_STATUSES_QUERY_KEY = ['employment-statuses'] as const;
 
 export function useEmploymentStatuses() {
   const queryClient = useQueryClient();
@@ -32,8 +32,8 @@ export function useCreateEmploymentStatus() {
 
   const mutation = useMutation({
     mutationFn: (values: EmploymentStatusFormValues) => createEmploymentStatus(values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EMPLOYMENT_STATUSES_QUERY_KEY });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: EMPLOYMENT_STATUSES_QUERY_KEY });
     },
   });
 
@@ -49,8 +49,8 @@ export function useUpdateEmploymentStatus() {
   const mutation = useMutation({
     mutationFn: ({ id, input }: { id: string; input: EmploymentStatusFormValues }) =>
       updateEmploymentStatus({ id, input }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EMPLOYMENT_STATUSES_QUERY_KEY });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: EMPLOYMENT_STATUSES_QUERY_KEY });
     },
   });
 
@@ -65,8 +65,8 @@ export function useDeleteEmploymentStatus() {
 
   const mutation = useMutation({
     mutationFn: (id: string) => deleteEmploymentStatus(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EMPLOYMENT_STATUSES_QUERY_KEY });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: EMPLOYMENT_STATUSES_QUERY_KEY });
     },
   });
 

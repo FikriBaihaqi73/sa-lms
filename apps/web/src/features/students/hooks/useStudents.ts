@@ -56,7 +56,9 @@ export const useUpdateStudent = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateStudentInput }) => updateStudentApi(id, input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: STUDENTS_QUERY_KEY }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: STUDENTS_QUERY_KEY });
+    },
   });
 };
 
@@ -64,7 +66,9 @@ export const useDeleteStudent = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteStudentApi(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: STUDENTS_QUERY_KEY }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: STUDENTS_QUERY_KEY });
+    },
   });
 };
 

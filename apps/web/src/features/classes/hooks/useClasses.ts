@@ -13,15 +13,30 @@ export const useClasses = (params?: { page?: number; limit?: number; search?: st
 
 export const useCreateClass = () => {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: (input: CreateClassInput) => createClassApi(input), onSuccess: () => qc.invalidateQueries({ queryKey: CLASSES_QUERY_KEY }) });
+  return useMutation({
+    mutationFn: (input: CreateClassInput) => createClassApi(input),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: CLASSES_QUERY_KEY });
+    },
+  });
 };
 
 export const useUpdateClass = () => {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: ({ id, input }: { id: string; input: UpdateClassInput }) => updateClassApi(id, input), onSuccess: () => qc.invalidateQueries({ queryKey: CLASSES_QUERY_KEY }) });
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateClassInput }) => updateClassApi(id, input),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: CLASSES_QUERY_KEY });
+    },
+  });
 };
 
 export const useDeleteClass = () => {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: (id: string) => deleteClassApi(id), onSuccess: () => qc.invalidateQueries({ queryKey: CLASSES_QUERY_KEY }) });
+  return useMutation({
+    mutationFn: (id: string) => deleteClassApi(id),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: CLASSES_QUERY_KEY });
+    },
+  });
 };

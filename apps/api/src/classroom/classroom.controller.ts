@@ -15,9 +15,9 @@ import {
   CreateClassroomDto,
   UpdateClassroomDto,
 } from "@repo/shared/schemas/classroom.schema";
+import type { Request } from "express";
 import { ZodValidationPipe } from "nestjs-zod";
 import { ClassroomService } from "./classroom.service";
-import type { Request } from "express";
 
 @ApiTags("Classrooms")
 @ApiBearerAuth("JWT-auth")
