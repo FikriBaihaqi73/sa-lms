@@ -18,6 +18,7 @@ import {
   UpdateTeacherDto,
 } from "@repo/shared/schemas/teacher.schema";
 import type { Request } from "express";
+import { ZodValidationPipe } from "nestjs-zod";
 import { Roles } from "../auth/roles.decorator";
 import { TeachersService } from "./teachers.service";
 
@@ -29,10 +30,13 @@ export class TeachersController {
   constructor(private readonly teachersService: TeachersService) {}
 
   @Post()
-  @ApiOperation({ summary: "Create a new teacher" })
+  @ApiOperation({
+    summary:
+      "Create a new teacher (1-Step Onboarding: Akun Login + Profil + Data Guru)",
+  })
   @HttpCode(HttpStatus.CREATED)
   create(
-    @Body() createTeacherDto: CreateTeacherDto,
+    @Body(new ZodValidationPipe()) createTeacherDto: CreateTeacherDto,
     @Req() request: Request & { user: { sub: string } },
   ) {
     return this.teachersService.create(createTeacherDto, request.user.sub);
@@ -76,10 +80,12 @@ export class TeachersController {
   }
 
   @Patch(":id")
-  @ApiOperation({ summary: "Update a teacher" })
+  @ApiOperation({
+    summary: "Update teacher profile, account, or employment details",
+  })
   update(
     @Param("id") id: string,
-    @Body() updateTeacherDto: UpdateTeacherDto,
+    @Body(new ZodValidationPipe()) updateTeacherDto: UpdateTeacherDto,
     @Req() request: Request & { user: { sub: string } },
   ) {
     return this.teachersService.update(id, updateTeacherDto, request.user.sub);

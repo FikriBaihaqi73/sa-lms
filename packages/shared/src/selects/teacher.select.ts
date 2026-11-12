@@ -16,6 +16,7 @@ export const teacherSelect = {
       fullName: true,
       email: true,
       phoneNumber: true,
+      gender: true,
       userId: true,
       users: {
         select: {
@@ -48,6 +49,7 @@ export const teacherSelect = {
   _count: {
     select: {
       classSubjects: true,
+      classes: true,
     },
   },
 } satisfies Prisma.TeachersSelect;

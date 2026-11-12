@@ -112,6 +112,7 @@ describe("UserController", () => {
         20,
         "ahmad",
         ADMIN_USER_ID,
+        undefined,
       );
     });
 
@@ -184,6 +185,7 @@ describe("UserController", () => {
         undefined,
         undefined,
         ADMIN_USER_ID,
+        undefined,
       );
     });
   });

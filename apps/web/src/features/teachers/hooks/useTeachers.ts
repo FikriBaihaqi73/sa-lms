@@ -1,17 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  createTeacherApi,
-  deleteTeacherApi,
-  getDepartmentsApi,
-  getEmploymentStatusesApi,
-  getSpecializationsApi,
-  getTeacherByIdApi,
-  getTeacherClassSubjectsApi,
-  getTeacherProfilesApi,
-  getTeachersApi,
-  getTeacherStatsApi,
-  updateTeacherApi,
-  type GetTeachersParams,
+	createTeacherApi,
+	deleteTeacherApi,
+	type GetTeachersParams,
+	getDepartmentsApi,
+	getEmploymentStatusesApi,
+	getSpecializationsApi,
+	getTeacherByIdApi,
+	getTeacherClassSubjectsApi,
+	getTeacherProfilesApi,
+	getTeacherStatsApi,
+	getTeachersApi,
+	updateTeacherApi,
 } from "../api/teachers";
 import type { CreateTeacherInput, UpdateTeacherInput } from "../types";
 
@@ -23,106 +23,105 @@ export const SPECIALIZATIONS_QUERY_KEY = ["specializations"] as const;
 export const TEACHER_DEPARTMENTS_QUERY_KEY = ["teacher-departments"] as const;
 
 export const useTeachers = (params: GetTeachersParams) =>
-  useQuery({
-    queryKey: [
-      ...TEACHERS_QUERY_KEY,
-      params.page,
-      params.limit,
-      params.search ?? "",
-      params.status ?? "",
-      params.specialization ?? "",
-    ],
-    queryFn: () => getTeachersApi(params),
-    placeholderData: (previousData) => previousData,
-  });
+	useQuery({
+		queryKey: [
+			...TEACHERS_QUERY_KEY,
+			params.page,
+			params.limit,
+			params.search ?? "",
+			params.status ?? "",
+			params.specialization ?? "",
+		],
+		queryFn: () => getTeachersApi(params),
+		placeholderData: (previousData) => previousData,
+	});
 
 export const useTeacherStats = () =>
-  useQuery({
-    queryKey: TEACHER_STATS_QUERY_KEY,
-    queryFn: getTeacherStatsApi,
-  });
+	useQuery({
+		queryKey: TEACHER_STATS_QUERY_KEY,
+		queryFn: getTeacherStatsApi,
+	});
 
 export const useTeacher = (id: string | undefined) =>
-  useQuery({
-    queryKey: [...TEACHERS_QUERY_KEY, "detail", id],
-    queryFn: () => getTeacherByIdApi(id as string),
-    enabled: Boolean(id),
-  });
+	useQuery({
+		queryKey: [...TEACHERS_QUERY_KEY, "detail", id],
+		queryFn: () => getTeacherByIdApi(id as string),
+		enabled: Boolean(id),
+	});
 
 export const useTeacherClassSubjects = (teacherId: string | undefined) =>
-  useQuery({
-    queryKey: [...TEACHERS_QUERY_KEY, "class-subjects", teacherId],
-    queryFn: () => getTeacherClassSubjectsApi(teacherId as string),
-    enabled: Boolean(teacherId),
-  });
+	useQuery({
+		queryKey: [...TEACHERS_QUERY_KEY, "class-subjects", teacherId],
+		queryFn: () => getTeacherClassSubjectsApi(teacherId as string),
+		enabled: Boolean(teacherId),
+	});
 
 export const useTeacherProfiles = () =>
-  useQuery({
-    queryKey: TEACHER_PROFILES_QUERY_KEY,
-    queryFn: getTeacherProfilesApi,
-    staleTime: 5 * 60 * 1000,
-  });
+	useQuery({
+		queryKey: TEACHER_PROFILES_QUERY_KEY,
+		queryFn: getTeacherProfilesApi,
+		staleTime: 5 * 60 * 1000,
+	});
 
 export const useEmploymentStatuses = () =>
-  useQuery({
-    queryKey: EMPLOYMENT_STATUSES_QUERY_KEY,
-    queryFn: getEmploymentStatusesApi,
-    staleTime: 5 * 60 * 1000,
-  });
+	useQuery({
+		queryKey: EMPLOYMENT_STATUSES_QUERY_KEY,
+		queryFn: getEmploymentStatusesApi,
+		staleTime: 5 * 60 * 1000,
+	});
 
 export const useSpecializations = () =>
-  useQuery({
-    queryKey: SPECIALIZATIONS_QUERY_KEY,
-    queryFn: getSpecializationsApi,
-    staleTime: 5 * 60 * 1000,
-  });
+	useQuery({
+		queryKey: SPECIALIZATIONS_QUERY_KEY,
+		queryFn: getSpecializationsApi,
+		staleTime: 5 * 60 * 1000,
+	});
 
 export const useTeacherDepartments = () =>
-  useQuery({
-    queryKey: TEACHER_DEPARTMENTS_QUERY_KEY,
-    queryFn: getDepartmentsApi,
-    staleTime: 5 * 60 * 1000,
-  });
+	useQuery({
+		queryKey: TEACHER_DEPARTMENTS_QUERY_KEY,
+		queryFn: getDepartmentsApi,
+		staleTime: 5 * 60 * 1000,
+	});
 
 export const useCreateTeacher = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (input: CreateTeacherInput) => createTeacherApi(input),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: TEACHER_PROFILES_QUERY_KEY }),
-      ]);
-    },
-  });
+export const useCreateTeacher = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (input: CreateTeacherInput) => createTeacherApi(input),
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
+				queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
+			]);
+		},
+	});
 };
 
 export const useUpdateTeacher = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: UpdateTeacherInput }) =>
-      updateTeacherApi(id, input),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: TEACHER_PROFILES_QUERY_KEY }),
-      ]);
-    },
-  });
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, input }: { id: string; input: UpdateTeacherInput }) =>
+			updateTeacherApi(id, input),
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
+				queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
+			]);
+		},
+	});
 };
 
 export const useDeleteTeacher = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => deleteTeacherApi(id),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: TEACHER_PROFILES_QUERY_KEY }),
-      ]);
-    },
-  });
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id: string) => deleteTeacherApi(id),
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
+				queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
+			]);
+		},
+	});
+};
 };

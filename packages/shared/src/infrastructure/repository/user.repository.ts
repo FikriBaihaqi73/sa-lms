@@ -29,6 +29,13 @@ export interface FindAllUserInput {
    * Omit it to read users across every institution (superadmin scope).
    */
   institution_id?: string;
+  /**
+   * Filter users by soft-delete status:
+   * - "active": only non-deleted users (default)
+   * - "deleted": only soft-deleted users
+   * - "all": both active and deleted users
+   */
+  status?: "active" | "deleted" | "all";
 }
 
 export interface FindAllUserResult {
@@ -93,13 +100,25 @@ export class UserRepository {
     const limit = Math.min(Math.max(params.limit ?? 10, 1), 100);
     const search = params.search?.trim();
     const institutionId = params.institution_id?.trim();
+    const status = params.status ?? "active";
 
     const where: Prisma.UsersWhereInput = {
-      deleted_at: null,
+      ...(status === "deleted"
+        ? { deleted_at: { not: null } }
+        : status === "all"
+          ? {}
+          : { deleted_at: null }),
       // Institution scope is applied up-front so pagination, search and the
       // `total` count below only ever consider the caller's institution.
       ...(institutionId
-        ? { profile: { some: { institutionId, deletedAt: null } } }
+        ? {
+            profile: {
+              some: {
+                institutionId,
+                ...(status === "active" ? { deletedAt: null } : {}),
+              },
+            },
+          }
         : {}),
       ...(search
         ? {

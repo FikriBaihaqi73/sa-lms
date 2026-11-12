@@ -12,8 +12,10 @@ import { AttendanceStatusRepository } from "@repo/shared/infrastructure/reposito
 import { ScheduleRepository } from "@repo/shared/infrastructure/repository/schedule.repository";
 import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
 import type {
+  BulkUpsertAttendanceDto,
   CreateAttendanceDto,
   UpdateAttendanceDto,
+  UpsertAttendanceDto,
 } from "@repo/shared/schemas/attendance.schema";
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -81,7 +83,7 @@ export class AttendanceService {
     const institutionId = await this.institutionIdFor(userId);
     await this.ensureRelationsExist(dto, institutionId);
 
-    const attendanceDate = this.toDate(dto.attendance_date);
+    const attendanceDate = this.normalizeDate(dto.attendance_date);
     await this.ensureAttendanceDoesNotExist(
       dto.schedule_id,
       dto.student_id,
@@ -97,6 +99,83 @@ export class AttendanceService {
     });
   }
 
+  async upsert(dto: UpsertAttendanceDto, userId?: string) {
+    const institutionId = await this.institutionIdFor(userId);
+    await this.ensureRelationsExist(
+      {
+        schedule_id: dto.schedule_id,
+        student_id: dto.student_id,
+        attendance_status_id: dto.attendance_status_id,
+      },
+      institutionId,
+    );
+
+    const attendanceDate = this.normalizeDate(dto.attendance_date);
+    if (!attendanceDate) {
+      throw new NotFoundException("Invalid attendance date");
+    }
+
+    return this.attendanceRepository.upsert({
+      schedule_id: dto.schedule_id,
+      student_id: dto.student_id,
+      attendance_status_id: dto.attendance_status_id,
+      attendance_date: attendanceDate,
+      notes: dto.notes ?? null,
+    });
+  }
+
+  async bulkUpsert(dto: BulkUpsertAttendanceDto, userId?: string) {
+    const institutionId = await this.institutionIdFor(userId);
+    const schedule = await this.scheduleRepository.findById(dto.schedule_id);
+    if (!schedule) throw new NotFoundException("Schedule not found");
+    if (
+      institutionId &&
+      schedule.classSubject?.class?.institution_id !== institutionId
+    ) {
+      throw new NotFoundException("Schedule not found");
+    }
+
+    const status = institutionId
+      ? await this.attendanceStatusRepository.findById(
+          institutionId,
+          dto.attendance_status_id,
+        )
+      : null;
+    if (!status) throw new NotFoundException("Attendance status not found");
+
+    let studentIds = dto.student_ids ?? [];
+    if (studentIds.length === 0) {
+      const classId = schedule.classSubject?.class_id;
+      if (!classId) {
+        throw new NotFoundException("Class not found for this schedule");
+      }
+      const classStudents = await this.prisma.client.classStudent.findMany({
+        where: { classId, deletedAt: null },
+        select: { studentId: true },
+      });
+      studentIds = classStudents.map((cs) => cs.studentId);
+    }
+
+    if (studentIds.length === 0) {
+      return [];
+    }
+
+    const attendanceDate = this.normalizeDate(dto.attendance_date);
+    if (!attendanceDate) {
+      throw new NotFoundException("Invalid attendance date");
+    }
+
+    const records = studentIds.map((student_id) => ({
+      schedule_id: dto.schedule_id,
+      student_id,
+      attendance_status_id: dto.attendance_status_id,
+      attendance_date: attendanceDate,
+      notes: dto.notes ?? null,
+    }));
+
+    return this.attendanceRepository.bulkUpsert(records);
+  }
+
   async update(id: string, dto: UpdateAttendanceDto, userId?: string) {
     const current = await this.findOne(id, userId);
     const institutionId = await this.institutionIdFor(userId);
@@ -105,7 +184,7 @@ export class AttendanceService {
     const attendanceDate =
       dto.attendance_date === undefined
         ? (current.attendance_date ?? undefined)
-        : this.toDate(dto.attendance_date);
+        : this.normalizeDate(dto.attendance_date);
 
     await this.ensureRelationsExist(
       {
@@ -196,7 +275,15 @@ export class AttendanceService {
     }
   }
 
-  private toDate(value: string | undefined): Date | undefined {
-    return value === undefined ? undefined : new Date(value);
+  private normalizeDate(value: string | Date | undefined): Date | undefined {
+    if (!value) return undefined;
+    if (value instanceof Date) {
+      const y = value.getUTCFullYear();
+      const m = String(value.getUTCMonth() + 1).padStart(2, "0");
+      const d = String(value.getUTCDate()).padStart(2, "0");
+      return new Date(`${y}-${m}-${d}T00:00:00.000Z`);
+    }
+    const dateStr = value.split("T")[0];
+    return new Date(`${dateStr}T00:00:00.000Z`);
   }
 }

@@ -29,18 +29,22 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @ApiOperation({ summary: "Get users with search and pagination" })
+  @ApiOperation({
+    summary: "Get users with search, status filter, and pagination",
+  })
   async findAll(
     @Req() request: Request & { user: { sub: string } },
     @Query("page", new ParseIntPipe({ optional: true })) page?: number,
     @Query("limit", new ParseIntPipe({ optional: true })) limit?: number,
     @Query("search") search?: string,
+    @Query("status") status?: "active" | "deleted" | "all",
   ) {
     const users = await this.userService.findAll(
       page,
       limit,
       search,
       request.user.sub,
+      status,
     );
     return ResponseHelper.success(users, "Users retrieved successfully");
   }

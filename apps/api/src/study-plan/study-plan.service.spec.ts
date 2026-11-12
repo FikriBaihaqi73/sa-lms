@@ -3,8 +3,8 @@ import { AcademicYearRepository } from "@repo/shared/infrastructure/repository/a
 import { ClassSubjectsRepository } from "@repo/shared/infrastructure/repository/class-subjects.repository";
 import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
 import { StudyPlanRepository } from "@repo/shared/infrastructure/repository/study-plan.repository";
-import type { CreateStudyPlanDto } from "@repo/shared/schemas/study-plan.schema";
-import type { PrismaService } from "../prisma/prisma.service";
+import { CreateStudyPlanDto } from "@repo/shared/schemas/study-plan.schema";
+import { PrismaService } from "../prisma/prisma.service";
 import { StudyPlanService } from "./study-plan.service";
 
 jest.mock("../prisma/prisma.service", () => ({
@@ -26,7 +26,10 @@ describe("StudyPlanService", () => {
       .mockResolvedValue({ id: dto.student_id } as never);
     jest
       .spyOn(ClassSubjectsRepository.prototype, "findById")
-      .mockResolvedValue({ id: dto.class_subject_id } as never);
+      .mockResolvedValue({
+        id: dto.class_subject_id,
+        academic_year_id: dto.academic_year_id,
+      } as never);
     jest
       .spyOn(AcademicYearRepository.prototype, "findById")
       .mockResolvedValue({ id: dto.academic_year_id } as never);
@@ -40,7 +43,7 @@ describe("StudyPlanService", () => {
 
   afterEach(() => jest.restoreAllMocks());
 
-  it("forwards the search filter when retrieving study plans", async () => {
+  it("forwards the search and department filter when retrieving study plans", async () => {
     const findAll = jest
       .spyOn(StudyPlanRepository.prototype, "findAll")
       .mockResolvedValue({
@@ -48,9 +51,42 @@ describe("StudyPlanService", () => {
         meta: { totalData: 0, totalPages: 0, currentPage: 1, perPage: 10 },
       });
 
-    await service.findAll(1, 10, { search: "mathematics" });
+    await service.findAll(1, 10, {
+      search: "mathematics",
+      department_id: "dept-1",
+    });
 
-    expect(findAll).toHaveBeenCalledWith(1, 10, { search: "mathematics" });
+    expect(findAll).toHaveBeenCalledWith(1, 10, {
+      search: "mathematics",
+      department_id: "dept-1",
+    });
+  });
+
+  it("automatically resolves academic_year_id from classSubject when not provided", async () => {
+    const create = jest
+      .spyOn(StudyPlanRepository.prototype, "create")
+      .mockResolvedValue({ id: "study-plan-id" } as never);
+
+    await service.create({
+      student_id: dto.student_id,
+      class_subject_id: dto.class_subject_id,
+    } as CreateStudyPlanDto);
+
+    expect(create).toHaveBeenCalledWith({
+      student_id: dto.student_id,
+      class_subject_id: dto.class_subject_id,
+      academic_year_id: dto.academic_year_id,
+    });
+  });
+
+  it("rejects study plan when academic_year_id does not match class subject", async () => {
+    await expect(
+      service.create({
+        student_id: dto.student_id,
+        class_subject_id: dto.class_subject_id,
+        academic_year_id: "mismatched-academic-year-id",
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it("rejects a study plan that references a missing student", async () => {

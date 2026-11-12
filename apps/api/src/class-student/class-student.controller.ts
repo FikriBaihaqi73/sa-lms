@@ -41,8 +41,10 @@ export class ClassStudentController {
       status,
     );
     return ResponseHelper.success(
-      classStudents,
+      classStudents.data,
       "Class students retrieved successfully",
+      200,
+      classStudents.meta,
     );
   }
 

@@ -23,7 +23,7 @@ import { ClassService } from "./class.service";
 
 @ApiTags("Classes")
 @ApiBearerAuth("JWT-auth")
-@Roles("admin")
+@Roles("admin", "teacher")
 @Controller("classes")
 export class ClassController {
   constructor(private readonly classService: ClassService) {}
@@ -62,6 +62,7 @@ export class ClassController {
   }
 
   @Post()
+  @Roles("admin")
   @ApiOperation({ summary: "Create a class" })
   async create(
     @Body(new ZodValidationPipe()) dto: CreateClassDto,
@@ -75,6 +76,7 @@ export class ClassController {
   }
 
   @Patch(":id")
+  @Roles("admin")
   @ApiOperation({ summary: "Update a class" })
   async update(
     @Param("id") id: string,
@@ -88,6 +90,7 @@ export class ClassController {
   }
 
   @Delete(":id")
+  @Roles("admin")
   @ApiOperation({ summary: "Soft-delete a class" })
   async remove(
     @Param("id") id: string,

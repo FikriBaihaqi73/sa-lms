@@ -12,8 +12,10 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
 import {
+  BulkUpsertAttendanceDto,
   CreateAttendanceDto,
   UpdateAttendanceDto,
+  UpsertAttendanceDto,
 } from "@repo/shared/schemas/attendance.schema";
 import type { Request } from "express";
 import { ZodValidationPipe } from "nestjs-zod";
@@ -22,7 +24,7 @@ import { AttendanceService } from "./attendance.service";
 
 @ApiTags("Attendances")
 @ApiBearerAuth("JWT-auth")
-@Roles("admin")
+@Roles("admin", "teacher")
 @Controller("attendances")
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
@@ -30,7 +32,7 @@ export class AttendanceController {
   @Get("summary")
   @ApiOperation({
     summary:
-      "Get attendance summary statistics (total, present, permission, sick, absent)",
+      "Get attendance summary statistics (total, present, permission, sick, absent, attendanceRate)",
   })
   async getSummary(
     @Req() req: Request & { user: { sub: string } },
@@ -40,6 +42,10 @@ export class AttendanceController {
     @Query("attendance_status_id") attendance_status_id?: string,
     @Query("attendance_date") attendance_date?: string,
     @Query("class_id") class_id?: string,
+    @Query("start_date") start_date?: string,
+    @Query("end_date") end_date?: string,
+    @Query("month") month?: string,
+    @Query("year") year?: string,
   ) {
     const summary = await this.attendanceService.getSummary(
       {
@@ -49,6 +55,10 @@ export class AttendanceController {
         attendance_status_id,
         attendance_date,
         class_id,
+        start_date,
+        end_date,
+        month: month ? parseInt(month, 10) : undefined,
+        year: year ? parseInt(year, 10) : undefined,
       },
       req.user.sub,
     );
@@ -64,14 +74,18 @@ export class AttendanceController {
   })
   async findAll(
     @Req() req: Request & { user: { sub: string } },
-    @Query("page") page: string = "1",
-    @Query("limit") limit: string = "10",
+    @Query("page") page = "1",
+    @Query("limit") limit = "10",
     @Query("search") search?: string,
     @Query("schedule_id") schedule_id?: string,
     @Query("student_id") student_id?: string,
     @Query("attendance_status_id") attendance_status_id?: string,
     @Query("attendance_date") attendance_date?: string,
     @Query("class_id") class_id?: string,
+    @Query("start_date") start_date?: string,
+    @Query("end_date") end_date?: string,
+    @Query("month") month?: string,
+    @Query("year") year?: string,
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
@@ -86,6 +100,10 @@ export class AttendanceController {
         attendance_status_id,
         attendance_date,
         class_id,
+        start_date,
+        end_date,
+        month: month ? parseInt(month, 10) : undefined,
+        year: year ? parseInt(year, 10) : undefined,
       },
       req.user.sub,
     );
@@ -122,6 +140,53 @@ export class AttendanceController {
       "Attendance created successfully",
       201,
     );
+  }
+
+  @Post("upsert")
+  @ApiOperation({
+    summary:
+      "Create or update single attendance record by schedule, student, and date",
+  })
+  async upsert(
+    @Body(new ZodValidationPipe()) dto: UpsertAttendanceDto,
+    @Req() req: Request & { user: { sub: string } },
+  ) {
+    const attendance = await this.attendanceService.upsert(dto, req.user.sub);
+    return ResponseHelper.success(
+      attendance,
+      "Attendance upserted successfully",
+      200,
+    );
+  }
+
+  @Post("bulk-upsert")
+  @ApiOperation({
+    summary: "Bulk mark attendance for students on a given schedule and date",
+  })
+  async bulkUpsert(
+    @Body(new ZodValidationPipe()) dto: BulkUpsertAttendanceDto,
+    @Req() req: Request & { user: { sub: string } },
+  ) {
+    const attendances = await this.attendanceService.bulkUpsert(
+      dto,
+      req.user.sub,
+    );
+    return ResponseHelper.success(
+      attendances,
+      "Bulk attendance recorded successfully",
+      200,
+    );
+  }
+
+  @Post("bulk")
+  @ApiOperation({
+    summary: "Bulk mark attendance (alias for bulk-upsert)",
+  })
+  async bulk(
+    @Body(new ZodValidationPipe()) dto: BulkUpsertAttendanceDto,
+    @Req() req: Request & { user: { sub: string } },
+  ) {
+    return this.bulkUpsert(dto, req);
   }
 
   @Patch(":id")

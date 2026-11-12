@@ -33,16 +33,20 @@ export class AttendanceStatusController {
   @ApiOperation({ summary: "Get all attendance statuses" })
   async findAll(
     @Req() req: Request & { user: { sub: string } },
-    @Query("page") page = "1",
-    @Query("limit") limit = "10",
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
     @Query("search") search?: string,
   ) {
-    const pageNumber = parseInt(page, 10) || 1;
-    const limitNumber = parseInt(limit, 10) || 10;
+    const pageNumber = Math.max(1, parseInt(page ?? "1", 10) || 1);
+    const limitNumber = Math.max(1, parseInt(limit ?? "10", 10) || 10);
+    const searchString =
+      typeof search === "string" && search.trim().length > 0
+        ? search.trim()
+        : undefined;
     const result = await this.attendanceStatusService.findAll(
       pageNumber,
       limitNumber,
-      search,
+      searchString,
       req.user.sub,
     );
     return ResponseHelper.success(

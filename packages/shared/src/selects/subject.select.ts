@@ -20,6 +20,7 @@ export const subjectSelect = {
     select: {
       id: true,
       name: true,
+      code: true,
     },
   },
 } satisfies Prisma.SubjectSelect;

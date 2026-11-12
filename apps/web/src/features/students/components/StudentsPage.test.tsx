@@ -6,10 +6,18 @@ import {
 	screen,
 	waitFor,
 } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { apiFetch } from "@/lib/api";
 import { StudentsPage } from "./StudentsPage";
 
+vi.mock("@tanstack/react-router", () => ({
+	Link: ({ children, to, ...props }: { children: ReactNode; to: string }) => (
+		<a href={to} {...props}>
+			{children}
+		</a>
+	),
+}));
 vi.mock("@/lib/api", () => ({ apiFetch: vi.fn() }));
 vi.mock("./StudentDialog", () => ({
 	StudentDialog: ({
