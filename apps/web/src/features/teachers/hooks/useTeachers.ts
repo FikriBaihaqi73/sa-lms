@@ -85,7 +85,6 @@ export const useTeacherDepartments = () =>
 	});
 
 export const useCreateTeacher = () => {
-export const useCreateTeacher = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (input: CreateTeacherInput) => createTeacherApi(input),
@@ -123,5 +122,4 @@ export const useDeleteTeacher = () => {
 			]);
 		},
 	});
-};
 };
