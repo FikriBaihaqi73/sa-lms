@@ -1,0 +1,1 @@
+export const CLASSROOM_INT32_MAX = 2147483647;
