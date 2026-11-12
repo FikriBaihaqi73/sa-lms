@@ -63,7 +63,12 @@ describe("ClassroomController", () => {
         meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
       });
 
-      const result = await controller.findAll(asAdminRequest(), "1", "10", "R-101");
+      const result = await controller.findAll(
+        asAdminRequest(),
+        "1",
+        "10",
+        "R-101",
+      );
 
       expect(result).toEqual(
         ResponseHelper.success(
@@ -73,7 +78,9 @@ describe("ClassroomController", () => {
           { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
         ),
       );
-      expect(service.findAll).toHaveBeenCalledWith(ADMIN_USER_ID, 1, 10, { search: "R-101" });
+      expect(service.findAll).toHaveBeenCalledWith(ADMIN_USER_ID, 1, 10, {
+        search: "R-101",
+      });
     });
 
     it("findOne returns detail", async () => {
@@ -82,7 +89,10 @@ describe("ClassroomController", () => {
       const result = await controller.findOne(asAdminRequest(), "room-1");
 
       expect(result).toEqual(
-        ResponseHelper.success(mockRecord, "Classroom detail retrieved successfully"),
+        ResponseHelper.success(
+          mockRecord,
+          "Classroom detail retrieved successfully",
+        ),
       );
       expect(service.findOne).toHaveBeenCalledWith("room-1", ADMIN_USER_ID);
     });
@@ -100,7 +110,11 @@ describe("ClassroomController", () => {
       const result = await controller.create(asAdminRequest(), dto as never);
 
       expect(result).toEqual(
-        ResponseHelper.success(mockRecord, "Classroom created successfully", 201),
+        ResponseHelper.success(
+          mockRecord,
+          "Classroom created successfully",
+          201,
+        ),
       );
       expect(service.create).toHaveBeenCalledWith(ADMIN_USER_ID, dto);
     });
@@ -112,7 +126,11 @@ describe("ClassroomController", () => {
         capacity: null,
       };
 
-      const result = await controller.update(asAdminRequest(), "room-1", dto as never);
+      const result = await controller.update(
+        asAdminRequest(),
+        "room-1",
+        dto as never,
+      );
 
       expect(result).toEqual(
         ResponseHelper.success(mockRecord, "Classroom updated successfully"),
@@ -126,10 +144,12 @@ describe("ClassroomController", () => {
       const result = await controller.remove(asAdminRequest(), "room-1");
 
       expect(result).toEqual(
-        ResponseHelper.success({ success: true, id: "room-1" }, "Classroom deleted successfully"),
+        ResponseHelper.success(
+          { success: true, id: "room-1" },
+          "Classroom deleted successfully",
+        ),
       );
       expect(service.remove).toHaveBeenCalledWith("room-1", ADMIN_USER_ID);
     });
   });
 });
-

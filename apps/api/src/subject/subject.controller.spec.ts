@@ -8,6 +8,8 @@ jest.mock("./subject.service", () => ({
 
 describe("SubjectController", () => {
   it("restricts all subject mutations and reads to admins", () => {
-    expect(Reflect.getMetadata(ROLES_KEY, SubjectController)).toEqual(["admin"]);
+    expect(Reflect.getMetadata(ROLES_KEY, SubjectController)).toEqual([
+      "admin",
+    ]);
   });
 });

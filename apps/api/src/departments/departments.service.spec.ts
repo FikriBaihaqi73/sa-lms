@@ -74,19 +74,25 @@ describe("DepartmentsService", () => {
     prismaMock.client.profile.findFirst.mockResolvedValue({
       institutionId: "inst-123",
     });
-    jest.spyOn(DepartmentRepository.prototype, "findById").mockResolvedValue(null);
+    jest
+      .spyOn(DepartmentRepository.prototype, "findById")
+      .mockResolvedValue(null);
 
-    await expect(service.findOne("dept-missing", "user-1")).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      service.findOne("dept-missing", "user-1"),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it("creates department scoped to institution", async () => {
     prismaMock.client.profile.findFirst.mockResolvedValue({
       institutionId: "inst-123",
     });
-    jest.spyOn(DepartmentRepository.prototype, "findByName").mockResolvedValue(null);
-    jest.spyOn(DepartmentRepository.prototype, "findByCode").mockResolvedValue(null);
+    jest
+      .spyOn(DepartmentRepository.prototype, "findByName")
+      .mockResolvedValue(null);
+    jest
+      .spyOn(DepartmentRepository.prototype, "findByCode")
+      .mockResolvedValue(null);
     const create = jest
       .spyOn(DepartmentRepository.prototype, "create")
       .mockResolvedValue({
@@ -121,7 +127,9 @@ describe("DepartmentsService", () => {
       service.create({ name: "Akademik", code: "AKAD" }, "user-1"),
     ).rejects.toBeInstanceOf(ConflictException);
 
-    jest.spyOn(DepartmentRepository.prototype, "findByName").mockResolvedValue(null);
+    jest
+      .spyOn(DepartmentRepository.prototype, "findByName")
+      .mockResolvedValue(null);
     jest
       .spyOn(DepartmentRepository.prototype, "findByCode")
       .mockResolvedValue({ id: "dept-existing" } as never);
@@ -138,8 +146,12 @@ describe("DepartmentsService", () => {
     jest
       .spyOn(DepartmentRepository.prototype, "findById")
       .mockResolvedValue({ id: "dept-1" } as never);
-    jest.spyOn(DepartmentRepository.prototype, "findByName").mockResolvedValue(null);
-    jest.spyOn(DepartmentRepository.prototype, "findByCode").mockResolvedValue(null);
+    jest
+      .spyOn(DepartmentRepository.prototype, "findByName")
+      .mockResolvedValue(null);
+    jest
+      .spyOn(DepartmentRepository.prototype, "findByCode")
+      .mockResolvedValue(null);
     const update = jest
       .spyOn(DepartmentRepository.prototype, "update")
       .mockResolvedValue({ id: "dept-1" } as never);

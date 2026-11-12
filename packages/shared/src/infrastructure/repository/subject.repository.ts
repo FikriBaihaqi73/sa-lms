@@ -37,7 +37,10 @@ export class SubjectRepository {
     });
   }
 
-  async findById(id: string, institutionId?: string): Promise<SubjectEntity | null> {
+  async findById(
+    id: string,
+    institutionId?: string,
+  ): Promise<SubjectEntity | null> {
     return this.prisma.subject.findFirst({
       where: {
         id,
@@ -48,7 +51,10 @@ export class SubjectRepository {
     });
   }
 
-  async findByCode(code: string, institutionId?: string): Promise<SubjectEntity | null> {
+  async findByCode(
+    code: string,
+    institutionId?: string,
+  ): Promise<SubjectEntity | null> {
     return this.prisma.subject.findFirst({
       where: {
         code,

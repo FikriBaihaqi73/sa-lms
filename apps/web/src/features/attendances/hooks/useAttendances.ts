@@ -65,9 +65,11 @@ export const useCreateAttendance = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateAttendanceInput) => createAttendanceApi(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ATTENDANCES_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: ATTENDANCE_SUMMARY_QUERY_KEY });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ATTENDANCES_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: ATTENDANCE_SUMMARY_QUERY_KEY }),
+      ]);
     },
   });
 };
@@ -77,9 +79,11 @@ export const useUpdateAttendance = () => {
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateAttendanceInput }) =>
       updateAttendanceApi(id, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ATTENDANCES_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: ATTENDANCE_SUMMARY_QUERY_KEY });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ATTENDANCES_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: ATTENDANCE_SUMMARY_QUERY_KEY }),
+      ]);
     },
   });
 };
@@ -88,9 +92,11 @@ export const useDeleteAttendance = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteAttendanceApi(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ATTENDANCES_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: ATTENDANCE_SUMMARY_QUERY_KEY });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ATTENDANCES_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: ATTENDANCE_SUMMARY_QUERY_KEY }),
+      ]);
     },
   });
 };

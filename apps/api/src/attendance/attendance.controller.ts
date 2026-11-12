@@ -29,7 +29,8 @@ export class AttendanceController {
 
   @Get("summary")
   @ApiOperation({
-    summary: "Get attendance summary statistics (total, present, permission, sick, absent)",
+    summary:
+      "Get attendance summary statistics (total, present, permission, sick, absent)",
   })
   async getSummary(
     @Req() req: Request & { user: { sub: string } },
@@ -130,7 +131,11 @@ export class AttendanceController {
     @Body(new ZodValidationPipe()) dto: UpdateAttendanceDto,
     @Req() req: Request & { user: { sub: string } },
   ) {
-    const attendance = await this.attendanceService.update(id, dto, req.user.sub);
+    const attendance = await this.attendanceService.update(
+      id,
+      dto,
+      req.user.sub,
+    );
     return ResponseHelper.success(
       attendance,
       "Attendance updated successfully",

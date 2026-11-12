@@ -7,7 +7,9 @@ export const CreateSpecializationSchema = z.object({
     .trim()
     .min(2, "Nama peminatan / konsentrasi minimal 2 karakter")
     .max(255, "Nama peminatan / konsentrasi maksimal 255 karakter")
-    .describe("Specialization name (e.g. Rekayasa Perangkat Lunak, Kecerdasan Buatan)"),
+    .describe(
+      "Specialization name (e.g. Rekayasa Perangkat Lunak, Kecerdasan Buatan)",
+    ),
   description: z
     .string()
     .max(1000, "Deskripsi maksimal 1000 karakter")
@@ -38,4 +40,3 @@ export class CreateSpecializationDto extends createZodDto(
 export class UpdateSpecializationDto extends createZodDto(
   UpdateSpecializationSchema,
 ) {}
-

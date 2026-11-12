@@ -35,7 +35,9 @@ const specializationsData = [
 
 async function main() {
   const prisma = getPrisma();
-  console.log("Seeding specializations (Peminatan / Konsentrasi / Keahlian)...");
+  console.log(
+    "Seeding specializations (Peminatan / Konsentrasi / Keahlian)...",
+  );
 
   for (const item of specializationsData) {
     const existing = await prisma.specializations.findFirst({

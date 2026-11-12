@@ -112,7 +112,9 @@ export class AuthService {
       }
 
       if (!process.env.JWT_SECRET?.trim()) {
-        console.error("Login configuration error: JWT_SECRET is not configured");
+        console.error(
+          "Login configuration error: JWT_SECRET is not configured",
+        );
         throw new ServiceUnavailableException(
           "Layanan login sementara tidak tersedia. Silakan hubungi administrator.",
         );
@@ -152,7 +154,10 @@ export class AuthService {
       if (error instanceof HttpException) {
         throw error;
       }
-      console.error("Login failed due to an unexpected infrastructure error", error);
+      console.error(
+        "Login failed due to an unexpected infrastructure error",
+        error,
+      );
       throw new ServiceUnavailableException(
         "Layanan login sementara tidak tersedia. Silakan coba lagi.",
       );

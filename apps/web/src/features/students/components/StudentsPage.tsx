@@ -77,6 +77,7 @@ export function StudentsPage() {
 			}
 			setIsDialogOpen(false);
 			setEditingStudent(null);
+			await studentsQuery.refetch();
 		} catch (error) {
 			setNotice({ kind: "error", message: errorMessage(error) });
 		}
@@ -88,6 +89,7 @@ export function StudentsPage() {
 			await deleteMutation.mutateAsync(deletingStudent.id);
 			setNotice({ kind: "success", message: "Data siswa berhasil dihapus." });
 			setDeletingStudent(null);
+			await studentsQuery.refetch();
 		} catch (error) {
 			setNotice({ kind: "error", message: errorMessage(error) });
 		}

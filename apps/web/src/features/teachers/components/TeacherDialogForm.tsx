@@ -1,7 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GraduationCap, X } from "lucide-react";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { type FieldErrors, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,7 @@ interface TeacherDialogProps {
   departments?: TeacherReference[];
   profiles: TeacherFormProfile[];
   isSaving: boolean;
+  serverError?: string | null;
   onClose: () => void;
   onSave: (values: TeacherFormValues) => Promise<void>;
 }
@@ -36,6 +38,7 @@ export function TeacherDialogForm({
   specializations,
   departments = [],
   isSaving,
+  serverError,
   onClose,
   onSave,
   profiles,
@@ -62,6 +65,14 @@ export function TeacherDialogForm({
 
   if (!open) return null;
 
+  const handleInvalid = (fieldErrors: FieldErrors<TeacherFormInput>) => {
+    const firstErrorMessage =
+      fieldErrors.profile_id?.message ||
+      fieldErrors.teacher_number?.message ||
+      "Mohon lengkapi seluruh kolom wajib bertanda (*)";
+    toast.error(firstErrorMessage);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
@@ -79,14 +90,33 @@ export function TeacherDialogForm({
             <X className="size-5" />
           </button>
         </div>
-        <form onSubmit={handleSubmit(onSave)} className="space-y-4 p-6">
+        <form onSubmit={handleSubmit(onSave, handleInvalid)} className="space-y-4 p-6">
+          {serverError && (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-300">
+              {serverError}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="teacher-profile" className="text-sm font-semibold">Profil guru <span className="text-red-500">*</span></Label>
             <Select id="teacher-profile" {...register("profile_id")} className="h-11">
-              <option value="">Pilih profil guru</option>
-              {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.fullName}{profile.email ? ` (${profile.email})` : ""}</option>)}
+              <option value="">
+                {profiles.length === 0
+                  ? "Tidak ada profil guru yang tersedia"
+                  : "Pilih profil guru"}
+              </option>
+              {profiles.map((profile) => (
+                <option key={profile.id} value={profile.id}>
+                  {profile.fullName}
+                  {profile.email ? ` (${profile.email})` : ""}
+                </option>
+              ))}
             </Select>
             {errors.profile_id && <p className="text-xs font-medium text-red-500">{errors.profile_id.message}</p>}
+            {profiles.length === 0 && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                Belum ada profil pengguna yang dapat dijadikan guru di institusi Anda. Pastikan akun pengguna & profil telah dibuat terlebih dahulu.
+              </p>
+            )}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">

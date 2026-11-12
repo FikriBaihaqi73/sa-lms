@@ -54,19 +54,13 @@ describe("UserController", () => {
     const reflector = new Reflector();
 
     it("restricts the controller to superadmin and institution admin", () => {
-      const requiredRoles = reflector.get<string[]>(
-        ROLES_KEY,
-        UserController,
-      );
+      const requiredRoles = reflector.get<string[]>(ROLES_KEY, UserController);
 
       expect(requiredRoles).toEqual(["superadmin", "admin"]);
     });
 
     it("does not expose the controller to other roles", () => {
-      const requiredRoles = reflector.get<string[]>(
-        ROLES_KEY,
-        UserController,
-      );
+      const requiredRoles = reflector.get<string[]>(ROLES_KEY, UserController);
 
       expect(requiredRoles).not.toContain("teacher");
       expect(requiredRoles).not.toContain("student");
@@ -113,7 +107,12 @@ describe("UserController", () => {
       expect(result).toEqual(
         ResponseHelper.success(mockList, "Users retrieved successfully"),
       );
-      expect(service.findAll).toHaveBeenCalledWith(2, 20, "ahmad", ADMIN_USER_ID);
+      expect(service.findAll).toHaveBeenCalledWith(
+        2,
+        20,
+        "ahmad",
+        ADMIN_USER_ID,
+      );
     });
 
     it("findOne forwards id and the authenticated user id", async () => {

@@ -88,9 +88,12 @@ export const useCreateTeacher = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateTeacherInput) => createTeacherApi(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: TEACHER_PROFILES_QUERY_KEY }),
+      ]);
     },
   });
 };
@@ -100,9 +103,12 @@ export const useUpdateTeacher = () => {
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateTeacherInput }) =>
       updateTeacherApi(id, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: TEACHER_PROFILES_QUERY_KEY }),
+      ]);
     },
   });
 };
@@ -111,9 +117,12 @@ export const useDeleteTeacher = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteTeacherApi(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: TEACHERS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: TEACHER_STATS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: TEACHER_PROFILES_QUERY_KEY }),
+      ]);
     },
   });
 };

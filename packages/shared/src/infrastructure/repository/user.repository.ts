@@ -62,7 +62,10 @@ export class UserRepository {
    * scoped to that institution so a user owned by another institution is
    * reported as missing (null) instead of being leaked.
    */
-  async findById(id: string, institutionId?: string): Promise<UserEntity | null> {
+  async findById(
+    id: string,
+    institutionId?: string,
+  ): Promise<UserEntity | null> {
     return this.prisma.users.findFirst({
       where: {
         id,

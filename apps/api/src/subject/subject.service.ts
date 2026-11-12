@@ -30,7 +30,8 @@ export class SubjectService {
       where: { userId, deletedAt: null },
       select: { institutionId: true },
     });
-    if (!profile) throw new ForbiddenException("Institution access is required");
+    if (!profile)
+      throw new ForbiddenException("Institution access is required");
     return profile.institutionId;
   }
 

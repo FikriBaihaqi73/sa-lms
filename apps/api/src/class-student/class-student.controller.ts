@@ -97,9 +97,7 @@ export class ClassStudentController {
 
   @Post("batch")
   @ApiOperation({ summary: "Assign multiple students to a class at once" })
-  async createBatch(
-    @Body() body: { classId: string; studentIds: string[] },
-  ) {
+  async createBatch(@Body() body: { classId: string; studentIds: string[] }) {
     const results = await Promise.all(
       body.studentIds.map((studentId) =>
         this.classStudentService.create({

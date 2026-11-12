@@ -43,7 +43,7 @@ export function EmploymentStatusesPage() {
       });
       setIsAdding(false);
       setNotice({ kind: 'success', message: 'Status kepegawaian berhasil ditambahkan.' });
-      employmentStatusesQuery.refresh();
+      await employmentStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
@@ -61,7 +61,7 @@ export function EmploymentStatusesPage() {
       });
       setEditingItem(null);
       setNotice({ kind: 'success', message: 'Status kepegawaian berhasil diperbarui.' });
-      employmentStatusesQuery.refresh();
+      await employmentStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }
@@ -73,7 +73,7 @@ export function EmploymentStatusesPage() {
       await deleteMutation.mutateAsync(deletingItem.id);
       setDeletingItem(null);
       setNotice({ kind: 'success', message: 'Status kepegawaian berhasil dihapus.' });
-      employmentStatusesQuery.refresh();
+      await employmentStatusesQuery.refetch();
     } catch (err) {
       setNotice({ kind: 'error', message: errorMessage(err) });
     }

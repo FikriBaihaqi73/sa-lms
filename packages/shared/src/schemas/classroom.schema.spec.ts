@@ -1,4 +1,7 @@
-import { CreateClassroomSchema, UpdateClassroomSchema } from "./classroom.schema";
+import {
+  CreateClassroomSchema,
+  UpdateClassroomSchema,
+} from "./classroom.schema";
 
 const validCreate = {
   institutionId: "11111111-1111-4111-8111-111111111111",
@@ -76,8 +79,14 @@ describe("Classroom schemas", () => {
     });
 
     it("rejects empty roomCode and roomName", () => {
-      expect(CreateClassroomSchema.safeParse({ ...validCreate, roomCode: "" }).success).toBe(false);
-      expect(CreateClassroomSchema.safeParse({ ...validCreate, roomName: "" }).success).toBe(false);
+      expect(
+        CreateClassroomSchema.safeParse({ ...validCreate, roomCode: "" })
+          .success,
+      ).toBe(false);
+      expect(
+        CreateClassroomSchema.safeParse({ ...validCreate, roomName: "" })
+          .success,
+      ).toBe(false);
     });
   });
 
@@ -99,7 +108,10 @@ describe("Classroom schemas", () => {
     });
 
     it("accepts valid integer updates for floor and capacity", () => {
-      const result = UpdateClassroomSchema.safeParse({ floor: 3, capacity: 40 });
+      const result = UpdateClassroomSchema.safeParse({
+        floor: 3,
+        capacity: 40,
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.floor).toBe(3);

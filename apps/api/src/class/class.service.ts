@@ -1,11 +1,15 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { ClassRepository } from "@repo/shared/infrastructure/repository/class.repository";
 import type {
   CreateClassDto,
   UpdateClassDto,
 } from "@repo/shared/schemas/class.schema";
-import { PrismaService } from "../prisma/prisma.service";
 import { AcademicYearService } from "../academic-year/academic-year.service";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class ClassService {
@@ -29,7 +33,12 @@ export class ClassService {
     return profile.institutionId;
   }
 
-  async findAll(page = 1, limit = 10, search: string | undefined, userId: string) {
+  async findAll(
+    page = 1,
+    limit = 10,
+    search: string | undefined,
+    userId: string,
+  ) {
     return this.classRepository.findAll({
       page,
       limit,

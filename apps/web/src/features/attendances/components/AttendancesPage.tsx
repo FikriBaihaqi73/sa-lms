@@ -98,6 +98,10 @@ export const AttendancesPage: React.FC = () => {
       }
       setIsFormModalOpen(false);
       setEditingAttendance(null);
+      await Promise.all([
+        attendancesQuery.refetch(),
+        summaryQuery.refetch(),
+      ]);
     } catch (err) {
       setNotice({
         kind: "error",
@@ -116,6 +120,10 @@ export const AttendancesPage: React.FC = () => {
       });
       setIsDeleteDialogOpen(false);
       setDeletingAttendance(null);
+      await Promise.all([
+        attendancesQuery.refetch(),
+        summaryQuery.refetch(),
+      ]);
     } catch (err) {
       setNotice({
         kind: "error",

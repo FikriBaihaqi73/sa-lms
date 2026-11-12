@@ -19,7 +19,11 @@ describe("DepartmentRepository", () => {
   } as unknown as PrismaClient;
 
   const repository = new DepartmentRepository(prisma);
-  const mockDept = { id: "dept-1", name: "Akademik", code: "AKAD" } as unknown as DepartmentEntity;
+  const mockDept = {
+    id: "dept-1",
+    name: "Akademik",
+    code: "AKAD",
+  } as unknown as DepartmentEntity;
 
   beforeEach(() => {
     jest.clearAllMocks();

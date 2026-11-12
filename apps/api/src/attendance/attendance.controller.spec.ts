@@ -190,13 +190,14 @@ describe("AttendanceController", () => {
       mockService.update.mockResolvedValue(mockRecord);
       const dto = { notes: "Izin surat dokter" };
 
-      const result = await controller.update("att-1", dto as never, asAdminRequest());
+      const result = await controller.update(
+        "att-1",
+        dto as never,
+        asAdminRequest(),
+      );
 
       expect(result).toEqual(
-        ResponseHelper.success(
-          mockRecord,
-          "Attendance updated successfully",
-        ),
+        ResponseHelper.success(mockRecord, "Attendance updated successfully"),
       );
       expect(service.update).toHaveBeenCalledWith("att-1", dto, ADMIN_USER_ID);
     });
@@ -216,4 +217,3 @@ describe("AttendanceController", () => {
     });
   });
 });
-

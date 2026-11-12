@@ -9,6 +9,7 @@ interface AddTeacherDialogProps {
   departments?: TeacherReference[];
   profiles: TeacherFormProfile[];
   isSaving: boolean;
+  serverError?: string | null;
   onClose: () => void;
   onSave: (values: TeacherFormValues) => Promise<void>;
 }

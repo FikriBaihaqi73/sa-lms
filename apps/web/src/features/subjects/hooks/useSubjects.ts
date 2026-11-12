@@ -16,7 +16,9 @@ export function useCreateSubject() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (input: CreateSubjectInput) => createSubjectApi(input),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: SUBJECTS_QUERY_KEY }),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: SUBJECTS_QUERY_KEY });
+		},
 	});
 }
 
@@ -24,7 +26,9 @@ export function useUpdateSubject() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: ({ id, input }: { id: string; input: UpdateSubjectInput }) => updateSubjectApi(id, input),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: SUBJECTS_QUERY_KEY }),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: SUBJECTS_QUERY_KEY });
+		},
 	});
 }
 
@@ -32,6 +36,8 @@ export function useDeleteSubject() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (id: string) => deleteSubjectApi(id),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: SUBJECTS_QUERY_KEY }),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: SUBJECTS_QUERY_KEY });
+		},
 	});
 }

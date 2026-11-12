@@ -58,12 +58,15 @@ describe("AttendanceService", () => {
       .mockResolvedValue({ id: "existing-id" } as never);
 
     await expect(
-      service.create({
-        schedule_id: "schedule-id",
-        student_id: "student-id",
-        attendance_status_id: "status-id",
-        attendance_date: "2026-09-10T00:00:00.000Z",
-      } as CreateAttendanceDto, "user-1"),
+      service.create(
+        {
+          schedule_id: "schedule-id",
+          student_id: "student-id",
+          attendance_status_id: "status-id",
+          attendance_date: "2026-09-10T00:00:00.000Z",
+        } as CreateAttendanceDto,
+        "user-1",
+      ),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
