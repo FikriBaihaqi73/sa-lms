@@ -1,3 +1,4 @@
+import { CLASSROOM_INT32_MAX } from "./classroom.constants";
 import {
   CreateClassroomSchema,
   UpdateClassroomSchema,
@@ -88,6 +89,46 @@ describe("Classroom schemas", () => {
           .success,
       ).toBe(false);
     });
+
+    it.each([
+      ["floor", -1, "Lantai tidak boleh kurang dari 0."],
+      ["capacity", 0, "Kapasitas minimal 1 kursi."],
+      ["floor", 1.5, "Lantai harus berupa angka bulat, tanpa desimal."],
+      ["capacity", 1.5, "Kapasitas harus berupa angka bulat, tanpa desimal."],
+      [
+        "floor",
+        CLASSROOM_INT32_MAX + 1,
+        "Nomor lantai terlalu besar. Masukkan angka yang lebih kecil.",
+      ],
+      [
+        "capacity",
+        CLASSROOM_INT32_MAX + 1,
+        "Kapasitas terlalu besar. Masukkan angka yang lebih kecil.",
+      ],
+      [
+        "floor",
+        "abc",
+        "Lantai harus berupa angka bulat, misalnya 0, 1, atau 2.",
+      ],
+      ["capacity", "abc", "Kapasitas harus berupa angka bulat, misalnya 30."],
+    ])("returns the exact %s validation message", (field, value, message) => {
+      const result = CreateClassroomSchema.safeParse({
+        ...validCreate,
+        [field]: value,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success)
+        expect(result.error.issues[0]?.message).toBe(message);
+    });
+
+    it("accepts valid int32 boundary values", () => {
+      const result = CreateClassroomSchema.safeParse({
+        ...validCreate,
+        floor: 0,
+        capacity: CLASSROOM_INT32_MAX,
+      });
+      expect(result.success).toBe(true);
+    });
   });
 
   describe("UpdateClassroomSchema", () => {
@@ -122,6 +163,23 @@ describe("Classroom schemas", () => {
     it("accepts empty object (no changes)", () => {
       const result = UpdateClassroomSchema.safeParse({});
       expect(result.success).toBe(true);
+    });
+
+    it("applies the same floor and capacity rules to updates", () => {
+      expect(UpdateClassroomSchema.safeParse({ floor: -1 }).success).toBe(
+        false,
+      );
+      expect(UpdateClassroomSchema.safeParse({ capacity: 0 }).success).toBe(
+        false,
+      );
+      expect(
+        UpdateClassroomSchema.safeParse({ capacity: CLASSROOM_INT32_MAX + 1 })
+          .success,
+      ).toBe(false);
+      expect(
+        UpdateClassroomSchema.safeParse({ floor: null, capacity: null })
+          .success,
+      ).toBe(true);
     });
   });
 });

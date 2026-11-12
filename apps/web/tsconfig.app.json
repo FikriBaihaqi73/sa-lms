@@ -28,6 +28,9 @@
       "@/*": ["./src/*"],
       "@repo/shared/schemas/auth-validation.schema": [
         "../../packages/shared/src/schemas/auth-validation.schema.ts"
+      ],
+      "@repo/shared/schemas/classroom.constants": [
+        "../../packages/shared/src/schemas/classroom.constants.ts"
       ]
     }
   },

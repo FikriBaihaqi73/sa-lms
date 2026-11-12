@@ -1,8 +1,12 @@
+
 import { useEffect, useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import { useDebounce } from "@/hooks/useDebounce";
-import { ApiError } from "@/lib/api";
+import { ApiError, type ApiFieldError } from "@/lib/api";
+
 import { classroomConfig } from "../config";
 import {
 	useClassrooms,
@@ -12,30 +16,46 @@ import {
 } from "../hooks/useClassroom";
 import type { ClassroomFormValues } from "../schemas/classroomSchema";
 import type { Classroom, CreateClassroomInput } from "../types";
+
 import { ClassroomDialog } from "./ClassroomDialog";
 import { ClassroomFilterBar } from "./ClassroomFilterBar";
 import { ClassroomHeader } from "./ClassroomHeader";
 import { ClassroomStats } from "./ClassroomStats";
 import { ClassroomTable } from "./ClassroomTable";
 import { DeleteClassroomDialog } from "./DeleteClassroomDialog";
-import { ChevronDown } from "lucide-react";
 
 function errorMessage(error: unknown): string {
 	if (error instanceof ApiError) {
 		if (error.status === 500) {
 			return "Terjadi kesalahan pada server. Silakan coba lagi atau hubungi administrator.";
 		}
-		if (error.status === 409 || error.status === 422) {
+
+		if (
+			error.status === 409 &&
+			error.message.toLowerCase().includes("kode ruangan")
+		) {
 			return "Kode ruangan sudah digunakan. Silakan gunakan kode lain.";
 		}
+
+		if (error.status === 400 && error.fieldErrors.length > 0) {
+			return "Periksa kembali data yang ditandai.";
+		}
+
 		return error.message;
 	}
-	if (error instanceof Error) return error.message;
+
+	if (error instanceof Error) {
+		return error.message;
+	}
+
 	return "Terjadi kesalahan. Silakan coba lagi.";
 }
 
 function normalizeOptionalString(value: unknown): string | undefined {
-	if (typeof value !== "string") return undefined;
+	if (typeof value !== "string") {
+		return undefined;
+	}
+
 	const trimmed = value.trim();
 	return trimmed === "" ? undefined : trimmed;
 }
@@ -58,20 +78,24 @@ function toCreatePayload(
 export function ClassroomPage() {
 	const [search, setSearch] = useState("");
 	const debouncedSearch = useDebounce(search);
+
 	const [currentPage, setCurrentPage] = useState(1);
 	const [limit, setLimit] = useState(10);
+
 	const [isAdding, setIsAdding] = useState(false);
 	const [editing, setEditing] = useState<Classroom | null>(null);
 	const [deleting, setDeleting] = useState<Classroom | null>(null);
+
 	const [notice, setNotice] = useState<{
 		kind: "success" | "error";
 		message: string;
 	} | null>(null);
+
+	const [serverErrors, setServerErrors] = useState<ApiFieldError[]>([]);
 	const [selectedBuilding, setSelectedBuilding] = useState("semua");
 	const [selectedFloor, setSelectedFloor] = useState("semua");
 
 	const { profile } = useProfile();
-
 	const institutionId = profile?.institution?.id;
 
 	const listQuery = useClassrooms({
@@ -84,25 +108,41 @@ export function ClassroomPage() {
 	const updateMutation = useUpdateClassroom();
 	const deleteMutation = useDeleteClassroom();
 
-	const rows = useMemo(() => listQuery.data?.data ?? [], [listQuery.data?.data]);
+	const rows = useMemo(
+		() => listQuery.data?.data ?? [],
+		[listQuery.data?.data],
+	);
+
 	const meta = listQuery.data?.meta ?? null;
 
 	const buildings = useMemo(() => {
-		const set = new Set<string>();
+		const buildingSet = new Set<string>();
+
 		rows.forEach((item) => {
-			if (item.building) set.add(item.building);
+			if (item.building) {
+				buildingSet.add(item.building);
+			}
 		});
-		return Array.from(set).sort();
+
+		return Array.from(buildingSet).sort();
 	}, [rows]);
 
 	const floors = useMemo(() => {
-		const set = new Set<string>();
+		const floorSet = new Set<string>();
+
 		rows.forEach((item) => {
-			if (item.floor !== null && item.floor !== undefined && item.floor >= 0) {
-				set.add(String(item.floor));
+			if (
+				item.floor !== null &&
+				item.floor !== undefined &&
+				item.floor >= 0
+			) {
+				floorSet.add(String(item.floor));
 			}
 		});
-		return Array.from(set).sort((a, b) => Number(a) - Number(b));
+
+		return Array.from(floorSet).sort(
+			(a, b) => Number(a) - Number(b),
+		);
 	}, [rows]);
 
 	const usedRooms = rows.length;
@@ -111,43 +151,85 @@ export function ClassroomPage() {
 		if (selectedBuilding === "semua" && selectedFloor === "semua") {
 			return rows;
 		}
+
 		return rows.filter((item) => {
 			const matchBuilding =
-				selectedBuilding === "semua" || item.building === selectedBuilding;
+				selectedBuilding === "semua" ||
+				item.building === selectedBuilding;
+
 			const matchFloor =
-				selectedFloor === "semua" || String(item.floor ?? "") === selectedFloor;
+				selectedFloor === "semua" ||
+				String(item.floor ?? "") === selectedFloor;
+
 			return matchBuilding && matchFloor;
 		});
 	}, [rows, selectedBuilding, selectedFloor]);
 
 	useEffect(() => {
-		if (!notice) return;
-		const timer = window.setTimeout(() => setNotice(null), 5000);
+		if (!notice) {
+			return;
+		}
+
+		const timer = window.setTimeout(() => {
+			setNotice(null);
+		}, 5000);
+
 		return () => window.clearTimeout(timer);
 	}, [notice]);
 
 	const handleCreate = async (values: ClassroomFormValues) => {
+		setServerErrors([]);
+
 		if (!institutionId) {
 			toast.error(
 				"Data institusi tidak ditemukan. Silakan muat ulang halaman.",
 			);
 			return;
 		}
+
 		try {
-			await createMutation.mutateAsync(toCreatePayload(values, institutionId));
+			await createMutation.mutateAsync(
+				toCreatePayload(values, institutionId),
+			);
+
 			setIsAdding(false);
 			setCurrentPage(1);
-			setNotice({ kind: "success", message: "Ruang kelas ditambahkan" });
+
+			setNotice({
+				kind: "success",
+				message: "Ruang kelas ditambahkan",
+			});
+
 			toast.success("Ruang kelas ditambahkan");
 			await listQuery.refetch();
 		} catch (error) {
-			setNotice({ kind: "error", message: errorMessage(error) });
-			toast.error(errorMessage(error));
+			if (
+				error instanceof ApiError &&
+				error.status === 400 &&
+				error.fieldErrors.length > 0
+			) {
+				setServerErrors(error.fieldErrors);
+				return;
+			}
+
+			const message = errorMessage(error);
+
+			setNotice({
+				kind: "error",
+				message,
+			});
+
+			toast.error(message);
 		}
 	};
 
 	const handleUpdate = async (values: ClassroomFormValues) => {
-		if (!editing || !institutionId) return;
+		if (!editing || !institutionId) {
+			return;
+		}
+
+		setServerErrors([]);
+
 		try {
 			await updateMutation.mutateAsync({
 				id: editing.id,
@@ -160,37 +242,74 @@ export function ClassroomPage() {
 					description: normalizeOptionalString(values.description),
 				},
 			});
+
 			setEditing(null);
-			setNotice({ kind: "success", message: "Perubahan disimpan" });
+
+			setNotice({
+				kind: "success",
+				message: "Perubahan disimpan",
+			});
+
 			toast.success("Perubahan disimpan");
 			await listQuery.refetch();
 		} catch (error) {
-			setNotice({ kind: "error", message: errorMessage(error) });
-			toast.error(errorMessage(error));
+			if (
+				error instanceof ApiError &&
+				error.status === 400 &&
+				error.fieldErrors.length > 0
+			) {
+				setServerErrors(error.fieldErrors);
+				return;
+			}
+
+			const message = errorMessage(error);
+
+			setNotice({
+				kind: "error",
+				message,
+			});
+
+			toast.error(message);
 		}
 	};
 
 	const handleDelete = async () => {
-		if (!deleting) return;
+		if (!deleting) {
+			return;
+		}
+
 		try {
 			await deleteMutation.mutateAsync(deleting.id);
+
 			setDeleting(null);
-			setNotice({ kind: "success", message: "Ruang kelas dihapus" });
+
+			setNotice({
+				kind: "success",
+				message: "Ruang kelas dihapus",
+			});
+
 			toast.success("Ruang kelas dihapus");
 			await listQuery.refetch();
 		} catch (error) {
-			setNotice({ kind: "error", message: errorMessage(error) });
-			toast.error(errorMessage(error));
+			const message = errorMessage(error);
+
+			setNotice({
+				kind: "error",
+				message,
+			});
+
+			toast.error(message);
 		}
 	};
 
 	const totalRooms = meta?.total ?? 0;
+
 	const totalCapacity = filteredRows.reduce(
 		(sum, item) => sum + (item.capacity ?? 0),
 		0,
 	);
-	const totalBuildings = buildings.length;
 
+	const totalBuildings = buildings.length;
 	const displayRows = filteredRows;
 
 	return (
@@ -208,6 +327,7 @@ export function ClassroomPage() {
 						}`}
 					>
 						<span>{notice.message}</span>
+
 						<button
 							type="button"
 							onClick={() => setNotice(null)}
@@ -266,25 +386,31 @@ export function ClassroomPage() {
 							<span className="text-sm text-slate-500 dark:text-slate-400">
 								Menampilkan {displayRows.length} dari {totalRooms} data
 							</span>
+
 							<div className="flex items-center gap-3">
-    							<label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-        							<div className="relative">
-            							<select
-                						value={limit}
-                						onChange={(event) => {
-                    					setLimit(Number(event.target.value));
-                    					setCurrentPage(1);
-                						}}
-                						className="w-full appearance-none rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 pr-8 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
-            							>
-                							<option value={5}>5 Perhalaman</option>
-                							<option value={10}>10 Perhalaman</option>
-                							<option value={20}>20 Perhalaman</option>
-                							<option value={50}>50 Perhalaman</option>
-            							</select>
-            							<ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-        							</div>
-    							</label>
+								<label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+									<span>Data per halaman</span>
+
+									<div className="relative">
+										<select
+											value={limit}
+											onChange={(event) => {
+												setLimit(Number(event.target.value));
+												setCurrentPage(1);
+											}}
+											className="w-full appearance-none rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 pr-8 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+											aria-label="Jumlah data per halaman"
+										>
+											<option value={5}>5</option>
+											<option value={10}>10</option>
+											<option value={20}>20</option>
+											<option value={50}>50</option>
+										</select>
+
+										<ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+									</div>
+								</label>
+
 								<div className="flex items-center gap-3">
 									<button
 										type="button"
@@ -292,20 +418,20 @@ export function ClassroomPage() {
 											setCurrentPage((page) => Math.max(1, page - 1))
 										}
 										disabled={currentPage <= 1}
-										className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-sm font-medium text-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300"
+										className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-sm font-medium text-slate-700 hover:border-blue-500 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:text-blue-400"
 										aria-label="Halaman sebelumnya"
 									>
 										&lt;
 									</button>
-									<button
-										type="button"
-										onClick={() => setCurrentPage(currentPage)}
-										className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-700 text-sm font-semibold text-white disabled:opacity-50"
+
+									<span
+										className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-700 text-sm font-semibold text-white"
 										aria-current="page"
 										aria-label={`Halaman ${currentPage}`}
 									>
 										{currentPage}
-									</button>
+									</span>
+
 									<button
 										type="button"
 										onClick={() =>
@@ -314,7 +440,7 @@ export function ClassroomPage() {
 											)
 										}
 										disabled={currentPage >= meta.totalPages}
-										className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-sm font-medium text-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300"
+										className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-sm font-medium text-slate-700 hover:border-blue-500 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:text-blue-400"
 										aria-label="Halaman berikutnya"
 									>
 										&gt;
@@ -329,7 +455,12 @@ export function ClassroomPage() {
 				open={isAdding}
 				classroom={null}
 				isSaving={createMutation.isPending}
-				onClose={() => setIsAdding(false)}
+				serverErrors={isAdding ? serverErrors : []}
+				onFieldChange={() => setServerErrors([])}
+				onClose={() => {
+					setServerErrors([]);
+					setIsAdding(false);
+				}}
 				onSave={handleCreate}
 			/>
 
@@ -337,7 +468,12 @@ export function ClassroomPage() {
 				open={Boolean(editing)}
 				classroom={editing}
 				isSaving={updateMutation.isPending}
-				onClose={() => setEditing(null)}
+				serverErrors={editing ? serverErrors : []}
+				onFieldChange={() => setServerErrors([])}
+				onClose={() => {
+					setServerErrors([]);
+					setEditing(null);
+				}}
 				onSave={handleUpdate}
 			/>
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CLASSROOM_INT32_MAX } from "@repo/shared/schemas/classroom.constants";
 import { classroomFormSchema } from "../schemas/classroomSchema";
 
 const validForm = {
@@ -32,13 +33,6 @@ describe("classroomFormSchema", () => {
 	});
 
 	it.each([0, 0.5])("rejects capacity %s (must be >= 1)", (capacity) => {
-		const result = classroomFormSchema.safeParse({ ...validForm, capacity });
-		expect(result.success).toBe(false);
-	});
-
-	it.each([
-		0, 0.5,
-	])("rejects invalid capacity %s (must be >= 1)", (capacity) => {
 		const result = classroomFormSchema.safeParse({ ...validForm, capacity });
 		expect(result.success).toBe(false);
 	});
@@ -200,5 +194,34 @@ describe("classroomFormSchema", () => {
 			expect(result.data.floor).toBeUndefined();
 			expect(result.data.capacity).toBeUndefined();
 		}
+	});
+
+	it("uses the too-large messages for values beyond the database integer range", () => {
+		const floorResult = classroomFormSchema.safeParse({
+			...validForm,
+			floor: CLASSROOM_INT32_MAX + 1,
+		});
+		const capacityResult = classroomFormSchema.safeParse({
+			...validForm,
+			capacity: CLASSROOM_INT32_MAX + 1,
+		});
+
+		expect(floorResult.success).toBe(false);
+		expect(capacityResult.success).toBe(false);
+		if (!floorResult.success) {
+			expect(floorResult.error.issues[0]?.message).toBe(
+				"Nomor lantai terlalu besar. Masukkan angka yang lebih kecil.",
+			);
+		}
+		if (!capacityResult.success) {
+			expect(capacityResult.error.issues[0]?.message).toBe(
+				"Kapasitas terlalu besar. Masukkan angka yang lebih kecil.",
+			);
+		}
+	});
+
+	it("accepts capacity lower than floor", () => {
+		const result = classroomFormSchema.safeParse({ ...validForm, floor: 5, capacity: 3 });
+		expect(result.success).toBe(true);
 	});
 });
