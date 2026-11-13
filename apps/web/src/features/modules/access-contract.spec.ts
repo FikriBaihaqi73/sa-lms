@@ -10,7 +10,8 @@ describe("modules access contract", () => {
 
 	it("renders the sidebar item for institution admin", () => {
 		expect(sidebar).toContain('to="/modules"');
-		expect(sidebar).toContain('label="Modul Pembelajaran"');
+		expect(sidebar).toContain('label="Modul & Konten Materi"');
 	});
 });
+
 

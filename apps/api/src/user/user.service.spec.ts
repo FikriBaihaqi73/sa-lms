@@ -97,6 +97,7 @@ describe("UserService", () => {
       expect(profileFindFirst).toHaveBeenCalledWith({
         where: { userId: ADMIN_USER_ID, deletedAt: null },
         select: { institutionId: true, role: { select: { name: true } } },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       });
     });
   });
@@ -141,6 +142,90 @@ describe("UserService", () => {
       await service.findAll(1, 10, undefined, SUPERADMIN_USER_ID);
 
       expect(findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+    });
+
+    it("allows superadmin to filter by a requested institution", async () => {
+      mockCaller("superadmin", INSTITUTION_A);
+      const findAll = jest
+        .spyOn(UserRepository.prototype, "findAll")
+        .mockResolvedValue({ data: [], meta: {} } as never);
+
+      await service.findAll(
+        1,
+        10,
+        undefined,
+        SUPERADMIN_USER_ID,
+        undefined,
+        INSTITUTION_B,
+      );
+
+      expect(findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+        institution_id: INSTITUTION_B,
+      });
+    });
+
+    it("ignores a requested foreign institution for an institution admin", async () => {
+      mockCaller("admin", INSTITUTION_A);
+      const findAll = jest
+        .spyOn(UserRepository.prototype, "findAll")
+        .mockResolvedValue({ data: [], meta: {} } as never);
+
+      await service.findAll(
+        1,
+        10,
+        undefined,
+        ADMIN_USER_ID,
+        undefined,
+        INSTITUTION_B,
+      );
+
+      expect(findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+        institution_id: INSTITUTION_A,
+      });
+    });
+
+    it("recognizes a superadmin role with spaces and capital letters", async () => {
+      mockCaller("  SUPERADMIN  ", INSTITUTION_A);
+      const findAll = jest
+        .spyOn(UserRepository.prototype, "findAll")
+        .mockResolvedValue({ data: [], meta: {} } as never);
+
+      await service.findAll(
+        1,
+        10,
+        undefined,
+        SUPERADMIN_USER_ID,
+        undefined,
+        INSTITUTION_B,
+      );
+
+      expect(findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+        institution_id: INSTITUTION_B,
+      });
+    });
+
+    it("uses the same trusted scope for user statistics", async () => {
+      mockCaller("superadmin", INSTITUTION_A);
+      const countStats = jest
+        .spyOn(UserRepository.prototype, "countStats")
+        .mockResolvedValue({ total: 8, active: 7, inactive: 1 });
+
+      await expect(service.stats(SUPERADMIN_USER_ID)).resolves.toEqual({
+        total: 8,
+        active: 7,
+        inactive: 1,
+      });
+      expect(countStats).toHaveBeenCalledWith(undefined);
+
+      mockCaller("admin", INSTITUTION_A);
+      await service.stats(ADMIN_USER_ID, INSTITUTION_B);
+      expect(countStats).toHaveBeenLastCalledWith(INSTITUTION_A);
     });
 
     it("keeps search while scoping to the caller's institution", async () => {

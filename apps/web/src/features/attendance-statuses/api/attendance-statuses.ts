@@ -1,13 +1,13 @@
-import { apiFetch } from '@/lib/api';
+import { apiFetch } from "@/lib/api";
 import type {
   ApiResponse,
   AttendanceStatus,
-  AttendanceStatusPageMeta,
   AttendanceStatusesResponse,
+  AttendanceStatusPageMeta,
   CreateAttendanceStatusInput,
   DeleteAttendanceStatusResult,
   UpdateAttendanceStatusInput,
-} from '../types';
+} from "../types";
 
 export interface GetAttendanceStatusesParams {
   page: number;
@@ -25,9 +25,11 @@ export async function getAttendanceStatuses({
     limit: String(limit),
   });
   const normalizedSearch = search?.trim();
-  if (normalizedSearch) params.set('search', normalizedSearch);
+  if (normalizedSearch) params.set("search", normalizedSearch);
 
-  const response = (await apiFetch(`/attendance-statuses?${params.toString()}`)) as ApiResponse<AttendanceStatus[]>;
+  const response = (await apiFetch(
+    `/attendance-statuses?${params.toString()}`,
+  )) as ApiResponse<AttendanceStatus[]>;
   const responseMeta = response.meta;
   const meta: AttendanceStatusPageMeta = {
     page: responseMeta?.currentPage ?? page,
@@ -39,16 +41,20 @@ export async function getAttendanceStatuses({
   return { data: response.data ?? [], meta };
 }
 
-export async function getAttendanceStatus(id: string): Promise<AttendanceStatus> {
-  const response = (await apiFetch(`/attendance-statuses/${id}`)) as ApiResponse<AttendanceStatus>;
+export async function getAttendanceStatus(
+  id: string,
+): Promise<AttendanceStatus> {
+  const response = (await apiFetch(
+    `/attendance-statuses/${id}`,
+  )) as ApiResponse<AttendanceStatus>;
   return response.data;
 }
 
 export async function createAttendanceStatus(
   input: CreateAttendanceStatusInput,
 ): Promise<AttendanceStatus> {
-  const response = (await apiFetch('/attendance-statuses', {
-    method: 'POST',
+  const response = (await apiFetch("/attendance-statuses", {
+    method: "POST",
     body: JSON.stringify(input),
   })) as ApiResponse<AttendanceStatus>;
   return response.data;
@@ -59,15 +65,17 @@ export async function updateAttendanceStatus(
   input: UpdateAttendanceStatusInput,
 ): Promise<AttendanceStatus> {
   const response = (await apiFetch(`/attendance-statuses/${id}`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify(input),
   })) as ApiResponse<AttendanceStatus>;
   return response.data;
 }
 
-export async function deleteAttendanceStatus(id: string): Promise<DeleteAttendanceStatusResult> {
+export async function deleteAttendanceStatus(
+  id: string,
+): Promise<DeleteAttendanceStatusResult> {
   const response = (await apiFetch(`/attendance-statuses/${id}`, {
-    method: 'DELETE',
+    method: "DELETE",
   })) as ApiResponse<DeleteAttendanceStatusResult>;
   return response.data;
 }

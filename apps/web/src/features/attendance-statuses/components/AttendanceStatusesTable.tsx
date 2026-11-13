@@ -1,7 +1,8 @@
-import { ChevronLeft, ChevronRight, Edit2, Search, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import type { AttendanceStatus, AttendanceStatusPageMeta } from '../types';
+import { ChevronLeft, ChevronRight, Edit2, Search, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import type { AttendanceStatus, AttendanceStatusPageMeta } from "../types";
+import { AttendanceStatusBadge } from "./attendance-status-icon";
 
 interface AttendanceStatusesTableProps {
   attendanceStatuses: AttendanceStatus[];
@@ -30,7 +31,10 @@ export function AttendanceStatusesTable({
   const page = meta?.page ?? 1;
   const limit = meta?.limit ?? attendanceStatuses.length;
   const firstItem = attendanceStatuses.length > 0 ? (page - 1) * limit + 1 : 0;
-  const lastItem = attendanceStatuses.length > 0 ? firstItem + attendanceStatuses.length - 1 : 0;
+  const lastItem =
+    attendanceStatuses.length > 0
+      ? firstItem + attendanceStatuses.length - 1
+      : 0;
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -59,26 +63,65 @@ export function AttendanceStatusesTable({
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
             {isLoading ? (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500">Memuat data...</td></tr>
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-4 py-8 text-center text-slate-500"
+                >
+                  Memuat data...
+                </td>
+              </tr>
             ) : attendanceStatuses.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
-                  {search.trim() ? 'Pencarian tidak ditemukan.' : 'Belum ada status kehadiran.'}
+                <td
+                  colSpan={4}
+                  className="px-4 py-8 text-center text-slate-500"
+                >
+                  {search.trim()
+                    ? "Pencarian tidak ditemukan."
+                    : "Belum ada status kehadiran."}
                 </td>
               </tr>
             ) : (
               attendanceStatuses.map((item, index) => (
-                <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{firstItem + index}</td>
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{item.name}</td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{item.description || '-'}</td>
+                <tr
+                  key={item.id}
+                  className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                >
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                    {firstItem + index}
+                  </td>
+                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
+                    <div className="flex items-center gap-2">
+                      <AttendanceStatusBadge
+                        name={item.name}
+                        color={item.color}
+                        icon={item.icon}
+                      />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                    {item.description || "-"}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => onEdit(item)} className="size-8 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400">
-                        <Edit2 className="size-4" /><span className="sr-only">Ubah {item.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(item)}
+                        className="size-8 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400"
+                      >
+                        <Edit2 className="size-4" />
+                        <span className="sr-only">Ubah {item.name}</span>
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => onDelete(item)} className="size-8 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400">
-                        <Trash2 className="size-4" /><span className="sr-only">Hapus {item.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDelete(item)}
+                        className="size-8 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400"
+                      >
+                        <Trash2 className="size-4" />
+                        <span className="sr-only">Hapus {item.name}</span>
                       </Button>
                     </div>
                   </td>
@@ -94,12 +137,28 @@ export function AttendanceStatusesTable({
           Menampilkan {firstItem} hingga {lastItem} dari {meta?.total ?? 0} data
         </p>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => onPageChange(page - 1)} disabled={page <= 1 || isFetching} className="size-8">
-            <ChevronLeft className="size-4" /><span className="sr-only">Halaman sebelumnya</span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onPageChange(page - 1)}
+            disabled={page <= 1 || isFetching}
+            className="size-8"
+          >
+            <ChevronLeft className="size-4" />
+            <span className="sr-only">Halaman sebelumnya</span>
           </Button>
-          <span className="text-sm text-slate-600 dark:text-slate-400">Halaman {page} dari {totalPages}</span>
-          <Button variant="outline" size="icon" onClick={() => onPageChange(page + 1)} disabled={page >= totalPages || isFetching} className="size-8">
-            <ChevronRight className="size-4" /><span className="sr-only">Halaman berikutnya</span>
+          <span className="text-sm text-slate-600 dark:text-slate-400">
+            Halaman {page} dari {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= totalPages || isFetching}
+            className="size-8"
+          >
+            <ChevronRight className="size-4" />
+            <span className="sr-only">Halaman berikutnya</span>
           </Button>
         </div>
       </div>

@@ -5,6 +5,7 @@ import type {
 	DeleteUserResult,
 	UpdateUserInput,
 	User,
+	UsersStatsResult,
 	UsersResponse,
 } from "../types";
 
@@ -13,6 +14,7 @@ export interface GetUsersParams {
 	limit: number;
 	search?: string;
 	status?: "active" | "deleted" | "all";
+	institution_id?: string;
 }
 
 export const getUsersApi = async ({
@@ -20,6 +22,7 @@ export const getUsersApi = async ({
 	limit,
 	search,
 	status,
+	institution_id,
 }: GetUsersParams): Promise<UsersResponse> => {
 	const params = new URLSearchParams({
 		page: String(page),
@@ -35,8 +38,24 @@ export const getUsersApi = async ({
 		params.set("status", status);
 	}
 
+	if (institution_id) {
+		params.set("institution_id", institution_id);
+	}
+
 	const response: ApiResponse<UsersResponse> = await apiFetch(
 		`/users?${params.toString()}`,
+	);
+	return response.data;
+};
+
+export const getUsersStatsApi = async (
+	institution_id?: string,
+): Promise<UsersStatsResult> => {
+	const params = new URLSearchParams();
+	if (institution_id) params.set("institution_id", institution_id);
+	const query = params.toString();
+	const response: ApiResponse<UsersStatsResult> = await apiFetch(
+		`/users/stats${query ? `?${query}` : ""}`,
 	);
 	return response.data;
 };

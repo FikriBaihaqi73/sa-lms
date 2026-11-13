@@ -1,229 +1,442 @@
+// @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-	cleanup,
-	fireEvent,
-	render,
-	screen,
-	waitFor,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
 } from "@testing-library/react";
-import type React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { apiFetch } from "@/lib/api";
-import { ModulesPage } from "./modules-page";
+import * as api from "../api/modules";
+import type { ClassSubjectOption, LearningModule } from "../types";
+import { ModulesPage } from "./ModulesPage";
 
-vi.mock("@/lib/api", () => ({
-	apiFetch: vi.fn(),
-	ApiError: class ApiError extends Error {
-		status: number;
-		fieldErrors: Array<{ field: string; message: string }>;
-		constructor(
-			message: string,
-			status = 500,
-			fieldErrors: Array<{ field: string; message: string }> = [],
-		) {
-			super(message);
-			this.status = status;
-			this.fieldErrors = fieldErrors;
-		}
-	},
+vi.mock("../api/modules", () => ({
+  getModules: vi.fn(),
+  getModuleById: vi.fn(),
+  createModule: vi.fn(),
+  updateModule: vi.fn(),
+  deleteModule: vi.fn(),
+  getModuleContents: vi.fn(),
+  createModuleContent: vi.fn(),
+  updateModuleContent: vi.fn(),
+  deleteModuleContent: vi.fn(),
+  getClassSubjectOptions: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({
-	toast: {
-		success: vi.fn(),
-		error: vi.fn(),
-	},
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
 }));
 
-const mockModulesList = {
-	status: "success",
-	message: "OK",
-	code: 200,
-	data: [
-		{
-			id: "mod-1",
-			class_subject_id: "cs-1",
-			title: "Bab 1: Logika Komputasi",
-			description: "Konsep dasar algoritma",
-			display_order: 1,
-			is_published: true,
-			is_locked: false,
-			class_subject: {
-				id: "cs-1",
-				class: { id: "c-1", name: "X-RPL-1" },
-				subject: { id: "s-1", name: "Informatika", code: "INF-10" },
-				teacher: {
-					id: "t-1",
-					teacher_number: "T101",
-					profile: { id: "p-1", fullName: "Budi Santoso" },
-				},
-			},
-			moduleContents: [{ id: "mc-1", title: "Slide 1" }],
-			assignments: [],
-		},
-	],
-	meta: {
-		totalData: 1,
-		totalPages: 1,
-		currentPage: 1,
-		perPage: 10,
-	},
-};
+const mockClassSubjectOptions: ClassSubjectOption[] = [
+  {
+    id: "cs-1",
+    label: "Matematika - X-A",
+    className: "X-A",
+    subjectName: "Matematika",
+  },
+  {
+    id: "cs-2",
+    label: "Fisika - X-B",
+    className: "X-B",
+    subjectName: "Fisika",
+  },
+];
 
-const mockClassSubjectsResponse = {
-	data: [
-		{
-			id: "cs-1",
-			class: { name: "X-RPL-1" },
-			subject: { name: "Informatika", code: "INF-10" },
-			teacher: {
-				teacher_number: "T101",
-				profile: { fullName: "Budi Santoso" },
-			},
-			academic_year: { academic_year: "2026/2027" },
-		},
-	],
-};
+const mockModules: LearningModule[] = [
+  {
+    id: "mod-1",
+    title: "Modul 1: Aljabar Dasar",
+    class_subject_id: "cs-1",
+    description: "Pembahasan konsep dasar aljabar linear dan persamaan",
+    display_order: 1,
+    is_published: true,
+    is_locked: false,
+    created_at: "2026-11-01T08:00:00Z",
+    updated_at: "2026-11-01T08:00:00Z",
+    class_subject: {
+      id: "cs-1",
+      class: { id: "class-1", name: "X-A" },
+      subject: { id: "sub-1", name: "Matematika" },
+    },
+    moduleContents: [
+      {
+        id: "mc-1",
+        moduleId: "mod-1",
+        fileId: null,
+        title: "Pengenalan Variabel dan Koefisien",
+        contentType: "text",
+        content: "Penjelasan lengkap mengenai variabel...",
+        sortOrder: 1,
+        createdAt: "2026-11-01T09:00:00Z",
+        updatedAt: "2026-11-01T09:00:00Z",
+      },
+    ],
+  },
+  {
+    id: "mod-2",
+    title: "Modul 2: Persamaan Kuadrat",
+    class_subject_id: "cs-1",
+    description: "Lanjutan materi persamaan kuadrat dan grafik fungsi",
+    display_order: 2,
+    is_published: false,
+    is_locked: true,
+    created_at: "2026-11-02T08:00:00Z",
+    updated_at: "2026-11-02T08:00:00Z",
+    class_subject: {
+      id: "cs-1",
+      class: { id: "class-1", name: "X-A" },
+      subject: { id: "sub-1", name: "Matematika" },
+    },
+    moduleContents: [],
+  },
+];
 
-function renderWithQueryClient(ui: React.ReactElement) {
-	const queryClient = new QueryClient({
-		defaultOptions: {
-			queries: { retry: false },
-			mutations: { retry: false },
-		},
-	});
-	return render(
-		<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
-	);
+function renderModulesPage() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <ModulesPage />
+    </QueryClientProvider>,
+  );
 }
 
 describe("ModulesPage", () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-		vi.mocked(apiFetch).mockImplementation(async (url: string) => {
-			if (url.startsWith("/class-subjects")) {
-				return mockClassSubjectsResponse;
-			}
-			if (url.startsWith("/modules")) {
-				return mockModulesList;
-			}
-			return { data: [] };
-		});
-	});
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(api.getClassSubjectOptions).mockResolvedValue(
+      mockClassSubjectOptions,
+    );
+    vi.mocked(api.getModules).mockResolvedValue({
+      data: mockModules,
+      meta: {
+        totalData: mockModules.length,
+        totalPages: 1,
+        currentPage: 1,
+        perPage: 10,
+      },
+    });
+  });
 
-	afterEach(() => {
-		cleanup();
-	});
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
 
-	it("renders module list and stats cards properly", async () => {
-		renderWithQueryClient(<ModulesPage />);
+  it("renders page title, statistics cards, and module cards", async () => {
+    renderModulesPage();
 
-		expect(screen.getByText("Modul Pembelajaran")).toBeTruthy();
-		await waitFor(() => {
-			expect(screen.getByText("Bab 1: Logika Komputasi")).toBeTruthy();
-		});
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
 
-		expect(screen.getByText("TOTAL MODUL")).toBeTruthy();
-		expect(screen.getByText("DITERBITKAN")).toBeTruthy();
-		expect(screen.getByText("TERKUNCI")).toBeTruthy();
-	});
+    // Check heading
+    expect(
+      screen.getByRole("heading", { name: "Modul & Konten Pembelajaran" }),
+    ).toBeTruthy();
 
-	it("opens create module dialog and submits new module", async () => {
-		renderWithQueryClient(<ModulesPage />);
+    // Check stats cards
+    expect(screen.getByText("Total Modul")).toBeTruthy();
+    expect(screen.getByText("Modul Diterbitkan")).toBeTruthy();
+    expect(screen.getByText("Modul Terkunci")).toBeTruthy();
+    expect(screen.getByText("Total Konten Materi")).toBeTruthy();
 
-		await waitFor(() => {
-			expect(screen.getByText("Bab 1: Logika Komputasi")).toBeTruthy();
-		});
+    // Check module titles
+    expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    expect(screen.getByText("Modul 2: Persamaan Kuadrat")).toBeTruthy();
 
-		const addButton = screen.getByRole("button", { name: /Tambah Modul/i });
-		fireEvent.click(addButton);
+    // Expand the first module to see its contents
+    const expandBtns = screen.getAllByLabelText("Buka detail modul");
+    fireEvent.click(expandBtns[0]!);
 
-		expect(
-			screen.getByText("Tambah Modul Pembelajaran"),
-		).toBeTruthy();
+    expect(
+      screen.getByText("Pengenalan Variabel dan Koefisien"),
+    ).toBeTruthy();
+  });
 
-		// Fill Title
-		const titleInput = screen.getByPlaceholderText(
-			/Contoh: Bab 1 - Pengenalan Algoritma/i,
-		);
-		fireEvent.change(titleInput, { target: { value: "Bab 2: Pemrograman Web" } });
+  it("renders empty state when no modules exist", async () => {
+    vi.mocked(api.getModules).mockResolvedValue({
+      data: [],
+      meta: {
+        totalData: 0,
+        totalPages: 1,
+        currentPage: 1,
+        perPage: 10,
+      },
+    });
 
-		// Click submit button in dialog
-		const submitButton = screen.getByRole("button", {
-			name: "Tambah Modul",
-		});
-		fireEvent.click(submitButton);
+    renderModulesPage();
 
-		await waitFor(() => {
-			expect(apiFetch).toHaveBeenCalledWith(
-				"/modules",
-				expect.objectContaining({
-					method: "POST",
-					body: expect.stringContaining("Bab 2: Pemrograman Web"),
-				}),
-			);
-		});
-	});
+    await waitFor(() => {
+      expect(
+        screen.getByText("Belum ada modul pembelajaran"),
+      ).toBeTruthy();
+    });
+    expect(screen.getByText("Buat Modul Pertama")).toBeTruthy();
+  });
 
-	it("opens detail dialog when clicking detail button", async () => {
-		renderWithQueryClient(<ModulesPage />);
+  it("opens create module modal and submits new module", async () => {
+    vi.mocked(api.createModule).mockResolvedValue({
+      id: "mod-new",
+      title: "Modul Baru Teruji",
+      class_subject_id: "cs-1",
+      description: "Deskripsi modul baru",
+      display_order: 3,
+      is_published: true,
+      is_locked: false,
+      created_at: "2026-11-03T08:00:00Z",
+      updated_at: "2026-11-03T08:00:00Z",
+    });
 
-		await waitFor(() => {
-			expect(screen.getByText("Bab 1: Logika Komputasi")).toBeTruthy();
-		});
+    renderModulesPage();
 
-		const detailButton = screen.getByRole("button", { name: "Detail" });
-		fireEvent.click(detailButton);
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
 
-		await waitFor(() => {
-			expect(
-				screen.getByText("Rincian informasi silabus, materi pembelajaran, dan status akses modul."),
-			).toBeTruthy();
-			expect(screen.getAllByText("Konsep dasar algoritma").length).toBeGreaterThan(0);
-		});
-	});
+    const addBtn = screen.getByRole("button", { name: /tambah modul/i });
+    fireEvent.click(addBtn);
 
-	it("opens delete dialog when clicking delete button and confirms delete", async () => {
-		renderWithQueryClient(<ModulesPage />);
+    expect(
+      screen.getByRole("heading", { name: "Tambah Modul Pembelajaran" }),
+    ).toBeTruthy();
 
-		await waitFor(() => {
-			expect(screen.getByText("Bab 1: Logika Komputasi")).toBeTruthy();
-		});
+    // Fill form
+    const titleInput = screen.getByPlaceholderText(
+      /contoh: modul 1: pengantar algoritma/i,
+    );
+    fireEvent.change(titleInput, { target: { value: "Modul Baru Teruji" } });
 
-		const deleteButton = screen.getByRole("button", { name: "Hapus" });
-		fireEvent.click(deleteButton);
+    const submitBtn = screen.getByRole("button", { name: /buat modul/i });
+    fireEvent.click(submitBtn);
 
-		await waitFor(() => {
-			expect(
-				screen.getByText("Hapus Modul Pembelajaran?"),
-			).toBeTruthy();
-		});
+    await waitFor(() => {
+      expect(api.createModule).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Modul Baru Teruji",
+          class_subject_id: "cs-1",
+        }),
+      );
+    });
+  });
 
-		const confirmDeleteBtn = screen.getByRole("button", {
-			name: "Ya, Hapus Modul",
-		});
-		fireEvent.click(confirmDeleteBtn);
+  it("opens edit module dialog and saves changes", async () => {
+    vi.mocked(api.updateModule).mockResolvedValue({
+      ...mockModules[0]!,
+      title: "Modul 1: Aljabar Dasar (Revisi)",
+    });
 
-		await waitFor(() => {
-			expect(apiFetch).toHaveBeenCalledWith(
-				"/modules/mod-1",
-				expect.objectContaining({ method: "DELETE" }),
-			);
-		});
-	});
+    renderModulesPage();
 
-	it("filters modules using search input", async () => {
-		renderWithQueryClient(<ModulesPage />);
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
 
-		const searchInput = screen.getByPlaceholderText(
-			"Cari judul modul atau deskripsi pembelajaran...",
-		);
-		fireEvent.change(searchInput, { target: { value: "Algoritma" } });
+    const editBtns = screen.getAllByTitle("Edit Modul");
+    fireEvent.click(editBtns[0]!);
 
-		await waitFor(() => {
-			expect(apiFetch).toHaveBeenCalledWith(
-				expect.stringContaining("search=Algoritma"),
-			);
-		});
-	});
+    expect(
+      screen.getByRole("heading", { name: "Ubah Modul Pembelajaran" }),
+    ).toBeTruthy();
+
+    const titleInput = screen.getByPlaceholderText(
+      /contoh: modul 1: pengantar algoritma/i,
+    );
+    fireEvent.change(titleInput, {
+      target: { value: "Modul 1: Aljabar Dasar (Revisi)" },
+    });
+
+    const saveBtn = screen.getByRole("button", { name: /simpan perubahan/i });
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(api.updateModule).toHaveBeenCalledWith(
+        "mod-1",
+        expect.objectContaining({
+          title: "Modul 1: Aljabar Dasar (Revisi)",
+        }),
+      );
+    });
+  });
+
+  it("toggles module published status", async () => {
+    vi.mocked(api.updateModule).mockResolvedValue({
+      ...mockModules[0]!,
+      is_published: false,
+    });
+
+    renderModulesPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
+
+    // mod-1 is published, button title is "Tarik ke Draf"
+    const togglePublishBtn = screen.getByTitle("Tarik ke Draf");
+    fireEvent.click(togglePublishBtn);
+
+    await waitFor(() => {
+      expect(api.updateModule).toHaveBeenCalledWith("mod-1", {
+        is_published: false,
+      });
+    });
+  });
+
+  it("toggles module locked status", async () => {
+    vi.mocked(api.updateModule).mockResolvedValue({
+      ...mockModules[0]!,
+      is_locked: true,
+    });
+
+    renderModulesPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
+
+    // mod-1 is unlocked, button title is "Kunci Modul"
+    const lockBtn = screen.getByTitle("Kunci Modul");
+    fireEvent.click(lockBtn);
+
+    await waitFor(() => {
+      expect(api.updateModule).toHaveBeenCalledWith("mod-1", {
+        is_locked: true,
+      });
+    });
+  });
+
+  it("opens add content modal and adds new material to module", async () => {
+    vi.mocked(api.createModuleContent).mockResolvedValue({
+      id: "mc-new",
+      moduleId: "mod-1",
+      fileId: null,
+      title: "Video Tutorial Aljabar",
+      contentType: "video",
+      content: "https://youtube.com/watch?v=sample",
+      sortOrder: 2,
+      createdAt: "2026-11-03T09:00:00Z",
+      updatedAt: "2026-11-03T09:00:00Z",
+    });
+
+    renderModulesPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
+
+    const addContentBtns = screen.getAllByTitle("Tambah Konten Materi");
+    fireEvent.click(addContentBtns[0]!);
+
+    expect(
+      screen.getByRole("heading", { name: "Tambah Konten Materi" }),
+    ).toBeTruthy();
+
+    const titleInput = screen.getByPlaceholderText(
+      /contoh: pengantar dan konsep dasar/i,
+    );
+    fireEvent.change(titleInput, {
+      target: { value: "Video Tutorial Aljabar" },
+    });
+
+    const submitBtn = screen.getByRole("button", { name: /tambah materi/i });
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(api.createModuleContent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          moduleId: "mod-1",
+          title: "Video Tutorial Aljabar",
+        }),
+      );
+    });
+  });
+
+  it("opens delete module dialog and confirms deletion", async () => {
+    vi.mocked(api.deleteModule).mockResolvedValue({
+      success: true,
+      id: "mod-1",
+    });
+
+    renderModulesPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
+
+    const deleteBtns = screen.getAllByTitle("Hapus Modul");
+    fireEvent.click(deleteBtns[0]!);
+
+    expect(
+      screen.getByRole("heading", { name: "Hapus Modul Pembelajaran" }),
+    ).toBeTruthy();
+
+    const confirmBtn = screen.getByRole("button", { name: "Ya, Hapus" });
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => {
+      expect(api.deleteModule).toHaveBeenCalledWith("mod-1");
+    });
+  });
+
+  it("opens delete content dialog and confirms deletion", async () => {
+    vi.mocked(api.deleteModuleContent).mockResolvedValue({
+      success: true,
+      id: "mc-1",
+    });
+
+    renderModulesPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
+
+    // Expand module to show content actions
+    const expandBtns = screen.getAllByLabelText("Buka detail modul");
+    fireEvent.click(expandBtns[0]!);
+
+    const deleteContentBtn = screen.getByTitle("Hapus Konten");
+    fireEvent.click(deleteContentBtn);
+
+    expect(
+      screen.getByRole("heading", { name: "Hapus Konten Materi" }),
+    ).toBeTruthy();
+
+    const confirmBtn = screen.getByRole("button", { name: "Ya, Hapus" });
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => {
+      expect(api.deleteModuleContent).toHaveBeenCalledWith("mc-1");
+    });
+  });
+
+  it("handles filter changes and resets filters", async () => {
+    renderModulesPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("Modul 1: Aljabar Dasar")).toBeTruthy();
+    });
+
+    const searchInput = screen.getByLabelText("Cari modul") as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: "Aljabar" } });
+
+    const statusFilter = screen.getByLabelText("Filter Status Publikasi") as HTMLSelectElement;
+    fireEvent.change(statusFilter, { target: { value: "true" } });
+
+    const resetBtn = screen.getByRole("button", { name: /reset/i });
+    fireEvent.click(resetBtn);
+
+    expect(searchInput.value).toBe("");
+    expect(statusFilter.value).toBe("");
+  });
 });

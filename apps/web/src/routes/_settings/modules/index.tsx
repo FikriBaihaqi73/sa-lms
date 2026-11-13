@@ -3,8 +3,8 @@ import { ModulesPage } from "@/features/modules";
 import { settingsRoute } from "../../settingsLayout";
 
 export const modulesRoute = createRoute({
-	getParentRoute: () => settingsRoute,
-	path: "/modules",
-	component: ModulesPage,
+  getParentRoute: () => settingsRoute,
+  path: "/modules",
+  component: ModulesPage,
 });
 

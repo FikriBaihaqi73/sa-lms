@@ -116,4 +116,49 @@ describe("AttendanceStatusService", () => {
     });
     expect(remove).toHaveBeenCalledWith("inst-1", "present-id");
   });
+
+  it("forwards color and icon when creating and updating", async () => {
+    jest
+      .spyOn(AttendanceStatusRepository.prototype, "findByName")
+      .mockResolvedValue(null);
+    const createSpy = jest
+      .spyOn(AttendanceStatusRepository.prototype, "create")
+      .mockResolvedValue({ id: "status-new" } as never);
+
+    await service.create(
+      {
+        name: "Izin",
+        color: "#D97706",
+        icon: "letter:I",
+      } as CreateAttendanceStatusDto,
+      "user-1",
+    );
+
+    expect(createSpy).toHaveBeenCalledWith("inst-1", {
+      name: "Izin",
+      color: "#D97706",
+      icon: "letter:I",
+    });
+
+    jest
+      .spyOn(AttendanceStatusRepository.prototype, "findById")
+      .mockResolvedValue({ id: "status-new" } as never);
+    const updateSpy = jest
+      .spyOn(AttendanceStatusRepository.prototype, "update")
+      .mockResolvedValue({ id: "status-new" } as never);
+
+    await service.update(
+      "status-new",
+      {
+        color: "#7C3AED",
+        icon: "clock",
+      },
+      "user-1",
+    );
+
+    expect(updateSpy).toHaveBeenCalledWith("inst-1", "status-new", {
+      color: "#7C3AED",
+      icon: "clock",
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import type { Prisma } from "#generated/client";
+import { classSubjectsSelect } from "./class-subjects.select";
 
 export const moduleSelect = {
   id: true,
@@ -14,7 +15,9 @@ export const moduleSelect = {
   is_locked: true,
   moduleContents: true,
   assignments: true,
-  class_subject: true,
+  class_subject: {
+    select: classSubjectsSelect,
+  },
 } satisfies Prisma.ModulesSelect;
 
 export type ModuleSelectType = typeof moduleSelect;

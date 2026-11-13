@@ -1,3 +1,4 @@
+import { PATH_METADATA } from "@nestjs/common/constants";
 import { Reflector } from "@nestjs/core";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { ResponseHelper } from "@repo/shared/http/response";
@@ -22,6 +23,7 @@ describe("UserController", () => {
     create: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
+    stats: jest.fn(),
   };
 
   /** Mirror what JwtAuthGuard attaches to the express request. */
@@ -70,6 +72,7 @@ describe("UserController", () => {
     it("inherits the same required roles on every handler", () => {
       const handlers = [
         UserController.prototype.findAll,
+        UserController.prototype.stats,
         UserController.prototype.findOne,
         UserController.prototype.create,
         UserController.prototype.update,
@@ -102,7 +105,13 @@ describe("UserController", () => {
     it("findAll forwards pagination, search and the authenticated user id", async () => {
       mockService.findAll.mockResolvedValue(mockList);
 
-      const result = await controller.findAll(asAdminRequest(), 2, 20, "ahmad");
+      const result = await controller.findAll(asAdminRequest(), {
+        page: 2,
+        limit: 20,
+        search: "ahmad",
+        status: undefined,
+        institution_id: "aaaaaaaa-0000-0000-0000-000000000001",
+      } as never);
 
       expect(result).toEqual(
         ResponseHelper.success(mockList, "Users retrieved successfully"),
@@ -113,6 +122,7 @@ describe("UserController", () => {
         "ahmad",
         ADMIN_USER_ID,
         undefined,
+        "aaaaaaaa-0000-0000-0000-000000000001",
       );
     });
 
@@ -178,7 +188,7 @@ describe("UserController", () => {
         institutionId: "bbbbbbbb-0000-0000-0000-000000000002",
       };
 
-      await controller.findAll(request);
+      await controller.findAll(request, {} as never);
 
       expect(service.findAll).toHaveBeenCalledWith(
         undefined,
@@ -186,6 +196,33 @@ describe("UserController", () => {
         undefined,
         ADMIN_USER_ID,
         undefined,
+        undefined,
+      );
+    });
+
+    it("registers stats before the dynamic id route", () => {
+      expect(
+        Reflect.getMetadata(PATH_METADATA, UserController.prototype.stats),
+      ).toBe("stats");
+      expect(
+        Reflect.getMetadata(PATH_METADATA, UserController.prototype.findOne),
+      ).toBe(":id");
+    });
+
+    it("forwards institution_id to stats", async () => {
+      const stats = { total: 8, active: 8, inactive: 0 };
+      mockService.stats.mockResolvedValue(stats);
+
+      const result = await controller.stats(asAdminRequest(), {
+        institution_id: "aaaaaaaa-0000-0000-0000-000000000001",
+      } as never);
+
+      expect(result).toEqual(
+        ResponseHelper.success(stats, "User statistics retrieved successfully"),
+      );
+      expect(service.stats).toHaveBeenCalledWith(
+        ADMIN_USER_ID,
+        "aaaaaaaa-0000-0000-0000-000000000001",
       );
     });
   });

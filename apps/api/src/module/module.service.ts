@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ClassSubjectsRepository } from "@repo/shared/infrastructure/repository/class-subjects.repository";
-import { ModuleRepository } from "@repo/shared/infrastructure/repository/module.repository";
+import {
+  ModuleRepository,
+  type ModuleSearchInput,
+} from "@repo/shared/infrastructure/repository/module.repository";
 import type {
   CreateModuleDto,
   UpdateModuleDto,
@@ -22,7 +25,7 @@ export class LearningModuleService {
   async findAll(
     page: number,
     limit: number,
-    filters?: { search?: string | undefined },
+    filters?: ModuleSearchInput,
   ) {
     return this.moduleRepository.findAll(page, limit, filters);
   }

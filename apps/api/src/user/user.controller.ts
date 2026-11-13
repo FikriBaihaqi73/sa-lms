@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -12,7 +11,12 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
-import { CreateUserDto, UpdateUserDto } from "@repo/shared/schemas/user.schema";
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserQueryDto,
+  UserStatsQueryDto,
+} from "@repo/shared/schemas/user.schema";
 import type { Request } from "express";
 import { ZodValidationPipe } from "nestjs-zod";
 import { Roles } from "../auth/roles.decorator";
@@ -34,19 +38,33 @@ export class UserController {
   })
   async findAll(
     @Req() request: Request & { user: { sub: string } },
-    @Query("page", new ParseIntPipe({ optional: true })) page?: number,
-    @Query("limit", new ParseIntPipe({ optional: true })) limit?: number,
-    @Query("search") search?: string,
-    @Query("status") status?: "active" | "deleted" | "all",
+    @Query(new ZodValidationPipe()) query: UserQueryDto,
   ) {
     const users = await this.userService.findAll(
-      page,
-      limit,
-      search,
+      query.page,
+      query.limit,
+      query.search,
       request.user.sub,
-      status,
+      query.status,
+      query.institution_id,
     );
     return ResponseHelper.success(users, "Users retrieved successfully");
+  }
+
+  @Get("stats")
+  @ApiOperation({ summary: "Get user statistics for the caller scope" })
+  async stats(
+    @Req() request: Request & { user: { sub: string } },
+    @Query(new ZodValidationPipe()) query: UserStatsQueryDto,
+  ) {
+    const stats = await this.userService.stats(
+      request.user.sub,
+      query.institution_id,
+    );
+    return ResponseHelper.success(
+      stats,
+      "User statistics retrieved successfully",
+    );
   }
 
   @Get(":id")

@@ -14,6 +14,8 @@ export const attendanceSelect = {
       id: true,
       name: true,
       description: true,
+      color: true,
+      icon: true,
     },
   },
   student: {

@@ -7,11 +7,15 @@ import {
 export interface CreateAttendanceStatusInput {
   name: string;
   description?: string;
+  color?: string;
+  icon?: string;
 }
 
 export interface UpdateAttendanceStatusInput {
   name?: string;
   description?: string;
+  color?: string;
+  icon?: string;
 }
 
 export interface AttendanceStatusPaginationMeta {
@@ -27,7 +31,7 @@ export interface AttendanceStatusPage {
 }
 
 export class AttendanceStatusRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient) { }
 
   async create(
     institutionId: string,
@@ -41,7 +45,12 @@ export class AttendanceStatusRepository {
     if (deleted?.deleted_at) {
       return this.prisma.attendanceStatuses.update({
         where: { id: deleted.id },
-        data: { deleted_at: null, description: data.description ?? null },
+        data: {
+          deleted_at: null,
+          description: data.description ?? null,
+          ...(data.color !== undefined ? { color: data.color } : {}),
+          ...(data.icon !== undefined ? { icon: data.icon } : {}),
+        },
         select: attendanceStatusSelect,
       });
     }
@@ -51,6 +60,8 @@ export class AttendanceStatusRepository {
         institution_id: institutionId,
         name: data.name,
         description: data.description ?? null,
+        color: data.color ?? "#2563EB",
+        icon: data.icon ?? "check",
       },
       select: attendanceStatusSelect,
     });
@@ -88,11 +99,11 @@ export class AttendanceStatusRepository {
       deleted_at: null,
       ...(search
         ? {
-            OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              { description: { contains: search, mode: "insensitive" } },
-            ],
-          }
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
+          ],
+        }
         : {}),
     };
 
@@ -130,6 +141,8 @@ export class AttendanceStatusRepository {
         ...(data.description !== undefined
           ? { description: data.description }
           : {}),
+        ...(data.color !== undefined ? { color: data.color } : {}),
+        ...(data.icon !== undefined ? { icon: data.icon } : {}),
       },
     });
     if (result.count === 0) {

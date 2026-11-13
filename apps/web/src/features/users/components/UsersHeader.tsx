@@ -2,6 +2,7 @@ import { Plus, Search, ShieldCheck, Trash2, Users } from "lucide-react";
 import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { Institution } from "../../institutions/types";
 
 interface UsersHeaderProps {
 	searchTerm: string;
@@ -9,6 +10,10 @@ interface UsersHeaderProps {
 	onOpenCreateModal: () => void;
 	userStatus: "active" | "deleted";
 	onStatusChange: (status: "active" | "deleted") => void;
+	isSuperadmin: boolean;
+	institutions: Institution[];
+	institutionId: string;
+	onInstitutionChange: (institutionId: string) => void;
 }
 
 export const UsersHeader: React.FC<UsersHeaderProps> = ({
@@ -17,6 +22,10 @@ export const UsersHeader: React.FC<UsersHeaderProps> = ({
 	onOpenCreateModal,
 	userStatus,
 	onStatusChange,
+	isSuperadmin,
+	institutions,
+	institutionId,
+	onInstitutionChange,
 }) => (
 	<div className="space-y-6">
 		<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -57,6 +66,21 @@ export const UsersHeader: React.FC<UsersHeaderProps> = ({
 			</div>
 
 			<div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100/80 p-1 dark:border-slate-800 dark:bg-slate-950/80">
+				{isSuperadmin && (
+					<select
+						aria-label="Filter institusi"
+						value={institutionId}
+						onChange={(event) => onInstitutionChange(event.target.value)}
+						className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+					>
+						<option value="">Semua institusi</option>
+						{institutions.map((institution) => (
+							<option key={institution.id} value={institution.id}>
+								{institution.name}
+							</option>
+						))}
+					</select>
+				)}
 				<button
 					type="button"
 					onClick={() => onStatusChange("active")}

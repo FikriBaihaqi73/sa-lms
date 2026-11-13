@@ -243,7 +243,7 @@ export function AppSidebar() {
 								<NavItem
 									to="/modules"
 									icon={BookOpen}
-									label="Modul Pembelajaran"
+									label="Modul & Konten Materi"
 								/>
 							</div>
 						</div>
