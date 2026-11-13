@@ -12,7 +12,10 @@ import type { CreateInstitutionInput, UpdateInstitutionInput } from "../types";
 export const INSTITUTIONS_QUERY_KEY = ["institutions"] as const;
 export const INSTITUTION_LEVELS_QUERY_KEY = ["institution-levels"] as const;
 
-export const useInstitutions = (params: ListInstitutionsParams) => {
+export const useInstitutions = (
+	params: ListInstitutionsParams,
+	enabled = true,
+) => {
 	return useQuery({
 		queryKey: [
 			...INSTITUTIONS_QUERY_KEY,
@@ -22,6 +25,7 @@ export const useInstitutions = (params: ListInstitutionsParams) => {
 			params.search ?? "",
 		],
 		queryFn: () => listInstitutionsApi(params),
+		enabled,
 		placeholderData: (previousData) => previousData,
 	});
 };

@@ -4,7 +4,10 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { UserRepository } from "@repo/shared/infrastructure/repository/user.repository";
+import {
+  UserRepository,
+  type UserStats,
+} from "@repo/shared/infrastructure/repository/user.repository";
 import type {
   CreateUserDto,
   UpdateUserDto,
@@ -41,6 +44,7 @@ export class UserService {
     const profile = await this.prisma.client.profile.findFirst({
       where: { userId, deletedAt: null },
       select: { institutionId: true, role: { select: { name: true } } },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
     if (!profile) {
       throw new ForbiddenException("Institution access is required");
@@ -58,10 +62,11 @@ export class UserService {
    */
   private async institutionScopeFor(
     userId: string,
+    requestedInstitutionId?: string,
   ): Promise<string | undefined> {
     const { role, institutionId } = await this.resolveCallerScope(userId);
     if (role === SUPERADMIN_ROLE) {
-      return undefined;
+      return requestedInstitutionId;
     }
     return institutionId ?? undefined;
   }
@@ -72,8 +77,12 @@ export class UserService {
     search: string | undefined,
     userId: string,
     status?: "active" | "deleted" | "all",
+    requestedInstitutionId?: string,
   ) {
-    const institutionId = await this.institutionScopeFor(userId);
+    const institutionId = await this.institutionScopeFor(
+      userId,
+      requestedInstitutionId,
+    );
     return this.userRepository.findAll({
       page,
       limit,
@@ -81,6 +90,17 @@ export class UserService {
       ...(institutionId !== undefined ? { institution_id: institutionId } : {}),
       ...(status !== undefined ? { status } : {}),
     });
+  }
+
+  async stats(
+    userId: string,
+    requestedInstitutionId?: string,
+  ): Promise<UserStats> {
+    const institutionId = await this.institutionScopeFor(
+      userId,
+      requestedInstitutionId,
+    );
+    return this.userRepository.countStats(institutionId);
   }
 
   async findOne(id: string, userId: string) {

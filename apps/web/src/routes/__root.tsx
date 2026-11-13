@@ -155,7 +155,7 @@ function RootLayout() {
 	const isAdminLevelRoute = ADMIN_ACCESSIBLE_PREFIXES.some((prefix) =>
 		location.pathname.startsWith(prefix),
 	);
-	if (isAdminLevelRoute && !isAdmin) {
+	if (isAdminLevelRoute && !isAdmin && !isSuperadmin) {
 		return (
 			<AccessDenied
 				message={`Halaman ini membutuhkan hak akses Admin. Peran Anda (${role}) tidak memiliki hak akses.`}

@@ -1,10 +1,13 @@
 import type React from "react";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useInstitutions } from "@/features/institutions/hooks/useInstitutions";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
 	useCreateUser,
 	useDeleteUser,
 	useUpdateUser,
+	useUsersStats,
 	useUsers,
 } from "../hooks/useUsers";
 import type { UserFormValues } from "../schemas/userSchema";
@@ -27,6 +30,7 @@ export const UsersPage: React.FC = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [limit, setLimit] = useState(10);
 	const [userStatus, setUserStatus] = useState<"active" | "deleted">("active");
+	const [institutionId, setInstitutionId] = useState("");
 	const [editingUser, setEditingUser] = useState<User | null>(null);
 	const [deletingUser, setDeletingUser] = useState<User | null>(null);
 	const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -35,6 +39,12 @@ export const UsersPage: React.FC = () => {
 		kind: "success" | "error";
 		message: string;
 	} | null>(null);
+	const { user } = useAuth();
+	const isSuperadmin = user?.role?.trim().toLowerCase() === "superadmin";
+	const institutionsQuery = useInstitutions(
+		{ page: 1, limit: 100 },
+		isSuperadmin,
+	);
 
 	const normalizedSearch = debouncedSearch.trim();
 	const usersQuery = useUsers({
@@ -42,7 +52,9 @@ export const UsersPage: React.FC = () => {
 		limit,
 		search: normalizedSearch,
 		status: userStatus,
+		institution_id: institutionId || undefined,
 	});
+	const statsQuery = useUsersStats(institutionId || undefined);
 	const createMutation = useCreateUser();
 	const updateMutation = useUpdateUser();
 	const deleteMutation = useDeleteUser();
@@ -113,6 +125,10 @@ export const UsersPage: React.FC = () => {
 		setUserStatus(status);
 		setCurrentPage(1);
 	};
+	const handleInstitutionChange = (value: string) => {
+		setInstitutionId(value);
+		setCurrentPage(1);
+	};
 	const totalPages = Math.max(meta?.totalPages ?? 1, 1);
 
 	return (
@@ -136,8 +152,21 @@ export const UsersPage: React.FC = () => {
 					onOpenCreateModal={openCreate}
 					userStatus={userStatus}
 					onStatusChange={handleStatusChange}
+					isSuperadmin={isSuperadmin}
+					institutions={institutionsQuery.data?.data ?? []}
+					institutionId={institutionId}
+					onInstitutionChange={handleInstitutionChange}
 				/>
-				<UsersStats users={users} meta={meta} />
+				<UsersStats
+					stats={statsQuery.data}
+					scopeLabel={
+						isSuperadmin
+							? institutionId
+								? "dari institusi terpilih"
+								: "dari seluruh pengguna"
+							: "dari institusi ini"
+					}
+				/>
 				<UsersTable
 					users={users}
 					isLoading={usersQuery.isLoading}

@@ -5,6 +5,7 @@ import {
 	type GetUsersParams,
 	getUserByIdApi,
 	getUsersApi,
+	getUsersStatsApi,
 	updateUserApi,
 } from "../api/users";
 import type { CreateUserInput, UpdateUserInput } from "../types";
@@ -19,8 +20,16 @@ export const useUsers = (params: GetUsersParams) => {
 			params.limit,
 			params.search ?? "",
 			params.status ?? "active",
+			params.institution_id ?? "",
 		],
 		queryFn: () => getUsersApi(params),
+	});
+};
+
+export const useUsersStats = (institutionId?: string) => {
+	return useQuery({
+		queryKey: [...USERS_QUERY_KEY, "stats", institutionId ?? ""],
+		queryFn: () => getUsersStatsApi(institutionId),
 	});
 };
 

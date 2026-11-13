@@ -38,6 +38,12 @@ export interface FindAllUserInput {
   status?: "active" | "deleted" | "all";
 }
 
+export interface UserStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
 export interface FindAllUserResult {
   data: UserEntity[];
   meta: {
@@ -198,6 +204,26 @@ export class UserRepository {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async countStats(institutionId?: string): Promise<UserStats> {
+    const normalizedInstitutionId = institutionId?.trim();
+    const where: Prisma.UsersWhereInput = {
+      deleted_at: null,
+      ...(normalizedInstitutionId
+        ? {
+            profile: {
+              some: { institutionId: normalizedInstitutionId, deletedAt: null },
+            },
+          }
+        : {}),
+    };
+    const [total, active, inactive] = await Promise.all([
+      this.prisma.users.count({ where }),
+      this.prisma.users.count({ where: { ...where, is_active: true } }),
+      this.prisma.users.count({ where: { ...where, is_active: false } }),
+    ]);
+    return { total, active, inactive };
   }
 
   async update(id: string, data: UpdateUserInput): Promise<UserEntity> {

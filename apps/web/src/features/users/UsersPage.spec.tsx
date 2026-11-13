@@ -5,8 +5,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as api from "./api/users";
 import { UsersPage } from "./components/UsersPage";
 
+const { authState } = vi.hoisted(() => ({ authState: { role: "admin" } }));
+
 vi.mock("@/features/auth/hooks/useAuth", () => ({
-	useAuth: () => ({ user: { id: "admin-1", role: "admin" } }),
+	useAuth: () => ({ user: { id: "admin-1", role: authState.role } }),
+}));
+
+vi.mock("@/features/institutions/hooks/useInstitutions", () => ({
+	useInstitutions: () => ({
+		data: {
+			data: [
+				{ id: "inst-1", name: "SMK Test", institutionLevelId: "level-1" },
+			],
+		},
+	}),
 }));
 
 vi.mock("@/hooks/useDebounce", () => ({
@@ -64,6 +76,12 @@ describe("UsersPage Component", () => {
 				meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
 			};
 		});
+		vi.spyOn(api, "getUsersStatsApi").mockResolvedValue({
+			total: 8,
+			active: 7,
+			inactive: 1,
+		});
+		authState.role = "admin";
 	});
 
 	afterEach(() => {
@@ -85,6 +103,9 @@ describe("UsersPage Component", () => {
 		expect(screen.getByText("guru.aktif@sekolah.sch.id")).toBeTruthy();
 		expect(screen.getByText("Aktif")).toBeTruthy();
 		expect(screen.getByText("Data Dihapus")).toBeTruthy();
+		expect(
+			screen.queryByRole("combobox", { name: "Filter institusi" }),
+		).toBeNull();
 	});
 
 	it("switches to deleted users view and displays deleted user with 'Dihapus' badge and 'Terhapus' action", async () => {
@@ -104,5 +125,31 @@ describe("UsersPage Component", () => {
 		// Edit and Delete buttons should not be present in deleted view
 		expect(screen.queryByTitle("Ubah Pengguna")).toBeNull();
 		expect(screen.queryByTitle("Hapus Pengguna")).toBeNull();
+	});
+
+	it("shows the institution filter only for superadmin and sends its value", async () => {
+		authState.role = "superadmin";
+		renderComponent();
+
+		const filter = await screen.findByRole("combobox", {
+			name: "Filter institusi",
+		});
+		expect(screen.getByRole("option", { name: "Semua institusi" })).toBeTruthy();
+		fireEvent.change(filter, { target: { value: "inst-1" } });
+
+		expect(await screen.findByText("Guru Aktif, S.Pd")).toBeTruthy();
+		expect(vi.mocked(api.getUsersApi)).toHaveBeenLastCalledWith(
+			expect.objectContaining({ institution_id: "inst-1", page: 1 }),
+		);
+		expect(vi.mocked(api.getUsersStatsApi)).toHaveBeenLastCalledWith("inst-1");
+	});
+
+	it("uses stats returned by the stats endpoint instead of page items", async () => {
+		renderComponent();
+
+		expect(await screen.findByText("8")).toBeTruthy();
+		expect(screen.getByText("7")).toBeTruthy();
+		expect(screen.getByText("1")).toBeTruthy();
+		expect(screen.getAllByText("dari institusi ini")).toHaveLength(2);
 	});
 });
