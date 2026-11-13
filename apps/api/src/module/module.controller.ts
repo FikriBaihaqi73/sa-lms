@@ -15,10 +15,12 @@ import {
   UpdateModuleDto,
 } from "@repo/shared/schemas/module.schema";
 import { ZodValidationPipe } from "nestjs-zod";
+import { Roles } from "../auth/roles.decorator";
 import { LearningModuleService } from "./module.service";
 
 @ApiTags("Learning Modules")
 @ApiBearerAuth("JWT-auth")
+@Roles("admin")
 @Controller("modules")
 export class LearningModuleController {
   constructor(private readonly learningModuleService: LearningModuleService) {}
@@ -31,6 +33,9 @@ export class LearningModuleController {
     @Query("page") page: string = "1",
     @Query("limit") limit: string = "10",
     @Query("search") search?: string,
+    @Query("class_subject_id") class_subject_id?: string,
+    @Query("is_published") is_published?: string,
+    @Query("is_locked") is_locked?: string,
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
@@ -40,6 +45,15 @@ export class LearningModuleController {
       limitNumber,
       {
         search,
+        class_subject_id: class_subject_id || undefined,
+        is_published:
+          is_published !== undefined && is_published !== ""
+            ? is_published === "true"
+            : undefined,
+        is_locked:
+          is_locked !== undefined && is_locked !== ""
+            ? is_locked === "true"
+            : undefined,
       },
     );
     return ResponseHelper.success(

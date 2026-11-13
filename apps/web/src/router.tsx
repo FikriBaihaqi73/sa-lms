@@ -14,6 +14,7 @@ import { departmentsRoute } from "./routes/_settings/departments/index";
 import { employmentStatusesRoute } from "./routes/_settings/employment-statuses/index";
 import { gradesRoute } from "./routes/_settings/grades/index";
 import { institutionLevelsRoute } from "./routes/_settings/jenjang-institusi/index";
+import { modulesRoute } from "./routes/_settings/modules/index";
 import { nationalitiesRoute } from "./routes/_settings/nationalities/index";
 import { permissionsRoute } from "./routes/_settings/permissions/index";
 import { profileRoute } from "./routes/_settings/profile/index";
@@ -76,6 +77,7 @@ const settingsTree = settingsRoute.addChildren([
 	subjectsRoute,
 	classroomsRoute,
 	studyPlansRoute,
+	modulesRoute,
 ]);
 
 const userTree = userRoute.addChildren([indexRoute]);

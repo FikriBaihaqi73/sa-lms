@@ -240,6 +240,11 @@ export function AppSidebar() {
 									icon={ClipboardList}
 									label="Rencana Studi"
 								/>
+								<NavItem
+									to="/modules"
+									icon={BookOpen}
+									label="Modul & Konten Materi"
+								/>
 							</div>
 						</div>
 

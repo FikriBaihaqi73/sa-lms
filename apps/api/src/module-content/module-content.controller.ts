@@ -15,10 +15,12 @@ import {
   UpdateModuleContentDto,
 } from "@repo/shared/schemas/module-content.schema";
 import { ZodValidationPipe } from "nestjs-zod";
+import { Roles } from "../auth/roles.decorator";
 import { ModuleContentService } from "./module-content.service";
 
 @ApiTags("Module Contents")
 @ApiBearerAuth("JWT-auth")
+@Roles("admin")
 @Controller("module-contents")
 export class ModuleContentController {
   constructor(private readonly moduleContentService: ModuleContentService) {}
@@ -31,6 +33,8 @@ export class ModuleContentController {
     @Query("page") page: string = "1",
     @Query("limit") limit: string = "10",
     @Query("search") search?: string,
+    @Query("moduleId") moduleId?: string,
+    @Query("contentType") contentType?: string,
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
@@ -40,6 +44,8 @@ export class ModuleContentController {
       limitNumber,
       {
         search,
+        moduleId: moduleId || undefined,
+        contentType: contentType || undefined,
       },
     );
     return ResponseHelper.success(
