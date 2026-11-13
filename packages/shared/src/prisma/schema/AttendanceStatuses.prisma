@@ -9,6 +9,8 @@ model AttendanceStatuses {
   institution_id String   @db.Uuid
   name          String   @db.VarChar
   description   String?  @db.VarChar
+  color         String   @default("#2563EB") @db.VarChar(7)
+  icon          String   @default("check") @db.VarChar(50)
 
   // relations
   institution Institution @relation(fields: [institution_id], references: [id])

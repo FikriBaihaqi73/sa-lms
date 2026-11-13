@@ -85,6 +85,8 @@ export class AttendanceStatusService {
         ...(dto.description !== undefined
           ? { description: dto.description }
           : {}),
+        ...(dto.color !== undefined ? { color: dto.color } : {}),
+        ...(dto.icon !== undefined ? { icon: dto.icon } : {}),
       });
     } catch (error) {
       if (isPrismaCode(error, "P2002")) {
@@ -112,6 +114,8 @@ export class AttendanceStatusService {
         ...(dto.description !== undefined
           ? { description: dto.description }
           : {}),
+        ...(dto.color !== undefined ? { color: dto.color } : {}),
+        ...(dto.icon !== undefined ? { icon: dto.icon } : {}),
       });
     } catch (error) {
       if (isPrismaCode(error, "P2002")) {

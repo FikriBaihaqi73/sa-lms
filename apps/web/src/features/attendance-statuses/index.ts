@@ -1,1 +1,1 @@
-export { AttendanceStatusesPage } from './components/AttendanceStatusesPage';
+export { AttendanceStatusesPage } from "./components/AttendanceStatusesPage";

@@ -3,6 +3,8 @@ export interface AttendanceStatus {
   institution_id: string;
   name: string;
   description: string | null;
+  color?: string | null;
+  icon?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -35,6 +37,8 @@ export interface ApiResponse<T> {
 export interface CreateAttendanceStatusInput {
   name: string;
   description?: string;
+  color?: string;
+  icon?: string;
 }
 
 export type UpdateAttendanceStatusInput = Partial<CreateAttendanceStatusInput>;
