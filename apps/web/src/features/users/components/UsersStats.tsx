@@ -6,11 +6,11 @@ import {
 	UserX,
 } from "lucide-react";
 import type React from "react";
-import type { User, UsersPageMeta } from "../types";
+import type { UsersStatsResult } from "../types";
 
 interface UsersStatsProps {
-	users: User[];
-	meta?: UsersPageMeta;
+	stats?: UsersStatsResult;
+	scopeLabel: string;
 }
 
 const cardClass =
@@ -18,10 +18,7 @@ const cardClass =
 const iconClass =
 	"rounded-lg border border-blue-100 bg-blue-50 p-3 text-blue-600 dark:border-blue-900/50 dark:bg-blue-950/60 dark:text-blue-400";
 
-export const UsersStats: React.FC<UsersStatsProps> = ({ users, meta }) => {
-	const activeCount = users.filter((user) => user.is_active).length;
-	const inactiveCount = users.length - activeCount;
-
+export const UsersStats: React.FC<UsersStatsProps> = ({ stats, scopeLabel }) => {
 	return (
 		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			<div className={cardClass}>
@@ -33,7 +30,7 @@ export const UsersStats: React.FC<UsersStatsProps> = ({ users, meta }) => {
 						Total Pengguna
 					</p>
 					<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-						{meta?.total ?? 0}
+						{stats?.total ?? 0}
 					</p>
 				</div>
 			</div>
@@ -47,10 +44,10 @@ export const UsersStats: React.FC<UsersStatsProps> = ({ users, meta }) => {
 						Pengguna Aktif
 					</p>
 					<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-						{activeCount}
+						{stats?.active ?? 0}
 					</p>
 					<p className="text-[11px] text-slate-400 dark:text-slate-500">
-						di halaman ini
+						{scopeLabel}
 					</p>
 				</div>
 			</div>
@@ -64,10 +61,10 @@ export const UsersStats: React.FC<UsersStatsProps> = ({ users, meta }) => {
 						Pengguna Tidak Aktif
 					</p>
 					<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-						{inactiveCount}
+						{stats?.inactive ?? 0}
 					</p>
 					<p className="text-[11px] text-slate-400 dark:text-slate-500">
-						di halaman ini
+						{scopeLabel}
 					</p>
 				</div>
 			</div>
