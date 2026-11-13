@@ -5,6 +5,8 @@ export const attendanceStatusSelect = {
   institution_id: true,
   name: true,
   description: true,
+  color: true,
+  icon: true,
   created_at: true,
   updated_at: true,
   attendances: {

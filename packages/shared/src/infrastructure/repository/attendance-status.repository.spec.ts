@@ -30,7 +30,13 @@ describe("AttendanceStatusRepository", () => {
     ).resolves.toEqual(status);
     expect(attendanceStatuses.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: { institution_id: "inst-1", name: "Present", description: null },
+        data: {
+          institution_id: "inst-1",
+          name: "Present",
+          description: null,
+          color: "#2563EB",
+          icon: "check",
+        },
       }),
     );
   });
@@ -113,6 +119,50 @@ describe("AttendanceStatusRepository", () => {
       2,
       expect.objectContaining({
         where: { id: "status-id", institution_id: "inst-1", deleted_at: null },
+      }),
+    );
+  });
+
+  it("creates and updates with custom color and icon", async () => {
+    const status = {
+      id: "status-custom",
+      institution_id: "inst-1",
+      name: "Sakit",
+      color: "#DC2626",
+      icon: "letter:S",
+    };
+    attendanceStatuses.findFirst.mockResolvedValue(null);
+    attendanceStatuses.create.mockResolvedValue(status);
+
+    await repository.create("inst-1", {
+      name: "Sakit",
+      color: "#DC2626",
+      icon: "letter:S",
+    });
+
+    expect(attendanceStatuses.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          color: "#DC2626",
+          icon: "letter:S",
+        }),
+      }),
+    );
+
+    attendanceStatuses.updateMany.mockResolvedValue({ count: 1 });
+    attendanceStatuses.findFirst.mockResolvedValueOnce(status);
+
+    await repository.update("inst-1", "status-custom", {
+      color: "#16A34A",
+      icon: "check",
+    });
+
+    expect(attendanceStatuses.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          color: "#16A34A",
+          icon: "check",
+        }),
       }),
     );
   });

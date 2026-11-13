@@ -1,11 +1,14 @@
-import { ClipboardCheck, Layers, ShieldCheck } from 'lucide-react';
+import { ClipboardCheck, Layers, ShieldCheck } from "lucide-react";
 
 interface AttendanceStatusStatsProps {
   total: number;
   isLoading: boolean;
 }
 
-export function AttendanceStatusStats({ total, isLoading }: AttendanceStatusStatsProps) {
+export function AttendanceStatusStats({
+  total,
+  isLoading,
+}: AttendanceStatusStatsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -13,8 +16,12 @@ export function AttendanceStatusStats({ total, isLoading }: AttendanceStatusStat
           <Layers className="size-5" />
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Status</p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{isLoading ? '...' : total}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Total Status
+          </p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            {isLoading ? "..." : total}
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -22,8 +29,12 @@ export function AttendanceStatusStats({ total, isLoading }: AttendanceStatusStat
           <ClipboardCheck className="size-5" />
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Referensi Presensi</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Siap digunakan</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Referensi Presensi
+          </p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            Siap digunakan
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -31,8 +42,12 @@ export function AttendanceStatusStats({ total, isLoading }: AttendanceStatusStat
           <ShieldCheck className="size-5" />
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Cakupan Akses</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Per Institusi</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Cakupan Akses
+          </p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            Per Institusi
+          </p>
         </div>
       </div>
     </div>

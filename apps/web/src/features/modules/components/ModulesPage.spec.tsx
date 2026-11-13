@@ -7,7 +7,6 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as api from "../api/modules";
 import type { ClassSubjectOption, LearningModule } from "../types";
@@ -68,6 +67,7 @@ const mockModules: LearningModule[] = [
       {
         id: "mc-1",
         moduleId: "mod-1",
+        fileId: null,
         title: "Pengenalan Variabel dan Koefisien",
         contentType: "text",
         content: "Penjelasan lengkap mengenai variabel...",
@@ -320,6 +320,7 @@ describe("ModulesPage", () => {
     vi.mocked(api.createModuleContent).mockResolvedValue({
       id: "mc-new",
       moduleId: "mod-1",
+      fileId: null,
       title: "Video Tutorial Aljabar",
       contentType: "video",
       content: "https://youtube.com/watch?v=sample",

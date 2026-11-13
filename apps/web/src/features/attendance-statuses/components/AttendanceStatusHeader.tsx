@@ -1,5 +1,5 @@
-import { ClipboardCheck, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ClipboardCheck, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface AttendanceStatusHeaderProps {
   onAdd: () => void;
@@ -12,9 +12,12 @@ export function AttendanceStatusHeader({ onAdd }: AttendanceStatusHeaderProps) {
         <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400">
           <ClipboardCheck className="size-3.5" /> Portal Pengaturan
         </span>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Status Kehadiran</h1>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+          Status Kehadiran
+        </h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Kelola status kehadiran sebagai referensi pencatatan presensi akademik.
+          Kelola status kehadiran sebagai referensi pencatatan presensi
+          akademik.
         </p>
       </div>
       <Button
