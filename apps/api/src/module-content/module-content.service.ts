@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ModuleRepository } from "@repo/shared/infrastructure/repository/module.repository";
-import { ModuleContentRepository } from "@repo/shared/infrastructure/repository/module-content.repository";
+import {
+  ModuleContentRepository,
+  type ModuleContentSearchInput,
+} from "@repo/shared/infrastructure/repository/module-content.repository";
 import type {
   CreateModuleContentDto,
   UpdateModuleContentDto,
@@ -22,7 +25,7 @@ export class ModuleContentService {
   async findAll(
     page: number,
     limit: number,
-    filters?: { search?: string | undefined },
+    filters?: ModuleContentSearchInput,
   ) {
     return this.moduleContentRepository.findAll(page, limit, filters);
   }

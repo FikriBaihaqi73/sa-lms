@@ -23,6 +23,9 @@ export interface UpdateModuleInput {
 
 export interface ModuleSearchInput {
   search?: string | undefined;
+  class_subject_id?: string | undefined;
+  is_published?: boolean | undefined;
+  is_locked?: boolean | undefined;
 }
 
 export class ModuleRepository {
@@ -68,6 +71,15 @@ export class ModuleRepository {
     const skip = (page - 1) * limit;
     const where = {
       deleted_at: null,
+      ...(filters?.class_subject_id
+        ? { class_subject_id: filters.class_subject_id }
+        : {}),
+      ...(filters?.is_published !== undefined
+        ? { is_published: filters.is_published }
+        : {}),
+      ...(filters?.is_locked !== undefined
+        ? { is_locked: filters.is_locked }
+        : {}),
       ...(filters?.search
         ? {
             title: {

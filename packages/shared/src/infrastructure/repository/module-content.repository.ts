@@ -24,6 +24,8 @@ export interface UpdateModuleContentInput {
 
 export interface ModuleContentSearchInput {
   search?: string | undefined;
+  moduleId?: string | undefined;
+  contentType?: string | undefined;
 }
 
 export class ModuleContentRepository {
@@ -82,6 +84,8 @@ export class ModuleContentRepository {
     const skip = (page - 1) * limit;
     const where = {
       deletedAt: null,
+      ...(filters?.moduleId ? { moduleId: filters.moduleId } : {}),
+      ...(filters?.contentType ? { contentType: filters.contentType } : {}),
       ...(filters?.search
         ? {
             title: {
