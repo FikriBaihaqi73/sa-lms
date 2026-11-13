@@ -112,3 +112,4 @@ export const ModuleFilterBar: React.FC<ModuleFilterBarProps> = ({
     </div>
   );
 };
+

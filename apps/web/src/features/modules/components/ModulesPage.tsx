@@ -435,3 +435,4 @@ export const ModulesPage: React.FC = () => {
     </main>
   );
 };
+

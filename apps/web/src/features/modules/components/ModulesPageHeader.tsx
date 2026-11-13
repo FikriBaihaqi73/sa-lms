@@ -36,3 +36,4 @@ export const ModulesPageHeader: React.FC<ModulesPageHeaderProps> = ({
     </header>
   );
 };
+
