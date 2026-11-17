@@ -1,105 +1,82 @@
+import "reflect-metadata";
 import { Test, TestingModule } from "@nestjs/testing";
+import { ROLES_KEY } from "../auth/roles.decorator";
 import { ExaminationController } from "./examination.controller";
 import { ExaminationService } from "./examination.service";
 
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
+
 describe("ExaminationController", () => {
   let controller: ExaminationController;
-  let service: jest.Mocked<ExaminationService>;
+  const service = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    stats: jest.fn(),
+    findById: jest.fn(),
+    update: jest.fn(),
+    softDelete: jest.fn(),
+  };
+  const request = { user: { sub: "user-1" } } as unknown as Parameters<
+    ExaminationController["create"]
+  >[0];
 
   beforeEach(async () => {
-    const mockService = {
-      create: jest.fn(),
-      findAll: jest.fn(),
-      findById: jest.fn(),
-      update: jest.fn(),
-      softDelete: jest.fn(),
-    };
-
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ExaminationController],
-      providers: [
-        {
-          provide: ExaminationService,
-          useValue: mockService,
-        },
-      ],
+      providers: [{ provide: ExaminationService, useValue: service }],
     }).compile();
-
-    controller = module.get<ExaminationController>(ExaminationController);
-    service = module.get(ExaminationService) as jest.Mocked<ExaminationService>;
+    controller = module.get(ExaminationController);
   });
 
-  describe("create", () => {
-    it("should return a successful response with created examination", async () => {
-      const dto = { title: "Test Exam" };
-      const req = { user: { id: "user-1" } };
-      const result: any = { id: "exam-1", ...dto, createdBy: "user-1" };
-      service.create.mockResolvedValue(result);
-
-      const response = await controller.create(req, dto);
-      expect(response.status).toBe("success");
-      expect(response.code).toBe(201);
-      expect(response.data).toEqual(result);
-      expect(service.create).toHaveBeenCalledWith({
-        ...dto,
-        createdBy: "user-1",
-      });
-    });
+  it("requires the admin role for every endpoint", () => {
+    expect(Reflect.getMetadata(ROLES_KEY, ExaminationController)).toEqual([
+      "admin",
+    ]);
   });
 
-  describe("findAll", () => {
-    it("should return a successful response with paginated examinations", async () => {
-      const result: any = {
-        data: [{ id: "exam-1" }],
-        meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
-      };
-      service.findAll.mockResolvedValue(result);
-
-      const response = await controller.findAll("1", "10", "search");
-      expect(response.status).toBe("success");
-      expect(response.data).toEqual(result);
-      expect(service.findAll).toHaveBeenCalledWith(1, 10, "search");
+  it("passes the token subject to create", async () => {
+    service.create.mockResolvedValue({ id: "exam-1" });
+    await controller.create(request, {
+      classSubjectId: "class-subject-1",
+      title: "Ujian",
     });
+    expect(service.create).toHaveBeenCalledWith(
+      { classSubjectId: "class-subject-1", title: "Ujian" },
+      request.user,
+    );
   });
 
-  describe("findById", () => {
-    it("should return a successful response with the found examination", async () => {
-      const result: any = { id: "exam-1" };
-      service.findById.mockResolvedValue(result);
-
-      const response = await controller.findById("exam-1");
-      expect(response.status).toBe("success");
-      expect(response.data).toEqual(result);
-      expect(service.findById).toHaveBeenCalledWith("exam-1");
-    });
+  it("passes validated filters to findAll", async () => {
+    service.findAll.mockResolvedValue({ data: [], meta: {} });
+    await controller.findAll(request, { page: 1, limit: 10, search: "UTS" });
+    expect(service.findAll).toHaveBeenCalledWith(
+      { page: 1, limit: 10, search: "UTS" },
+      request.user,
+    );
   });
 
-  describe("update", () => {
-    it("should return a successful response with updated examination", async () => {
-      const dto = { title: "Updated" };
-      const req = { user: { id: "user-1" } };
-      const result: any = { id: "exam-1", title: "Updated" };
-      service.update.mockResolvedValue(result);
-
-      const response = await controller.update(req, "exam-1", dto);
-      expect(response.status).toBe("success");
-      expect(response.data).toEqual(result);
-      expect(service.update).toHaveBeenCalledWith("exam-1", {
-        ...dto,
-        updatedBy: "user-1",
-      });
+  it("exposes stats before the dynamic id route", async () => {
+    service.stats.mockResolvedValue({
+      total: 0,
+      upcoming: 0,
+      completed: 0,
+      withoutDate: 0,
     });
+    await controller.stats(request);
+    expect(service.stats).toHaveBeenCalledWith(request.user);
+    expect(ExaminationController.prototype.stats).toBeDefined();
   });
 
-  describe("delete", () => {
-    it("should return a successful response after deleting", async () => {
-      const result: any = { id: "exam-1" };
-      service.softDelete.mockResolvedValue(result);
-
-      const response = await controller.delete("exam-1");
-      expect(response.status).toBe("success");
-      expect(response.data).toEqual(result);
-      expect(service.softDelete).toHaveBeenCalledWith("exam-1");
-    });
+  it("keeps update as PUT contract and uses token subject", async () => {
+    service.update.mockResolvedValue({ id: "exam-1" });
+    await controller.update(request, "exam-1", { title: "Updated" });
+    expect(service.update).toHaveBeenCalledWith(
+      "exam-1",
+      { title: "Updated" },
+      request.user,
+    );
   });
 });

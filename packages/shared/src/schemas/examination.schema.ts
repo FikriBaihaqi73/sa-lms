@@ -1,89 +1,102 @@
 import { createZodDto } from "nestjs-zod/dto";
 import { z } from "zod";
 
+const isoDateTimeSchema = z
+  .string()
+  .datetime({ message: "Tanggal harus berupa ISO 8601 yang valid." });
+
+const durationSchema = z
+  .number()
+  .int("Durasi harus berupa bilangan bulat.")
+  .min(0, "Durasi tidak boleh negatif.")
+  .max(2_147_483_647, "Durasi melebihi batas teknis.")
+  .describe("Durasi ujian dalam menit");
+
+const maximumScoreSchema = z
+  .number()
+  .min(0, "Nilai maksimum tidak boleh negatif.")
+  .max(999.99, "Nilai maksimum tidak boleh lebih dari 999,99.")
+  .describe("Nilai maksimum ujian");
+
 export const CreateExaminationSchema = z.object({
-  createdBy: z
-    .string()
-    .uuid()
-    .optional()
-    .describe("ID of the user creating the examination"),
   classSubjectId: z
     .string()
-    .uuid()
-    .optional()
-    .describe("ID of the related class subject"),
+    .uuid("Mata pelajaran kelas wajib dipilih.")
+    .describe("ID mata pelajaran kelas yang terkait dengan ujian"),
   assignmentTypeId: z
     .string()
-    .uuid()
+    .uuid("Jenis tugas tidak valid.")
     .optional()
-    .describe("ID of the related assignment type"),
+    .describe("ID jenis tugas ujian, jika ada"),
   title: z
     .string()
-    .min(1, "Title is required")
-    .max(255, "Title must not exceed 255 characters")
-    .describe("Title of the examination"),
-  description: z.string().optional().describe("Description of the examination"),
-  examinationDate: z
-    .string()
+    .min(1, "Judul ujian wajib diisi.")
+    .max(255, "Judul ujian maksimal 255 karakter.")
+    .describe("Judul ujian"),
+  description: z.string().optional().describe("Deskripsi ujian"),
+  examinationDate: isoDateTimeSchema
     .optional()
-    .describe("Scheduled date of the examination"),
-  duration: z
-    .number()
-    .int("Duration must be an integer")
-    .min(0, "Duration must not be negative")
-    .optional()
-    .describe("Duration of the examination in minutes"),
-  maximumScore: z
-    .number()
-    .min(0, "Maximum score must not be negative")
-    .optional()
-    .describe("Maximum score for the examination"),
+    .describe("Tanggal dan waktu ujian dalam format ISO 8601"),
+  duration: durationSchema.optional(),
+  maximumScore: maximumScoreSchema.optional(),
 });
 
 export const UpdateExaminationSchema = z.object({
-  updatedBy: z
-    .string()
-    .uuid()
-    .optional()
-    .describe("ID of the user updating the examination"),
   classSubjectId: z
     .string()
-    .uuid()
+    .uuid("Mata pelajaran kelas tidak valid.")
     .optional()
-    .describe("ID of the related class subject"),
+    .describe("ID mata pelajaran kelas yang terkait dengan ujian"),
   assignmentTypeId: z
     .string()
-    .uuid()
+    .uuid("Jenis tugas tidak valid.")
     .optional()
-    .describe("ID of the related assignment type"),
+    .describe("ID jenis tugas ujian, jika ada"),
   title: z
     .string()
-    .min(1, "Title is required")
-    .max(255, "Title must not exceed 255 characters")
+    .min(1, "Judul ujian wajib diisi.")
+    .max(255, "Judul ujian maksimal 255 karakter.")
     .optional()
-    .describe("Title of the examination"),
-  description: z.string().optional().describe("Description of the examination"),
-  examinationDate: z
+    .describe("Judul ujian"),
+  description: z.string().optional().describe("Deskripsi ujian"),
+  examinationDate: isoDateTimeSchema
+    .optional()
+    .describe("Tanggal dan waktu ujian dalam format ISO 8601"),
+  duration: durationSchema.optional(),
+  maximumScore: maximumScoreSchema.optional(),
+});
+
+export const ExaminationQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1).describe("Nomor halaman"),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .default(10)
+    .describe("Jumlah data per halaman"),
+  search: z
     .string()
     .optional()
-    .describe("Scheduled date of the examination"),
-  duration: z
-    .number()
-    .int("Duration must be an integer")
-    .min(0, "Duration must not be negative")
+    .describe("Pencarian judul atau deskripsi ujian"),
+  classSubjectId: z
+    .string()
+    .uuid("Filter mata pelajaran kelas tidak valid.")
     .optional()
-    .describe("Duration of the examination in minutes"),
-  maximumScore: z
-    .number()
-    .min(0, "Maximum score must not be negative")
+    .describe("Filter berdasarkan mata pelajaran kelas"),
+  assignmentTypeId: z
+    .string()
+    .uuid("Filter jenis tugas tidak valid.")
     .optional()
-    .describe("Maximum score for the examination"),
+    .describe("Filter berdasarkan jenis tugas"),
+  dateFrom: isoDateTimeSchema.optional().describe("Tanggal awal filter ujian"),
+  dateTo: isoDateTimeSchema.optional().describe("Tanggal akhir filter ujian"),
 });
 
 export class CreateExaminationDto extends createZodDto(
   CreateExaminationSchema,
 ) {}
-
 export class UpdateExaminationDto extends createZodDto(
   UpdateExaminationSchema,
 ) {}
+export class ExaminationQueryDto extends createZodDto(ExaminationQuerySchema) {}

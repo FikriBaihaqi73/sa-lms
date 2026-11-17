@@ -238,6 +238,9 @@ export function AppSidebar() {
 										label="Presensi & Absensi"
 									/>
 								)}
+								{hasExplicitAdminRole && (
+									<NavItem to="/examinations" icon={FileText} label="Ujian" />
+								)}
 								<NavItem
 									to="/subject-prerequisites"
 									icon={GitFork}
