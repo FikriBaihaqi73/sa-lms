@@ -23,7 +23,6 @@ const SUPERADMIN_ONLY_PREFIXES = [
 	"/academic-statuses",
 	"/employment-statuses",
 	"/institutions",
-	"/assignment-types",
 	"/superadmin",
 ];
 
@@ -44,6 +43,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/subjects",
 	"/specializations",
 	"/specialization-statuses",
+	"/assignment-types",
 	"/class-subjects",
 	"/schedules",
 	"/teaching-journals",

@@ -14,10 +14,14 @@ import {
   UpdateAssignmentTypeDto,
 } from "@repo/shared/schemas/assignment-type.schema";
 import { ZodValidationPipe } from "nestjs-zod";
+import { Roles } from "../auth/roles.decorator";
 import { AssignmentTypeService } from "./assignment-type.service";
 
 @ApiTags("Assignment Types")
 @ApiBearerAuth("JWT-auth")
+// Assignment types are managed by institution owners (Admin). Superadmin
+// platform accounts and other roles are excluded by the global RolesGuard.
+@Roles("admin")
 @Controller("assignment-types")
 export class AssignmentTypeController {
   constructor(private readonly assignmentTypeService: AssignmentTypeService) {}

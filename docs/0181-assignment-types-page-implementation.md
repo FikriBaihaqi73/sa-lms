@@ -1,15 +1,15 @@
 # Feature Implementation: Assignment Types (Tipe Tugas Pembelajaran)
 
-**Feature**: `0181- feat/0181-page-assignment_types`  
+**Feature**: `0181- feat/0181-page-assignment_types` / `0241- move-page-assignment-type`  
 **Scope**: Frontend (`apps/web`), Backend Integration (`apps/api`), Shared Contracts (`@repo/shared`)  
-**Target Audience**: Frontend & Fullstack Developers, Superadmin LMS Platform  
+**Target Audience**: Frontend & Fullstack Developers, Admin Institusi LMS Platform  
 
 ---
 
 ## 1. Overview
-Halaman **Tipe Tugas (Assignment Types)** menyediakan antarmuka CRUD lengkap bagi **Superadmin** (pemilik aplikasi) untuk mengelola kategori dan jenis penugasan pembelajaran (seperti *Tugas Mandiri*, *Tugas Kelompok*, *Kuis*, *Ujian Praktik*, *Proyek Akhir*, dll.) di seluruh ekosistem institusi LMS.
+Halaman **Tipe Tugas (Assignment Types)** menyediakan antarmuka CRUD lengkap bagi **Admin Institusi** untuk mengelola kategori dan jenis penugasan pembelajaran (seperti *Tugas Mandiri*, *Tugas Kelompok*, *Kuis*, *Ujian Praktik*, *Proyek Akhir*, dll.) di institusi LMS.
 
-Halaman ini terlindungi oleh **Superadmin Access Guard** dan terintegrasi dengan layout superadmin di path `/assignment-types`.
+Halaman ini terlindungi oleh **Institution Admin Access Guard** dan terintegrasi dengan layout admin institusi di path `/assignment-types`.
 
 ---
 
@@ -178,5 +178,6 @@ Data fetching dan state mutation ditangani oleh `@tanstack/react-query`:
    - `name`: Wajib diisi, minimal 1 karakter, maksimal 100 karakter.
    - `description`: Opsional, maksimal 500 karakter.
 3. **Role Access Restriction**:
-   - `/assignment-types` terdaftar dalam `SUPERADMIN_ONLY_PREFIXES`. Pengguna dengan peran non-superadmin akan diblokir dengan tampilan `AccessDenied (403)`.
+   - `/assignment-types` terdaftar dalam `INSTITUTION_ADMIN_ONLY_PREFIXES`. Pengguna dengan peran non-admin (termasuk superadmin) akan diblokir dengan tampilan `AccessDenied (403)`.
+   - Backend controller `AssignmentTypeController` dilindungi decorator `@Roles("admin")`. Token non-admin akan menerima `403 Forbidden`.
 4. **Respon Error**: Pesan error dari backend diparsing secara elegan dan ditampilkan pada alert notice di atas tabel.

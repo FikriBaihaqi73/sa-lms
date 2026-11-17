@@ -41,6 +41,7 @@ Admin mengelola operasional harian institusi, pengguna (guru, siswa, wali), stru
   - `employment_statuses` (`/employment-statuses`)
   - `attendance_statuses` (`/attendance-statuses`)
   - `specializations` (`/specialization-statuses`)
+  - `assignment_types` (`/assignment-types`)
 - **Sistem & Pengaturan**:
   - `activity_logs` (`/activity-logs`)
   - `settings` (`/settings`)
