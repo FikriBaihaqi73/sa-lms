@@ -454,10 +454,10 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 				if (!open) onClose();
 			}}
 		>
-			<DialogContent className="max-w-2xl border-slate-800 bg-[#111927] p-6 text-slate-100 shadow-2xl">
+			<DialogContent className="max-w-2xl border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-[#111927] dark:text-slate-100">
 				{/* 1. Header Modal */}
-				<DialogHeader className="border-b border-slate-800/80 pb-3 text-left">
-					<div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-400">
+				<DialogHeader className="border-b border-slate-200 pb-3 text-left dark:border-slate-800/80">
+					<div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
 						{isEditing ? (
 							<Shield className="size-4" />
 						) : (
@@ -469,12 +469,12 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 								: "INTERVENSI ADMIN (FORCE ENROLL)"}
 						</span>
 					</div>
-					<DialogTitle className="mt-1 text-xl font-bold tracking-tight text-white">
+					<DialogTitle className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-white">
 						{isEditing
 							? "Ubah Rencana Studi Manual"
 							: "Tambah Rencana Studi Manual"}
 					</DialogTitle>
-					<DialogDescription className="text-xs text-slate-400">
+					<DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
 						Pilih bidang studi, lalu centang satu atau beberapa mata pelajaran
 						sesuai sisa kuota kredit (SKS) siswa.
 					</DialogDescription>
@@ -487,9 +487,10 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 						<div className="relative">
 							<label
 								htmlFor="student_id"
-								className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-300"
+								className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
 							>
-								1. SISWA / MAHASISWA <span className="text-rose-400">*</span>
+								1. SISWA / MAHASISWA{" "}
+								<span className="text-rose-500 dark:text-rose-400">*</span>
 							</label>
 							<div ref={studentComboboxRef} className="relative">
 								<button
@@ -501,7 +502,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 									aria-label="1. SISWA / MAHASISWA"
 									disabled={isEditing}
 									onClick={() => setIsStudentDropdownOpen((prev) => !prev)}
-									className="flex h-10 w-full items-center justify-between rounded-lg border border-slate-700/60 bg-[#0c1322] px-3 text-left text-xs text-slate-200 transition-colors focus:border-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+									className="flex h-10 w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 text-left text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
 								>
 									<span className="truncate pr-2">{triggerLabel}</span>
 									<ChevronDown
@@ -515,10 +516,10 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 								{isStudentDropdownOpen && !isEditing && (
 									<div
 										role="listbox"
-										className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-hidden rounded-xl border border-slate-700 bg-[#0c1322] shadow-2xl"
+										className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-[#0c1322]"
 									>
 										{/* Sticky Search Header */}
-										<div className="sticky top-0 z-10 border-b border-slate-800 bg-[#0c1322] p-2">
+										<div className="sticky top-0 z-10 border-b border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-[#0c1322]">
 											<div className="relative">
 												<Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
 												<input
@@ -529,7 +530,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 														setStudentSearchQuery(e.target.value)
 													}
 													placeholder="Cari nama siswa, email, atau NIS/NIM..."
-													className="h-8 w-full rounded-lg border border-slate-700 bg-slate-900/90 pl-8 pr-7 text-xs text-slate-200 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none"
+													className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:placeholder:text-slate-500"
 												/>
 												{studentSearchQuery && (
 													<button
@@ -537,13 +538,13 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 														onClick={() => setStudentSearchQuery("")}
 														title="Hapus pencarian"
 														aria-label="Hapus kata kunci pencarian"
-														className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+														className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white"
 													>
 														<X className="size-3.5" />
 													</button>
 												)}
 											</div>
-											<div className="mt-1 px-1 text-[10px] text-slate-400">
+											<div className="mt-1 px-1 text-[10px] text-slate-500 dark:text-slate-400">
 												Menampilkan {filteredStudents.length} dari{" "}
 												{students.length} siswa
 											</div>
@@ -552,7 +553,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 										{/* Scrollable Student Options List */}
 										<div className="max-h-52 overflow-y-auto p-1 space-y-0.5">
 											{filteredStudents.length === 0 ? (
-												<div className="py-4 text-center text-xs text-slate-400">
+												<div className="py-4 text-center text-xs text-slate-500 dark:text-slate-400">
 													Siswa tidak ditemukan untuk kata kunci tersebut.
 												</div>
 											) : (
@@ -587,15 +588,15 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 															}}
 															className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition-colors ${
 																isSelected
-																	? "bg-blue-600/20 text-blue-300 font-semibold"
-																	: "text-slate-200 hover:bg-slate-800/80"
+																	? "bg-blue-50 text-blue-700 font-semibold dark:bg-blue-600/20 dark:text-blue-300"
+																	: "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800/80"
 															}`}
 														>
 															<div className="min-w-0 flex-1 pr-2">
-																<div className="truncate font-medium text-white">
+																<div className="truncate font-medium text-slate-900 dark:text-white">
 																	{st.fullName}
 																</div>
-																<div className="truncate text-[11px] text-slate-400">
+																<div className="truncate text-[11px] text-slate-500 dark:text-slate-400">
 																	{identifier ? `${identifier} • ` : ""}
 																	{st.className
 																		? `Kelas: ${st.className} • `
@@ -604,7 +605,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 																</div>
 															</div>
 															{isSelected && (
-																<Check className="size-4 shrink-0 text-blue-400" />
+																<Check className="size-4 shrink-0 text-blue-600 dark:text-blue-400" />
 															)}
 														</button>
 													);
@@ -620,15 +621,16 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 						<div>
 							<label
 								htmlFor="academic_year_id"
-								className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-300"
+								className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
 							>
-								2. TAHUN AJARAN <span className="text-rose-400">*</span>
+								2. TAHUN AJARAN{" "}
+								<span className="text-rose-500 dark:text-rose-400">*</span>
 							</label>
 							<select
 								id="academic_year_id"
 								value={selectedAcademicYearId}
 								onChange={(e) => handleAcademicYearChange(e.target.value)}
-								className="h-10 w-full truncate rounded-lg border border-slate-700/60 bg-[#0c1322] px-3 text-xs text-slate-200 transition-colors focus:border-blue-500 focus:outline-none"
+								className="h-10 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
 							>
 								<option value="">Pilih Tahun Ajaran</option>
 								{academicYears.map((ay) => {
@@ -648,20 +650,20 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 					{/* 3. Urutan 3: Pilih Bidang / Departemen (Single-Select Interactive Pill Buttons) */}
 					<div className="space-y-2">
 						<div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
-							<span className="text-slate-300">
+							<span className="text-slate-700 dark:text-slate-300">
 								3. PILIH BIDANG / DEPARTEMEN{" "}
-								<span className="text-rose-400">*</span>
+								<span className="text-rose-500 dark:text-rose-400">*</span>
 							</span>
-							<span className="text-xs font-normal normal-case text-slate-400">
+							<span className="text-xs font-normal normal-case text-slate-500 dark:text-slate-400">
 								Bidang utama siswa:{" "}
-								<span className="font-semibold text-emerald-400">
+								<span className="font-semibold text-emerald-600 dark:text-emerald-400">
 									{studentPrimaryDeptName}
 								</span>
 							</span>
 						</div>
 
 						{departmentPills.length === 0 ? (
-							<div className="py-3 text-xs text-slate-400">
+							<div className="py-3 text-xs text-slate-500 dark:text-slate-400">
 								Belum ada bidang studi / mata pelajaran kelas yang dibuka pada
 								tahun ajaran ini.
 							</div>
@@ -676,13 +678,15 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 											onClick={() => setSelectedDepartmentPill(dept.id)}
 											className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
 												isSelected
-													? "border border-emerald-500 bg-emerald-500/20 text-emerald-400 shadow-sm"
-													: "border border-slate-700 bg-slate-800/80 text-slate-300 hover:border-slate-600 hover:bg-slate-800"
+													? "border border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-400"
+													: "border border-slate-200 bg-slate-100 text-slate-700 hover:border-slate-300 hover:bg-slate-200/80 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800"
 											}`}
 										>
 											<span
 												className={`size-2 rounded-full ${
-													isSelected ? "bg-emerald-400" : "bg-slate-500"
+													isSelected
+														? "bg-emerald-500 dark:bg-emerald-400"
+														: "bg-slate-400 dark:bg-slate-500"
 												}`}
 											/>
 											<span>{dept.name}</span>
@@ -695,15 +699,15 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 
 					{/* 4. Urutan 4: Daftar Mata Pelajaran Kelas (Multi-Select Checkbox Cards) */}
 					<div className="space-y-2">
-						<span className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+						<span className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
 							{isEditing
 								? "4. PILIH MATA PELAJARAN *"
 								: "4. PILIH MATA PELAJARAN (BISA PILIH LEBIH DARI SATU) *"}
 						</span>
 
-						<div className="max-h-56 overflow-y-auto space-y-2 rounded-xl border border-slate-800/80 bg-[#0b1120] p-3">
+						<div className="max-h-56 overflow-y-auto space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800/80 dark:bg-[#0b1120]">
 							{availableClassSubjectsForPill.length === 0 ? (
-								<div className="py-8 text-center text-xs text-slate-400">
+								<div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
 									Tidak ada mata pelajaran kelas yang tersedia untuk bidang dan
 									tahun ajaran ini.
 								</div>
@@ -719,10 +723,10 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 											key={cs.id}
 											className={`flex items-center justify-between rounded-xl border p-3 transition-all ${
 												isAlreadyTaken && !isEditing
-													? "border-slate-800/60 bg-slate-900/30 opacity-60 cursor-not-allowed"
+													? "border-slate-200 bg-slate-100 opacity-60 cursor-not-allowed dark:border-slate-800/60 dark:bg-slate-900/30"
 													: isChecked
-														? "border-blue-500/60 bg-blue-950/20 shadow-sm cursor-pointer"
-														: "border-slate-800/80 bg-[#0d1526]/80 hover:border-slate-700/80 cursor-pointer"
+														? "border-blue-500 bg-blue-50 shadow-sm cursor-pointer dark:border-blue-500/60 dark:bg-blue-950/20"
+														: "border-slate-200 bg-white hover:border-slate-300 cursor-pointer dark:border-slate-800/80 dark:bg-[#0d1526]/80 dark:hover:border-slate-700/80"
 											}`}
 										>
 											<div className="flex items-center gap-3 min-w-0 flex-1 pr-3">
@@ -735,32 +739,32 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 														handleToggleClassSubject(cs.id);
 													}}
 													aria-label={cs.subjectName}
-													className="size-4 rounded border-slate-700 bg-[#0c1322] text-blue-600 focus:ring-0 cursor-pointer disabled:cursor-not-allowed"
+													className="size-4 rounded border-slate-300 bg-white text-blue-600 focus:ring-0 cursor-pointer disabled:cursor-not-allowed dark:border-slate-700 dark:bg-[#0c1322]"
 												/>
 												<div className="min-w-0 flex-1">
 													<div className="flex items-center gap-2 flex-wrap">
 														{cs.subjectCode && (
-															<span className="font-mono text-xs font-bold text-blue-400">
+															<span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
 																[{cs.subjectCode}]
 															</span>
 														)}
-														<span className="font-bold text-xs text-white">
+														<span className="font-bold text-xs text-slate-900 dark:text-white">
 															{cs.subjectName}
 														</span>
 														{isAlreadyTaken && (
-															<span className="rounded-md border border-slate-700 bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+															<span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
 																Sudah Diambil
 															</span>
 														)}
 													</div>
-													<p className="mt-0.5 text-[11px] text-slate-400 truncate">
+													<p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 truncate">
 														Kelas: {cs.className} • Pengajar:{" "}
 														{cs.teacherName || "Pengajar"}
 													</p>
 												</div>
 											</div>
 											<div className="shrink-0">
-												<span className="rounded-lg border border-blue-500/30 bg-blue-950/60 px-3 py-1 text-xs font-bold text-blue-400">
+												<span className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:border-blue-500/30 dark:bg-blue-950/60 dark:text-blue-400">
 													+{cs.credits} SKS
 												</span>
 											</div>
@@ -772,20 +776,26 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 					</div>
 
 					{/* 5. Status Kuota Kredit (SKS) Box */}
-					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-slate-800/90 bg-[#0c1322] p-4">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-slate-200 bg-slate-100 p-4 dark:border-slate-800/90 dark:bg-[#0c1322]">
 						<div>
-							<p className="text-xs text-slate-400">
+							<p className="text-xs text-slate-600 dark:text-slate-400">
 								Kredit Terpakai:{" "}
-								<strong className="text-white">{sksTerpakaiAwal} SKS</strong> +
-								Dipilih Baru:{" "}
-								<strong className="text-emerald-400">
+								<strong className="text-slate-900 dark:text-white">
+									{sksTerpakaiAwal} SKS
+								</strong>{" "}
+								+ Dipilih Baru:{" "}
+								<strong className="text-emerald-600 dark:text-emerald-400">
 									{sksTambahan} SKS ({selectedClassSubjectIds.length} Mapel)
 								</strong>
 							</p>
-							<p className="mt-1 text-sm font-bold text-white">
+							<p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
 								Total Kredit Akhir:{" "}
 								<span
-									className={isOverLimit ? "text-rose-400" : "text-emerald-400"}
+									className={
+										isOverLimit
+											? "text-rose-600 dark:text-rose-400"
+											: "text-emerald-600 dark:text-emerald-400"
+									}
 								>
 									{totalSksAkhir} / 24 SKS
 								</span>
@@ -795,8 +805,8 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 							<span
 								className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
 									isOverLimit
-										? "border-rose-500/40 bg-rose-950/40 text-rose-400"
-										: "border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+										? "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/40 dark:bg-rose-950/40 dark:text-rose-400"
+										: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-400"
 								}`}
 							>
 								Sisa Kuota: {sisaKuota} SKS
@@ -806,13 +816,13 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 
 					{/* 6. Alert Box saat melebihi batas 24 SKS */}
 					{isOverLimit && (
-						<div className="flex items-start gap-2.5 rounded-xl border border-red-500/40 bg-red-500/10 p-3.5 text-xs text-red-400">
-							<AlertTriangle className="size-4 shrink-0 text-red-400 mt-0.5" />
+						<div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
+							<AlertTriangle className="size-4 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
 							<div>
-								<p className="font-bold text-red-300">
+								<p className="font-bold text-red-800 dark:text-red-300">
 									Kredit siswa tidak mencukupi!
 								</p>
-								<p className="mt-0.5 text-red-400/90 leading-relaxed">
+								<p className="mt-0.5 text-red-700 dark:text-red-400/90 leading-relaxed">
 									Total beban studi mencapai {totalSksAkhir} SKS dan melebihi
 									batas maksimal 24 SKS (kelebihan {totalSksAkhir - 24} SKS).
 									Silakan kurangi mata pelajaran yang dipilih.
@@ -822,12 +832,12 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 					)}
 
 					{/* 7. Footer Modal */}
-					<div className="flex items-center justify-end gap-3 border-t border-slate-800/80 pt-4 mt-2">
+					<div className="flex items-center justify-end gap-3 border-t border-slate-200 pt-4 mt-2 dark:border-slate-800/80">
 						<button
 							type="button"
 							onClick={onClose}
 							disabled={isSubmitting}
-							className="rounded-xl border border-slate-700/60 bg-transparent px-5 py-2.5 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+							className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700/60 dark:bg-transparent dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
 						>
 							Batal
 						</button>

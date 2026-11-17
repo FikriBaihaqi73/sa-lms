@@ -12,6 +12,7 @@ import {
 	Church,
 	ClipboardCheck,
 	ClipboardList,
+	FileText,
 	GitFork,
 	Globe,
 	GraduationCap,
@@ -216,9 +217,27 @@ export function AppSidebar() {
 									icon={Calendar}
 									label="Jadwal Pelajaran"
 								/>
-                {hasExplicitAdminRole && <NavItem to="/attendance-statuses" icon={ClipboardCheck} label="Status Kehadiran" />}
-								{hasExplicitAdminRole && <NavItem to="/teaching-journals" icon={BookOpenCheck} label="Jurnal Mengajar" />}
-								{hasExplicitAdminRole && <NavItem to="/attendances" icon={ClipboardCheck} label="Presensi & Absensi" />}
+								{hasExplicitAdminRole && (
+									<NavItem
+										to="/attendance-statuses"
+										icon={ClipboardCheck}
+										label="Status Kehadiran"
+									/>
+								)}
+								{hasExplicitAdminRole && (
+									<NavItem
+										to="/teaching-journals"
+										icon={BookOpenCheck}
+										label="Jurnal Mengajar"
+									/>
+								)}
+								{hasExplicitAdminRole && (
+									<NavItem
+										to="/attendances"
+										icon={ClipboardCheck}
+										label="Presensi & Absensi"
+									/>
+								)}
 								<NavItem
 									to="/subject-prerequisites"
 									icon={GitFork}
@@ -233,6 +252,11 @@ export function AppSidebar() {
 									to="/settings/study-plans"
 									icon={ClipboardList}
 									label="Rencana Studi"
+								/>
+								<NavItem
+									to="/settings/assignments"
+									icon={FileText}
+									label="Tugas & Submisi"
 								/>
 								<NavItem
 									to="/modules"

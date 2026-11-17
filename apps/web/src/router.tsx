@@ -3,6 +3,7 @@ import { rootRoute } from "./routes/__root";
 import { academicStatusesRoute } from "./routes/_settings/academic-statuses/index";
 import { academicYearsRoute } from "./routes/_settings/academic-years/index";
 import { activityLogsRoute } from "./routes/_settings/activity-logs";
+import { assignmentsRoute } from "./routes/_settings/assignments/index";
 import { assignmentTypesRoute } from "./routes/_settings/assignment-types/index";
 import { attendanceStatusesRoute } from "./routes/_settings/attendance-statuses/index";
 import { attendancesRoute } from "./routes/_settings/attendances/index";
@@ -27,8 +28,8 @@ import { settingsRouteDef } from "./routes/_settings/settings/index";
 import { studyPlansRoute } from "./routes/_settings/study-plans/index";
 import { subjectPrerequisitesRoute } from "./routes/_settings/subject-prerequisites/index";
 import { subjectsRoute } from "./routes/_settings/subjects/index";
-import { teachingJournalsRoute } from "./routes/_settings/teaching-journals/index";
 import { teachersRoute } from "./routes/_settings/teachers/index";
+import { teachingJournalsRoute } from "./routes/_settings/teaching-journals/index";
 import { usersRoute } from "./routes/_settings/users/index";
 import { indexRoute } from "./routes/_user/index";
 import { guardiansRoute } from "./routes/guardians/index";
@@ -77,6 +78,7 @@ const settingsTree = settingsRoute.addChildren([
 	subjectsRoute,
 	classroomsRoute,
 	studyPlansRoute,
+	assignmentsRoute,
 	modulesRoute,
 ]);
 

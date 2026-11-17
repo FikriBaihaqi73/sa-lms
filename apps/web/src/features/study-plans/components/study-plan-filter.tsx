@@ -50,14 +50,14 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 		<div className="space-y-3">
 			{/* 1. View Switcher Tabs */}
 			<div className="flex flex-wrap items-center justify-between gap-3">
-				<div className="inline-flex rounded-xl border border-slate-800 bg-[#0d1526] p-1 shadow-sm">
+				<div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1 shadow-sm dark:border-slate-800 dark:bg-[#0d1526]">
 					<button
 						type="button"
 						onClick={() => onViewModeChange("student_view")}
 						className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
 							viewMode === "student_view"
 								? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-								: "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+								: "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/40"
 						}`}
 					>
 						<Users className="size-3.5" />
@@ -70,7 +70,7 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
 							viewMode === "catalog_view"
 								? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-								: "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+								: "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/40"
 						}`}
 					>
 						<LayoutGrid className="size-3.5" />
@@ -83,7 +83,7 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
 							viewMode === "log_view"
 								? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-								: "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+								: "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/40"
 						}`}
 					>
 						<ListOrdered className="size-3.5" />
@@ -91,9 +91,9 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 					</button>
 				</div>
 
-				<span className="text-[11px] text-slate-400">
+				<span className="text-[11px] text-slate-500 dark:text-slate-400">
 					Mode:{" "}
-					<strong className="text-slate-200">
+					<strong className="text-slate-800 dark:text-slate-200">
 						{viewMode === "student_view"
 							? "Rekapitulasi Siswa & Beban SKS"
 							: viewMode === "catalog_view"
@@ -104,16 +104,16 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 			</div>
 
 			{/* 2. Integrated Filter Bar */}
-			<div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-slate-800/90 bg-[#111927] p-2.5 shadow-sm">
+			<div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm dark:border-slate-800/90 dark:bg-[#111927]">
 				{/* Search Input */}
-				<div className="relative min-w-[200px] flex-1 sm:max-w-[280px]">
-					<Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-500" />
+				<div className="relative min-w-[465px] flex-1 sm:max-w-[280px]">
+					<Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
 					<input
 						type="text"
 						value={search}
 						onChange={(e) => onSearchChange(e.target.value)}
 						placeholder="Cari nama siswa, NIS/NIM, kode atau nama mata pelajaran..."
-						className="h-9 w-full rounded-lg border border-slate-700/60 bg-[#0c1322] pl-8 pr-3 text-xs text-slate-200 placeholder:text-slate-500 transition-colors focus:border-blue-500 focus:outline-none"
+						className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-3 text-xs text-slate-800 placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200 dark:placeholder:text-slate-500"
 					/>
 				</div>
 
@@ -123,7 +123,7 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						value={academicYearId}
 						onChange={(e) => onAcademicYearChange(e.target.value)}
 						aria-label="Pilih Tahun Ajaran"
-						className="h-9 w-full truncate rounded-lg border border-slate-700/60 bg-[#0c1322] px-2.5 text-xs text-slate-200 transition-colors focus:border-blue-500 focus:outline-none"
+						className="h-9 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
 					>
 						{academicYearOptions.length === 0 ? (
 							<option value="" disabled>
@@ -145,7 +145,7 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						value={departmentId}
 						onChange={(e) => onDepartmentChange(e.target.value)}
 						aria-label="Pilih Bidang / Departemen"
-						className="h-9 w-full truncate rounded-lg border border-slate-700/60 bg-[#0c1322] px-2.5 text-xs text-slate-200 transition-colors focus:border-blue-500 focus:outline-none"
+						className="h-9 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
 					>
 						<option value="">Semua Bidang / Departemen</option>
 						{departmentOptions.map((dept) => (
@@ -164,7 +164,7 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						value={classSubjectId}
 						onChange={(e) => onClassSubjectChange(e.target.value)}
 						aria-label="Pilih Kelas & Mata Pelajaran"
-						className="h-9 w-full truncate rounded-lg border border-slate-700/60 bg-[#0c1322] px-2.5 text-xs text-slate-200 transition-colors focus:border-blue-500 focus:outline-none"
+						className="h-9 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
 					>
 						<option value="">Semua Mata Pelajaran Kelas</option>
 						{classSubjectOptions.map((cs) => (
@@ -181,7 +181,7 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 					onClick={onReset}
 					title="Reset Seluruh Filter"
 					aria-label="Reset Filter"
-					className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-950/30 text-rose-400 transition-colors hover:bg-rose-900/40 hover:text-rose-300"
+					className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-600 transition-colors hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-900/40 dark:hover:text-rose-300"
 				>
 					<RotateCcw className="size-3.5" />
 				</button>

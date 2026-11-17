@@ -66,7 +66,7 @@ export const TeachingJournalDetailDialog: React.FC<
 					<div className="flex items-center gap-2">
 						<Badge
 							variant="outline"
-							className="border-blue-800 bg-blue-950/60 font-mono text-xs text-blue-400"
+							className="border-blue-200 bg-blue-50 font-mono text-xs text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-400"
 						>
 							Pertemuan #{journal.meeting_number ?? "—"}
 						</Badge>

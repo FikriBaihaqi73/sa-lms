@@ -7,7 +7,7 @@ describe("access contract", () => {
 		expect(root).toContain('"/teaching-journals"');
 		expect(root).toContain("!isInstitutionAdmin");
 		expect(sidebar).toMatch(
-			/hasExplicitAdminRole\s*&&\s*<NavItem to="\/teaching-journals"/,
+			/hasExplicitAdminRole\s*&&\s*\(?\s*<NavItem\s+to="\/teaching-journals"/,
 		);
 	});
 });

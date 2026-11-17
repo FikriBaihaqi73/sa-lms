@@ -52,6 +52,8 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/subject-prerequisites",
 	"/settings/classrooms",
 	"/settings/study-plans",
+	"/settings/assignments",
+	"/assignments",
 	"/modules",
 ];
 
