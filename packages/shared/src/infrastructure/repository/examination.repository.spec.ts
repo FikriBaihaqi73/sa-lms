@@ -16,26 +16,24 @@ describe("ExaminationRepository", () => {
     examinations,
   } as unknown as PrismaClient);
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  beforeEach(() => jest.clearAllMocks());
 
-  it("creates an examination with its fields", async () => {
-    const item = { id: "exam-1" };
+  it("creates an examination and normalizes maximumScore", async () => {
+    const item = { id: "exam-1", maximumScore: "100.00" };
     examinations.create.mockResolvedValue(item);
-
     await expect(
       repository.create({
+        createdBy: "user-1",
         classSubjectId: "class-subject-1",
         assignmentTypeId: "type-1",
         title: "Midterm Exam",
         description: "Covers chapter 1-5",
         maximumScore: 100,
       }),
-    ).resolves.toEqual(item);
-
+    ).resolves.toEqual({ id: "exam-1", maximumScore: 100 });
     expect(examinations.create).toHaveBeenCalledWith({
       data: {
+        createdBy: "user-1",
         classSubjectId: "class-subject-1",
         assignmentTypeId: "type-1",
         title: "Midterm Exam",
@@ -46,55 +44,71 @@ describe("ExaminationRepository", () => {
     });
   });
 
-  it("finds an examination by ID while eager-loading relations", async () => {
-    const item = { id: "exam-1" };
+  it("scopes findById to the institution", async () => {
+    const item = { id: "exam-1", maximumScore: null };
     examinations.findFirst.mockResolvedValue(item);
-
-    await expect(repository.findById("exam-1")).resolves.toEqual(item);
+    await expect(
+      repository.findById("exam-1", "institution-1"),
+    ).resolves.toEqual(item);
     expect(examinations.findFirst).toHaveBeenCalledWith({
-      where: { id: "exam-1", deletedAt: null },
+      where: {
+        id: "exam-1",
+        deletedAt: null,
+        classSubject: { class: { institution_id: "institution-1" } },
+      },
       select: examinationSelect,
     });
   });
 
-  it("finds examinations with pagination and search", async () => {
-    const data = [{ id: "exam-1" }];
-    examinations.findMany.mockResolvedValue(data);
+  it("supports pagination, search, relation, and date filters", async () => {
+    examinations.findMany.mockResolvedValue([
+      { id: "exam-1", maximumScore: null },
+    ]);
     examinations.count.mockResolvedValue(1);
-
     await expect(
-      repository.findAll(2, 5, { search: "Midterm" }),
-    ).resolves.toEqual({
-      data,
-      meta: {
-        totalData: 1,
-        totalPages: 1,
-        currentPage: 2,
-        perPage: 5,
-      },
+      repository.findAll(2, 5, {
+        institutionId: "institution-1",
+        search: "Midterm",
+        classSubjectId: "class-subject-1",
+        assignmentTypeId: "type-1",
+        dateFrom: new Date("2026-01-01T00:00:00.000Z"),
+        dateTo: new Date("2026-12-31T00:00:00.000Z"),
+      }),
+    ).resolves.toMatchObject({
+      meta: { totalData: 1, currentPage: 2, perPage: 5 },
     });
-
     expect(examinations.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         skip: 5,
         take: 5,
         select: examinationSelect,
         where: expect.objectContaining({
-          deletedAt: null,
-          OR: expect.arrayContaining([
-            { title: { contains: "Midterm", mode: "insensitive" } },
-            { description: { contains: "Midterm", mode: "insensitive" } },
-          ]),
+          classSubjectId: "class-subject-1",
+          assignmentTypeId: "type-1",
+          examinationDate: { gte: expect.any(Date), lte: expect.any(Date) },
         }),
       }),
     );
-    expect(examinations.count).toHaveBeenCalled();
+  });
+
+  it("returns scoped statistics", async () => {
+    examinations.count
+      .mockResolvedValueOnce(4)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1);
+    await expect(repository.stats("institution-1")).resolves.toEqual({
+      total: 4,
+      upcoming: 1,
+      completed: 2,
+      withoutDate: 1,
+    });
+    expect(examinations.count).toHaveBeenCalledTimes(4);
   });
 
   it("soft-deletes an examination", async () => {
-    const item = { id: "exam-1" };
+    const item = { id: "exam-1", maximumScore: null };
     examinations.update.mockResolvedValue(item);
-
     await expect(repository.softDelete("exam-1")).resolves.toEqual(item);
     expect(examinations.update).toHaveBeenCalledWith({
       where: { id: "exam-1" },

@@ -9,77 +9,94 @@ import {
   Query,
   Req,
 } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
 import {
   CreateExaminationDto,
+  ExaminationQueryDto,
   UpdateExaminationDto,
 } from "@repo/shared/schemas/examination.schema";
+import type { Request } from "express";
+import { ZodValidationPipe } from "nestjs-zod";
+import { Roles } from "../auth/roles.decorator";
 import { ExaminationService } from "./examination.service";
 
+type AuthenticatedRequest = Request & { user: { sub: string } };
+
 @ApiTags("Examinations")
+@ApiBearerAuth("JWT-auth")
+@Roles("admin")
 @Controller("examinations")
 export class ExaminationController {
   constructor(private readonly service: ExaminationService) {}
 
   @Post()
-  @ApiOperation({ summary: "Create a new examination" })
-  async create(@Req() req: any, @Body() data: CreateExaminationDto) {
-    // If the authentication guard is used, req.user might be available.
-    // Ensure createdBy is set correctly.
-    if (req.user?.id) {
-      data.createdBy = req.user.id;
-    }
-    const result = await this.service.create(data);
+  @ApiOperation({ summary: "Menambahkan ujian baru" })
+  async create(
+    @Req() request: AuthenticatedRequest,
+    @Body(new ZodValidationPipe()) data: CreateExaminationDto,
+  ) {
     return ResponseHelper.success(
-      result,
-      "Examination created successfully",
+      await this.service.create(data, request.user),
+      "Ujian berhasil ditambahkan.",
       201,
     );
   }
 
   @Get()
-  @ApiOperation({ summary: "Get all examinations with pagination and search" })
+  @ApiOperation({
+    summary: "Menampilkan daftar ujian dengan filter dan pagination",
+  })
   async findAll(
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("search") search?: string,
+    @Req() request: AuthenticatedRequest,
+    @Query(new ZodValidationPipe()) query: ExaminationQueryDto,
   ) {
-    const pageNum = page ? parseInt(page, 10) : 1;
-    const limitNum = limit ? parseInt(limit, 10) : 10;
-
-    const result = await this.service.findAll(pageNum, limitNum, search);
     return ResponseHelper.success(
-      result,
-      "Examinations retrieved successfully",
+      await this.service.findAll(query, request.user),
+      "Daftar ujian berhasil dimuat.",
+    );
+  }
+
+  @Get("stats")
+  @ApiOperation({ summary: "Menampilkan statistik ujian" })
+  async stats(@Req() request: AuthenticatedRequest) {
+    return ResponseHelper.success(
+      await this.service.stats(request.user),
+      "Statistik ujian berhasil dimuat.",
     );
   }
 
   @Get(":id")
-  @ApiOperation({ summary: "Get a specific examination by ID" })
-  async findById(@Param("id") id: string) {
-    const result = await this.service.findById(id);
-    return ResponseHelper.success(result, "Examination retrieved successfully");
+  @ApiOperation({ summary: "Menampilkan detail ujian" })
+  async findById(
+    @Req() request: AuthenticatedRequest,
+    @Param("id") id: string,
+  ) {
+    return ResponseHelper.success(
+      await this.service.findById(id, request.user),
+      "Detail ujian berhasil dimuat.",
+    );
   }
 
   @Put(":id")
-  @ApiOperation({ summary: "Update an examination by ID" })
+  @ApiOperation({ summary: "Memperbarui ujian" })
   async update(
-    @Req() req: any,
+    @Req() request: AuthenticatedRequest,
     @Param("id") id: string,
-    @Body() data: UpdateExaminationDto,
+    @Body(new ZodValidationPipe()) data: UpdateExaminationDto,
   ) {
-    if (req.user?.id) {
-      data.updatedBy = req.user.id;
-    }
-    const result = await this.service.update(id, data);
-    return ResponseHelper.success(result, "Examination updated successfully");
+    return ResponseHelper.success(
+      await this.service.update(id, data, request.user),
+      "Ujian berhasil diperbarui.",
+    );
   }
 
   @Delete(":id")
-  @ApiOperation({ summary: "Soft delete an examination by ID" })
-  async delete(@Param("id") id: string) {
-    const result = await this.service.softDelete(id);
-    return ResponseHelper.success(result, "Examination deleted successfully");
+  @ApiOperation({ summary: "Menghapus ujian secara soft delete" })
+  async delete(@Req() request: AuthenticatedRequest, @Param("id") id: string) {
+    return ResponseHelper.success(
+      await this.service.softDelete(id, request.user),
+      "Ujian berhasil dihapus.",
+    );
   }
 }

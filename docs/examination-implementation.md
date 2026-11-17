@@ -81,3 +81,5 @@ This document outlines the API endpoints for managing `Examinations`.
 ## Frontend Implementation Flow
 1. **List View:** Use `GET /api/examinations` and provide pagination controls and a search input. The backend searches against `title` and `description`.
 2. **Details View:** Eagerly loaded relations (`classSubject`, `assignmentType`, `creator`, `updater`) allow displaying full context directly from the single list response or detail response without extra calls.
+
+Untuk implementasi halaman Admin Institusi terbaru, lihat [0239-examinations-page-implementation.md](0239-examinations-page-implementation.md).

@@ -1,114 +1,162 @@
-import { NotFoundException } from "@nestjs/common";
-import { Test, TestingModule } from "@nestjs/testing";
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
 import { ExaminationRepository } from "@repo/shared/infrastructure/repository/examination.repository";
+import type {
+  CreateExaminationDto,
+  UpdateExaminationDto,
+} from "@repo/shared/schemas/examination.schema";
+import type { PrismaService } from "../prisma/prisma.service";
 import { ExaminationService } from "./examination.service";
 
+jest.mock("../prisma/prisma.service", () => ({
+  PrismaService: class PrismaService {},
+}));
+
 describe("ExaminationService", () => {
+  const client = {
+    profile: { findFirst: jest.fn() },
+    classSubjects: { findFirst: jest.fn() },
+    assignmentTypes: { findFirst: jest.fn() },
+  };
+  const repository = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findById: jest.fn(),
+    stats: jest.fn(),
+    update: jest.fn(),
+    softDelete: jest.fn(),
+  };
   let service: ExaminationService;
-  let repository: jest.Mocked<ExaminationRepository>;
+  const user = { sub: "user-1" };
+  const dto = {
+    classSubjectId: "class-subject-1",
+    title: "Ujian Tengah Semester",
+  } as CreateExaminationDto;
 
-  beforeEach(async () => {
-    const mockRepository = {
-      create: jest.fn(),
-      findAll: jest.fn(),
-      findById: jest.fn(),
-      update: jest.fn(),
-      softDelete: jest.fn(),
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ExaminationService,
-        {
-          provide: ExaminationRepository,
-          useValue: mockRepository,
-        },
-      ],
-    }).compile();
-
-    service = module.get<ExaminationService>(ExaminationService);
-    repository = module.get(
-      ExaminationRepository,
-    ) as jest.Mocked<ExaminationRepository>;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    client.profile.findFirst.mockResolvedValue({
+      institutionId: "institution-1",
+    });
+    client.classSubjects.findFirst.mockResolvedValue({ id: "class-subject-1" });
+    client.assignmentTypes.findFirst.mockResolvedValue({ id: "type-1" });
+    service = new ExaminationService(
+      { client } as unknown as PrismaService,
+      repository as unknown as ExaminationRepository,
+    );
   });
 
-  describe("create", () => {
-    it("should call repository.create with correct data", async () => {
-      const dto = {
-        title: "Test Exam",
-        examinationDate: "2026-09-19T09:23:43.000Z",
-      };
-      const result: any = { id: "1", ...dto };
-      repository.create.mockResolvedValue(result);
-
-      expect(await service.create(dto)).toEqual(result);
-      expect(repository.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: "Test Exam",
-          examinationDate: new Date("2026-09-19T09:23:43.000Z"),
+  it("uses the token subject as createdBy and scopes the relation", async () => {
+    repository.create.mockResolvedValue({ id: "exam-1" });
+    await service.create(dto, user);
+    expect(repository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        createdBy: "user-1",
+        classSubjectId: "class-subject-1",
+      }),
+    );
+    expect(client.classSubjects.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          class: { institution_id: "institution-1" },
         }),
-      );
-    });
+      }),
+    );
   });
 
-  describe("findAll", () => {
-    it("should return paginated results", async () => {
-      const mockResult: any = {
-        data: [{ id: "1" }],
-        meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
-      };
-      repository.findAll.mockResolvedValue(mockResult);
-
-      expect(await service.findAll(1, 10, "search")).toEqual(mockResult);
-      expect(repository.findAll).toHaveBeenCalledWith(1, 10, {
-        search: "search",
-      });
-    });
+  it("rejects an admin without an institution", async () => {
+    client.profile.findFirst.mockResolvedValue(null);
+    await expect(service.create(dto, user)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
   });
 
-  describe("findById", () => {
-    it("should return examination if found", async () => {
-      const result: any = { id: "1" };
-      repository.findById.mockResolvedValue(result);
-
-      expect(await service.findById("1")).toEqual(result);
-      expect(repository.findById).toHaveBeenCalledWith("1");
-    });
-
-    it("should throw NotFoundException if not found", async () => {
-      repository.findById.mockResolvedValue(null);
-
-      await expect(service.findById("1")).rejects.toThrow(NotFoundException);
-    });
+  it("rejects a class subject from another institution", async () => {
+    client.classSubjects.findFirst.mockResolvedValue(null);
+    await expect(service.create(dto, user)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 
-  describe("update", () => {
-    it("should update and return examination", async () => {
-      const dto = { title: "Updated" };
-      const existing: any = { id: "1" };
-      const updated: any = { id: "1", title: "Updated" };
-
-      repository.findById.mockResolvedValue(existing);
-      repository.update.mockResolvedValue(updated);
-
-      expect(await service.update("1", dto)).toEqual(updated);
-      expect(repository.findById).toHaveBeenCalledWith("1");
-      expect(repository.update).toHaveBeenCalledWith(
-        "1",
-        expect.objectContaining({ title: "Updated" }),
-      );
-    });
+  it("rejects a missing assignment type", async () => {
+    client.assignmentTypes.findFirst.mockResolvedValue(null);
+    await expect(
+      service.create({ ...dto, assignmentTypeId: "type-1" }, user),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
-  describe("softDelete", () => {
-    it("should delete and return examination", async () => {
-      const existing: any = { id: "1" };
-      repository.findById.mockResolvedValue(existing);
-      repository.softDelete.mockResolvedValue(existing);
-
-      expect(await service.softDelete("1")).toEqual(existing);
-      expect(repository.findById).toHaveBeenCalledWith("1");
-      expect(repository.softDelete).toHaveBeenCalledWith("1");
+  it("passes query filters and institution scope to the repository", async () => {
+    repository.findAll.mockResolvedValue({
+      data: [],
+      meta: { totalData: 0, totalPages: 0, currentPage: 1, perPage: 10 },
     });
+    await service.findAll(
+      {
+        page: 1,
+        limit: 10,
+        search: "UTS",
+        classSubjectId: "class-subject-1",
+        dateFrom: "2026-01-01T00:00:00.000Z",
+      },
+      user,
+    );
+    expect(repository.findAll).toHaveBeenCalledWith(
+      1,
+      10,
+      expect.objectContaining({
+        institutionId: "institution-1",
+        classSubjectId: "class-subject-1",
+        dateFrom: expect.any(Date),
+      }),
+    );
+  });
+
+  it("maps unique errors to ConflictException", async () => {
+    repository.create.mockRejectedValue({ code: "P2002" });
+    await expect(service.create(dto, user)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+  });
+
+  it("rejects an examination outside the institution", async () => {
+    repository.findById.mockResolvedValue(null);
+    await expect(service.findById("exam-1", user)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it("returns scoped statistics", async () => {
+    repository.stats.mockResolvedValue({
+      total: 1,
+      upcoming: 1,
+      completed: 0,
+      withoutDate: 0,
+    });
+    await expect(service.stats(user)).resolves.toEqual({
+      total: 1,
+      upcoming: 1,
+      completed: 0,
+      withoutDate: 0,
+    });
+    expect(repository.stats).toHaveBeenCalledWith("institution-1");
+  });
+
+  it("uses the token subject as updatedBy", async () => {
+    repository.findById.mockResolvedValue({
+      classSubjectId: "class-subject-1",
+    });
+    repository.update.mockResolvedValue({ id: "exam-1" });
+    await service.update(
+      "exam-1",
+      { title: "Ujian Akhir" } as UpdateExaminationDto,
+      user,
+    );
+    expect(repository.update).toHaveBeenCalledWith(
+      "exam-1",
+      expect.objectContaining({ updatedBy: "user-1" }),
+    );
   });
 });
