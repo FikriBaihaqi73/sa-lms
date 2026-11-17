@@ -45,32 +45,40 @@ export const DeleteStudyPlanDialog: React.FC<DeleteStudyPlanDialogProps> = ({
 				if (!open) onClose();
 			}}
 		>
-			<DialogContent className="max-w-md border-slate-800 bg-[#111927] p-6 text-slate-100 shadow-2xl">
+			<DialogContent className="max-w-md border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-[#111927] dark:text-slate-100">
 				<DialogHeader className="text-left">
-					<div className="flex size-11 items-center justify-center rounded-xl border border-rose-500/30 bg-rose-950/40 text-rose-400">
+					<div className="flex size-11 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-500/30 dark:bg-rose-950/40 dark:text-rose-400">
 						<AlertTriangle className="size-5" />
 					</div>
-					<DialogTitle className="mt-3 text-base font-semibold text-white">
+					<DialogTitle className="mt-3 text-base font-semibold text-slate-900 dark:text-white">
 						Konfirmasi Drop / Hapus Rencana Studi
 					</DialogTitle>
-					<DialogDescription className="mt-1 text-xs text-slate-400">
+					<DialogDescription className="mt-1 text-xs text-slate-500 dark:text-slate-400">
 						Tindakan ini akan membatalkan pendaftaran siswa pada mata pelajaran
 						kelas ini dan mengurangi total beban SKS siswa tersebut.
 					</DialogDescription>
 				</DialogHeader>
 
 				{/* Info Card */}
-				<div className="mt-3 rounded-lg border border-slate-800 bg-[#0c1322] p-3 text-xs">
-					<p className="text-slate-400">
-						Siswa: <strong className="text-white">{studentName}</strong>
+				<div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-800 dark:bg-[#0c1322]">
+					<p className="text-slate-500 dark:text-slate-400">
+						Siswa:{" "}
+						<strong className="text-slate-900 dark:text-white">
+							{studentName}
+						</strong>
 					</p>
-					<p className="mt-1 text-slate-400">
+					<p className="mt-1 text-slate-500 dark:text-slate-400">
 						Mata Pelajaran:{" "}
-						<strong className="text-blue-300">{subjectName}</strong> ({credits}{" "}
-						SKS)
+						<strong className="text-blue-600 dark:text-blue-300">
+							{subjectName}
+						</strong>{" "}
+						({credits} SKS)
 					</p>
-					<p className="mt-1 text-slate-400">
-						Kelas: <strong className="text-slate-200">{className}</strong>
+					<p className="mt-1 text-slate-500 dark:text-slate-400">
+						Kelas:{" "}
+						<strong className="text-slate-800 dark:text-slate-200">
+							{className}
+						</strong>
 					</p>
 				</div>
 
@@ -79,7 +87,7 @@ export const DeleteStudyPlanDialog: React.FC<DeleteStudyPlanDialogProps> = ({
 						type="button"
 						onClick={onClose}
 						disabled={isDeleting}
-						className="rounded-lg border border-slate-700/60 bg-transparent px-4 py-2 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+						className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700/60 dark:bg-transparent dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
 					>
 						Batal
 					</button>

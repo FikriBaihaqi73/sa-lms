@@ -158,7 +158,7 @@ export const TeachingJournalTable: React.FC<TeachingJournalTableProps> = ({
 									<td className="px-5 py-4">
 										<Badge
 											variant="outline"
-											className="border-slate-700 bg-slate-800 font-mono text-xs text-blue-400 dark:bg-slate-950/80"
+											className="border-blue-200 bg-blue-50 font-mono text-xs text-blue-700 dark:border-slate-700 dark:bg-slate-950/80 dark:text-blue-400"
 										>
 											{item.meeting_number !== null &&
 											item.meeting_number !== undefined

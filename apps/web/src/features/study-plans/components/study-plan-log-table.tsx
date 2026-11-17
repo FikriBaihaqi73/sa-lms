@@ -40,12 +40,12 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 
 	if (isError) {
 		return (
-			<div className="flex flex-col items-center justify-center rounded-xl border border-red-900/30 bg-red-950/20 p-12 text-center">
-				<AlertCircle className="size-10 text-red-400" />
-				<h3 className="mt-3 text-sm font-semibold text-white">
+			<div className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 p-12 text-center dark:border-red-900/30 dark:bg-red-950/20">
+				<AlertCircle className="size-10 text-red-500 dark:text-red-400" />
+				<h3 className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">
 					Gagal memuat log transaksi KRS
 				</h3>
-				<p className="mt-1 text-xs text-slate-400">
+				<p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
 					Terjadi kesalahan saat memuat data transaksi rencana studi.
 				</p>
 				{onRetry && (
@@ -64,9 +64,9 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 
 	if (isLoading) {
 		return (
-			<div className="flex flex-col items-center justify-center rounded-xl border border-slate-800 bg-[#111927] p-16 shadow-sm">
+			<div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-16 shadow-sm dark:border-slate-800 dark:bg-[#111927]">
 				<RefreshCw className="size-8 animate-spin text-blue-500" />
-				<p className="mt-3 text-sm font-medium text-slate-400">
+				<p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">
 					Memuat log transaksi rencana studi...
 				</p>
 			</div>
@@ -75,12 +75,12 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 
 	if (studyPlans.length === 0) {
 		return (
-			<div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-800 bg-[#111927] p-16 text-center shadow-sm">
-				<FileText className="size-12 text-slate-600" />
-				<h3 className="mt-4 text-base font-semibold text-white">
+			<div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white p-16 text-center shadow-sm dark:border-slate-800 dark:bg-[#111927]">
+				<FileText className="size-12 text-slate-400 dark:text-slate-600" />
+				<h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
 					Belum ada transaksi KRS
 				</h3>
-				<p className="mt-1 max-w-sm text-xs text-slate-400">
+				<p className="mt-1 max-w-sm text-xs text-slate-500 dark:text-slate-400">
 					Belum ada catatan pengambilan rencana studi yang cocok dengan filter.
 				</p>
 			</div>
@@ -88,11 +88,11 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 	}
 
 	return (
-		<div className="overflow-hidden rounded-xl border border-slate-800/90 bg-[#111927] shadow-sm">
+		<div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800/90 dark:bg-[#111927]">
 			<div className="overflow-x-auto">
 				<table className="w-full border-collapse text-left text-xs">
 					<thead>
-						<tr className="border-b border-slate-800 bg-[#0d1526] text-slate-400">
+						<tr className="border-b border-slate-200 bg-slate-100/80 text-slate-600 dark:border-slate-800 dark:bg-[#0d1526] dark:text-slate-400">
 							<th className="px-4 py-3 font-semibold uppercase tracking-wider">
 								SISWA / MAHASISWA
 							</th>
@@ -120,7 +120,7 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 						</tr>
 					</thead>
 
-					<tbody className="divide-y divide-slate-800/60">
+					<tbody className="divide-y divide-slate-200 dark:divide-slate-800/60">
 						{studyPlans.map((sp) => {
 							const studentName =
 								sp.student?.profile?.fullName ||
@@ -155,30 +155,36 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 							return (
 								<tr
 									key={sp.id}
-									className="transition-colors hover:bg-slate-800/30"
+									className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/30"
 								>
 									{/* Siswa / Mahasiswa */}
 									<td className="px-4 py-3">
-										<p className="font-semibold text-white">{studentName}</p>
-										<p className="text-[11px] text-slate-400">
+										<p className="font-semibold text-slate-900 dark:text-white">
+											{studentName}
+										</p>
+										<p className="text-[11px] text-slate-500 dark:text-slate-400">
 											NIS: {studentNis}
 										</p>
 									</td>
 
 									{/* Kode Mapel */}
-									<td className="px-4 py-3 font-mono font-semibold text-blue-400">
+									<td className="px-4 py-3 font-mono font-semibold text-blue-600 dark:text-blue-400">
 										{subCode}
 									</td>
 
 									{/* Mata Pelajaran & Kelas */}
 									<td className="px-4 py-3">
-										<p className="font-semibold text-slate-200">{subName}</p>
-										<div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+										<p className="font-semibold text-slate-800 dark:text-slate-200">
+											{subName}
+										</p>
+										<div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
 											<span>Kelas: {clsName}</span>
 											{deptName && (
 												<>
 													<span>•</span>
-													<span className="text-purple-300">{deptName}</span>
+													<span className="font-medium text-purple-600 dark:text-purple-300">
+														{deptName}
+													</span>
 												</>
 											)}
 										</div>
@@ -186,14 +192,14 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 
 									{/* Kredit (SKS) */}
 									<td className="px-4 py-3 text-center">
-										<span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-950/60 px-2.5 py-0.5 text-xs font-bold text-blue-300">
+										<span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 dark:border-blue-500/30 dark:bg-blue-950/60 dark:text-blue-300">
 											{credits} SKS
 										</span>
 									</td>
 
 									{/* Pengajar */}
 									<td className="px-4 py-3">
-										<span className="font-medium text-slate-300">
+										<span className="font-medium text-slate-700 dark:text-slate-300">
 											{teacherName}
 										</span>
 									</td>
@@ -203,19 +209,21 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 										<span
 											className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${
 												isAyActive
-													? "border-emerald-500/30 bg-emerald-950/60 text-emerald-400"
-													: "border-slate-700 bg-slate-800 text-slate-400"
+													? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-950/60 dark:text-emerald-400"
+													: "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
 											}`}
 										>
 											{isAyActive && (
-												<span className="size-1 rounded-full bg-emerald-400" />
+												<span className="size-1 rounded-full bg-emerald-500 dark:bg-emerald-400" />
 											)}
 											<span>{ayName}</span>
 										</span>
 									</td>
 
 									{/* Tanggal Dibuat */}
-									<td className="px-4 py-3 text-slate-400">{createdDate}</td>
+									<td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+										{createdDate}
+									</td>
 
 									{/* Aksi */}
 									<td className="px-4 py-3 text-right">
@@ -224,7 +232,7 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 												type="button"
 												onClick={() => onEdit(sp)}
 												title="Ubah Rencana Studi"
-												className="rounded-lg border border-slate-700/80 p-1.5 text-slate-400 transition-colors hover:border-slate-600 hover:text-white"
+												className="rounded-lg border border-slate-200 bg-slate-50 p-1.5 text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700/80 dark:bg-transparent dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white"
 											>
 												<Edit2 className="size-3.5" />
 											</button>
@@ -233,7 +241,7 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 												type="button"
 												onClick={() => onDelete(sp)}
 												title="Hapus Rencana Studi"
-												className="rounded-lg border border-rose-500/30 p-1.5 text-rose-400 transition-colors hover:bg-rose-950/40 hover:text-rose-300"
+												className="rounded-lg border border-rose-200 bg-rose-50 p-1.5 text-rose-600 transition-colors hover:bg-rose-100 hover:text-rose-700 dark:border-rose-500/30 dark:bg-transparent dark:text-rose-400 dark:hover:bg-rose-950/40 dark:hover:text-rose-300"
 											>
 												<Trash2 className="size-3.5" />
 											</button>
@@ -247,13 +255,13 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 			</div>
 
 			{/* Pagination Footer */}
-			<div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-4 py-3 text-xs text-slate-400">
+			<div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/50 px-4 py-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-[#0d1526] dark:text-slate-400">
 				<div className="flex items-center gap-2">
 					<span>Baris per halaman:</span>
 					<select
 						value={perPage}
 						onChange={(e) => onLimitChange(Number(e.target.value))}
-						className="rounded border border-slate-700 bg-[#0d1526] px-2 py-1 text-slate-200 focus:border-blue-500 focus:outline-none"
+						className="rounded border border-slate-200 bg-white px-2 py-1 text-slate-700 focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-[#0d1526] dark:text-slate-200"
 					>
 						<option value={5}>5</option>
 						<option value={10}>10</option>
@@ -262,21 +270,33 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 					</select>
 					<span className="ml-2">
 						Menampilkan{" "}
-						<strong className="text-white">{studyPlans.length}</strong> dari{" "}
-						<strong className="text-white">{totalData}</strong> transaksi
+						<strong className="text-slate-900 dark:text-white">
+							{studyPlans.length}
+						</strong>{" "}
+						dari{" "}
+						<strong className="text-slate-900 dark:text-white">
+							{totalData}
+						</strong>{" "}
+						transaksi
 					</span>
 				</div>
 
 				<div className="flex items-center gap-2">
 					<span>
-						Halaman <strong className="text-white">{currentPage}</strong> dari{" "}
-						<strong className="text-white">{totalPages}</strong>
+						Halaman{" "}
+						<strong className="text-slate-900 dark:text-white">
+							{currentPage}
+						</strong>{" "}
+						dari{" "}
+						<strong className="text-slate-900 dark:text-white">
+							{totalPages}
+						</strong>
 					</span>
 					<button
 						type="button"
 						onClick={() => onPageChange(currentPage - 1)}
 						disabled={currentPage <= 1}
-						className="flex size-7 items-center justify-center rounded border border-slate-700 bg-[#0d1526] text-slate-300 transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+						className="flex size-7 items-center justify-center rounded border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-[#0d1526] dark:text-slate-300 dark:hover:bg-slate-800"
 					>
 						<ChevronLeft className="size-4" />
 					</button>
@@ -284,7 +304,7 @@ export const StudyPlanLogTable: React.FC<StudyPlanLogTableProps> = ({
 						type="button"
 						onClick={() => onPageChange(currentPage + 1)}
 						disabled={currentPage >= totalPages}
-						className="flex size-7 items-center justify-center rounded border border-slate-700 bg-[#0d1526] text-slate-300 transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+						className="flex size-7 items-center justify-center rounded border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-[#0d1526] dark:text-slate-300 dark:hover:bg-slate-800"
 					>
 						<ChevronRight className="size-4" />
 					</button>

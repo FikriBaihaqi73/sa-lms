@@ -781,7 +781,7 @@ export const StudyPlansPage: React.FC = () => {
 	};
 
 	return (
-		<main className="min-h-[calc(100vh-4rem)] bg-[#0b1120] p-4 text-slate-100 sm:p-6">
+		<main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-[#0b1120] dark:text-slate-100 sm:p-6">
 			<div className="mx-auto max-w-7xl space-y-4">
 				{/* Floating Notification Banner */}
 				{notice && (

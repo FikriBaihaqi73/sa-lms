@@ -46,12 +46,12 @@ export const StudyPlanCatalogTable: React.FC<StudyPlanCatalogTableProps> = ({
 
 	if (isError) {
 		return (
-			<div className="flex flex-col items-center justify-center rounded-xl border border-red-900/30 bg-red-950/20 p-12 text-center">
-				<AlertCircle className="size-10 text-red-400" />
-				<h3 className="mt-3 text-sm font-semibold text-white">
+			<div className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 p-12 text-center dark:border-red-900/30 dark:bg-red-950/20">
+				<AlertCircle className="size-10 text-red-500 dark:text-red-400" />
+				<h3 className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">
 					Gagal memuat katalog kelas mata pelajaran
 				</h3>
-				<p className="mt-1 text-xs text-slate-400">
+				<p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
 					Terjadi kesalahan saat memuat katalog kelas mata pelajaran.
 				</p>
 				{onRetry && (
@@ -70,9 +70,9 @@ export const StudyPlanCatalogTable: React.FC<StudyPlanCatalogTableProps> = ({
 
 	if (isLoading) {
 		return (
-			<div className="flex flex-col items-center justify-center rounded-xl border border-slate-800 bg-[#111927] p-16 shadow-sm">
+			<div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-16 shadow-sm dark:border-slate-800 dark:bg-[#111927]">
 				<RefreshCw className="size-8 animate-spin text-blue-500" />
-				<p className="mt-3 text-sm font-medium text-slate-400">
+				<p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">
 					Memuat katalog mata pelajaran kelas...
 				</p>
 			</div>
@@ -81,12 +81,12 @@ export const StudyPlanCatalogTable: React.FC<StudyPlanCatalogTableProps> = ({
 
 	if (catalogItems.length === 0) {
 		return (
-			<div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-800 bg-[#111927] p-16 text-center shadow-sm">
-				<Layers className="size-12 text-slate-600" />
-				<h3 className="mt-4 text-base font-semibold text-white">
+			<div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white p-16 text-center shadow-sm dark:border-slate-800 dark:bg-[#111927]">
+				<Layers className="size-12 text-slate-400 dark:text-slate-600" />
+				<h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
 					Belum ada penawaran kelas mata pelajaran
 				</h3>
-				<p className="mt-1 max-w-sm text-xs text-slate-400">
+				<p className="mt-1 max-w-sm text-xs text-slate-500 dark:text-slate-400">
 					Tidak ada mata pelajaran kelas yang tersedia untuk tahun ajaran atau
 					filter yang dipilih.
 				</p>
@@ -95,11 +95,11 @@ export const StudyPlanCatalogTable: React.FC<StudyPlanCatalogTableProps> = ({
 	}
 
 	return (
-		<div className="overflow-hidden rounded-xl border border-slate-800/90 bg-[#111927] shadow-sm">
+		<div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800/90 dark:bg-[#111927]">
 			<div className="overflow-x-auto">
 				<table className="w-full border-collapse text-left text-xs">
 					<thead>
-						<tr className="border-b border-slate-800 bg-[#0d1526] text-slate-400">
+						<tr className="border-b border-slate-200 bg-slate-100/80 text-slate-600 dark:border-slate-800 dark:bg-[#0d1526] dark:text-slate-400">
 							<th className="px-4 py-3 font-semibold uppercase tracking-wider">
 								KODE & MATA PELAJARAN
 							</th>
@@ -124,7 +124,7 @@ export const StudyPlanCatalogTable: React.FC<StudyPlanCatalogTableProps> = ({
 						</tr>
 					</thead>
 
-					<tbody className="divide-y divide-slate-800/60">
+					<tbody className="divide-y divide-slate-200 dark:divide-slate-800/60">
 						{catalogItems.map((item) => {
 							const enrolled = item.enrolledCount ?? 0;
 							const isActive = getItemActive(item);
@@ -132,22 +132,22 @@ export const StudyPlanCatalogTable: React.FC<StudyPlanCatalogTableProps> = ({
 							return (
 								<tr
 									key={item.id}
-									className="transition-colors hover:bg-slate-800/30"
+									className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/30"
 								>
 									{/* 1. Kode & Mata Pelajaran */}
 									<td className="px-4 py-3">
 										<div className="flex items-center gap-2.5">
-											<div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-blue-950/60 text-blue-400 ring-1 ring-blue-500/20">
+											<div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 ring-1 ring-blue-500/20 dark:bg-blue-950/60 dark:text-blue-400">
 												<BookOpen className="size-3.5" />
 											</div>
 											<div>
 												<div className="flex items-center gap-1.5">
 													{item.subjectCode && (
-														<span className="font-mono text-[10px] font-bold text-blue-400">
+														<span className="font-mono text-[10px] font-bold text-blue-600 dark:text-blue-400">
 															[{item.subjectCode}]
 														</span>
 													)}
-													<p className="font-semibold text-white">
+													<p className="font-semibold text-slate-900 dark:text-white">
 														{item.subjectName}
 													</p>
 												</div>
@@ -158,39 +158,41 @@ export const StudyPlanCatalogTable: React.FC<StudyPlanCatalogTableProps> = ({
 									{/* 2. Bidang */}
 									<td className="px-4 py-3">
 										{item.departmentName ? (
-											<span className="inline-flex items-center rounded-md border border-purple-500/30 bg-purple-950/40 px-2 py-0.5 text-[10px] font-medium text-purple-300">
+											<span className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 text-[10px] font-medium text-purple-700 dark:border-purple-500/30 dark:bg-purple-950/40 dark:text-purple-300">
 												{item.departmentName}
 											</span>
 										) : (
-											<span className="text-slate-500">-</span>
+											<span className="text-slate-400 dark:text-slate-500">
+												-
+											</span>
 										)}
 									</td>
 
 									{/* 3. Kelas */}
 									<td className="px-4 py-3">
-										<span className="font-medium text-slate-200">
+										<span className="font-medium text-slate-700 dark:text-slate-200">
 											{item.className}
 										</span>
 									</td>
 
 									{/* 4. Bobot Kredit */}
 									<td className="px-4 py-3 text-center">
-										<span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-950/60 px-2.5 py-0.5 text-xs font-bold text-blue-300">
+										<span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 dark:border-blue-500/30 dark:bg-blue-950/60 dark:text-blue-300">
 											{item.credits} SKS
 										</span>
 									</td>
 
 									{/* 5. Guru Pengampu */}
 									<td className="px-4 py-3">
-										<span className="font-medium text-slate-300">
+										<span className="font-medium text-slate-700 dark:text-slate-300">
 											{item.teacherName || "-"}
 										</span>
 									</td>
 
 									{/* 6. Pendaftar */}
 									<td className="px-4 py-3 text-center">
-										<span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/80 px-2.5 py-0.5 text-xs font-semibold text-white">
-											<Users className="size-3 text-slate-400" />
+										<span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800/80 dark:text-white">
+											<Users className="size-3 text-slate-500 dark:text-slate-400" />
 											<span>{enrolled} Siswa Terdaftar</span>
 										</span>
 									</td>
@@ -200,7 +202,9 @@ export const StudyPlanCatalogTable: React.FC<StudyPlanCatalogTableProps> = ({
 										<div className="flex items-center justify-end gap-2.5">
 											<span
 												className={`text-[11px] font-medium ${
-													isActive ? "text-emerald-400" : "text-slate-500"
+													isActive
+														? "text-emerald-600 dark:text-emerald-400"
+														: "text-slate-400 dark:text-slate-500"
 												}`}
 											>
 												{isActive ? "Aktif" : "Nonaktif"}
