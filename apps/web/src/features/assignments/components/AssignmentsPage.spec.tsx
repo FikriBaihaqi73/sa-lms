@@ -404,4 +404,74 @@ describe("AssignmentsPage", () => {
 			),
 		).toBeTruthy();
 	});
+
+	it("filters classes dropdown dynamically according to selected academic year", async () => {
+		vi.mocked(getAcademicYearsOptionsApi).mockResolvedValue([
+			{
+				id: "ay-1",
+				academic_year: "2026/2028",
+				is_active: true,
+				label: "2026/2028 (Aktif)",
+			},
+			{
+				id: "ay-2",
+				academic_year: "2028/2030",
+				is_active: false,
+				label: "2028/2030 (Tidak Aktif)",
+			},
+		]);
+
+		vi.mocked(getClassesOptionsApi).mockResolvedValue([
+			{
+				id: "cls-1",
+				name: "Kelas Informatika A",
+				departmentName: "Informatika",
+				academic_year_id: "ay-1",
+			},
+			{
+				id: "cls-2",
+				name: "Kelas Multimedia B",
+				departmentName: "Multimedia",
+				academic_year_id: "ay-2",
+			},
+		]);
+
+		renderPage();
+
+		// Initially ay-1 is active, so cls-1 should be shown in class dropdown, cls-2 should not
+		await waitFor(() => {
+			const classSelect = screen.getByLabelText(
+				/2\. PILIH KELAS/i,
+			) as HTMLSelectElement;
+			const initialOptions = Array.from(classSelect.options).map(
+				(opt) => opt.text,
+			);
+			expect(
+				initialOptions.some((t) => t.includes("Kelas Informatika A")),
+			).toBe(true);
+			expect(initialOptions.some((t) => t.includes("Kelas Multimedia B"))).toBe(
+				false,
+			);
+		});
+
+		// Switch academic year to ay-2
+		const aySelect = screen.getByLabelText(/1\. TAHUN AJARAN \/ ANGKATAN/i);
+		fireEvent.change(aySelect, { target: { value: "ay-2" } });
+
+		// Now cls-2 should be shown in class dropdown, and cls-1 should not
+		await waitFor(() => {
+			const classSelect = screen.getByLabelText(
+				/2\. PILIH KELAS/i,
+			) as HTMLSelectElement;
+			const updatedOptions = Array.from(classSelect.options).map(
+				(opt) => opt.text,
+			);
+			expect(updatedOptions.some((t) => t.includes("Kelas Multimedia B"))).toBe(
+				true,
+			);
+			expect(
+				updatedOptions.some((t) => t.includes("Kelas Informatika A")),
+			).toBe(false);
+		});
+	});
 });

@@ -63,10 +63,10 @@ export function useModulesOptions() {
 	});
 }
 
-export function useClassesOptions() {
+export function useClassesOptions(academicYearId?: string) {
 	return useQuery({
-		queryKey: ["classes", "options"],
-		queryFn: getClassesOptionsApi,
+		queryKey: ["classes", "options", academicYearId],
+		queryFn: () => getClassesOptionsApi(academicYearId),
 		staleTime: 5 * 60 * 1000,
 	});
 }

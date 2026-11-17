@@ -119,6 +119,8 @@ export interface ClassOption {
 	id: string;
 	name: string;
 	departmentName?: string;
+	academic_year_id?: string | null;
+	academicYearId?: string | null;
 }
 
 export interface CreateAssignmentPayload {

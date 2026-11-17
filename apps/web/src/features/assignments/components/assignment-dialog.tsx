@@ -170,7 +170,7 @@ export const AssignmentDialog: React.FC<AssignmentDialogProps> = ({
 								{...register("module_id", { required: "Modul wajib dipilih" })}
 								className="h-10 w-full truncate rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
 							>
-								<option value="">-- Pilih Modul --</option>
+								<option value="">Pilih Modul</option>
 								{modules.map((m) => (
 									<option key={m.id} value={m.id}>
 										{m.title}
@@ -199,7 +199,7 @@ export const AssignmentDialog: React.FC<AssignmentDialogProps> = ({
 								})}
 								className="h-10 w-full truncate rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
 							>
-								<option value="">-- Pilih Tipe Tugas --</option>
+								<option value="">Pilih Tipe Tugas</option>
 								{assignmentTypes.map((t) => (
 									<option key={t.id} value={t.id}>
 										{t.name}

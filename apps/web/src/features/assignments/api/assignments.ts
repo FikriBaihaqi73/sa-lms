@@ -140,21 +140,37 @@ export async function getModulesOptionsApi(): Promise<LearningModuleOption[]> {
 	}
 }
 
-export async function getClassesOptionsApi(): Promise<ClassOption[]> {
+export async function getClassesOptionsApi(
+	academicYearId?: string,
+): Promise<ClassOption[]> {
 	try {
-		const response = (await apiFetch("/classes?page=1&limit=100")) as {
+		const query = new URLSearchParams();
+		query.set("page", "1");
+		query.set("limit", "100");
+		if (academicYearId) query.set("academic_year_id", academicYearId);
+
+		const response = (await apiFetch(`/classes?${query.toString()}`)) as {
 			data?: Array<{
 				id: string;
 				name: string;
-				department?: { name?: string };
+				academic_year_id?: string | null;
+				academicYearId?: string | null;
+				academic_year?: { id?: string | null } | null;
+				department?: { name?: string | null } | null;
 			}>;
 		};
 		const items = Array.isArray(response.data) ? response.data : [];
-		return items.map((c) => ({
-			id: c.id,
-			name: c.name,
-			departmentName: c.department?.name,
-		}));
+		return items.map((c) => {
+			const ayId =
+				c.academic_year_id ?? c.academicYearId ?? c.academic_year?.id ?? null;
+			return {
+				id: c.id,
+				name: c.name,
+				departmentName: c.department?.name || undefined,
+				academic_year_id: ayId,
+				academicYearId: ayId,
+			};
+		});
 	} catch {
 		return [];
 	}

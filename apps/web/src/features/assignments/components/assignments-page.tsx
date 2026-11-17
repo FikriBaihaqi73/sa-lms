@@ -64,11 +64,13 @@ export const AssignmentsPage: React.FC = () => {
 
 	// 5. Data Queries
 	const { data: academicYears = [] } = useAcademicYearsOptions();
-	const { data: classes = [] } = useClassesOptions();
+	const { data: rawClasses = [] } = useClassesOptions(
+		academicYearId || undefined,
+	);
 	const { data: modules = [] } = useModulesOptions();
 	const { data: assignmentTypes = [] } = useAssignmentTypesOptions();
 
-	// Auto-select active academic year & first class
+	// Auto-select active academic year
 	useEffect(() => {
 		if (!academicYearId && academicYears.length > 0) {
 			const active = academicYears.find((ay) => ay.is_active);
@@ -76,11 +78,37 @@ export const AssignmentsPage: React.FC = () => {
 		}
 	}, [academicYears, academicYearId]);
 
-	useEffect(() => {
-		if (!classId && classes.length > 0) {
-			setClassId(classes[0]?.id ?? "");
+	// Filter classes strictly matching selected academic year
+	const filteredClasses = useMemo(() => {
+		if (!academicYearId) return rawClasses;
+		const hasAyInfo = rawClasses.some((c) =>
+			Boolean(c.academic_year_id || c.academicYearId),
+		);
+		if (!hasAyInfo) {
+			return rawClasses;
 		}
-	}, [classes, classId]);
+		return rawClasses.filter((c) => {
+			const ay = c.academic_year_id || c.academicYearId;
+			return ay === academicYearId;
+		});
+	}, [rawClasses, academicYearId]);
+
+	// Auto-select first class when filteredClasses change or if current classId is not in filteredClasses
+	useEffect(() => {
+		if (filteredClasses.length > 0) {
+			const exists = filteredClasses.some((c) => c.id === classId);
+			if (!exists) {
+				setClassId(filteredClasses[0]?.id ?? "");
+			}
+		} else if (rawClasses.length > 0 && !academicYearId) {
+			const exists = rawClasses.some((c) => c.id === classId);
+			if (!exists) {
+				setClassId(rawClasses[0]?.id ?? "");
+			}
+		} else {
+			setClassId("");
+		}
+	}, [filteredClasses, rawClasses, academicYearId, classId]);
 
 	// Selected Academic Year & Class objects
 	const selectedAcademicYear = useMemo(() => {
@@ -88,8 +116,11 @@ export const AssignmentsPage: React.FC = () => {
 	}, [academicYears, academicYearId]);
 
 	const selectedClass = useMemo(() => {
-		return classes.find((c) => c.id === classId);
-	}, [classes, classId]);
+		return (
+			filteredClasses.find((c) => c.id === classId) ||
+			rawClasses.find((c) => c.id === classId)
+		);
+	}, [filteredClasses, rawClasses, classId]);
 
 	// Filtered modules belonging to the selected class
 	const filteredModules = useMemo(() => {
@@ -296,11 +327,37 @@ export const AssignmentsPage: React.FC = () => {
 	}, [displayedAssignments, selectedAssignmentId, stats]);
 
 	// 11. Handlers
+	const handleAcademicYearChange = (newAyId: string) => {
+		setAcademicYearId(newAyId);
+		const matchingClasses = newAyId
+			? rawClasses.filter((c) => {
+					const ay = c.academic_year_id || c.academicYearId;
+					return !ay || ay === newAyId;
+				})
+			: rawClasses;
+		if (matchingClasses.length > 0) {
+			const exists = matchingClasses.some((c) => c.id === classId);
+			if (!exists) {
+				setClassId(matchingClasses[0]?.id ?? "");
+			}
+		} else {
+			setClassId("");
+		}
+	};
+
 	const handleResetFilters = () => {
 		setSearch("");
 		const active = academicYears.find((ay) => ay.is_active);
-		setAcademicYearId(active ? active.id : (academicYears[0]?.id ?? ""));
-		setClassId(classes[0]?.id ?? "");
+		const defaultAy = active ? active.id : (academicYears[0]?.id ?? "");
+		setAcademicYearId(defaultAy);
+
+		const matchingClasses = defaultAy
+			? rawClasses.filter((c) => {
+					const ay = c.academic_year_id || c.academicYearId;
+					return !ay || ay === defaultAy;
+				})
+			: rawClasses;
+		setClassId(matchingClasses[0]?.id ?? rawClasses[0]?.id ?? "");
 		setModuleId("");
 	};
 
@@ -463,11 +520,11 @@ export const AssignmentsPage: React.FC = () => {
 					search={search}
 					onSearchChange={setSearch}
 					academicYearId={academicYearId}
-					onAcademicYearChange={setAcademicYearId}
+					onAcademicYearChange={handleAcademicYearChange}
 					academicYears={academicYears}
 					classId={classId}
 					onClassChange={setClassId}
-					classes={classes}
+					classes={filteredClasses}
 					moduleId={moduleId}
 					onModuleChange={setModuleId}
 					modules={filteredModules}

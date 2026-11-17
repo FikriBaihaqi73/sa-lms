@@ -58,7 +58,7 @@ export const StudyPlanHeader: React.FC<StudyPlanHeaderProps> = ({
 					className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
 				>
 					<Plus className="size-3.5" />
-					<span>Tambah / Force Enroll KRS</span>
+					<span>+ Tambah / Force Enroll KRS</span>
 				</button>
 			</div>
 		</header>
