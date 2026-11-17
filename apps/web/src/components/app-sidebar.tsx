@@ -119,12 +119,6 @@ export function AppSidebar() {
 									icon={Briefcase}
 									label="Status Kepegawaian"
 								/>
-
-								<NavItem
-									to="/assignment-types"
-									icon={BookOpen}
-									label="Jenis Tugas"
-								/>
 							</div>
 						</div>
 
@@ -244,6 +238,11 @@ export function AppSidebar() {
 									to="/modules"
 									icon={BookOpen}
 									label="Modul & Konten Materi"
+								/>
+								<NavItem
+									to="/assignment-types"
+									icon={BookOpen}
+									label="Jenis Tugas"
 								/>
 							</div>
 						</div>
