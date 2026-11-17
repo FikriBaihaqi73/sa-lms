@@ -156,7 +156,7 @@ Master data ini bersifat universal lintas seluruh institusi dan dipelihara secar
 ### 3.8 Tipe Penugasan (Assignment Types)
 - **Rute Frontend**: `/assignment-types`
 - **Endpoint API**: `GET /assignment-types`, `POST /assignment-types`, `PATCH /assignment-types/:id`, `DELETE /assignment-types/:id`
-- **Hak Akses**: 👑 Superadmin
+- **Hak Akses**: 🛠️ Admin Institusi
 - **Fungsi Utama**:
   - Mengelompokkan jenis tagihan tugas belajar (misal: *Tugas Harian, Proyek Kelompok, Pekerjaan Rumah (PR), Praktikum Laboratorium*).
 
