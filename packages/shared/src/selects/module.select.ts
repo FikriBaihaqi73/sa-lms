@@ -1,5 +1,5 @@
 import type { Prisma } from "#generated/client";
-import { classSubjectsSelect } from "./class-subjects.select";
+import { classSubjectsSelect } from "./class-subjects.select.js";
 
 export const moduleSelect = {
   id: true,
