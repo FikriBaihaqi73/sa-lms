@@ -17,10 +17,9 @@ export const examinationSelect = {
   classSubject: {
     select: {
       id: true,
-      subject_id: true,
-      class_id: true,
-      teacher_id: true,
-      academic_year_id: true,
+      class: { select: { id: true, name: true, institution_id: true } },
+      subject: { select: { id: true, name: true } },
+      academic_year: { select: { id: true, academic_year: true } },
     },
   },
   assignmentType: {
