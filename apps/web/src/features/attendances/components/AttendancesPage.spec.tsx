@@ -199,6 +199,9 @@ describe("AttendancesPage", () => {
 
 		renderPage();
 		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();
+		expect(
+			await screen.findByText("[X-IPA-1] Matematika (Budi Santoso)"),
+		).toBeTruthy();
 
 		const setAllTodayBtn = screen.getByRole("button", {
 			name: /Set Semua Hadir Hari Ini/i,
