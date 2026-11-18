@@ -3,17 +3,18 @@ import { rootRoute } from "./routes/__root";
 import { academicStatusesRoute } from "./routes/_settings/academic-statuses/index";
 import { academicYearsRoute } from "./routes/_settings/academic-years/index";
 import { activityLogsRoute } from "./routes/_settings/activity-logs";
-import { assignmentsRoute } from "./routes/_settings/assignments/index";
 import { assignmentTypesRoute } from "./routes/_settings/assignment-types/index";
+import { assignmentsRoute } from "./routes/_settings/assignments/index";
 import { attendanceStatusesRoute } from "./routes/_settings/attendance-statuses/index";
 import { attendancesRoute } from "./routes/_settings/attendances/index";
-import { examinationsRoute } from "./routes/_settings/examinations/index";
+import { examinationScoresRoute } from "./routes/_settings/examination-scores/index";
 import { classStudentsRoute } from "./routes/_settings/class-students/index";
 import { classSubjectsRoute } from "./routes/_settings/class-subjects/index";
 import { classesRoute } from "./routes/_settings/classes/index";
 import { classroomsRoute } from "./routes/_settings/classrooms/index";
 import { departmentsRoute } from "./routes/_settings/departments/index";
 import { employmentStatusesRoute } from "./routes/_settings/employment-statuses/index";
+import { examinationsRoute } from "./routes/_settings/examinations/index";
 import { gradesRoute } from "./routes/_settings/grades/index";
 import { institutionLevelsRoute } from "./routes/_settings/jenjang-institusi/index";
 import { modulesRoute } from "./routes/_settings/modules/index";
@@ -77,6 +78,7 @@ const settingsTree = settingsRoute.addChildren([
 	teachingJournalsRoute,
 	attendancesRoute,
 	examinationsRoute,
+	examinationScoresRoute,
 	subjectsRoute,
 	classroomsRoute,
 	studyPlansRoute,
