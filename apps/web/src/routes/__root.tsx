@@ -49,7 +49,8 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/teaching-journals",
 	"/attendances",
 	"/examinations",
-  "/attendance-statuses",
+	"/examination-scores",
+	"/attendance-statuses",
 	"/subject-prerequisites",
 	"/settings/classrooms",
 	"/settings/study-plans",
@@ -179,4 +180,3 @@ function RootLayout() {
 		</div>
 	);
 }
-

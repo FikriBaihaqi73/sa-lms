@@ -12,6 +12,37 @@ export const examinationScoreSelect = {
   notes: true,
   gradedBy: true,
   gradedAt: true,
+  grader: {
+    select: {
+      id: true,
+      email: true,
+      profile: {
+        select: {
+          id: true,
+          fullName: true,
+        },
+      },
+    },
+  },
+  student: {
+    select: {
+      id: true,
+      studentNumber: true,
+      profile: {
+        select: {
+          id: true,
+          fullName: true,
+        },
+      },
+    },
+  },
+  examination: {
+    select: {
+      id: true,
+      title: true,
+      maximumScore: true,
+    },
+  },
 } satisfies Prisma.ExaminationScoresSelect;
 
 export type ExaminationScoreSelectType = typeof examinationScoreSelect;
