@@ -181,9 +181,9 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 			<div className="overflow-x-auto">
 				<table className="w-full border-collapse text-left text-xs">
 					<thead>
-						<tr className="border-b border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-[#0d1526]">
+						<tr className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-[#0d1526]">
 							{/* Sticky Left Column: Student & Class */}
-							<th className="sticky left-0 z-20 min-w-[220px] max-w-[260px] border-r border-slate-200 bg-slate-100 px-4 py-3 text-left font-bold uppercase tracking-wider text-slate-600 dark:border-slate-800 dark:bg-[#0d1526] dark:text-slate-400">
+							<th className="sticky left-0 z-20 min-w-[220px] max-w-[260px] border-r border-slate-200 bg-white px-4 py-3 text-left font-bold uppercase tracking-wider text-slate-900 dark:border-slate-800 dark:bg-[#0d1526] dark:text-white">
 								PENGGUNA (SISWA & KELAS)
 							</th>
 
@@ -198,11 +198,7 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 								return (
 									<th
 										key={day.dateStr}
-										className={`min-w-[70px] border-r border-slate-200 px-2 py-2.5 text-center transition-colors dark:border-slate-800/80 ${
-											!isSunday
-												? "bg-blue-50/60 dark:bg-blue-950/20"
-												: "bg-slate-100/50 dark:bg-[#0d1526]/50"
-										}`}
+										className="min-w-[70px] border-r border-slate-200 bg-white px-2 py-2.5 text-center transition-colors dark:border-slate-800/80 dark:bg-[#0d1526]"
 									>
 										<div className="flex flex-col items-center gap-0.5">
 											{/* Status Chip: • Aktif (Senin-Sabtu) or • Libur (Minggu) */}
@@ -212,8 +208,8 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 													Aktif
 												</span>
 											) : (
-												<span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[9px] font-medium text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-500">
-													<span className="size-1 rounded-full bg-slate-400 dark:bg-slate-600" />
+												<span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[9px] font-medium text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+													<span className="size-1 rounded-full bg-slate-400 dark:bg-slate-500" />
 													Libur
 												</span>
 											)}
@@ -223,7 +219,7 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 												{dayUpper}, {day.dayNumberFormatted}
 											</span>
 											{/* Year */}
-											<span className="text-[10px] text-slate-400 dark:text-slate-500">
+											<span className="text-[10px] text-slate-500 dark:text-slate-400">
 												{yearNum}
 											</span>
 										</div>
@@ -237,15 +233,19 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 						{rows.map((row) => (
 							<tr
 								key={row.studentId}
-								className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/20"
+								className="group transition-colors hover:bg-blue-50/40 dark:hover:bg-blue-950/20"
 							>
 								{/* Sticky Left: Student Name & Class / NISN */}
-								<td className="sticky left-0 z-10 border-r border-slate-200 bg-white px-4 py-2.5 dark:border-slate-800 dark:bg-[#0d1526]">
+								<td className="sticky left-0 z-10 border-r border-slate-200 bg-white px-4 py-2.5 transition-colors group-hover:bg-blue-50/40 dark:border-slate-800 dark:bg-[#0d1526] dark:group-hover:bg-blue-950/20">
 									<p className="truncate text-xs font-bold uppercase tracking-wide text-slate-900 dark:text-white">
 										{row.fullName}
 									</p>
-									<p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
-										{row.className || "Kelas"} • {row.studentNumber || "-"}
+									<p className="truncate text-[11px] text-slate-600 dark:text-slate-300">
+										<span className="font-semibold text-blue-600 dark:text-blue-400">
+											{row.className || "Kelas"}
+										</span>
+										<span className="text-slate-400 dark:text-slate-500"> • </span>
+										<span>{row.studentNumber || "-"}</span>
 									</p>
 								</td>
 
@@ -253,7 +253,6 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 								{monthDays.map((day) => {
 									const cell = row.cells[day.dateStr];
 									const statusName = cell?.statusName?.toLowerCase() ?? "";
-									const isSunday = day.dayOfWeek === 0;
 
 									const matchingStatus = cell?.statusId
 										? statusOptions.find((s) => s.id === cell.statusId)
@@ -267,7 +266,7 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 
 									let pillStyle: React.CSSProperties | undefined;
 									let pillTone =
-										"bg-slate-100 border-slate-200 text-slate-400 hover:bg-slate-200 dark:bg-slate-900/80 dark:border-slate-800 dark:text-slate-500 dark:hover:bg-slate-800/80";
+										"bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-600 dark:bg-[#111927] dark:border-slate-800 dark:text-slate-500 dark:hover:bg-slate-800/80 dark:hover:text-slate-300";
 									let pillIconNode = <span className="font-bold">-</span>;
 
 									if (hasStatus) {
@@ -315,9 +314,7 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 									return (
 										<td
 											key={day.dateStr}
-											className={`relative border-r border-slate-100 p-1.5 text-center dark:border-slate-800/70 ${
-												!isSunday ? "bg-blue-50/20 dark:bg-blue-950/10" : ""
-											}`}
+											className="relative border-r border-slate-100 bg-white p-1.5 text-center transition-colors group-hover:bg-blue-50/40 dark:border-slate-800/70 dark:bg-[#0d1526] dark:group-hover:bg-blue-950/20"
 										>
 											<div className="relative inline-flex items-center justify-center">
 												{/* Status Pill Button - Klik langsung membuka Centered Dialog */}
@@ -358,15 +355,15 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 
 					{/* Matrix Footer: Overall Rate & Ratio per Date */}
 					<tfoot>
-						<tr className="border-t-2 border-slate-200 bg-slate-100 font-bold text-slate-800 dark:border-slate-800 dark:bg-[#0d1526] dark:text-slate-200">
-							<td className="sticky left-0 z-20 border-r border-slate-200 bg-slate-100 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-900 dark:border-slate-800 dark:bg-[#0d1526] dark:text-white">
+						<tr className="border-t-2 border-slate-200 bg-white font-bold text-slate-800 dark:border-slate-800 dark:bg-[#0d1526] dark:text-slate-200">
+							<td className="sticky left-0 z-20 border-r border-slate-200 bg-white px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-900 dark:border-slate-800 dark:bg-[#0d1526] dark:text-white">
 								Rata-Rata Keseluruhan
 							</td>
 
 							{dailyStats.map((stat, i) => (
 								<td
 									key={monthDays[i]?.dateStr}
-									className="border-r border-slate-200 px-1 py-2.5 text-center text-[11px] dark:border-slate-800/80"
+									className="border-r border-slate-200 bg-white px-1 py-2.5 text-center text-[11px] dark:border-slate-800/80 dark:bg-[#0d1526]"
 								>
 									{stat.rate !== null ? (
 										<div className="flex flex-col items-center">
