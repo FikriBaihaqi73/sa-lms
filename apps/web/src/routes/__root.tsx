@@ -49,13 +49,14 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/teaching-journals",
 	"/attendances",
 	"/examinations",
-  "/attendance-statuses",
+	"/attendance-statuses",
 	"/subject-prerequisites",
 	"/settings/classrooms",
 	"/settings/study-plans",
 	"/settings/assignments",
 	"/assignments",
 	"/modules",
+	"/study-results",
 ];
 
 function AccessDenied({ message }: { message: string }) {
@@ -179,4 +180,3 @@ function RootLayout() {
 		</div>
 	);
 }
-
