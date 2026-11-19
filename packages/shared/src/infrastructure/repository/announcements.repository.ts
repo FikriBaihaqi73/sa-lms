@@ -26,6 +26,8 @@ export interface UpdateAnnouncementInput {
 
 export interface AnnouncementSearchInput {
   search?: string | undefined;
+  institution_id?: string | undefined;
+  is_published?: boolean | undefined;
 }
 
 export interface AnnouncementPaginationResult {
@@ -56,11 +58,15 @@ export class AnnouncementsRepository {
     });
   }
 
-  async findById(id: string): Promise<AnnouncementEntity | null> {
+  async findById(
+    id: string,
+    institution_id?: string,
+  ): Promise<AnnouncementEntity | null> {
     return this.prisma.announcements.findFirst({
       where: {
         id,
         deleted_at: null,
+        ...(institution_id !== undefined && { institution_id }),
       },
       select: announcementSelect,
     });
@@ -99,6 +105,12 @@ export class AnnouncementsRepository {
     const search = filters?.search?.trim();
     const where: Prisma.AnnouncementsWhereInput = {
       deleted_at: null,
+      ...(filters?.institution_id !== undefined && {
+        institution_id: filters.institution_id,
+      }),
+      ...(filters?.is_published !== undefined && {
+        is_published: filters.is_published,
+      }),
       ...(search
         ? {
             OR: [

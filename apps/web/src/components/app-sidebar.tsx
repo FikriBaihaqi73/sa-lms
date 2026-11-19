@@ -20,6 +20,7 @@ import {
 	KeyRound,
 	LogOut,
 	type LucideIcon,
+	Megaphone,
 	Settings2,
 	ShieldCheck,
 	UserPlus,
@@ -286,6 +287,11 @@ export function AppSidebar() {
 								Sistem & Pengaturan
 							</p>
 							<div className="space-y-0.5">
+								<NavItem
+									to="/announcements"
+									icon={Megaphone}
+									label="Pengumuman"
+								/>
 								<NavItem
 									to="/activity-logs"
 									icon={Activity}
