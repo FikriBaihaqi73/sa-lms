@@ -67,9 +67,9 @@ describe("AnnouncementService", () => {
       institution_id: "inst-1",
       is_published: true,
     });
-    expect(res.data[0].targetAudience).toBe("ALL");
-    expect(res.data[0].category).toBe("GENERAL");
-    expect(res.data[0].contentBody).toBe("Libur pada tanggal 10");
+    expect(res.data[0]?.targetAudience).toBe("ALL");
+    expect(res.data[0]?.category).toBe("GENERAL");
+    expect(res.data[0]?.contentBody).toBe("Libur pada tanggal 10");
   });
 
   it("filters results in memory by targetAudience and category", async () => {
@@ -108,7 +108,7 @@ describe("AnnouncementService", () => {
     );
 
     expect(res.data).toHaveLength(1);
-    expect(res.data[0].targetAudience).toBe("TEACHER");
+    expect(res.data[0]?.targetAudience).toBe("TEACHER");
   });
 
   it("rejects a missing announcement", async () => {
@@ -125,7 +125,7 @@ describe("AnnouncementService", () => {
     mockPrisma.client.profile.findFirst.mockResolvedValue(null);
 
     await expect(
-      service.findAll({}, { sub: "user-no-inst" }),
+      service.findAll({ page: 1, limit: 10 }, { sub: "user-no-inst" }),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
