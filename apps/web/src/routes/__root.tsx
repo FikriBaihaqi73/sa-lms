@@ -49,6 +49,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/teaching-journals",
 	"/attendances",
 	"/examinations",
+	"/student-grades",
 	"/examination-scores",
 	"/attendance-statuses",
 	"/subject-prerequisites",
@@ -120,6 +121,15 @@ function RootLayout() {
 
 	if (
 		location.pathname.startsWith("/class-subjects") &&
+		!hasExplicitAdminRole
+	) {
+		return (
+			<AccessDenied message="Halaman ini membutuhkan hak akses Admin Institusi." />
+		);
+	}
+
+	if (
+		location.pathname.startsWith("/student-grades") &&
 		!hasExplicitAdminRole
 	) {
 		return (
