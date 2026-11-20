@@ -1,8 +1,15 @@
 import type { Prisma } from "#generated/client";
-import { academicYearSelect } from "#selects/academic-year.select";
-import { classSubjectsSelect } from "#selects/class-subjects.select";
 import { gradeSelect } from "#selects/grades.select";
-import { studentSelect } from "#selects/students.select";
+
+const studentGradeStudentSelect = {
+  id: true,
+  studentNumber: true,
+  profile: {
+    select: {
+      fullName: true,
+    },
+  },
+} satisfies Prisma.StudentSelect;
 
 export const studentGradeSelect = {
   id: true,
@@ -22,13 +29,27 @@ export const studentGradeSelect = {
   remarks: true,
 
   student: {
-    select: studentSelect,
+    select: studentGradeStudentSelect,
   },
   classSubject: {
-    select: classSubjectsSelect,
+    select: {
+      id: true,
+      class: {
+        select: { id: true, name: true },
+      },
+      subject: {
+        select: { id: true, name: true },
+      },
+      academic_year: {
+        select: { id: true, academic_year: true },
+      },
+    },
   },
   academicYear: {
-    select: academicYearSelect,
+    select: {
+      id: true,
+      academic_year: true,
+    },
   },
   grade: {
     select: gradeSelect,

@@ -243,6 +243,9 @@ export function AppSidebar() {
 									<NavItem to="/examinations" icon={FileText} label="Ujian" />
 								)}
 								{hasExplicitAdminRole && (
+									<NavItem to="/student-grades" icon={Award} label="Nilai Siswa" />
+								)}
+								{hasExplicitAdminRole && (
 									<NavItem
 										to="/examination-scores"
 										icon={Award}

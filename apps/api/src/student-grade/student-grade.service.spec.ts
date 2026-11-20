@@ -1,248 +1,177 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
 import { StudentGradeRepository } from "@repo/shared/infrastructure/repository/student-grade.repository";
-import type {
-  CreateStudentGradeDto,
-  UpdateStudentGradeDto,
+import {
+  CreateStudentGradeSchema,
+  UpdateStudentGradeSchema,
 } from "@repo/shared/schemas/student-grade.schema";
 import type { PrismaService } from "../prisma/prisma.service";
 import { StudentGradeService } from "./student-grade.service";
 
 jest.mock("../prisma/prisma.service", () => ({
-  PrismaService: class PrismaService {
-    client = {
-      student: {
-        findFirst: jest.fn(),
-      },
-      classSubjects: {
-        findFirst: jest.fn(),
-      },
-      academicYears: {
-        findFirst: jest.fn(),
-      },
-      grades: {
-        findFirst: jest.fn(),
-      },
-    };
-  },
+  PrismaService: class PrismaService {},
 }));
 
 describe("StudentGradeService", () => {
-  let service: StudentGradeService;
-  let mockPrismaService: any;
-
-  beforeEach(() => {
-    mockPrismaService = {
-      client: {
-        student: {
-          findFirst: jest.fn(),
-        },
-        classSubjects: {
-          findFirst: jest.fn(),
-        },
-        academicYears: {
-          findFirst: jest.fn(),
-        },
-        grades: {
-          findFirst: jest.fn(),
-        },
-      },
-    };
-    service = new StudentGradeService(
-      mockPrismaService as unknown as PrismaService,
-    );
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  const mockRecord = {
+  const record = {
     id: "sg-1",
     studentId: "student-1",
     classSubjectId: "cs-1",
     academicYearId: "ay-1",
-    assignmentScore: 85,
-    quizScore: 90,
-    midExamScore: 80,
-    finalExamScore: 88,
-    finalScore: 85.5,
-    gradeId: "grade-a",
-    remarks: "Good",
+    finalScore: 90,
+  };
+  const user = { sub: "user-1" };
+  const setup = () => {
+    const prisma = {
+      profile: {
+        findFirst: jest.fn().mockResolvedValue({ institutionId: "inst-1" }),
+      },
+      student: { findFirst: jest.fn().mockResolvedValue({ id: "student-1" }) },
+      classSubjects: {
+        findFirst: jest.fn().mockResolvedValue({
+          id: "cs-1",
+          academic_year_id: "33333333-3333-4333-8333-333333333333",
+        }),
+      },
+      academicYears: {
+        findFirst: jest
+          .fn()
+          .mockResolvedValue({ id: "33333333-3333-4333-8333-333333333333" }),
+      },
+      grades: { findFirst: jest.fn().mockResolvedValue({ id: "grade-a" }) },
+    };
+    return {
+      prisma,
+      service: new StudentGradeService({
+        client: prisma,
+      } as unknown as PrismaService),
+    };
+  };
+  const dto = {
+    studentId: "11111111-1111-4111-8111-111111111111",
+    classSubjectId: "22222222-2222-4222-8222-222222222222",
+    academicYearId: "33333333-3333-4333-8333-333333333333",
+    finalScore: 90,
   };
 
-  it("returns paginated student grades", async () => {
-    const paginatedResult = {
-      data: [mockRecord],
-      meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
-    };
-    jest
-      .spyOn(StudentGradeRepository.prototype, "findAll")
-      .mockResolvedValue(paginatedResult as never);
+  beforeEach(() => jest.restoreAllMocks());
 
-    await expect(service.findAll(1, 10, "STD001")).resolves.toEqual(
-      paginatedResult,
+  it("requires an institution for the authenticated user", async () => {
+    const { prisma, service } = setup();
+    prisma.profile.findFirst.mockResolvedValue(null);
+    await expect(service.stats(user)).rejects.toBeInstanceOf(
+      ForbiddenException,
     );
   });
-
-  it("returns a single student grade by ID", async () => {
-    jest
-      .spyOn(StudentGradeRepository.prototype, "findById")
-      .mockResolvedValue(mockRecord as never);
-
-    await expect(service.findOne("sg-1")).resolves.toEqual(mockRecord);
+  it("scopes list and stats through the authenticated user", async () => {
+    const { service } = setup();
+    jest.spyOn(StudentGradeRepository.prototype, "findAll").mockResolvedValue({
+      data: [],
+      meta: { totalData: 0, totalPages: 0, currentPage: 1, perPage: 10 },
+    });
+    jest.spyOn(StudentGradeRepository.prototype, "stats").mockResolvedValue({
+      total: 0,
+      complete: 0,
+      incomplete: 0,
+      averageFinalScore: null,
+    });
+    await service.findAll(
+      {
+        page: 1,
+        limit: 10,
+        search: "kelas",
+        classSubjectId: "cs-1",
+        academicYearId: "ay-1",
+        studentId: "student-1",
+      },
+      user,
+    );
+    expect(StudentGradeRepository.prototype.findAll).toHaveBeenCalledWith(
+      1,
+      10,
+      expect.objectContaining({ institutionId: "inst-1" }),
+    );
+    await service.stats(user);
+    expect(StudentGradeRepository.prototype.stats).toHaveBeenCalledWith(
+      "inst-1",
+    );
   });
-
-  it("throws NotFoundException when student grade is not found", async () => {
-    jest
-      .spyOn(StudentGradeRepository.prototype, "findById")
-      .mockResolvedValue(null);
-
-    await expect(service.findOne("missing-id")).rejects.toBeInstanceOf(
+  it("rejects a relation from another institution without revealing it", async () => {
+    const { prisma, service } = setup();
+    prisma.classSubjects.findFirst.mockResolvedValue(null);
+    await expect(service.create(dto, user)).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });
-
-  it("returns student grades by student ID if student exists", async () => {
-    mockPrismaService.client.student.findFirst.mockResolvedValue({
-      id: "student-1",
+  it("rejects a mismatched academic year", async () => {
+    const { prisma, service } = setup();
+    prisma.classSubjects.findFirst.mockResolvedValue({
+      id: "cs-1",
+      academic_year_id: "other-ay",
     });
-    jest
-      .spyOn(StudentGradeRepository.prototype, "findByStudentId")
-      .mockResolvedValue([mockRecord] as never);
-
-    await expect(service.findByStudentId("student-1")).resolves.toEqual([
-      mockRecord,
-    ]);
-  });
-
-  it("throws NotFoundException if student does not exist", async () => {
-    mockPrismaService.client.student.findFirst.mockResolvedValue(null);
-
-    await expect(service.findByStudentId("missing-std")).rejects.toBeInstanceOf(
+    await expect(service.create(dto, user)).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });
-
-  it("returns student grades by class subject ID if class subject exists", async () => {
-    mockPrismaService.client.classSubjects.findFirst.mockResolvedValue({
-      id: "cs-1",
-    });
+  it("rejects duplicate combinations", async () => {
+    const { service } = setup();
     jest
-      .spyOn(StudentGradeRepository.prototype, "findByClassSubjectId")
-      .mockResolvedValue([mockRecord] as never);
-
-    await expect(service.findByClassSubjectId("cs-1")).resolves.toEqual([
-      mockRecord,
-    ]);
+      .spyOn(StudentGradeRepository.prototype, "findByUniqueCombination")
+      .mockResolvedValue(record as never);
+    await expect(service.create(dto, user)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
-
-  it("throws NotFoundException if class subject does not exist", async () => {
-    mockPrismaService.client.classSubjects.findFirst.mockResolvedValue(null);
-
-    await expect(
-      service.findByClassSubjectId("missing-cs"),
-    ).rejects.toBeInstanceOf(NotFoundException);
-  });
-
-  it("returns student grades by academic year ID if academic year exists", async () => {
-    mockPrismaService.client.academicYears.findFirst.mockResolvedValue({
-      id: "ay-1",
-    });
-    jest
-      .spyOn(StudentGradeRepository.prototype, "findByAcademicYearId")
-      .mockResolvedValue([mockRecord] as never);
-
-    await expect(service.findByAcademicYearId("ay-1")).resolves.toEqual([
-      mockRecord,
-    ]);
-  });
-
-  it("throws NotFoundException if academic year does not exist", async () => {
-    mockPrismaService.client.academicYears.findFirst.mockResolvedValue(null);
-
-    await expect(
-      service.findByAcademicYearId("missing-ay"),
-    ).rejects.toBeInstanceOf(NotFoundException);
-  });
-
-  it("creates a new student grade successfully", async () => {
-    mockPrismaService.client.student.findFirst.mockResolvedValue({
-      id: "student-1",
-    });
-    mockPrismaService.client.classSubjects.findFirst.mockResolvedValue({
-      id: "cs-1",
-    });
-    mockPrismaService.client.academicYears.findFirst.mockResolvedValue({
-      id: "ay-1",
-    });
-    mockPrismaService.client.grades.findFirst.mockResolvedValue({
-      id: "grade-a",
-    });
+  it("maps a database duplicate error", async () => {
+    const { service } = setup();
     jest
       .spyOn(StudentGradeRepository.prototype, "findByUniqueCombination")
       .mockResolvedValue(null);
     jest
       .spyOn(StudentGradeRepository.prototype, "create")
-      .mockResolvedValue(mockRecord as never);
-
-    const dto: CreateStudentGradeDto = {
-      studentId: "student-1",
-      classSubjectId: "cs-1",
-      academicYearId: "ay-1",
-      gradeId: "grade-a",
-      assignmentScore: 85,
-    };
-
-    const result = await service.create(dto);
-    expect(result).toEqual(mockRecord);
+      .mockRejectedValue({ code: "P2002" });
+    await expect(service.create(dto, user)).rejects.toThrow(
+      "Nilai untuk siswa",
+    );
   });
-
-  it("throws ConflictException when creating duplicate student grade combination", async () => {
-    mockPrismaService.client.student.findFirst.mockResolvedValue({
-      id: "student-1",
-    });
-    mockPrismaService.client.classSubjects.findFirst.mockResolvedValue({
-      id: "cs-1",
-    });
-    mockPrismaService.client.academicYears.findFirst.mockResolvedValue({
-      id: "ay-1",
-    });
+  it("maps an invalid relation error", async () => {
+    const { service } = setup();
     jest
       .spyOn(StudentGradeRepository.prototype, "findByUniqueCombination")
-      .mockResolvedValue(mockRecord as never);
-
-    const dto: CreateStudentGradeDto = {
-      studentId: "student-1",
-      classSubjectId: "cs-1",
-      academicYearId: "ay-1",
-    };
-
-    await expect(service.create(dto)).rejects.toBeInstanceOf(ConflictException);
+      .mockResolvedValue(null);
+    jest
+      .spyOn(StudentGradeRepository.prototype, "create")
+      .mockRejectedValue({ code: "P2003" });
+    await expect(service.create(dto, user)).rejects.toThrow(
+      "Relasi data nilai tidak valid",
+    );
   });
-
-  it("updates an existing student grade record", async () => {
-    jest
-      .spyOn(StudentGradeRepository.prototype, "findById")
-      .mockResolvedValue(mockRecord as never);
-    jest
-      .spyOn(StudentGradeRepository.prototype, "update")
-      .mockResolvedValue({ ...mockRecord, finalScore: 92 } as never);
-
-    const dto: UpdateStudentGradeDto = { finalScore: 92 };
-
-    const result = await service.update("sg-1", dto);
-    expect(result).toEqual({ ...mockRecord, finalScore: 92 });
+  it("allows boundary scores and rejects scores over 100 or with more than two decimals", () => {
+    expect(
+      CreateStudentGradeSchema.safeParse({ ...dto, finalScore: 0 }).success,
+    ).toBe(true);
+    expect(
+      CreateStudentGradeSchema.safeParse({ ...dto, finalScore: 100 }).success,
+    ).toBe(true);
+    expect(
+      CreateStudentGradeSchema.safeParse({ ...dto, finalScore: 100.01 })
+        .success,
+    ).toBe(false);
+    expect(
+      CreateStudentGradeSchema.safeParse({ ...dto, finalScore: 10.123 })
+        .success,
+    ).toBe(false);
   });
-
-  it("soft deletes a student grade record", async () => {
-    jest
-      .spyOn(StudentGradeRepository.prototype, "findById")
-      .mockResolvedValue(mockRecord as never);
-    jest
-      .spyOn(StudentGradeRepository.prototype, "delete")
-      .mockResolvedValue(mockRecord as never);
-
-    const result = await service.remove("sg-1");
-    expect(result).toEqual(mockRecord);
+  it("does not allow changing unique-key fields on update", () => {
+    const result = UpdateStudentGradeSchema.safeParse({
+      studentId: "not-used",
+      finalScore: 90,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect("studentId" in result.data).toBe(false);
   });
 });
