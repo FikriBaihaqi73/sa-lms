@@ -282,6 +282,11 @@ export function AppSidebar() {
 									icon={BookOpen}
 									label="Jenis Tugas"
 								/>
+								<NavItem
+									to="/study-results"
+									icon={GraduationCap}
+									label="Rekap Nilai Siswa"
+								/>
 							</div>
 						</div>
 

@@ -30,6 +30,7 @@ import { schedulesRoute } from "./routes/_settings/schedules/index";
 import { semestersRoute } from "./routes/_settings/semesters/index";
 import { settingsRouteDef } from "./routes/_settings/settings/index";
 import { studyPlansRoute } from "./routes/_settings/study-plans/index";
+import { studyResultsRoute } from "./routes/_settings/study-results/index";
 import { subjectPrerequisitesRoute } from "./routes/_settings/subject-prerequisites/index";
 import { subjectsRoute } from "./routes/_settings/subjects/index";
 import { teachersRoute } from "./routes/_settings/teachers/index";
@@ -85,6 +86,7 @@ const settingsTree = settingsRoute.addChildren([
 	subjectsRoute,
 	classroomsRoute,
 	studyPlansRoute,
+	studyResultsRoute,
 	assignmentsRoute,
 	modulesRoute,
 	announcementsRoute,
