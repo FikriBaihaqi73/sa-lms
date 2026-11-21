@@ -1,11 +1,9 @@
-import { Test, type TestingModule } from "@nestjs/testing";
+import { PATH_METADATA } from "@nestjs/common/constants";
 import { ResponseHelper } from "@repo/shared/http/response";
-import type {
-  CreateStudentGradeDto,
-  UpdateStudentGradeDto,
-} from "@repo/shared/schemas/student-grade.schema";
+import { ROLES_KEY } from "../auth/roles.decorator";
 import { StudentGradeController } from "./student-grade.controller";
-import { StudentGradeService } from "./student-grade.service";
+import type { StudentGradeService } from "./student-grade.service";
+import type { Request } from "express";
 
 jest.mock("../prisma/prisma.service", () => ({
   PrismaService: class PrismaService {
@@ -14,168 +12,93 @@ jest.mock("../prisma/prisma.service", () => ({
 }));
 
 describe("StudentGradeController", () => {
-  let controller: StudentGradeController;
-  let service: StudentGradeService;
-
-  const mockService = {
-    findAll: jest.fn(),
-    findOne: jest.fn(),
-    findByStudentId: jest.fn(),
-    findByClassSubjectId: jest.fn(),
-    findByAcademicYearId: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    remove: jest.fn(),
+  const request = { user: { sub: "user-1" } } as unknown as Request & {
+    user: { sub: string };
   };
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [StudentGradeController],
-      providers: [
-        {
-          provide: StudentGradeService,
-          useValue: mockService,
-        },
-      ],
-    }).compile();
-
-    controller = module.get<StudentGradeController>(StudentGradeController);
-    service = module.get<StudentGradeService>(StudentGradeService);
-    jest.clearAllMocks();
-  });
-
-  it("should be defined", () => {
-    expect(controller).toBeDefined();
-  });
-
-  const mockRecord = {
-    id: "sg-1",
-    studentId: "student-1",
-    classSubjectId: "cs-1",
-    academicYearId: "ay-1",
-    assignmentScore: 85,
-    finalScore: 88,
+  const result = {
+    data: [],
+    meta: { totalData: 0, totalPages: 0, currentPage: 1, perPage: 10 },
   };
+  const service = {
+    findAll: jest.fn().mockResolvedValue(result),
+    stats: jest.fn().mockResolvedValue({
+      total: 0,
+      complete: 0,
+      incomplete: 0,
+      averageFinalScore: null,
+    }),
+    findOne: jest.fn().mockResolvedValue({ id: "sg-1" }),
+    findByStudentId: jest.fn().mockResolvedValue([]),
+    findByClassSubjectId: jest.fn().mockResolvedValue([]),
+    findByAcademicYearId: jest.fn().mockResolvedValue([]),
+    create: jest.fn().mockResolvedValue({ id: "sg-1" }),
+    update: jest.fn().mockResolvedValue({ id: "sg-1" }),
+    remove: jest.fn().mockResolvedValue({ success: true, id: "sg-1" }),
+  };
+  const controller = new StudentGradeController(
+    service as unknown as StudentGradeService,
+  );
 
-  it("findAll returns paginated list wrapped in ResponseHelper.success", async () => {
-    const mockResult = {
-      data: [mockRecord],
-      meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
-    };
-    mockService.findAll.mockResolvedValue(mockResult);
+  beforeEach(() => jest.clearAllMocks());
 
-    const result = await controller.findAll("1", "10", "STD001");
-
-    expect(result).toEqual(
+  it("declares admin-only access", () => {
+    expect(Reflect.getMetadata(ROLES_KEY, StudentGradeController)).toEqual([
+      "admin",
+    ]);
+  });
+  it("registers stats before the dynamic id route", () => {
+    expect(
+      Reflect.getMetadata(
+        PATH_METADATA,
+        StudentGradeController.prototype.stats,
+      ),
+    ).toBe("stats");
+    expect(
+      Reflect.getMetadata(
+        PATH_METADATA,
+        StudentGradeController.prototype.findOne,
+      ),
+    ).toBe(":id");
+  });
+  it("passes query and user context to list", async () => {
+    const query = { page: 1, limit: 10, search: "Siswa" };
+    const response = await controller.findAll(request, query);
+    expect(service.findAll).toHaveBeenCalledWith(query, request.user);
+    expect(response).toEqual(
       ResponseHelper.success(
-        [mockRecord],
-        "Student grades retrieved successfully",
+        [],
+        "Daftar nilai siswa berhasil dimuat.",
         200,
-        mockResult.meta,
+        result.meta,
       ),
     );
-    expect(service.findAll).toHaveBeenCalledWith(1, 10, "STD001");
   });
-
-  it("findOne returns detail wrapped in ResponseHelper.success", async () => {
-    mockService.findOne.mockResolvedValue(mockRecord);
-
-    const result = await controller.findOne("sg-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        mockRecord,
-        "Student grade detail retrieved successfully",
-      ),
-    );
-    expect(service.findOne).toHaveBeenCalledWith("sg-1");
+  it("returns stats", async () => {
+    await controller.stats(request);
+    expect(service.stats).toHaveBeenCalledWith(request.user);
   });
-
-  it("findByStudentId returns list wrapped in ResponseHelper.success", async () => {
-    mockService.findByStudentId.mockResolvedValue([mockRecord]);
-
-    const result = await controller.findByStudentId("student-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        [mockRecord],
-        "Student grades by student retrieved successfully",
-      ),
-    );
-    expect(service.findByStudentId).toHaveBeenCalledWith("student-1");
-  });
-
-  it("findByClassSubjectId returns list wrapped in ResponseHelper.success", async () => {
-    mockService.findByClassSubjectId.mockResolvedValue([mockRecord]);
-
-    const result = await controller.findByClassSubjectId("cs-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        [mockRecord],
-        "Student grades by class subject retrieved successfully",
-      ),
-    );
-    expect(service.findByClassSubjectId).toHaveBeenCalledWith("cs-1");
-  });
-
-  it("findByAcademicYearId returns list wrapped in ResponseHelper.success", async () => {
-    mockService.findByAcademicYearId.mockResolvedValue([mockRecord]);
-
-    const result = await controller.findByAcademicYearId("ay-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        [mockRecord],
-        "Student grades by academic year retrieved successfully",
-      ),
-    );
-    expect(service.findByAcademicYearId).toHaveBeenCalledWith("ay-1");
-  });
-
-  it("create returns created record wrapped in ResponseHelper.success with 201 status", async () => {
-    mockService.create.mockResolvedValue(mockRecord);
-
-    const dto: CreateStudentGradeDto = {
+  it("passes user context to read, write, and delete operations", async () => {
+    await controller.findOne(request, "sg-1");
+    await controller.findByStudentId(request, "student-1");
+    await controller.findByClassSubjectId(request, "cs-1");
+    await controller.findByAcademicYearId(request, "ay-1");
+    await controller.create(request, {
       studentId: "student-1",
       classSubjectId: "cs-1",
       academicYearId: "ay-1",
-    };
-
-    const result = await controller.create(dto);
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        mockRecord,
-        "Student grade created successfully",
-        201,
-      ),
+    });
+    await controller.update(request, "sg-1", { finalScore: 90 });
+    await controller.remove(request, "sg-1");
+    expect(service.findOne).toHaveBeenCalledWith("sg-1", request.user);
+    expect(service.create).toHaveBeenCalledWith(
+      expect.objectContaining({ studentId: "student-1" }),
+      request.user,
     );
-    expect(service.create).toHaveBeenCalledWith(dto);
-  });
-
-  it("update returns updated record wrapped in ResponseHelper.success", async () => {
-    const updated = { ...mockRecord, finalScore: 95 };
-    mockService.update.mockResolvedValue(updated);
-
-    const dto: UpdateStudentGradeDto = { finalScore: 95 };
-
-    const result = await controller.update("sg-1", dto);
-
-    expect(result).toEqual(
-      ResponseHelper.success(updated, "Student grade updated successfully"),
+    expect(service.update).toHaveBeenCalledWith(
+      "sg-1",
+      { finalScore: 90 },
+      request.user,
     );
-    expect(service.update).toHaveBeenCalledWith("sg-1", dto);
-  });
-
-  it("remove returns deleted result wrapped in ResponseHelper.success", async () => {
-    mockService.remove.mockResolvedValue(mockRecord);
-
-    const result = await controller.remove("sg-1");
-
-    expect(result).toEqual(
-      ResponseHelper.success(mockRecord, "Student grade deleted successfully"),
-    );
-    expect(service.remove).toHaveBeenCalledWith("sg-1");
+    expect(service.remove).toHaveBeenCalledWith("sg-1", request.user);
   });
 });

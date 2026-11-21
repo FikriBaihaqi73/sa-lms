@@ -2,6 +2,8 @@
 
 This document provides a detailed integration guide for Frontend Developers working with the `student_grades` (Nilai Siswa) API endpoints, featuring eager-loaded relations (`student`, `classSubject`, `academicYear`, `grade`), pagination, search, and JWT authentication.
 
+Implementation note: the current student-grade API is restricted to institution admins and is scoped to the caller's institution. See `docs/student-grades-page-implementation.md`; teacher, student, and guardian access remains deferred pending ownership rules.
+
 ---
 
 ## 1. Authentication & API Reference

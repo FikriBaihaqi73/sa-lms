@@ -20,6 +20,7 @@ import {
 	KeyRound,
 	LogOut,
 	type LucideIcon,
+	Megaphone,
 	Settings2,
 	ShieldCheck,
 	UserPlus,
@@ -242,6 +243,9 @@ export function AppSidebar() {
 									<NavItem to="/examinations" icon={FileText} label="Ujian" />
 								)}
 								{hasExplicitAdminRole && (
+									<NavItem to="/student-grades" icon={Award} label="Nilai Siswa" />
+								)}
+								{hasExplicitAdminRole && (
 									<NavItem
 										to="/examination-scores"
 										icon={Award}
@@ -291,6 +295,11 @@ export function AppSidebar() {
 								Sistem & Pengaturan
 							</p>
 							<div className="space-y-0.5">
+								<NavItem
+									to="/announcements"
+									icon={Megaphone}
+									label="Pengumuman"
+								/>
 								<NavItem
 									to="/activity-logs"
 									icon={Activity}
