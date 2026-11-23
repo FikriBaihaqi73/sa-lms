@@ -51,7 +51,7 @@ export function AppSidebar() {
 		<aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
 			{/* Brand Header */}
 			<div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-5 dark:border-slate-800">
-				<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white shadow-md">
+				<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-tr from-blue-700 to-indigo-600 text-white shadow-md">
 					<BookOpenCheck className="h-5 w-5" />
 				</span>
 				<div>
@@ -273,6 +273,11 @@ export function AppSidebar() {
 									label="Tugas & Submisi"
 								/>
 								<NavItem
+									to="/settings/assignment-submissions"
+									icon={ClipboardCheck}
+									label="Pengumpulan Tugas"
+								/>
+								<NavItem
 									to="/modules"
 									icon={BookOpen}
 									label="Modul & Konten Materi"
@@ -342,7 +347,7 @@ export function AppSidebar() {
 						to="/profile"
 						className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-80 transition"
 					>
-						<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
+						<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
 							{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 						</span>
 						<div className="min-w-0 flex-1">
@@ -411,7 +416,7 @@ export function AppTopbar() {
 				to="/profile"
 				className="flex items-center gap-2.5 hover:opacity-80 transition"
 			>
-				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
+				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
 					{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 				</span>
 				<span className="text-xs font-semibold text-slate-700 dark:text-slate-200 hidden sm:inline-block">
