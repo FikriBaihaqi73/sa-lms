@@ -13,8 +13,8 @@ describe("attendance-status access contract", () => {
   });
 
   it("shows the menu only to an explicit institution admin", () => {
-    expect(sidebarSource).toContain(
-      'hasExplicitAdminRole && <NavItem to="/attendance-statuses"',
+    expect(sidebarSource).toMatch(
+      /hasExplicitAdminRole\s*&&\s*\(?\s*<NavItem\s+to="\/attendance-statuses"/,
     );
   });
 });

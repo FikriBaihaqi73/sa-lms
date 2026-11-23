@@ -59,7 +59,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/assignments",
 	"/modules",
 
-  
+];
 
 function AccessDenied({ message }: { message: string }) {
 	return (
