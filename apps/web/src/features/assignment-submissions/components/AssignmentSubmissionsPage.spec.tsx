@@ -1,7 +1,22 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SubmissionPageState, SubmissionRow } from "../types";
 import { AssignmentSubmissionsPage } from "./AssignmentSubmissionsPage";
+
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			retry: false,
+		},
+	},
+});
+
+const renderWithClient = (ui: React.ReactElement) => {
+	return render(
+		<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+	);
+};
 
 afterEach(() => {
 	cleanup();
@@ -78,7 +93,7 @@ describe("AssignmentSubmissionsPage", () => {
 		const fetchMock = vi.fn();
 		vi.stubGlobal("fetch", fetchMock);
 
-		render(<AssignmentSubmissionsPage />);
+		renderWithClient(<AssignmentSubmissionsPage state={{ kind: "blocked" }} />);
 
 		expect(
 			screen.getByRole("heading", {
@@ -93,7 +108,7 @@ describe("AssignmentSubmissionsPage", () => {
 	});
 
 	it.each(["loading", "error"] as const)("shows %s message cleanly", (kind) => {
-		render(<AssignmentSubmissionsPage state={{ kind }} />);
+		renderWithClient(<AssignmentSubmissionsPage state={{ kind }} />);
 		expect(screen.getAllByRole("article")).toHaveLength(4);
 		expect(
 			screen.getByRole(kind === "error" ? "alert" : "status"),
@@ -101,7 +116,7 @@ describe("AssignmentSubmissionsPage", () => {
 	});
 
 	it("filters by year, class, task, displays rows and opens detail modal", () => {
-		render(<AssignmentSubmissionsPage state={mockReadyState} />);
+		renderWithClient(<AssignmentSubmissionsPage state={mockReadyState} />);
 
 		selectAcademicTask();
 
@@ -134,7 +149,7 @@ describe("AssignmentSubmissionsPage", () => {
 	});
 
 	it("filters students by search input and resets properly", () => {
-		render(<AssignmentSubmissionsPage state={mockReadyState} />);
+		renderWithClient(<AssignmentSubmissionsPage state={mockReadyState} />);
 		selectAcademicTask();
 
 		const searchInput = screen.getByPlaceholderText("Cari nama siswa…");
