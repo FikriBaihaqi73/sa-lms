@@ -20,6 +20,7 @@ import {
 	KeyRound,
 	LogOut,
 	type LucideIcon,
+	Megaphone,
 	Settings2,
 	ShieldCheck,
 	UserPlus,
@@ -241,6 +242,16 @@ export function AppSidebar() {
 								{hasExplicitAdminRole && (
 									<NavItem to="/examinations" icon={FileText} label="Ujian" />
 								)}
+								{hasExplicitAdminRole && (
+									<NavItem to="/student-grades" icon={Award} label="Nilai Siswa" />
+								)}
+								{hasExplicitAdminRole && (
+									<NavItem
+										to="/examination-scores"
+										icon={Award}
+										label="Nilai Ujian"
+									/>
+								)}
 								<NavItem
 									to="/subject-prerequisites"
 									icon={GitFork}
@@ -276,6 +287,11 @@ export function AppSidebar() {
 									icon={BookOpen}
 									label="Jenis Tugas"
 								/>
+								<NavItem
+									to="/study-results"
+									icon={GraduationCap}
+									label="Rekap Nilai Siswa"
+								/>
 							</div>
 						</div>
 
@@ -284,6 +300,11 @@ export function AppSidebar() {
 								Sistem & Pengaturan
 							</p>
 							<div className="space-y-0.5">
+								<NavItem
+									to="/announcements"
+									icon={Megaphone}
+									label="Pengumuman"
+								/>
 								<NavItem
 									to="/activity-logs"
 									icon={Activity}

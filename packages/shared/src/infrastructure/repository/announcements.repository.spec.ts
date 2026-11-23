@@ -60,4 +60,48 @@ describe("AnnouncementsRepository", () => {
       expect.objectContaining({ skip: 0, take: 100 }),
     );
   });
+
+  it("filters announcements by institution_id and is_published", async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const count = jest.fn().mockResolvedValue(0);
+    const prisma = {
+      announcements: { findMany, count },
+    } as unknown as PrismaClient;
+    const repository = new AnnouncementsRepository(prisma);
+
+    await repository.findAll(1, 10, {
+      institution_id: "inst-1",
+      is_published: true,
+    });
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          deleted_at: null,
+          institution_id: "inst-1",
+          is_published: true,
+        }),
+      }),
+    );
+  });
+
+  it("finds announcement by id and institution_id", async () => {
+    const findFirst = jest.fn().mockResolvedValue({ id: "ann-1" });
+    const prisma = {
+      announcements: { findFirst },
+    } as unknown as PrismaClient;
+    const repository = new AnnouncementsRepository(prisma);
+
+    await repository.findById("ann-1", "inst-1");
+
+    expect(findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          id: "ann-1",
+          deleted_at: null,
+          institution_id: "inst-1",
+        }),
+      }),
+    );
+  });
 });

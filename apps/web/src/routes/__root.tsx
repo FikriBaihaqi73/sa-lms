@@ -49,14 +49,17 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/teaching-journals",
 	"/attendances",
 	"/examinations",
-  "/attendance-statuses",
+	"/student-grades",
+	"/examination-scores",
+	"/attendance-statuses",
 	"/subject-prerequisites",
 	"/settings/classrooms",
 	"/settings/study-plans",
 	"/settings/assignments",
 	"/assignments",
 	"/modules",
-];
+
+  
 
 function AccessDenied({ message }: { message: string }) {
 	return (
@@ -125,6 +128,15 @@ function RootLayout() {
 		);
 	}
 
+	if (
+		location.pathname.startsWith("/student-grades") &&
+		!hasExplicitAdminRole
+	) {
+		return (
+			<AccessDenied message="Halaman ini membutuhkan hak akses Admin Institusi." />
+		);
+	}
+
 	// Superadmin manages platform globally; academic grading standards are institution-scoped
 	if (location.pathname.startsWith("/grades") && isSuperadmin) {
 		return (
@@ -179,4 +191,3 @@ function RootLayout() {
 		</div>
 	);
 }
-

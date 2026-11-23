@@ -24,6 +24,7 @@ import { EmploymentStatusModule } from "./employment-status/employment-status.mo
 import { ExaminationModule } from "./examination/examination.module";
 import { ExaminationScoreModule } from "./examination-score/examination-score.module";
 import { FilesModule } from "./files/files.module";
+import { GradeModule } from "./grades/grades.module";
 import { GuardianModule } from "./guardian/guardian.module";
 import { InstitutionModule } from "./institution/institution.module";
 import { InstitutionLevelModule } from "./institution-level/institution-level.module";
@@ -93,6 +94,7 @@ import { UserModule } from "./user/user.module";
     ClassroomModule,
     ScheduleModule,
     StudentGradeModule,
+    GradeModule,
     ExaminationModule,
     ExaminationScoreModule,
     FilesModule,
