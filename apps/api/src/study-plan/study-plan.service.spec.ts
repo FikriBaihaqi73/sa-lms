@@ -123,4 +123,76 @@ describe("StudyPlanService", () => {
     expect(create).toHaveBeenCalledWith(dto);
     expect(remove).toHaveBeenCalledWith("study-plan-id");
   });
+
+  describe("createBundle", () => {
+    it("creates study plans in bundle and gracefully skips already enrolled subjects", async () => {
+      const create = jest
+        .spyOn(StudyPlanRepository.prototype, "create")
+        .mockResolvedValue({ id: "study-plan-new" } as never);
+
+      // Suppose cs-1 already enrolled, cs-2 is new
+      jest
+        .spyOn(
+          StudyPlanRepository.prototype,
+          "findByStudentClassSubjectAndAcademicYear",
+        )
+        .mockImplementation(async (_stuId, csId) => {
+          if (csId === "cs-1") return { id: "existing-plan" } as never;
+          return null;
+        });
+
+      jest
+        .spyOn(ClassSubjectsRepository.prototype, "findById")
+        .mockImplementation(async (id) => {
+          return {
+            id,
+            academic_year_id: "academic-year-id",
+          } as never;
+        });
+
+      const result = await service.createBundle({
+        student_id: dto.student_id,
+        academic_year_id: "academic-year-id",
+        class_subject_ids: ["cs-1", "cs-2"],
+      });
+
+      expect(result.totalRequested).toBe(2);
+      expect(result.totalEnrolled).toBe(1);
+      expect(result.totalSkipped).toBe(1);
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(create).toHaveBeenCalledWith({
+        student_id: dto.student_id,
+        class_subject_id: "cs-2",
+        academic_year_id: "academic-year-id",
+      });
+    });
+
+    it("rejects bundle creation when student is not found", async () => {
+      jest
+        .spyOn(StudentRepository.prototype, "findById")
+        .mockResolvedValue(null);
+
+      await expect(
+        service.createBundle({
+          student_id: "missing-student",
+          academic_year_id: "ay-1",
+          class_subject_ids: ["cs-1"],
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it("rejects bundle creation when a class subject is not found", async () => {
+      jest
+        .spyOn(ClassSubjectsRepository.prototype, "findById")
+        .mockResolvedValue(null);
+
+      await expect(
+        service.createBundle({
+          student_id: dto.student_id,
+          academic_year_id: "ay-1",
+          class_subject_ids: ["missing-cs"],
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
 });

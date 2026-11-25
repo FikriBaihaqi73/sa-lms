@@ -8,6 +8,7 @@ import { ClassSubjectsRepository } from "@repo/shared/infrastructure/repository/
 import { StudentRepository } from "@repo/shared/infrastructure/repository/students.repository";
 import { StudyPlanRepository } from "@repo/shared/infrastructure/repository/study-plan.repository";
 import type {
+  CreateStudyPlanBundleDto,
   CreateStudyPlanDto,
   UpdateStudyPlanDto,
 } from "@repo/shared/schemas/study-plan.schema";
@@ -88,6 +89,67 @@ export class StudyPlanService {
       class_subject_id: dto.class_subject_id,
       academic_year_id: resolvedAcademicYearId,
     });
+  }
+
+  async createBundle(dto: CreateStudyPlanBundleDto) {
+    const student = await this.studentRepository.findById(dto.student_id);
+    if (!student) throw new NotFoundException("Student not found");
+
+    const createdPlans = [];
+    const skippedClassSubjectIds: string[] = [];
+
+    for (const classSubjectId of dto.class_subject_ids) {
+      const classSubject =
+        await this.classSubjectsRepository.findById(classSubjectId);
+      if (!classSubject) {
+        throw new NotFoundException(
+          `Class subject with ID ${classSubjectId} not found`,
+        );
+      }
+
+      const resolvedAcademicYearId =
+        dto.academic_year_id ?? classSubject.academic_year_id;
+
+      if (
+        dto.academic_year_id &&
+        dto.academic_year_id !== classSubject.academic_year_id
+      ) {
+        throw new ConflictException(
+          `Tahun ajaran tidak sesuai dengan mata pelajaran kelas ${classSubjectId}`,
+        );
+      }
+
+      const academicYear = await this.academicYearRepository.findById(
+        resolvedAcademicYearId,
+      );
+      if (!academicYear) throw new NotFoundException("Academic year not found");
+
+      const existing =
+        await this.studyPlanRepository.findByStudentClassSubjectAndAcademicYear(
+          dto.student_id,
+          classSubjectId,
+          resolvedAcademicYearId,
+        );
+
+      if (existing) {
+        skippedClassSubjectIds.push(classSubjectId);
+        continue;
+      }
+
+      const plan = await this.studyPlanRepository.create({
+        student_id: dto.student_id,
+        class_subject_id: classSubjectId,
+        academic_year_id: resolvedAcademicYearId,
+      });
+      createdPlans.push(plan);
+    }
+
+    return {
+      totalRequested: dto.class_subject_ids.length,
+      totalEnrolled: createdPlans.length,
+      totalSkipped: skippedClassSubjectIds.length,
+      data: createdPlans,
+    };
   }
 
   async update(id: string, dto: UpdateStudyPlanDto) {

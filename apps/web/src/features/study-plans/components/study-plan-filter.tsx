@@ -10,6 +10,7 @@ import type {
 	AcademicYearOption,
 	ClassSubjectOption,
 	DepartmentOption,
+	SemesterOption,
 	StudyPlanViewMode,
 } from "../types";
 
@@ -21,6 +22,9 @@ interface StudyPlanFilterProps {
 	academicYearId: string;
 	onAcademicYearChange: (val: string) => void;
 	academicYearOptions: AcademicYearOption[];
+	semesterId?: string;
+	onSemesterChange?: (val: string) => void;
+	semesterOptions?: SemesterOption[];
 	departmentId: string;
 	onDepartmentChange: (val: string) => void;
 	departmentOptions: DepartmentOption[];
@@ -38,6 +42,9 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 	academicYearId,
 	onAcademicYearChange,
 	academicYearOptions,
+	semesterId = "",
+	onSemesterChange,
+	semesterOptions = [],
 	departmentId,
 	onDepartmentChange,
 	departmentOptions,
@@ -138,6 +145,25 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						)}
 					</select>
 				</div>
+
+				{/* Semester Selector */}
+				{semesterOptions.length > 0 && (
+					<div className="min-w-[140px] sm:max-w-[200px]">
+						<select
+							value={semesterId}
+							onChange={(e) => onSemesterChange?.(e.target.value)}
+							aria-label="Pilih Semester"
+							className="h-9 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
+						>
+							<option value="">Semua Semester</option>
+							{semesterOptions.map((sem) => (
+								<option key={sem.id} value={sem.id}>
+									{sem.name} {sem.is_active ? "(Aktif)" : ""}
+								</option>
+							))}
+						</select>
+					</div>
+				)}
 
 				{/* Department / Bidang Selector */}
 				<div className="min-w-[140px] sm:max-w-[200px]">
