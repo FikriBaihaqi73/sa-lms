@@ -47,23 +47,6 @@ export const studentSelect = {
     },
   },
 
-  classStudents: {
-    where: {
-      deletedAt: null,
-    },
-    select: {
-      id: true,
-      classId: true,
-      classes: {
-        select: {
-          id: true,
-          name: true,
-          grade_level: true,
-        },
-      },
-    },
-  },
-
   assignmentSubmissions: {
     where: {
       deletedAt: null,

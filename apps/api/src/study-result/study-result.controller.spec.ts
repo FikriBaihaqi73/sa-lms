@@ -76,50 +76,7 @@ describe("StudyResultController", () => {
         mockResult.meta,
       ),
     );
-    expect(service.findAll).toHaveBeenCalledWith(1, 10, {
-      search: "John",
-      academicYearId: undefined,
-      semesterId: undefined,
-      departmentId: undefined,
-      classId: undefined,
-      academicStatusId: undefined,
-    });
-  });
-
-  it("findAll supports passing filters for department, class, academicYear, semester", async () => {
-    const mockResult = {
-      data: [mockRecord],
-      meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
-    };
-    mockService.findAll.mockResolvedValue(mockResult);
-
-    const result = await controller.findAll(
-      "1",
-      "10",
-      "John",
-      "ay-1",
-      "sem-1",
-      "dept-1",
-      "class-1",
-      "status-1",
-    );
-
-    expect(result).toEqual(
-      ResponseHelper.success(
-        [mockRecord],
-        "Study results retrieved successfully",
-        200,
-        mockResult.meta,
-      ),
-    );
-    expect(service.findAll).toHaveBeenCalledWith(1, 10, {
-      search: "John",
-      academicYearId: "ay-1",
-      semesterId: "sem-1",
-      departmentId: "dept-1",
-      classId: "class-1",
-      academicStatusId: "status-1",
-    });
+    expect(service.findAll).toHaveBeenCalledWith(1, 10, "John");
   });
 
   it("findOne returns detail wrapped in ResponseHelper.success", async () => {

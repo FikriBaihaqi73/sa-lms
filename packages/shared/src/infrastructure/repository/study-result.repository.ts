@@ -26,11 +26,6 @@ export interface UpdateStudyResultInput {
 
 export interface StudyResultSearchInput {
   search?: string | undefined;
-  academicYearId?: string | undefined;
-  semesterId?: string | undefined;
-  departmentId?: string | undefined;
-  classId?: string | undefined;
-  academicStatusId?: string | undefined;
 }
 
 export interface StudyResultPaginationResult {
@@ -136,34 +131,8 @@ export class StudyResultRepository {
     const skip = (page - 1) * limit;
     const search = filters?.search?.trim();
 
-    const studentWhere: Prisma.StudentWhereInput = {
-      ...(filters?.departmentId
-        ? { departmentId: filters.departmentId }
-        : {}),
-      ...(filters?.classId
-        ? {
-            classStudents: {
-              some: {
-                classId: filters.classId,
-                deletedAt: null,
-              },
-            },
-          }
-        : {}),
-    };
-
-    const hasStudentFilters = Object.keys(studentWhere).length > 0;
-
     const where: Prisma.StudyResultWhereInput = {
       deletedAt: null,
-      ...(filters?.academicYearId
-        ? { academicYearId: filters.academicYearId }
-        : {}),
-      ...(filters?.semesterId ? { semesterId: filters.semesterId } : {}),
-      ...(filters?.academicStatusId
-        ? { academicStatusId: filters.academicStatusId }
-        : {}),
-      ...(hasStudentFilters ? { student: studentWhere } : {}),
       ...(search
         ? {
             OR: [

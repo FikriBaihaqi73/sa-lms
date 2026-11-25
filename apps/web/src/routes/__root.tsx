@@ -60,6 +60,8 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/modules",
 
 ]; 
+	"/announcements",
+];
 
 function AccessDenied({ message }: { message: string }) {
 	return (

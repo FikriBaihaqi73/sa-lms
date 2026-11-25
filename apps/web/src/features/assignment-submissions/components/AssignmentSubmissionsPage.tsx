@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type React from "react";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useAssignmentSubmissionsAdminData } from "../hooks";
 import {
 	type AssignmentSubmissionFilterSchema,
 	assignmentSubmissionFilterSchema,
@@ -31,7 +30,7 @@ export interface AssignmentSubmissionsPageProps {
 
 export const AssignmentSubmissionsPage: React.FC<
 	AssignmentSubmissionsPageProps
-> = ({ state: customState }) => {
+> = ({ state = { kind: "blocked" } }) => {
 	const { register, control, reset, setValue } =
 		useForm<AssignmentSubmissionFilterSchema>({
 			defaultValues: filterDefaults,
@@ -39,17 +38,6 @@ export const AssignmentSubmissionsPage: React.FC<
 		});
 
 	const filters = useWatch({ control });
-
-	const { state: liveState } = useAssignmentSubmissionsAdminData(
-		{
-			year: filters.year ?? "",
-			classroom: filters.classroom ?? "",
-			assignment: filters.assignment ?? "",
-		},
-		customState === undefined,
-	);
-
-	const state = customState ?? liveState;
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(5);
 	const [selectedStudentId, setSelectedStudentId] = useState<string | null>(

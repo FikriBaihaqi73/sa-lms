@@ -15,12 +15,10 @@ import {
   UpdateStudyResultDto,
 } from "@repo/shared/schemas/study-result.schema";
 import { ZodValidationPipe } from "nestjs-zod";
-import { Roles } from "../auth/roles.decorator";
 import { StudyResultService } from "./study-result.service";
 
 @ApiTags("Study Results")
 @ApiBearerAuth("JWT-auth")
-@Roles("admin")
 @Controller("study-results")
 export class StudyResultController {
   constructor(private readonly studyResultService: StudyResultService) {}
@@ -34,25 +32,13 @@ export class StudyResultController {
     @Query("page") page = "1",
     @Query("limit") limit = "10",
     @Query("search") search?: string,
-    @Query("academicYearId") academicYearId?: string,
-    @Query("semesterId") semesterId?: string,
-    @Query("departmentId") departmentId?: string,
-    @Query("classId") classId?: string,
-    @Query("academicStatusId") academicStatusId?: string,
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
     const result = await this.studyResultService.findAll(
       pageNumber,
       limitNumber,
-      {
-        search,
-        academicYearId,
-        semesterId,
-        departmentId,
-        classId,
-        academicStatusId,
-      },
+      search,
     );
 
     return ResponseHelper.success(

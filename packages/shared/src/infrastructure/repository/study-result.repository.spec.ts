@@ -200,49 +200,6 @@ describe("StudyResultRepository", () => {
     expect(studyResult.count).toHaveBeenCalled();
   });
 
-  it("finds all with department and class filters", async () => {
-    studyResult.findMany.mockResolvedValue([mockStudyResult]);
-    studyResult.count.mockResolvedValue(1);
-
-    const result = await repository.findAll(1, 10, {
-      departmentId: "dept-1",
-      classId: "class-1",
-      academicYearId: "ay-1",
-      semesterId: "sem-1",
-      academicStatusId: "status-active",
-    });
-
-    expect(result).toEqual({
-      data: [mockStudyResult],
-      meta: {
-        totalData: 1,
-        totalPages: 1,
-        currentPage: 1,
-        perPage: 10,
-      },
-    });
-
-    expect(studyResult.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          deletedAt: null,
-          academicYearId: "ay-1",
-          semesterId: "sem-1",
-          academicStatusId: "status-active",
-          student: expect.objectContaining({
-            departmentId: "dept-1",
-            classStudents: {
-              some: {
-                classId: "class-1",
-                deletedAt: null,
-              },
-            },
-          }),
-        }),
-      }),
-    );
-  });
-
   it("updates study result record", async () => {
     const updated = { ...mockStudyResult, semesterGpa: 3.9 };
     studyResult.update.mockResolvedValue(updated);
