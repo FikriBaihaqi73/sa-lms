@@ -6,6 +6,7 @@ export * from "#schemas/assignment.schema";
 export * from "#schemas/assignment-submission.schema";
 export * from "#schemas/assignment-type.schema";
 export * from "#schemas/attendance.schema";
+export * from "#schemas/attendance-schedule.schema";
 export * from "#schemas/attendance-status.schema";
 export * from "#schemas/class-student.schema";
 export * from "#schemas/class-subject.schema";

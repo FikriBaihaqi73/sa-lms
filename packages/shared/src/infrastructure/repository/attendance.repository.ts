@@ -5,7 +5,8 @@ import {
 } from "#selects/attendance.select";
 
 export interface CreateAttendanceInput {
-  schedule_id: string;
+  schedule_id?: string | null | undefined;
+  attendance_schedule_id?: string | null | undefined;
   student_id: string;
   attendance_status_id: string;
   attendance_date?: Date | undefined;
@@ -13,7 +14,8 @@ export interface CreateAttendanceInput {
 }
 
 export interface UpdateAttendanceInput {
-  schedule_id?: string | undefined;
+  schedule_id?: string | null | undefined;
+  attendance_schedule_id?: string | null | undefined;
   student_id?: string | undefined;
   attendance_status_id?: string | undefined;
   attendance_date?: Date | undefined;
@@ -21,7 +23,8 @@ export interface UpdateAttendanceInput {
 }
 
 export interface UpsertAttendanceInput {
-  schedule_id: string;
+  schedule_id?: string | null | undefined;
+  attendance_schedule_id?: string | null | undefined;
   student_id: string;
   attendance_status_id: string;
   attendance_date: Date;
@@ -64,10 +67,12 @@ export class AttendanceRepository {
     filters?: AttendanceSearchInput,
     institutionId?: string,
   ): Prisma.AttendancesWhereInput {
-    const where: Prisma.AttendancesWhereInput = {
-      deleted_at: null,
-      ...(institutionId
-        ? {
+    const andConditions: Prisma.AttendancesWhereInput[] = [];
+
+    if (institutionId) {
+      andConditions.push({
+        OR: [
+          {
             schedule: {
               classSubject: {
                 class: {
@@ -78,9 +83,63 @@ export class AttendanceRepository {
               },
               deletedAt: null,
             },
-          }
-        : {}),
-      ...(filters?.schedule_id ? { schedule_id: filters.schedule_id } : {}),
+          },
+          {
+            attendance_schedule: {
+              class: {
+                institution_id: institutionId,
+                deleted_at: null,
+              },
+              deletedAt: null,
+            },
+          },
+        ],
+      });
+    }
+
+    if (filters?.schedule_id) {
+      andConditions.push({
+        OR: [
+          { schedule_id: filters.schedule_id },
+          { attendance_schedule_id: filters.schedule_id },
+        ],
+      });
+    }
+
+    if (filters?.class_id) {
+      andConditions.push({
+        OR: [
+          {
+            schedule: {
+              classSubject: {
+                class_id: filters.class_id,
+                deleted_at: null,
+                ...(institutionId
+                  ? {
+                      class: {
+                        institution_id: institutionId,
+                        deleted_at: null,
+                      },
+                    }
+                  : {}),
+              },
+            },
+          },
+          {
+            attendance_schedule: {
+              classId: filters.class_id,
+              deletedAt: null,
+              ...(institutionId
+                ? { class: { institution_id: institutionId, deleted_at: null } }
+                : {}),
+            },
+          },
+        ],
+      });
+    }
+
+    const where: Prisma.AttendancesWhereInput = {
+      deleted_at: null,
       ...(filters?.student_id ? { student_id: filters.student_id } : {}),
       ...(filters?.attendance_status_id
         ? { attendance_status_id: filters.attendance_status_id }
@@ -118,63 +177,119 @@ export class AttendanceRepository {
       where.attendance_date = new Date(`${dateStr}T00:00:00.000Z`);
     }
 
-    if (filters?.class_id) {
-      where.schedule = {
-        ...(where.schedule as Prisma.ScheduleWhereInput),
-        classSubject: {
-          class_id: filters.class_id,
-          deleted_at: null,
-          ...(institutionId
-            ? { class: { institution_id: institutionId, deleted_at: null } }
-            : {}),
-        },
-      };
-    }
-
     if (filters?.search && filters.search.trim()) {
       const term = filters.search.trim();
-      where.OR = [
-        { notes: { contains: term, mode: "insensitive" } },
-        {
-          student: {
-            profile: {
-              fullName: { contains: term, mode: "insensitive" },
-            },
-          },
-        },
-        {
-          student: {
-            studentNumber: { contains: term, mode: "insensitive" },
-          },
-        },
-        {
-          schedule: {
-            classSubject: {
-              subject: {
-                name: { contains: term, mode: "insensitive" },
+      andConditions.push({
+        OR: [
+          { notes: { contains: term, mode: "insensitive" } },
+          {
+            student: {
+              profile: {
+                fullName: { contains: term, mode: "insensitive" },
               },
             },
           },
-        },
-        {
-          schedule: {
-            classSubject: {
-              class: {
-                name: { contains: term, mode: "insensitive" },
+          {
+            student: {
+              studentNumber: { contains: term, mode: "insensitive" },
+            },
+          },
+          {
+            schedule: {
+              classSubject: {
+                subject: {
+                  name: { contains: term, mode: "insensitive" },
+                },
               },
             },
           },
-        },
-      ];
+          {
+            schedule: {
+              classSubject: {
+                class: {
+                  name: { contains: term, mode: "insensitive" },
+                },
+              },
+            },
+          },
+          {
+            attendance_schedule: {
+              title: { contains: term, mode: "insensitive" },
+            },
+          },
+        ],
+      });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     return where;
   }
 
+  private upsertItem(data: UpsertAttendanceInput) {
+    if (data.attendance_schedule_id && !data.schedule_id) {
+      return this.prisma.attendances.upsert({
+        where: {
+          attendance_schedule_id_student_id_attendance_date: {
+            attendance_schedule_id: data.attendance_schedule_id,
+            student_id: data.student_id,
+            attendance_date: data.attendance_date,
+          },
+        },
+        create: {
+          schedule_id: null,
+          attendance_schedule_id: data.attendance_schedule_id,
+          student_id: data.student_id,
+          attendance_status_id: data.attendance_status_id,
+          attendance_date: data.attendance_date,
+          notes: data.notes ?? null,
+        },
+        update: {
+          attendance_status_id: data.attendance_status_id,
+          ...(data.notes !== undefined ? { notes: data.notes } : {}),
+          deleted_at: null,
+        },
+        select: attendanceSelect,
+      });
+    }
+
+    return this.prisma.attendances.upsert({
+      where: {
+        schedule_id_student_id_attendance_date: {
+          schedule_id: data.schedule_id ?? "",
+          student_id: data.student_id,
+          attendance_date: data.attendance_date,
+        },
+      },
+      create: {
+        schedule_id: data.schedule_id ?? null,
+        ...(data.attendance_schedule_id !== undefined
+          ? { attendance_schedule_id: data.attendance_schedule_id }
+          : {}),
+        student_id: data.student_id,
+        attendance_status_id: data.attendance_status_id,
+        attendance_date: data.attendance_date,
+        notes: data.notes ?? null,
+      },
+      update: {
+        attendance_status_id: data.attendance_status_id,
+        ...(data.attendance_schedule_id !== undefined
+          ? { attendance_schedule_id: data.attendance_schedule_id }
+          : {}),
+        ...(data.notes !== undefined ? { notes: data.notes } : {}),
+        deleted_at: null,
+      },
+      select: attendanceSelect,
+    });
+  }
+
   async create(data: CreateAttendanceInput): Promise<AttendanceEntity> {
     return this.prisma.attendances.create({
       data: {
-        schedule_id: data.schedule_id,
+        schedule_id: data.schedule_id ?? null,
+        attendance_schedule_id: data.attendance_schedule_id ?? null,
         student_id: data.student_id,
         attendance_status_id: data.attendance_status_id,
         attendance_date: data.attendance_date ?? null,
@@ -185,58 +300,14 @@ export class AttendanceRepository {
   }
 
   async upsert(data: UpsertAttendanceInput): Promise<AttendanceEntity> {
-    return this.prisma.attendances.upsert({
-      where: {
-        schedule_id_student_id_attendance_date: {
-          schedule_id: data.schedule_id,
-          student_id: data.student_id,
-          attendance_date: data.attendance_date,
-        },
-      },
-      create: {
-        schedule_id: data.schedule_id,
-        student_id: data.student_id,
-        attendance_status_id: data.attendance_status_id,
-        attendance_date: data.attendance_date,
-        notes: data.notes ?? null,
-      },
-      update: {
-        attendance_status_id: data.attendance_status_id,
-        ...(data.notes !== undefined ? { notes: data.notes } : {}),
-        deleted_at: null,
-      },
-      select: attendanceSelect,
-    }) as unknown as Promise<AttendanceEntity>;
+    return this.upsertItem(data) as unknown as Promise<AttendanceEntity>;
   }
 
   async bulkUpsert(
     records: UpsertAttendanceInput[],
   ): Promise<AttendanceEntity[]> {
     return this.prisma.$transaction(
-      records.map((item) =>
-        this.prisma.attendances.upsert({
-          where: {
-            schedule_id_student_id_attendance_date: {
-              schedule_id: item.schedule_id,
-              student_id: item.student_id,
-              attendance_date: item.attendance_date,
-            },
-          },
-          create: {
-            schedule_id: item.schedule_id,
-            student_id: item.student_id,
-            attendance_status_id: item.attendance_status_id,
-            attendance_date: item.attendance_date,
-            notes: item.notes ?? null,
-          },
-          update: {
-            attendance_status_id: item.attendance_status_id,
-            ...(item.notes !== undefined ? { notes: item.notes } : {}),
-            deleted_at: null,
-          },
-          select: attendanceSelect,
-        }),
-      ),
+      records.map((item) => this.upsertItem(item)),
     ) as unknown as Promise<AttendanceEntity[]>;
   }
 
@@ -250,14 +321,26 @@ export class AttendanceRepository {
         deleted_at: null,
         ...(institutionId
           ? {
-              schedule: {
-                classSubject: {
-                  class: {
-                    institution_id: institutionId,
-                    deleted_at: null,
+              OR: [
+                {
+                  schedule: {
+                    classSubject: {
+                      class: {
+                        institution_id: institutionId,
+                        deleted_at: null,
+                      },
+                    },
                   },
                 },
-              },
+                {
+                  attendance_schedule: {
+                    class: {
+                      institution_id: institutionId,
+                      deleted_at: null,
+                    },
+                  },
+                },
+              ],
             }
           : {}),
       },
@@ -271,18 +354,34 @@ export class AttendanceRepository {
   ): Promise<AttendanceEntity[]> {
     return this.prisma.attendances.findMany({
       where: {
-        schedule_id,
+        OR: [{ schedule_id }, { attendance_schedule_id: schedule_id }],
         deleted_at: null,
         ...(institutionId
           ? {
-              schedule: {
-                classSubject: {
-                  class: {
-                    institution_id: institutionId,
-                    deleted_at: null,
-                  },
+              AND: [
+                {
+                  OR: [
+                    {
+                      schedule: {
+                        classSubject: {
+                          class: {
+                            institution_id: institutionId,
+                            deleted_at: null,
+                          },
+                        },
+                      },
+                    },
+                    {
+                      attendance_schedule: {
+                        class: {
+                          institution_id: institutionId,
+                          deleted_at: null,
+                        },
+                      },
+                    },
+                  ],
                 },
-              },
+              ],
             }
           : {}),
       },
@@ -334,7 +433,7 @@ export class AttendanceRepository {
   ): Promise<AttendanceEntity | null> {
     return this.prisma.attendances.findFirst({
       where: {
-        schedule_id,
+        OR: [{ schedule_id }, { attendance_schedule_id: schedule_id }],
         student_id,
         attendance_date,
         deleted_at: null,
@@ -435,6 +534,9 @@ export class AttendanceRepository {
       data: {
         ...(data.schedule_id !== undefined && {
           schedule_id: data.schedule_id,
+        }),
+        ...(data.attendance_schedule_id !== undefined && {
+          attendance_schedule_id: data.attendance_schedule_id,
         }),
         ...(data.student_id !== undefined && {
           student_id: data.student_id,

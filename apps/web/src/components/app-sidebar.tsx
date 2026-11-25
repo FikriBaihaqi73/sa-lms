@@ -280,13 +280,24 @@ export function AppSidebar() {
 
 						<SidebarNavGroup
 							title="Kehadiran"
-							paths={["/attendance-statuses", "/attendances"]}
+							paths={[
+								"/attendance-statuses",
+								"/attendance-schedules",
+								"/attendances",
+							]}
 						>
 							{hasExplicitAdminRole && (
 								<NavItem
 									to="/attendance-statuses"
 									icon={ClipboardCheck}
 									label="Status Kehadiran"
+								/>
+							)}
+							{hasExplicitAdminRole && (
+								<NavItem
+									to="/attendance-schedules"
+									icon={Calendar}
+									label="Tambah Absensi"
 								/>
 							)}
 							{hasExplicitAdminRole && (

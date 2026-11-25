@@ -3,12 +3,28 @@ import type { Prisma } from "#generated/client";
 export const attendanceSelect = {
   id: true,
   schedule_id: true,
+  attendance_schedule_id: true,
   student_id: true,
   attendance_status_id: true,
   attendance_date: true,
   notes: true,
   created_at: true,
   updated_at: true,
+  attendance_schedule: {
+    select: {
+      id: true,
+      title: true,
+      scheduleType: true,
+      classId: true,
+      class: {
+        select: {
+          id: true,
+          name: true,
+          grade_level: true,
+        },
+      },
+    },
+  },
   attendance_status: {
     select: {
       id: true,
