@@ -1,4 +1,10 @@
-import { CheckCircle2, Download, Users } from "lucide-react";
+import {
+	Calendar,
+	CheckCircle2,
+	Download,
+	LayoutDashboard,
+	Users,
+} from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -18,6 +24,7 @@ import type { AttendanceMatrixStudentRow, AttendanceMonthDay } from "../types";
 import { AttendanceFilter } from "./attendance-filter";
 import { AttendanceMatrixTable } from "./attendance-matrix-table";
 import { AttendanceNoteDialog } from "./attendance-note-popover";
+import { AttendanceOverviewTab } from "./attendance-overview-tab";
 import { AttendanceStats } from "./attendance-stats";
 
 const DAY_NAMES = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
@@ -46,6 +53,9 @@ function parseErrorMessage(err: unknown): string {
 }
 
 export const AttendancesPage: React.FC = () => {
+	// Active Tab State ("overview" | "matrix")
+	const [activeTab, setActiveTab] = useState<"overview" | "matrix">("overview");
+
 	// Date & Period state (Defaults to current month and year)
 	const now = new Date();
 	const [month, setMonth] = useState<number>(now.getMonth() + 1);
@@ -710,100 +720,139 @@ export const AttendancesPage: React.FC = () => {
 					</div>
 				)}
 
-				{/* Header Halaman (1:1 Sesuai Referensi Gambar 2) */}
-				<header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<div className="flex items-center gap-3">
-						<div className="flex size-11 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-500/30 dark:bg-blue-600/20 dark:text-blue-400">
-							<Users className="size-5" />
-						</div>
-						<div>
-							<h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-								Overview & Report Presensi Siswa
-							</h1>
-							<p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-								Laporan real-time dan matriks kehadiran siswa otomatis
-								berdasarkan kelas, jadwal pelajaran, dan periode bulan.
-							</p>
-						</div>
-					</div>
-
-					{/* Tombol Aksi Kanan Atas: Set Semua Hadir Hari Ini & Ekspor Rekap */}
-					<div className="flex flex-wrap items-center gap-2.5">
+				{/* Navigation Tabs (Overview vs Matrix Presensi) */}
+				<div className="flex border-b border-slate-200 dark:border-slate-800">
+					<div className="flex gap-2">
 						<button
 							type="button"
-							onClick={handleSetAllPresentToday}
-							disabled={bulkUpsertMutation.isPending}
-							className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-medium text-emerald-700 shadow-sm transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/40"
+							onClick={() => setActiveTab("overview")}
+							className={`inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition-all ${
+								activeTab === "overview"
+									? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
+									: "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+							}`}
 						>
-							<CheckCircle2 className="size-3.5" />
-							<span>Set Semua Hadir Hari Ini</span>
+							<LayoutDashboard className="size-4" />
+							<span>Overview & Rangkuman</span>
 						</button>
-
 						<button
 							type="button"
-							onClick={handleExportRekap}
-							className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+							onClick={() => setActiveTab("matrix")}
+							className={`inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition-all ${
+								activeTab === "matrix"
+									? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
+									: "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+							}`}
 						>
-							<Download className="size-3.5" />
-							<span>Ekspor Rekap</span>
+							<Calendar className="size-4" />
+							<span>Matriks Presensi Kelas</span>
 						</button>
 					</div>
-				</header>
+				</div>
 
-				{/* 6 Kartu Statistik Ringkasan (1:1 Sesuai Referensi Gambar 2) */}
-				<AttendanceStats
-					summary={summaryData}
-					isLoading={isAttendancesLoading}
-				/>
+				{/* TAB 1: OVERVIEW & RANGKUMAN MENYELURUH */}
+				{activeTab === "overview" && <AttendanceOverviewTab />}
 
-				{/* Bar Filter Matrix Compact */}
-				<AttendanceFilter
-					search={search}
-					onSearchChange={setSearch}
-					classId={classId}
-					onClassChange={(val) => {
-						setClassId(val);
-						setScheduleId("");
-					}}
-					scheduleId={scheduleId}
-					onScheduleChange={setScheduleId}
-					academicYearId={academicYearId}
-					onAcademicYearChange={(val) => {
-						setAcademicYearId(val);
-						const nextClasses = classOptions.filter(
-							(c) => !c.academic_year_id || c.academic_year_id === val,
-						);
-						const firstClass = nextClasses[0]?.id || classOptions[0]?.id || "";
-						setClassId(firstClass);
-						setScheduleId("");
-					}}
-					month={month}
-					onMonthChange={setMonth}
-					year={year}
-					onYearChange={setYear}
-					statusFilter={statusFilter}
-					onStatusFilterChange={setStatusFilter}
-					classOptions={filteredClassOptions}
-					scheduleOptions={scheduleOptions}
-					statusOptions={statusOptions}
-					academicYearOptions={academicYearOptions}
-					onReset={handleResetFilters}
-				/>
+				{/* TAB 2: MATRIKS PRESENSI KELAS */}
+				{activeTab === "matrix" && (
+					<div className="space-y-4">
+						{/* Header Halaman (1:1 Sesuai Referensi Gambar 2) */}
+						<header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<div className="flex items-center gap-3">
+								<div className="flex size-11 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-500/30 dark:bg-blue-600/20 dark:text-blue-400">
+									<Users className="size-5" />
+								</div>
+								<div>
+									<h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+										Matriks Presensi Per Kelas
+									</h1>
+									<p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+										Kelola kehadiran harian siswa secara rinci dengan matriks
+										interaktif bulanan.
+									</p>
+								</div>
+							</div>
 
-				{/* Matriks Kehadiran Bulanan */}
-				<AttendanceMatrixTable
-					monthDays={monthDays}
-					rows={matrixRows}
-					statusOptions={statusOptions}
-					isLoading={isAttendancesLoading}
-					isError={isError}
-					onRetry={() => refetch()}
-					onCellClick={handleOpenCellDialog}
-					onQuickStatusChange={handleQuickStatusChange}
-					onBulkMarkPresent={handleBulkMarkPresent}
-					scheduleTitle={scheduleTitle}
-					teacherName={teacherName}
-				/>
+							{/* Tombol Aksi Kanan Atas: Set Semua Hadir Hari Ini & Ekspor Rekap */}
+							<div className="flex flex-wrap items-center gap-2.5">
+								<button
+									type="button"
+									onClick={handleSetAllPresentToday}
+									disabled={bulkUpsertMutation.isPending}
+									className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-medium text-emerald-700 shadow-sm transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/40"
+								>
+									<CheckCircle2 className="size-3.5" />
+									<span>Set Semua Hadir Hari Ini</span>
+								</button>
+
+								<button
+									type="button"
+									onClick={handleExportRekap}
+									className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+								>
+									<Download className="size-3.5" />
+									<span>Ekspor Rekap</span>
+								</button>
+							</div>
+						</header>
+
+						{/* 6 Kartu Statistik Ringkasan (1:1 Sesuai Referensi Gambar 2) */}
+						<AttendanceStats
+							summary={summaryData}
+							isLoading={isAttendancesLoading}
+						/>
+
+						{/* Bar Filter Matrix Compact */}
+						<AttendanceFilter
+							search={search}
+							onSearchChange={setSearch}
+							classId={classId}
+							onClassChange={(val) => {
+								setClassId(val);
+								setScheduleId("");
+							}}
+							scheduleId={scheduleId}
+							onScheduleChange={setScheduleId}
+							academicYearId={academicYearId}
+							onAcademicYearChange={(val) => {
+								setAcademicYearId(val);
+								const nextClasses = classOptions.filter(
+									(c) => !c.academic_year_id || c.academic_year_id === val,
+								);
+								const firstClass =
+									nextClasses[0]?.id || classOptions[0]?.id || "";
+								setClassId(firstClass);
+								setScheduleId("");
+							}}
+							month={month}
+							onMonthChange={setMonth}
+							year={year}
+							onYearChange={setYear}
+							statusFilter={statusFilter}
+							onStatusFilterChange={setStatusFilter}
+							classOptions={filteredClassOptions}
+							scheduleOptions={scheduleOptions}
+							statusOptions={statusOptions}
+							academicYearOptions={academicYearOptions}
+							onReset={handleResetFilters}
+						/>
+
+						{/* Matriks Kehadiran Bulanan */}
+						<AttendanceMatrixTable
+							monthDays={monthDays}
+							rows={matrixRows}
+							statusOptions={statusOptions}
+							isLoading={isAttendancesLoading}
+							isError={isError}
+							onRetry={() => refetch()}
+							onCellClick={handleOpenCellDialog}
+							onQuickStatusChange={handleQuickStatusChange}
+							onBulkMarkPresent={handleBulkMarkPresent}
+							scheduleTitle={scheduleTitle}
+							teacherName={teacherName}
+						/>
+					</div>
+				)}
 
 				{/* Modal / Dialog Detail Catatan Siswa */}
 				<AttendanceNoteDialog

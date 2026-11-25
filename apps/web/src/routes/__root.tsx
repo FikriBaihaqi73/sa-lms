@@ -58,8 +58,6 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/settings/assignments",
 	"/assignments",
 	"/modules",
-
-]; 
 	"/announcements",
 ];
 
