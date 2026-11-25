@@ -16,6 +16,21 @@ export const CreateStudyPlanSchema = z.object({
     ),
 });
 
+export const CreateStudyPlanBundleSchema = z.object({
+  student_id: z.string().uuid().describe("ID Siswa yang mendaftar KRS"),
+  academic_year_id: z
+    .string()
+    .uuid()
+    .optional()
+    .describe(
+      "ID Tahun Ajaran (opsional, jika tidak dikirim akan otomatis mengikuti tahun ajaran mata pelajaran kelas)",
+    ),
+  class_subject_ids: z
+    .array(z.string().uuid().describe("ID Mata Pelajaran Kelas"))
+    .min(1)
+    .describe("Daftar ID Mata Pelajaran Kelas dalam Paket/Bundle"),
+});
+
 export const UpdateStudyPlanSchema = z.object({
   student_id: z
     .string()
@@ -75,5 +90,8 @@ export const StudyPlanQuerySchema = z.object({
 });
 
 export class CreateStudyPlanDto extends createZodDto(CreateStudyPlanSchema) {}
+export class CreateStudyPlanBundleDto extends createZodDto(
+  CreateStudyPlanBundleSchema,
+) {}
 export class UpdateStudyPlanDto extends createZodDto(UpdateStudyPlanSchema) {}
 export class StudyPlanQueryDto extends createZodDto(StudyPlanQuerySchema) {}

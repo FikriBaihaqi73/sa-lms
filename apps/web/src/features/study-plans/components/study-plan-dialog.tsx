@@ -2,6 +2,7 @@ import {
 	AlertTriangle,
 	Check,
 	ChevronDown,
+	PackageCheck,
 	Search,
 	Shield,
 	ShieldAlert,
@@ -20,6 +21,7 @@ import type {
 	AcademicYearOption,
 	ClassSubjectOption,
 	DepartmentOption,
+	SemesterOption,
 	StudentOption,
 	StudyPlan,
 } from "../types";
@@ -27,6 +29,7 @@ import type {
 export interface StudyPlanDialogSubmitPayload {
 	student_id: string;
 	academic_year_id: string;
+	semester_id?: string;
 	class_subject_id?: string;
 	class_subject_ids?: string[];
 }
@@ -38,9 +41,13 @@ interface StudyPlanDialogProps {
 	studyPlan?: StudyPlan | null;
 	initialStudentId?: string;
 	initialClassSubjectId?: string;
+	initialSemesterId?: string;
+	initialDepartmentId?: string;
+	initialBundleMode?: boolean;
 	students: StudentOption[];
 	classSubjects: ClassSubjectOption[];
 	academicYears: AcademicYearOption[];
+	semesters?: SemesterOption[];
 	departments?: DepartmentOption[];
 	existingStudyPlans?: StudyPlan[];
 	deactivatedIds?: string[];
@@ -55,9 +62,13 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 	studyPlan,
 	initialStudentId,
 	initialClassSubjectId,
+	initialSemesterId,
+	initialDepartmentId,
+	initialBundleMode = false,
 	students,
 	classSubjects,
 	academicYears,
+	semesters = [],
 	departments = [],
 	existingStudyPlans = [],
 	deactivatedIds = [],
@@ -70,6 +81,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 	const [selectedStudentId, setSelectedStudentId] = useState<string>("");
 	const [selectedAcademicYearId, setSelectedAcademicYearId] =
 		useState<string>("");
+	const [selectedSemesterId, setSelectedSemesterId] = useState<string>("");
 	const [selectedDepartmentPill, setSelectedDepartmentPill] =
 		useState<string>("");
 	const [selectedClassSubjectIds, setSelectedClassSubjectIds] = useState<
@@ -77,6 +89,8 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 	>([]);
 	const [selectedClassSubjectId, setSelectedClassSubjectId] =
 		useState<string>("");
+	const [isAutoBundleEnabled, setIsAutoBundleEnabled] =
+		useState<boolean>(initialBundleMode);
 
 	// Searchable Combobox States
 	const [isStudentDropdownOpen, setIsStudentDropdownOpen] = useState(false);
@@ -101,6 +115,44 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 		activeAcademicYearId,
 		deactivatedIds,
 	]);
+
+	// Available Semesters for selected Academic Year
+	const availableSemesters = useMemo(() => {
+		const targetAy = selectedAcademicYearId || activeAcademicYearId;
+		if (!targetAy) return semesters;
+		return semesters.filter((s) => s.academic_year_id === targetAy);
+	}, [semesters, selectedAcademicYearId, activeAcademicYearId]);
+
+	// Department bundle subjects
+	const departmentBundleSubjects = useMemo(() => {
+		if (!selectedDepartmentPill || selectedDepartmentPill === "umum") return [];
+		return activeClassSubjectsInYear.filter(
+			(cs) => cs.departmentId === selectedDepartmentPill,
+		);
+	}, [activeClassSubjectsInYear, selectedDepartmentPill]);
+
+	const departmentBundleCredits = useMemo(() => {
+		return departmentBundleSubjects.reduce(
+			(sum, cs) => sum + (cs.credits || 0),
+			0,
+		);
+	}, [departmentBundleSubjects]);
+
+	const currentDepartmentName = useMemo(() => {
+		if (!selectedDepartmentPill) return "";
+		if (selectedDepartmentPill === "umum") return "Umum / Tanpa Bidang";
+		const dept = departments.find((d) => d.id === selectedDepartmentPill);
+		return dept?.name || "Jurusan";
+	}, [selectedDepartmentPill, departments]);
+
+	const currentSemesterName = useMemo(() => {
+		if (selectedSemesterId) {
+			const s = semesters.find((item) => item.id === selectedSemesterId);
+			if (s) return s.name;
+		}
+		const ay = academicYears.find((item) => item.id === selectedAcademicYearId);
+		return ay?.academic_year || "Semester Aktif";
+	}, [selectedSemesterId, semesters, selectedAcademicYearId, academicYears]);
 
 	// 3. Department pills available strictly for the selected Academic Year
 	const departmentPills = useMemo(() => {
@@ -144,12 +196,14 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 		if (isOpen) {
 			setIsStudentDropdownOpen(false);
 			setStudentSearchQuery("");
+			setIsAutoBundleEnabled(initialBundleMode);
 
 			if (studyPlan) {
 				setSelectedStudentId(studyPlan.student_id);
 				setSelectedAcademicYearId(studyPlan.academic_year_id);
 				setSelectedClassSubjectId(studyPlan.class_subject_id);
 				setSelectedClassSubjectIds([studyPlan.class_subject_id]);
+				setSelectedSemesterId(initialSemesterId || "");
 
 				const deptId =
 					studyPlan.classSubject?.subject?.departmentId ||
@@ -167,21 +221,45 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 				setSelectedStudentId(initialStId);
 				setSelectedAcademicYearId(defaultAy);
 
+				const matchingSem =
+					(initialSemesterId &&
+						semesters.find((s) => s.id === initialSemesterId)) ||
+					semesters.find(
+						(s) => s.academic_year_id === defaultAy && s.is_active,
+					) ||
+					semesters.find((s) => s.academic_year_id === defaultAy) ||
+					semesters[0];
+				setSelectedSemesterId(matchingSem ? matchingSem.id : "");
+
 				if (initialClassSubjectId) {
 					setSelectedClassSubjectIds([initialClassSubjectId]);
 					setSelectedClassSubjectId(initialClassSubjectId);
 					const cs = classSubjects.find((c) => c.id === initialClassSubjectId);
 					setSelectedDepartmentPill(cs?.departmentId || "umum");
 				} else {
-					setSelectedClassSubjectIds([]);
-					setSelectedClassSubjectId("");
-
 					const st = students.find((s) => s.id === initialStId);
-					if (st?.departmentId) {
-						setSelectedDepartmentPill(st.departmentId);
+					const targetDept =
+						initialDepartmentId || st?.departmentId || "";
+					setSelectedDepartmentPill(targetDept);
+
+					if (initialBundleMode && targetDept && targetDept !== "umum") {
+						const deptSubjects = classSubjects.filter((cs) => {
+							if (deactivatedIds.includes(cs.id)) return false;
+							if (cs.isActive === false) return false;
+							if (
+								defaultAy &&
+								cs.academicYearId &&
+								cs.academicYearId !== defaultAy
+							) {
+								return false;
+							}
+							return cs.departmentId === targetDept;
+						});
+						setSelectedClassSubjectIds(deptSubjects.map((cs) => cs.id));
 					} else {
-						setSelectedDepartmentPill("");
+						setSelectedClassSubjectIds([]);
 					}
+					setSelectedClassSubjectId("");
 				}
 			}
 		} else {
@@ -193,10 +271,15 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 		studyPlan,
 		initialStudentId,
 		initialClassSubjectId,
+		initialSemesterId,
+		initialDepartmentId,
+		initialBundleMode,
 		activeAcademicYearId,
 		academicYears,
+		semesters,
 		students,
 		classSubjects,
+		deactivatedIds,
 	]);
 
 	// 5. Auto-select academic year when options load or become available
@@ -242,7 +325,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 		}
 	}, [departmentPills, selectedDepartmentPill, selectedStudentId, students]);
 
-	// Auto-select department pill when student changes (in Add mode)
+	// Auto-select department pill and bundle when student changes (in Add mode)
 	useEffect(() => {
 		if (selectedStudentId && !isEditing) {
 			const st = students.find((s) => s.id === selectedStudentId);
@@ -251,16 +334,146 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 				departmentPills.some((p) => p.id === st.departmentId)
 			) {
 				setSelectedDepartmentPill(st.departmentId);
+				if (isAutoBundleEnabled) {
+					const targetAy = selectedAcademicYearId || activeAcademicYearId;
+					const deptSubjects = classSubjects.filter((cs) => {
+						if (deactivatedIds.includes(cs.id)) return false;
+						if (cs.isActive === false) return false;
+						if (
+							targetAy &&
+							cs.academicYearId &&
+							cs.academicYearId !== targetAy
+						) {
+							return false;
+						}
+						return cs.departmentId === st.departmentId;
+					});
+					setSelectedClassSubjectIds(deptSubjects.map((cs) => cs.id));
+				}
 			}
 		}
-	}, [selectedStudentId, students, isEditing, departmentPills]);
+	}, [
+		selectedStudentId,
+		students,
+		isEditing,
+		departmentPills,
+		isAutoBundleEnabled,
+		classSubjects,
+		deactivatedIds,
+		selectedAcademicYearId,
+		activeAcademicYearId,
+	]);
 
-	// When Academic Year changes, reset selected class subjects (in Add mode)
+	// Department Pill Change Handler with auto-bundling
+	const handleDepartmentPillChange = (deptId: string) => {
+		setSelectedDepartmentPill(deptId);
+		if (!isEditing && isAutoBundleEnabled && deptId && deptId !== "umum") {
+			const targetAy = selectedAcademicYearId || activeAcademicYearId;
+			const deptSubjects = classSubjects.filter((cs) => {
+				if (deactivatedIds.includes(cs.id)) return false;
+				if (cs.isActive === false) return false;
+				if (
+					targetAy &&
+					cs.academicYearId &&
+					cs.academicYearId !== targetAy
+				) {
+					return false;
+				}
+				return cs.departmentId === deptId;
+			});
+			setSelectedClassSubjectIds(deptSubjects.map((cs) => cs.id));
+		}
+	};
+
+	// When Academic Year changes, update semester and bundle
 	const handleAcademicYearChange = (newAyId: string) => {
 		setSelectedAcademicYearId(newAyId);
+		const semsInNewYear = semesters.filter(
+			(s) => s.academic_year_id === newAyId,
+		);
+		const activeSem =
+			semsInNewYear.find((s) => s.is_active) || semsInNewYear[0];
+		setSelectedSemesterId(activeSem ? activeSem.id : "");
+
 		if (!isEditing) {
-			setSelectedClassSubjectIds([]);
+			if (
+				isAutoBundleEnabled &&
+				selectedDepartmentPill &&
+				selectedDepartmentPill !== "umum"
+			) {
+				const deptSubjects = classSubjects.filter((cs) => {
+					if (deactivatedIds.includes(cs.id)) return false;
+					if (cs.isActive === false) return false;
+					if (newAyId && cs.academicYearId && cs.academicYearId !== newAyId) {
+						return false;
+					}
+					return cs.departmentId === selectedDepartmentPill;
+				});
+				setSelectedClassSubjectIds(deptSubjects.map((cs) => cs.id));
+			} else {
+				setSelectedClassSubjectIds([]);
+			}
 		}
+	};
+
+	// When Semester changes, sync academic year and bundle
+	const handleSemesterChange = (newSemId: string) => {
+		setSelectedSemesterId(newSemId);
+		if (newSemId) {
+			setIsAutoBundleEnabled(true);
+			const sem = semesters.find((s) => s.id === newSemId);
+			if (
+				sem &&
+				sem.academic_year_id &&
+				sem.academic_year_id !== selectedAcademicYearId
+			) {
+				setSelectedAcademicYearId(sem.academic_year_id);
+			}
+			if (
+				!isEditing &&
+				selectedDepartmentPill &&
+				selectedDepartmentPill !== "umum"
+			) {
+				const targetAy =
+					sem?.academic_year_id ||
+					selectedAcademicYearId ||
+					activeAcademicYearId;
+				const deptSubjects = classSubjects.filter((cs) => {
+					if (deactivatedIds.includes(cs.id)) return false;
+					if (cs.isActive === false) return false;
+					if (
+						targetAy &&
+						cs.academicYearId &&
+						cs.academicYearId !== targetAy
+					) {
+						return false;
+					}
+					return cs.departmentId === selectedDepartmentPill;
+				});
+				setSelectedClassSubjectIds(deptSubjects.map((cs) => cs.id));
+			}
+		}
+	};
+
+	// Bundle operations: Apply All / Clear All
+	const handleApplyBundle = () => {
+		if (departmentBundleSubjects.length === 0) return;
+		const bundleIds = departmentBundleSubjects.map((cs) => cs.id);
+		setSelectedClassSubjectIds((prev) => {
+			const set = new Set(prev);
+			for (const id of bundleIds) {
+				set.add(id);
+			}
+			return Array.from(set);
+		});
+	};
+
+	const handleClearBundle = () => {
+		if (departmentBundleSubjects.length === 0) return;
+		const bundleIdSet = new Set(departmentBundleSubjects.map((cs) => cs.id));
+		setSelectedClassSubjectIds((prev) =>
+			prev.filter((id) => !bundleIdSet.has(id)),
+		);
 	};
 
 	// Focus search input when combobox opens
@@ -405,6 +618,19 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 	const sisaKuota = batasMaksimalSks - totalSksAkhir;
 	const isOverLimit = totalSksAkhir > batasMaksimalSks;
 
+	const isAllBundleSelected = useMemo(() => {
+		if (departmentBundleSubjects.length === 0) return false;
+		return departmentBundleSubjects.every(
+			(cs) =>
+				selectedClassSubjectIds.includes(cs.id) ||
+				alreadyTakenClassSubjectIds.has(cs.id),
+		);
+	}, [
+		departmentBundleSubjects,
+		selectedClassSubjectIds,
+		alreadyTakenClassSubjectIds,
+	]);
+
 	// Toggle subject selection
 	const handleToggleClassSubject = (id: string) => {
 		if (isEditing) {
@@ -425,6 +651,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 			await onSubmit({
 				student_id: selectedStudentId,
 				academic_year_id: selectedAcademicYearId,
+				semester_id: selectedSemesterId || undefined,
 				class_subject_id: selectedClassSubjectId,
 				class_subject_ids: [selectedClassSubjectId],
 			});
@@ -433,6 +660,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 			await onSubmit({
 				student_id: selectedStudentId,
 				academic_year_id: selectedAcademicYearId,
+				semester_id: selectedSemesterId || undefined,
 				class_subject_id: selectedClassSubjectIds[0],
 				class_subject_ids: selectedClassSubjectIds,
 			});
@@ -617,33 +845,54 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 							</div>
 						</div>
 
-						{/* Urutan 2: Tahun Ajaran */}
-						<div>
+						{/* Urutan 2: Tahun Ajaran & Semester */}
+						<div className="space-y-1">
 							<label
 								htmlFor="academic_year_id"
-								className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+								className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
 							>
-								2. TAHUN AJARAN{" "}
+								2. TAHUN AJARAN & SEMESTER{" "}
 								<span className="text-rose-500 dark:text-rose-400">*</span>
 							</label>
-							<select
-								id="academic_year_id"
-								value={selectedAcademicYearId}
-								onChange={(e) => handleAcademicYearChange(e.target.value)}
-								className="h-10 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
-							>
-								<option value="">Pilih Tahun Ajaran</option>
-								{academicYears.map((ay) => {
-									const statusText = ay.is_active ? "Aktif" : "Tidak Aktif";
-									const labelText = `${ay.academic_year} (${statusText})`;
+							<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+								<div>
+									<select
+										id="academic_year_id"
+										value={selectedAcademicYearId}
+										onChange={(e) => handleAcademicYearChange(e.target.value)}
+										aria-label="Pilih Tahun Ajaran"
+										className="h-10 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
+									>
+										<option value="">Pilih Tahun Ajaran</option>
+										{academicYears.map((ay) => {
+											const statusText = ay.is_active ? "Aktif" : "Tidak Aktif";
+											const labelText = `${ay.academic_year} (${statusText})`;
 
-									return (
-										<option key={ay.id} value={ay.id}>
-											{labelText}
-										</option>
-									);
-								})}
-							</select>
+											return (
+												<option key={ay.id} value={ay.id}>
+													{labelText}
+												</option>
+											);
+										})}
+									</select>
+								</div>
+								<div>
+									<select
+										id="semester_id"
+										value={selectedSemesterId}
+										onChange={(e) => handleSemesterChange(e.target.value)}
+										aria-label="Pilih Semester"
+										className="h-10 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
+									>
+										<option value="">Pilih Semester</option>
+										{availableSemesters.map((sem) => (
+											<option key={sem.id} value={sem.id}>
+												{sem.name} {sem.is_active ? "(Aktif)" : ""}
+											</option>
+										))}
+									</select>
+								</div>
+							</div>
 						</div>
 					</div>
 
@@ -675,7 +924,7 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 										<button
 											key={dept.id}
 											type="button"
-											onClick={() => setSelectedDepartmentPill(dept.id)}
+											onClick={() => handleDepartmentPillChange(dept.id)}
 											className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
 												isSelected
 													? "border border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-400"
@@ -696,6 +945,73 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 							</div>
 						)}
 					</div>
+
+					{/* 3B. Paket KRS Jurusan dalam Semester (Bundle Card) */}
+					{departmentBundleSubjects.length > 0 && !isEditing && (
+						<div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-blue-50/90 p-3.5 shadow-sm dark:border-blue-900/60 dark:from-blue-950/40 dark:via-indigo-950/30 dark:to-blue-950/40">
+							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+								<div className="flex items-start gap-3">
+									<div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm dark:bg-blue-500">
+										<PackageCheck className="size-5" />
+									</div>
+									<div>
+										<div className="flex items-center gap-2 flex-wrap">
+											<span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+												Paket KRS: {currentDepartmentName}
+											</span>
+											<span className="rounded-md border border-blue-200 bg-blue-100/70 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+												{currentSemesterName}
+											</span>
+										</div>
+										<p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400">
+											Sistem menggabungkan paket{" "}
+											<strong className="text-slate-900 dark:text-white">
+												{departmentBundleSubjects.length} mata pelajaran
+											</strong>{" "}
+											dengan bobot{" "}
+											<strong className="text-blue-700 dark:text-blue-300">
+												{departmentBundleCredits} SKS
+											</strong>{" "}
+											untuk jurusan ini pada semester ini.
+										</p>
+									</div>
+								</div>
+
+								<div className="flex items-center gap-2 shrink-0">
+									<button
+										type="button"
+										onClick={
+											isAllBundleSelected
+												? handleClearBundle
+												: handleApplyBundle
+										}
+										className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm transition-all ${
+											isAllBundleSelected
+												? "border border-emerald-300 bg-emerald-100/80 text-emerald-800 hover:bg-emerald-200/80 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+												: "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
+										}`}
+									>
+										{isAllBundleSelected ? (
+											<>
+												<Check className="size-3.5 text-emerald-700 dark:text-emerald-400" />
+												<span>
+													Paket Tergabung ({departmentBundleSubjects.length} Mapel)
+												</span>
+											</>
+										) : (
+											<>
+												<PackageCheck className="size-3.5" />
+												<span>
+													Gabungkan Semua Paket ({departmentBundleSubjects.length}{" "}
+													Mapel • {departmentBundleCredits} SKS)
+												</span>
+											</>
+										)}
+									</button>
+								</div>
+							</div>
+						</div>
+					)}
 
 					{/* 4. Urutan 4: Daftar Mata Pelajaran Kelas (Multi-Select Checkbox Cards) */}
 					<div className="space-y-2">
@@ -751,6 +1067,12 @@ export const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({
 														<span className="font-bold text-xs text-slate-900 dark:text-white">
 															{cs.subjectName}
 														</span>
+														{cs.departmentId === selectedDepartmentPill &&
+															selectedDepartmentPill !== "umum" && (
+																<span className="rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">
+																	Paket Jurusan
+																</span>
+															)}
 														{isAlreadyTaken && (
 															<span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
 																Sudah Diambil

@@ -4,6 +4,7 @@ import {
 	ChevronDown,
 	ChevronUp,
 	GraduationCap,
+	PackageCheck,
 	Plus,
 	RefreshCw,
 	Trash2,
@@ -18,6 +19,7 @@ interface StudyPlanStudentTableProps {
 	isError?: boolean;
 	onRetry?: () => void;
 	onAddSubjectClick: (studentId: string) => void;
+	onAddBundleClick?: (studentId: string) => void;
 	onDropSubjectClick: (studyPlan: StudyPlan) => void;
 }
 
@@ -27,6 +29,7 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 	isError = false,
 	onRetry,
 	onAddSubjectClick,
+	onAddBundleClick,
 	onDropSubjectClick,
 }) => {
 	const [expandedStudentIds, setExpandedStudentIds] = useState<Set<string>>(
@@ -249,6 +252,21 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 													<Plus className="size-3" />
 													<span>Mapel</span>
 												</button>
+
+												{onAddBundleClick && (
+													<button
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
+															onAddBundleClick(student.studentId);
+														}}
+														title="Ambil Paket KRS Jurusan dalam Semester (Bundle)"
+														className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1.5 text-[11px] font-medium text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-800/80 dark:bg-indigo-950/60 dark:text-indigo-300 dark:hover:bg-indigo-900/60"
+													>
+														<PackageCheck className="size-3" />
+														<span>+ Paket</span>
+													</button>
+												)}
 											</div>
 										</td>
 									</tr>

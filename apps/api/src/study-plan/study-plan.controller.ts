@@ -11,6 +11,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseHelper } from "@repo/shared/http/response";
 import {
+  CreateStudyPlanBundleDto,
   CreateStudyPlanDto,
   UpdateStudyPlanDto,
 } from "@repo/shared/schemas/study-plan.schema";
@@ -72,6 +73,21 @@ export class StudyPlanController {
     return ResponseHelper.success(
       await this.studyPlanService.create(dto),
       "Study plan created successfully",
+      201,
+    );
+  }
+
+  @Post("bundle")
+  @ApiOperation({
+    summary:
+      "Create study plans in bundle (penggabungan mata pelajaran jurusan)",
+  })
+  async createBundle(
+    @Body(new ZodValidationPipe()) dto: CreateStudyPlanBundleDto,
+  ) {
+    return ResponseHelper.success(
+      await this.studyPlanService.createBundle(dto),
+      "Paket KRS jurusan berhasil didaftarkan",
       201,
     );
   }

@@ -1,16 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	createStudyPlanApi,
+	createStudyPlanBundleApi,
 	deleteStudyPlanApi,
 	getAcademicYearsOptionsApi,
 	getClassSubjectsOptionsApi,
 	getDepartmentsOptionsApi,
+	getSemestersOptionsApi,
 	getStudentsOptionsApi,
 	getStudyPlanByIdApi,
 	getStudyPlansApi,
 	updateStudyPlanApi,
 } from "../api";
 import type {
+	CreateStudyPlanBundleInput,
 	CreateStudyPlanInput,
 	StudyPlanFilters,
 	UpdateStudyPlanInput,
@@ -49,6 +52,17 @@ export function useCreateStudyPlan() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (input: CreateStudyPlanInput) => createStudyPlanApi(input),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: STUDY_PLANS_QUERY_KEY });
+		},
+	});
+}
+
+export function useCreateStudyPlanBundle() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (input: CreateStudyPlanBundleInput) =>
+			createStudyPlanBundleApi(input),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: STUDY_PLANS_QUERY_KEY });
 		},
@@ -104,6 +118,14 @@ export function useDepartmentsOptions() {
 	return useQuery({
 		queryKey: ["departments", "options", "study-plans"],
 		queryFn: getDepartmentsOptionsApi,
+		staleTime: 60000,
+	});
+}
+
+export function useSemestersOptions(academicYearId?: string) {
+	return useQuery({
+		queryKey: ["semesters", "options", "study-plans", academicYearId || "all"],
+		queryFn: () => getSemestersOptionsApi(academicYearId),
 		staleTime: 60000,
 	});
 }
