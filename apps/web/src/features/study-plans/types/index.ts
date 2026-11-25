@@ -98,6 +98,7 @@ export interface StudyPlanFilters {
 	student_id?: string;
 	class_subject_id?: string;
 	academic_year_id?: string;
+	semester_id?: string;
 	department_id?: string;
 }
 
@@ -105,6 +106,19 @@ export interface CreateStudyPlanInput {
 	student_id: string;
 	class_subject_id: string;
 	academic_year_id?: string;
+}
+
+export interface CreateStudyPlanBundleInput {
+	student_id: string;
+	academic_year_id?: string;
+	class_subject_ids: string[];
+}
+
+export interface StudyPlanBundleResult {
+	totalRequested: number;
+	totalEnrolled: number;
+	totalSkipped: number;
+	data: StudyPlan[];
 }
 
 export interface UpdateStudyPlanInput {
@@ -169,6 +183,28 @@ export interface DepartmentOption {
 	id: string;
 	name: string;
 	code: string;
+}
+
+export interface SemesterOption {
+	id: string;
+	academic_year_id: string;
+	name: string;
+	is_active: boolean;
+	academicYearName?: string | null;
+	label: string;
+}
+
+export interface DepartmentSemesterBundle {
+	departmentId: string;
+	departmentName: string;
+	departmentCode?: string;
+	academicYearId: string;
+	academicYearName?: string;
+	semesterId?: string;
+	semesterName?: string;
+	subjects: ClassSubjectOption[];
+	totalSubjects: number;
+	totalCredits: number;
 }
 
 export interface StudyPlanSummaryStats {
