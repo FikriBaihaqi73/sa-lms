@@ -17,9 +17,10 @@ model Classes {
   institution      Institution     @relation(fields: [institution_id], references: [id])
   homeroom_teacher Teachers?       @relation(fields: [homeroom_teacher_id], references: [id])
   academic_year    AcademicYears   @relation(fields: [academic_year_id], references: [id])
-  classStudents      ClassStudent[]
-  classSubjects      ClassSubjects[]
-  classAnnouncements ClassAnnouncement[]
+  classStudents       ClassStudent[]
+  classSubjects       ClassSubjects[]
+  classAnnouncements  ClassAnnouncement[]
+  attendanceSchedules AttendanceSchedules[]
 
   @@index([institution_id])
   @@index([homeroom_teacher_id])

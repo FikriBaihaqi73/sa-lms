@@ -74,24 +74,27 @@ export class AttendanceService {
       institutionId,
     );
     if (!attendance) {
-      throw new NotFoundException("Attendance not found");
+      throw new NotFoundException("Data presensi tidak ditemukan.");
     }
     return attendance;
   }
 
   async create(dto: CreateAttendanceDto, userId?: string) {
     const institutionId = await this.institutionIdFor(userId);
-    await this.ensureRelationsExist(dto, institutionId);
+    const resolved = await this.ensureRelationsExist(dto, institutionId);
 
     const attendanceDate = this.normalizeDate(dto.attendance_date);
     await this.ensureAttendanceDoesNotExist(
-      dto.schedule_id,
+      resolved.schedule_id ??
+        resolved.attendance_schedule_id ??
+        dto.schedule_id,
       dto.student_id,
       attendanceDate,
     );
 
     return this.attendanceRepository.create({
-      schedule_id: dto.schedule_id,
+      schedule_id: resolved.schedule_id,
+      attendance_schedule_id: resolved.attendance_schedule_id,
       student_id: dto.student_id,
       attendance_status_id: dto.attendance_status_id,
       attendance_date: attendanceDate,
@@ -101,7 +104,7 @@ export class AttendanceService {
 
   async upsert(dto: UpsertAttendanceDto, userId?: string) {
     const institutionId = await this.institutionIdFor(userId);
-    await this.ensureRelationsExist(
+    const resolved = await this.ensureRelationsExist(
       {
         schedule_id: dto.schedule_id,
         student_id: dto.student_id,
@@ -112,11 +115,12 @@ export class AttendanceService {
 
     const attendanceDate = this.normalizeDate(dto.attendance_date);
     if (!attendanceDate) {
-      throw new NotFoundException("Invalid attendance date");
+      throw new NotFoundException("Format tanggal presensi tidak valid.");
     }
 
     return this.attendanceRepository.upsert({
-      schedule_id: dto.schedule_id,
+      schedule_id: resolved.schedule_id,
+      attendance_schedule_id: resolved.attendance_schedule_id,
       student_id: dto.student_id,
       attendance_status_id: dto.attendance_status_id,
       attendance_date: attendanceDate,
@@ -126,14 +130,10 @@ export class AttendanceService {
 
   async bulkUpsert(dto: BulkUpsertAttendanceDto, userId?: string) {
     const institutionId = await this.institutionIdFor(userId);
-    const schedule = await this.scheduleRepository.findById(dto.schedule_id);
-    if (!schedule) throw new NotFoundException("Schedule not found");
-    if (
-      institutionId &&
-      schedule.classSubject?.class?.institution_id !== institutionId
-    ) {
-      throw new NotFoundException("Schedule not found");
-    }
+    const resolved = await this.resolveScheduleContext(
+      dto.schedule_id,
+      institutionId,
+    );
 
     const status = institutionId
       ? await this.attendanceStatusRepository.findById(
@@ -141,13 +141,19 @@ export class AttendanceService {
           dto.attendance_status_id,
         )
       : null;
-    if (!status) throw new NotFoundException("Attendance status not found");
+    if (!status) {
+      throw new NotFoundException(
+        "Status kehadiran yang dipilih tidak ditemukan.",
+      );
+    }
 
     let studentIds = dto.student_ids ?? [];
     if (studentIds.length === 0) {
-      const classId = schedule.classSubject?.class_id;
+      const classId = resolved.class_id;
       if (!classId) {
-        throw new NotFoundException("Class not found for this schedule");
+        throw new NotFoundException(
+          "Kelas untuk jadwal absensi ini tidak ditemukan.",
+        );
       }
       const classStudents = await this.prisma.client.classStudent.findMany({
         where: { classId, deletedAt: null },
@@ -162,11 +168,12 @@ export class AttendanceService {
 
     const attendanceDate = this.normalizeDate(dto.attendance_date);
     if (!attendanceDate) {
-      throw new NotFoundException("Invalid attendance date");
+      throw new NotFoundException("Format tanggal presensi tidak valid.");
     }
 
     const records = studentIds.map((student_id) => ({
-      schedule_id: dto.schedule_id,
+      schedule_id: resolved.schedule_id,
+      attendance_schedule_id: resolved.attendance_schedule_id,
       student_id,
       attendance_status_id: dto.attendance_status_id,
       attendance_date: attendanceDate,
@@ -179,16 +186,20 @@ export class AttendanceService {
   async update(id: string, dto: UpdateAttendanceDto, userId?: string) {
     const current = await this.findOne(id, userId);
     const institutionId = await this.institutionIdFor(userId);
-    const scheduleId = dto.schedule_id ?? current.schedule_id;
+    const targetScheduleInput =
+      dto.schedule_id ??
+      current.schedule_id ??
+      current.attendance_schedule_id ??
+      "";
     const studentId = dto.student_id ?? current.student_id;
     const attendanceDate =
       dto.attendance_date === undefined
         ? (current.attendance_date ?? undefined)
         : this.normalizeDate(dto.attendance_date);
 
-    await this.ensureRelationsExist(
+    const resolved = await this.ensureRelationsExist(
       {
-        schedule_id: scheduleId,
+        schedule_id: targetScheduleInput,
         student_id: studentId,
         attendance_status_id:
           dto.attendance_status_id ?? current.attendance_status_id,
@@ -196,7 +207,9 @@ export class AttendanceService {
       institutionId,
     );
     await this.ensureAttendanceDoesNotExist(
-      scheduleId,
+      resolved.schedule_id ??
+        resolved.attendance_schedule_id ??
+        targetScheduleInput,
       studentId,
       attendanceDate,
       id,
@@ -204,7 +217,10 @@ export class AttendanceService {
 
     return this.attendanceRepository.update(id, {
       ...(dto.schedule_id !== undefined
-        ? { schedule_id: dto.schedule_id }
+        ? {
+            schedule_id: resolved.schedule_id,
+            attendance_schedule_id: resolved.attendance_schedule_id,
+          }
         : {}),
       ...(dto.student_id !== undefined ? { student_id: dto.student_id } : {}),
       ...(dto.attendance_status_id !== undefined
@@ -223,6 +239,65 @@ export class AttendanceService {
     return { success: true, id };
   }
 
+  private async resolveScheduleContext(
+    scheduleId: string,
+    institutionId?: string,
+  ): Promise<{
+    schedule_id: string | null;
+    attendance_schedule_id: string | null;
+    class_id: string | null;
+  }> {
+    const schedule = await this.scheduleRepository.findById(scheduleId);
+    if (schedule) {
+      if (
+        institutionId &&
+        schedule.classSubject?.class?.institution_id !== institutionId
+      ) {
+        throw new NotFoundException(
+          "Jadwal pelajaran tidak ditemukan pada institusi ini.",
+        );
+      }
+      return {
+        schedule_id: schedule.id,
+        attendance_schedule_id: null,
+        class_id: schedule.classSubject?.class_id ?? null,
+      };
+    }
+
+    const attendanceSchedule =
+      await this.prisma.client.attendanceSchedules.findFirst({
+        where: {
+          id: scheduleId,
+          deletedAt: null,
+          ...(institutionId
+            ? {
+                class: {
+                  institution_id: institutionId,
+                  deleted_at: null,
+                },
+              }
+            : {}),
+        },
+        select: {
+          id: true,
+          scheduleId: true,
+          classId: true,
+        },
+      });
+
+    if (attendanceSchedule) {
+      return {
+        schedule_id: attendanceSchedule.scheduleId ?? null,
+        attendance_schedule_id: attendanceSchedule.id,
+        class_id: attendanceSchedule.classId ?? null,
+      };
+    }
+
+    throw new NotFoundException(
+      "Jadwal absensi atau jadwal pelajaran tidak ditemukan.",
+    );
+  }
+
   private async ensureRelationsExist(
     data: {
       schedule_id: string;
@@ -231,8 +306,8 @@ export class AttendanceService {
     },
     institutionId?: string,
   ) {
-    const [schedule, student, attendanceStatus] = await Promise.all([
-      this.scheduleRepository.findById(data.schedule_id),
+    const [resolvedSchedule, student, attendanceStatus] = await Promise.all([
+      this.resolveScheduleContext(data.schedule_id, institutionId),
       this.studentRepository.findById(data.student_id, institutionId),
       institutionId
         ? this.attendanceStatusRepository.findById(
@@ -242,17 +317,18 @@ export class AttendanceService {
         : Promise.resolve(null),
     ]);
 
-    if (!schedule) throw new NotFoundException("Schedule not found");
-    if (
-      institutionId &&
-      schedule.classSubject?.class?.institution_id !== institutionId
-    ) {
-      throw new NotFoundException("Schedule not found");
+    if (!student) {
+      throw new NotFoundException(
+        "Data siswa tidak ditemukan pada institusi ini.",
+      );
     }
-    if (!student) throw new NotFoundException("Student not found");
     if (!attendanceStatus) {
-      throw new NotFoundException("Attendance status not found");
+      throw new NotFoundException(
+        "Status kehadiran yang dipilih tidak ditemukan.",
+      );
     }
+
+    return resolvedSchedule;
   }
 
   private async ensureAttendanceDoesNotExist(
@@ -270,7 +346,7 @@ export class AttendanceService {
       );
     if (existing && existing.id !== excludedId) {
       throw new ConflictException(
-        "Attendance already exists for this student, schedule, and date",
+        "Data presensi untuk siswa, jadwal, dan tanggal ini sudah ada.",
       );
     }
   }

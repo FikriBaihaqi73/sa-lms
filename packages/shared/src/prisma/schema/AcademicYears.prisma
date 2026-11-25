@@ -13,12 +13,13 @@ model AcademicYears {
   institution_id String? @db.Uuid
   institution   Institution? @relation(fields: [institution_id], references: [id])
 
-  classes       Classes[]
-  classSubjects ClassSubjects[]
-  studyPlans    StudyPlans[]
-  studentGrades StudentGrades[]
-  studyResults  StudyResult[]
-  semesters     Semesters[]
+  classes             Classes[]
+  classSubjects       ClassSubjects[]
+  studyPlans          StudyPlans[]
+  studentGrades       StudentGrades[]
+  studyResults        StudyResult[]
+  semesters           Semesters[]
+  attendanceSchedules AttendanceSchedules[]
 
   @@map("academic_years")
 }

@@ -10,6 +10,7 @@ import { AssignmentModule } from "./assignment/assignment.module";
 import { AssignmentSubmissionModule } from "./assignment-submission/assignment-submission.module";
 import { AssignmentTypeModule } from "./assignment-type/assignment-type.module";
 import { AttendanceModule } from "./attendance/attendance.module";
+import { AttendanceScheduleModule } from "./attendance-schedule/attendance-schedule.module";
 import { AttendanceStatusModule } from "./attendance-status/attendance-status.module";
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
@@ -68,6 +69,7 @@ import { UserModule } from "./user/user.module";
     EmploymentStatusModule,
     GuardianModule,
     AttendanceStatusModule,
+    AttendanceScheduleModule,
     SpecializationModule,
     AttendanceModule,
     StudyPlanModule,

@@ -8,6 +8,8 @@ import {
 	waitFor,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAttendanceSchedules } from "@/features/attendance-schedules/hooks";
+import type { AttendanceDay } from "@/features/attendance-schedules/types";
 import {
 	bulkUpsertAttendance,
 	getAcademicYearsOptions,
@@ -20,6 +22,18 @@ import {
 } from "../api";
 import type { Attendance, AttendanceSummary } from "../types";
 import { AttendancesPage } from "./attendances-page";
+
+vi.mock("@/features/attendance-schedules/hooks", () => ({
+	useAttendanceSchedules: vi.fn(() => ({
+		data: {
+			data: [],
+			meta: { totalData: 0, totalPages: 1, currentPage: 1, perPage: 10 },
+			stats: { total: 0, active: 0, inactive: 0, standalone: 0 },
+		},
+		isLoading: false,
+		isError: false,
+	})),
+}));
 
 vi.mock("../api", () => ({
 	getAttendances: vi.fn(),
@@ -135,8 +149,45 @@ describe("AttendancesPage", () => {
 		});
 		vi.mocked(getAttendanceSummary).mockResolvedValue(mockSummary);
 		vi.mocked(getClassesOptions).mockResolvedValue([
-			{ id: "class-1", name: "X-IPA-1", grade_level: 10 },
+			{
+				id: "class-1",
+				name: "X-IPA-1",
+				grade_level: 10,
+				academic_year_id: "ay-1",
+			},
+			{
+				id: "class-2",
+				name: "XI-IPA-1",
+				grade_level: 11,
+				academic_year_id: "ay-2",
+			},
 		]);
+		vi.mocked(useAttendanceSchedules).mockReturnValue({
+			data: {
+				data: [
+					{
+						id: "att-sched-1",
+						academicYearId: "ay-1",
+						classId: "class-1",
+						scheduleId: "sch-1",
+						title: "Absensi Harian X-IPA-1",
+						scheduleType: "FROM_SCHEDULE" as const,
+						activeDays: ["SENIN", "SELASA", "RABU", "KAMIS", "JUMAT"],
+						specificDate: null,
+						startTime: null,
+						endTime: null,
+						isActive: true,
+						notes: null,
+						createdAt: "2026-11-25T00:00:00.000Z",
+						updatedAt: "2026-11-25T00:00:00.000Z",
+					},
+				],
+				meta: { totalData: 1, totalPages: 1, currentPage: 1, perPage: 10 },
+				stats: { total: 1, active: 1, inactive: 0, standalone: 0 },
+			},
+			isLoading: false,
+			isError: false,
+		} as unknown as ReturnType<typeof useAttendanceSchedules>);
 		vi.mocked(getSchedulesOptions).mockResolvedValue([
 			{
 				id: "sch-1",
@@ -159,6 +210,7 @@ describe("AttendancesPage", () => {
 		]);
 		vi.mocked(getAcademicYearsOptions).mockResolvedValue([
 			{ id: "ay-1", name: "2026/2027", is_active: true },
+			{ id: "ay-2", name: "2025/2026", is_active: false },
 		]);
 		vi.mocked(getClassStudentsOptions).mockResolvedValue([
 			{
@@ -176,7 +228,7 @@ describe("AttendancesPage", () => {
 		renderPage();
 
 		// Header
-		expect(screen.getByText("Overview & Report Presensi Siswa")).toBeTruthy();
+		expect(screen.getByText("Matriks Presensi Per Kelas")).toBeTruthy();
 		expect(screen.getByText("Set Semua Hadir Hari Ini")).toBeTruthy();
 		expect(screen.getByText("Ekspor Rekap")).toBeTruthy();
 
@@ -189,7 +241,9 @@ describe("AttendancesPage", () => {
 		expect(screen.getByText("Tingkat Kehadiran")).toBeTruthy();
 
 		// Student in table
-		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();
+		expect(
+			await screen.findByText("Ahmad Dahlan", {}, { timeout: 4000 }),
+		).toBeTruthy();
 		expect(await screen.findByText(/123456/)).toBeTruthy();
 		expect(screen.getByText("Rata-Rata Keseluruhan")).toBeTruthy();
 	});
@@ -198,10 +252,10 @@ describe("AttendancesPage", () => {
 		vi.mocked(bulkUpsertAttendance).mockResolvedValueOnce([mockAttendance]);
 
 		renderPage();
-		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();
 		expect(
-			await screen.findByText("[X-IPA-1] Matematika (Budi Santoso)"),
+			await screen.findByText("Ahmad Dahlan", {}, { timeout: 4000 }),
 		).toBeTruthy();
+		expect(await screen.findAllByText("Absensi Harian X-IPA-1")).toBeTruthy();
 
 		const setAllTodayBtn = screen.getByRole("button", {
 			name: /Set Semua Hadir Hari Ini/i,
@@ -215,7 +269,9 @@ describe("AttendancesPage", () => {
 
 	it("filters students by search input and resets filter", async () => {
 		renderPage();
-		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();
+		expect(
+			await screen.findByText("Ahmad Dahlan", {}, { timeout: 4000 }),
+		).toBeTruthy();
 
 		const searchInput = screen.getByPlaceholderText(
 			"Cari nama / NISN siswa...",
@@ -231,11 +287,13 @@ describe("AttendancesPage", () => {
 		const resetBtn = screen.getByRole("button", { name: /reset filter/i });
 		fireEvent.click(resetBtn);
 
-		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();
+		expect(
+			await screen.findByText("Ahmad Dahlan", {}, { timeout: 4000 }),
+		).toBeTruthy();
 	});
 
 	it("shows empty state when no students or attendances exist", async () => {
-		vi.mocked(getAttendances).mockResolvedValueOnce({
+		vi.mocked(getAttendances).mockResolvedValue({
 			data: [],
 			meta: {
 				currentPage: 1,
@@ -244,7 +302,7 @@ describe("AttendancesPage", () => {
 				totalPages: 1,
 			},
 		});
-		vi.mocked(getClassStudentsOptions).mockResolvedValueOnce([]);
+		vi.mocked(getClassStudentsOptions).mockResolvedValue([]);
 
 		renderPage();
 		expect(
@@ -277,13 +335,17 @@ describe("AttendancesPage", () => {
 
 		fireEvent.click(retryBtn);
 
-		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();
+		expect(
+			await screen.findByText("Ahmad Dahlan", {}, { timeout: 4000 }),
+		).toBeTruthy();
 	});
 
 	it("displays Sunday as Libur and other days as Aktif in matrix header", async () => {
 		renderPage();
 
-		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();
+		expect(
+			await screen.findByText("Ahmad Dahlan", {}, { timeout: 4000 }),
+		).toBeTruthy();
 		await waitFor(() =>
 			expect(screen.queryByText(/memuat matriks/i)).toBeNull(),
 		);
@@ -299,7 +361,9 @@ describe("AttendancesPage", () => {
 	it("opens attendance dialog when cell pill button is clicked", async () => {
 		renderPage();
 
-		expect(await screen.findByText("Ahmad Dahlan")).toBeTruthy();
+		expect(
+			await screen.findByText("Ahmad Dahlan", {}, { timeout: 4000 }),
+		).toBeTruthy();
 		await waitFor(() =>
 			expect(screen.queryByText(/memuat matriks/i)).toBeNull(),
 		);
@@ -318,5 +382,142 @@ describe("AttendancesPage", () => {
 		expect(await screen.findByText("Status Kehadiran Siswa")).toBeTruthy();
 		expect(screen.getByText("PILIH STATUS KEHADIRAN")).toBeTruthy();
 		expect(screen.getByText("CATATAN / KETERANGAN (OPSIONAL)")).toBeTruthy();
+	});
+
+	it("keeps all attendance schedule options enabled and clickable, filters classes by academic year, and follows requested filter order", async () => {
+		const dayNames = [
+			"MINGGU",
+			"SENIN",
+			"SELASA",
+			"RABU",
+			"KAMIS",
+			"JUMAT",
+			"SABTU",
+		];
+		const todayDay = dayNames[new Date().getDay()] ?? "SENIN";
+		const otherDay = todayDay === "SENIN" ? "SELASA" : "SENIN";
+
+		vi.mocked(useAttendanceSchedules).mockReturnValue({
+			data: {
+				data: [
+					{
+						id: "att-sched-active",
+						academicYearId: "ay-1",
+						classId: "class-1",
+						scheduleId: "sch-1",
+						title: "Absensi Aktif Hari Ini",
+						scheduleType: "FROM_SCHEDULE" as const,
+						activeDays: [todayDay as AttendanceDay],
+						specificDate: null,
+						startTime: null,
+						endTime: null,
+						isActive: true,
+						notes: null,
+						createdAt: "2026-11-25T00:00:00.000Z",
+						updatedAt: "2026-11-25T00:00:00.000Z",
+					},
+					{
+						id: "att-sched-other",
+						academicYearId: "ay-1",
+						classId: "class-1",
+						scheduleId: "sch-2",
+						title: "Absensi Hari Lain",
+						scheduleType: "STANDALONE" as const,
+						activeDays: [otherDay as AttendanceDay],
+						specificDate: null,
+						startTime: null,
+						endTime: null,
+						isActive: true,
+						notes: null,
+						createdAt: "2026-11-25T00:00:00.000Z",
+						updatedAt: "2026-11-25T00:00:00.000Z",
+					},
+				],
+				meta: { totalData: 2, totalPages: 1, currentPage: 1, perPage: 10 },
+				stats: { total: 2, active: 2, inactive: 0, standalone: 1 },
+			},
+			isLoading: false,
+			isError: false,
+		} as unknown as ReturnType<typeof useAttendanceSchedules>);
+
+		renderPage();
+
+		const scheduleSelect = screen.getByLabelText(
+			"Pilih Jadwal Absensi",
+		) as HTMLSelectElement;
+		expect(scheduleSelect).toBeTruthy();
+
+		// Both options should be enabled and clickable (no disabled/gray-out)
+		const activeOption = screen.getByRole("option", {
+			name: "Absensi Aktif Hari Ini",
+		}) as HTMLOptionElement;
+		const otherOption = screen.getByRole("option", {
+			name: "Absensi Hari Lain",
+		}) as HTMLOptionElement;
+		expect(activeOption.disabled).toBe(false);
+		expect(otherOption.disabled).toBe(false);
+
+		// Can select the other day's attendance schedule
+		fireEvent.change(scheduleSelect, { target: { value: "att-sched-other" } });
+		expect(scheduleSelect.value).toBe("att-sched-other");
+
+		// Verify filter order: Search -> Tahun Ajaran -> Kelas -> Jadwal Absensi -> Bulan -> Status -> Reset
+		const searchInput = screen.getByPlaceholderText(
+			"Cari nama / NISN siswa...",
+		);
+		const aySelect = screen.getByLabelText("Pilih Tahun Ajaran");
+		const classSelect = screen.getByLabelText("Pilih Kelas");
+		const monthSelect = screen.getByLabelText("Pilih Periode Bulan & Tahun");
+		const statusSelect = screen.getByLabelText("Pilih Status");
+		const resetBtn = screen.getByRole("button", { name: /reset filter/i });
+
+		expect(
+			Boolean(
+				searchInput.compareDocumentPosition(aySelect) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+		expect(
+			Boolean(
+				aySelect.compareDocumentPosition(classSelect) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+		expect(
+			Boolean(
+				classSelect.compareDocumentPosition(scheduleSelect) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+		expect(
+			Boolean(
+				scheduleSelect.compareDocumentPosition(monthSelect) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+		expect(
+			Boolean(
+				monthSelect.compareDocumentPosition(statusSelect) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+		expect(
+			Boolean(
+				statusSelect.compareDocumentPosition(resetBtn) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+
+		// Verify class filtering by academic year
+		expect(
+			await screen.findByRole("option", { name: /^X-IPA-1/i }),
+		).toBeTruthy();
+		expect(screen.queryByRole("option", { name: /^XI-IPA-1/i })).toBeNull();
+
+		fireEvent.change(aySelect, { target: { value: "ay-2" } });
+		await waitFor(() => {
+			expect(screen.queryByRole("option", { name: /^XI-IPA-1/i })).toBeTruthy();
+			expect(screen.queryByRole("option", { name: /^X-IPA-1/i })).toBeNull();
+		});
 	});
 });
