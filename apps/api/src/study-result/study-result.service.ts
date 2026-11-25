@@ -3,7 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { StudyResultRepository } from "@repo/shared/infrastructure/repository/study-result.repository";
+import {
+  StudyResultRepository,
+  type StudyResultSearchInput,
+} from "@repo/shared/infrastructure/repository/study-result.repository";
 import type {
   CreateStudyResultDto,
   UpdateStudyResultDto,
@@ -18,8 +21,14 @@ export class StudyResultService {
     this.repository = new StudyResultRepository(this.prisma.client);
   }
 
-  async findAll(page = 1, limit = 10, search?: string) {
-    return this.repository.findAll(page, limit, { search });
+  async findAll(
+    page = 1,
+    limit = 10,
+    filters?: StudyResultSearchInput | string,
+  ) {
+    const searchFilter: StudyResultSearchInput =
+      typeof filters === "string" ? { search: filters } : (filters ?? {});
+    return this.repository.findAll(page, limit, searchFilter);
   }
 
   async findOne(id: string) {

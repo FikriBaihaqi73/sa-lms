@@ -28,6 +28,7 @@ import {
 	Users,
 	UsersRound,
 } from "lucide-react";
+import { SidebarNavGroup } from "@/components/sidebar-nav-group";
 import { SkyToggle } from "@/components/ui/sky-toggle";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
@@ -51,7 +52,7 @@ export function AppSidebar() {
 		<aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
 			{/* Brand Header */}
 			<div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-5 dark:border-slate-800">
-				<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white shadow-md">
+				<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-tr from-blue-700 to-indigo-600 text-white shadow-md">
 					<BookOpenCheck className="h-5 w-5" />
 				</span>
 				<div>
@@ -143,166 +144,217 @@ export function AppSidebar() {
 				{/* 🛠️ INSTITUTION ADMIN SECTION */}
 				{isAdmin && !isSuperadmin && (
 					<>
-						<div>
-							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Manajemen Pengguna
-							</p>
-							<div className="space-y-0.5">
-								<NavItem to="/users" icon={Users} label="Data Pengguna" />
-								<NavItem
-									to="/referral-codes"
-									icon={UserPlus}
-									label="Tambah Siswa"
-								/>
-								<NavItem
-									to="/student-guardians"
-									icon={UsersRound}
-									label="Relasi Wali Siswa"
-								/>
-								<NavItem to="/teachers" icon={Briefcase} label="Guru" />
-								<NavItem
-									to="/departments"
-									icon={Building2}
-									label="Departemen"
-								/>
-								<NavItem
-									to="/guardians"
-									icon={HeartHandshake}
-									label="Wali Murid"
-								/>
-								<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
-								<NavItem
-									to="/subjects"
-									icon={BookOpen}
-									label="Mata Pelajaran"
-								/>
-								<NavItem
-									to="/class-students"
-									icon={UsersRound}
-									label="Kelas Siswa"
-								/>
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/class-subjects"
-										icon={BookOpen}
-										label="Mata Pelajaran Kelas"
-									/>
-								)}
-								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
-							</div>
-						</div>
+						<SidebarNavGroup
+							title="Manajemen Pengguna"
+							paths={[
+								"/users",
+								"/referral-codes",
+								"/student-guardians",
+								"/teachers",
+								"/guardians",
+								"/profile",
+							]}
+						>
+							<NavItem to="/users" icon={Users} label="Data Pengguna" />
+							<NavItem
+								to="/referral-codes"
+								icon={UserPlus}
+								label="Tambah Siswa"
+							/>
+							<NavItem
+								to="/student-guardians"
+								icon={UsersRound}
+								label="Relasi Wali Siswa"
+							/>
+							<NavItem to="/teachers" icon={Briefcase} label="Guru" />
+							<NavItem
+								to="/guardians"
+								icon={HeartHandshake}
+								label="Wali Murid"
+							/>
+						</SidebarNavGroup>
 
-						<div>
-							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Konfigurasi Akademik
-							</p>
-							<div className="space-y-0.5">
-								<NavItem to="/grades" icon={Award} label="Standar Penilaian" />
+						<SidebarNavGroup
+							title="Struktur Akademik"
+							paths={[
+								"/departments",
+								"/academic-years",
+								"/specializations",
+								"/semesters",
+								"/settings/classrooms",
+								"/classes",
+								"/subjects",
+								"/class-students",
+								"/class-subjects",
+								"/subject-prerequisites",
+							]}
+						>
+							<NavItem to="/departments" icon={Building2} label="Departemen" />
+							<NavItem
+								to="/academic-years"
+								icon={BookOpen}
+								label="Tahun Ajaran"
+							/>
+							<NavItem
+								to="/specializations"
+								icon={Award}
+								label="Peminatan & Keahlian"
+							/>
+							<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
+							<NavItem
+								to="/settings/classrooms"
+								icon={Building2}
+								label="Ruang Kelas"
+							/>
+							<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
+							<NavItem to="/subjects" icon={BookOpen} label="Mata Pelajaran" />
+							<NavItem
+								to="/class-students"
+								icon={UsersRound}
+								label="Kelas Siswa"
+							/>
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/academic-years"
+									to="/class-subjects"
 									icon={BookOpen}
-									label="Tahun Ajaran"
+									label="Mata Pelajaran Kelas"
 								/>
+							)}
+							<NavItem
+								to="/subject-prerequisites"
+								icon={GitFork}
+								label="Prasyarat Mata Kuliah"
+							/>
+						</SidebarNavGroup>
+
+						<SidebarNavGroup
+							title="Pembelajaran"
+							paths={[
+								"/schedules",
+								"/teaching-journals",
+								"/settings/study-plans",
+								"/modules",
+								"/settings/assignments",
+								"/settings/assignment-submissions",
+								"/assignment-types",
+							]}
+						>
+							<NavItem
+								to="/schedules"
+								icon={Calendar}
+								label="Jadwal Pelajaran"
+							/>
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/specializations"
+									to="/teaching-journals"
+									icon={BookOpenCheck}
+									label="Jurnal Mengajar"
+								/>
+							)}
+							<NavItem
+								to="/settings/study-plans"
+								icon={ClipboardList}
+								label="Rencana Studi"
+							/>
+							<NavItem
+								to="/modules"
+								icon={BookOpen}
+								label="Modul & Konten Materi"
+							/>
+							<NavItem
+								to="/settings/assignments"
+								icon={FileText}
+								label="Tugas & Submisi"
+							/>
+							<NavItem
+								to="/settings/assignment-submissions"
+								icon={ClipboardCheck}
+								label="Pengumpulan Tugas"
+							/>
+							<NavItem
+								to="/assignment-types"
+								icon={BookOpen}
+								label="Jenis Tugas"
+							/>
+						</SidebarNavGroup>
+
+						<SidebarNavGroup
+							title="Kehadiran"
+							paths={["/attendance-statuses", "/attendances"]}
+						>
+							{hasExplicitAdminRole && (
+								<NavItem
+									to="/attendance-statuses"
+									icon={ClipboardCheck}
+									label="Status Kehadiran"
+								/>
+							)}
+							{hasExplicitAdminRole && (
+								<NavItem
+									to="/attendances"
+									icon={ClipboardCheck}
+									label="Presensi & Absensi"
+								/>
+							)}
+						</SidebarNavGroup>
+
+						<SidebarNavGroup
+							title="Penilaian"
+							paths={[
+								"/grades",
+								"/examinations",
+								"/student-grades",
+								"/examination-scores",
+								"/study-results",
+							]}
+						>
+							<NavItem to="/grades" icon={Award} label="Standar Penilaian" />
+							{hasExplicitAdminRole && (
+								<NavItem to="/examinations" icon={FileText} label="Ujian" />
+							)}
+							{hasExplicitAdminRole && (
+								<NavItem
+									to="/student-grades"
 									icon={Award}
-									label="Peminatan & Keahlian"
+									label="Nilai Siswa"
 								/>
+							)}
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/semesters"
-									icon={CalendarRange}
-									label="Semester"
+									to="/examination-scores"
+									icon={Award}
+									label="Nilai Ujian"
 								/>
-								<NavItem
-									to="/schedules"
-									icon={Calendar}
-									label="Jadwal Pelajaran"
-								/>
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/attendance-statuses"
-										icon={ClipboardCheck}
-										label="Status Kehadiran"
-									/>
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/teaching-journals"
-										icon={BookOpenCheck}
-										label="Jurnal Mengajar"
-									/>
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/attendances"
-										icon={ClipboardCheck}
-										label="Presensi & Absensi"
-									/>
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem to="/examinations" icon={FileText} label="Ujian" />
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem to="/student-grades" icon={Award} label="Nilai Siswa" />
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/examination-scores"
-										icon={Award}
-										label="Nilai Ujian"
-									/>
-								)}
-								<NavItem
-									to="/subject-prerequisites"
-									icon={GitFork}
-									label="Prasyarat Mata Kuliah"
-								/>
-								<NavItem
-									to="/settings/classrooms"
-									icon={Building2}
-									label="Ruang Kelas"
-								/>
-								<NavItem
-									to="/settings/study-plans"
-									icon={ClipboardList}
-									label="Rencana Studi"
-								/>
-								<NavItem
-									to="/settings/assignments"
-									icon={FileText}
-									label="Tugas & Submisi"
-								/>
-								<NavItem
-									to="/modules"
-									icon={BookOpen}
-									label="Modul & Konten Materi"
-								/>
-								<NavItem
-									to="/assignment-types"
-									icon={BookOpen}
-									label="Jenis Tugas"
-								/>
-							</div>
-						</div>
+							)}
+							<NavItem
+								to="/study-results"
+								icon={GraduationCap}
+								label="Rekap Nilai Siswa"
+							/>
+						</SidebarNavGroup>
 
-						<div>
-							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Sistem & Pengaturan
-							</p>
-							<div className="space-y-0.5">
-								<NavItem
-									to="/announcements"
-									icon={Megaphone}
-									label="Pengumuman"
-								/>
-								<NavItem
-									to="/activity-logs"
-									icon={Activity}
-									label="Log Aktivitas"
-								/>
-								<NavItem to="/settings" icon={Settings2} label="Pengaturan" />
-							</div>
-						</div>
+						<SidebarNavGroup
+							title="Sistem & Pengaturan"
+							paths={[
+								"/announcements",
+								"/activity-logs",
+								"/settings",
+								"/profile",
+							]}
+						>
+							<NavItem
+								to="/announcements"
+								icon={Megaphone}
+								label="Pengumuman"
+							/>
+							<NavItem
+								to="/activity-logs"
+								icon={Activity}
+								label="Log Aktivitas"
+							/>
+							<NavItem to="/settings" icon={Settings2} label="Pengaturan" />
+							<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
+						</SidebarNavGroup>
 					</>
 				)}
 
@@ -337,7 +389,7 @@ export function AppSidebar() {
 						to="/profile"
 						className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-80 transition"
 					>
-						<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
+						<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
 							{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 						</span>
 						<div className="min-w-0 flex-1">
@@ -406,7 +458,7 @@ export function AppTopbar() {
 				to="/profile"
 				className="flex items-center gap-2.5 hover:opacity-80 transition"
 			>
-				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
+				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
 					{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 				</span>
 				<span className="text-xs font-semibold text-slate-700 dark:text-slate-200 hidden sm:inline-block">

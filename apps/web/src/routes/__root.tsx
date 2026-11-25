@@ -56,8 +56,10 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/settings/classrooms",
 	"/settings/study-plans",
 	"/settings/assignments",
+	"/settings/assignment-submissions",
 	"/assignments",
 	"/modules",
+	"/study-results",
 	"/announcements",
 ];
 
