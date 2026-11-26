@@ -6,19 +6,23 @@ model Attendances {
   deleted_at DateTime? @db.Timestamp
 
   // attributes
-  schedule_id          String    @db.Uuid
-  student_id           String    @db.Uuid
-  attendance_status_id String    @db.Uuid
-  attendance_date      DateTime? @db.Date
-  notes                String?   @db.Text
+  schedule_id            String?   @db.Uuid
+  attendance_schedule_id String?   @db.Uuid
+  student_id             String    @db.Uuid
+  attendance_status_id   String    @db.Uuid
+  attendance_date        DateTime? @db.Date
+  notes                  String?   @db.Text
 
   // relations
-  schedule          Schedule           @relation(fields: [schedule_id], references: [id])
-  student           Student            @relation(fields: [student_id], references: [id])
-  attendance_status AttendanceStatuses @relation(fields: [attendance_status_id], references: [id])
+  schedule            Schedule?            @relation(fields: [schedule_id], references: [id])
+  attendance_schedule AttendanceSchedules? @relation(fields: [attendance_schedule_id], references: [id])
+  student             Student              @relation(fields: [student_id], references: [id])
+  attendance_status   AttendanceStatuses   @relation(fields: [attendance_status_id], references: [id])
 
   @@unique([schedule_id, student_id, attendance_date])
+  @@unique([attendance_schedule_id, student_id, attendance_date])
   @@index([schedule_id])
+  @@index([attendance_schedule_id])
   @@index([student_id])
   @@index([attendance_status_id])
 }

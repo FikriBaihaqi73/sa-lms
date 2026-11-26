@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { ArrowLeft, BookOpen, CheckCircle2 } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -26,6 +26,10 @@ import { AssignmentDialog } from "./assignment-dialog";
 import { AssignmentFilter } from "./assignment-filter";
 import { AssignmentHeader } from "./assignment-header";
 import { AssignmentStats } from "./assignment-stats";
+import {
+	AssignmentSubjectCardsGrid,
+	groupAssignmentsBySubject,
+} from "./assignment-subject-cards-grid";
 import { AssignmentSubmissions } from "./assignment-submissions";
 import { DeleteAssignmentDialog } from "./delete-assignment-dialog";
 import { SubmissionDetailDialog } from "./submission-detail-dialog";
@@ -38,7 +42,10 @@ export const AssignmentsPage: React.FC = () => {
 	const [search, setSearch] = useState("");
 	const debouncedSearch = useDebounce(search, 300);
 
-	// 2. Selected Assignment for Submissions Table
+	// 2. Selected Subject (Halaman 1 -> Halaman 2) & Selected Assignment for Submissions Table
+	const [selectedSubjectKey, setSelectedSubjectKey] = useState<string | null>(
+		null,
+	);
 	const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
 
 	// 3. Dialog States
@@ -122,13 +129,37 @@ export const AssignmentsPage: React.FC = () => {
 		);
 	}, [filteredClasses, rawClasses, classId]);
 
-	// Filtered modules belonging to the selected class
+	const filteredClassIds = useMemo(
+		() => new Set(filteredClasses.map((c) => c.id)),
+		[filteredClasses],
+	);
+
+	// Filtered modules belonging to the selected academic year & class
 	const filteredModules = useMemo(() => {
-		if (!classId) return modules;
-		return modules.filter(
-			(m) => !m.class_subject?.class_id || m.class_subject.class_id === classId,
-		);
-	}, [modules, classId]);
+		let list = modules;
+		if (academicYearId) {
+			const hasAyOnClasses = rawClasses.some((c) =>
+				Boolean(c.academic_year_id || c.academicYearId),
+			);
+			if (hasAyOnClasses) {
+				list = list.filter((m) => {
+					const cId = m.class_subject?.class_id;
+					return cId ? filteredClassIds.has(cId) : false;
+				});
+			}
+		}
+		if (classId) {
+			list = list.filter((m) => m.class_subject?.class_id === classId);
+		}
+		return list;
+	}, [modules, rawClasses, academicYearId, filteredClassIds, classId]);
+
+	// Clear moduleId if it no longer belongs to filteredModules
+	useEffect(() => {
+		if (moduleId && !filteredModules.some((m) => m.id === moduleId)) {
+			setModuleId("");
+		}
+	}, [filteredModules, moduleId]);
 
 	// 6. Query Assignments
 	const { data: assignmentsResult, isLoading: isAssignmentsLoading } =
@@ -139,46 +170,87 @@ export const AssignmentsPage: React.FC = () => {
 
 	const assignmentsList = assignmentsResult?.data || [];
 
-	// Filter assignments further by selected class if classId is set
+	// Filter assignments strictly matching selected academic year, class, and module
 	const displayedAssignments = useMemo(() => {
 		let list = assignmentsList;
+		if (academicYearId) {
+			const hasAyOnClasses = rawClasses.some((c) =>
+				Boolean(c.academic_year_id || c.academicYearId),
+			);
+			if (hasAyOnClasses) {
+				list = list.filter((asg) => {
+					const cs = asg.module?.class_subject as
+						| {
+								class_id?: string;
+								academic_year_id?: string;
+						  }
+						| undefined;
+					if (cs?.academic_year_id) {
+						return cs.academic_year_id === academicYearId;
+					}
+					if (cs?.class_id) {
+						return filteredClassIds.has(cs.class_id);
+					}
+					return false;
+				});
+			}
+		}
 		if (classId) {
-			list = list.filter((asg) => {
-				const cId = asg.module?.class_subject?.class_id;
-				return !cId || cId === classId;
-			});
+			list = list.filter(
+				(asg) => asg.module?.class_subject?.class_id === classId,
+			);
 		}
 		if (moduleId) {
 			list = list.filter((asg) => asg.module_id === moduleId);
 		}
 		return list;
-	}, [assignmentsList, classId, moduleId]);
+	}, [
+		assignmentsList,
+		rawClasses,
+		academicYearId,
+		filteredClassIds,
+		classId,
+		moduleId,
+	]);
+
+	// Filter assignments for Halaman 2 when a subject is selected
+	const subjectAssignments = useMemo(() => {
+		if (!selectedSubjectKey) return displayedAssignments;
+		return displayedAssignments.filter((asg) => {
+			const subj = asg.module?.class_subject?.subject;
+			const key = subj?.id || `subject-${asg.module?.id || asg.id}`;
+			return key === selectedSubjectKey;
+		});
+	}, [displayedAssignments, selectedSubjectKey]);
 
 	// Auto-select first assignment if none selected
 	useEffect(() => {
-		if (displayedAssignments.length > 0) {
-			const exists = displayedAssignments.some(
+		if (subjectAssignments.length > 0) {
+			const exists = subjectAssignments.some(
 				(a) => a.id === selectedAssignmentId,
 			);
 			if (!exists) {
-				setSelectedAssignmentId(displayedAssignments[0]?.id ?? "");
+				setSelectedAssignmentId(subjectAssignments[0]?.id ?? "");
 			}
 		} else {
 			setSelectedAssignmentId("");
 		}
-	}, [displayedAssignments, selectedAssignmentId]);
+	}, [subjectAssignments, selectedAssignmentId]);
 
 	const selectedAssignment = useMemo(() => {
-		return displayedAssignments.find((a) => a.id === selectedAssignmentId);
-	}, [displayedAssignments, selectedAssignmentId]);
+		return subjectAssignments.find((a) => a.id === selectedAssignmentId);
+	}, [subjectAssignments, selectedAssignmentId]);
 
 	// 7. Submissions & Students Query
 	const { data: rawSubmissions = [] } = useAssignmentSubmissions({
 		assignmentId: selectedAssignmentId || undefined,
 	});
 
+	const effectiveStudentClassId =
+		classId || selectedAssignment?.module?.class_subject?.class_id || undefined;
+
 	const { data: classStudents = [] } = useClassStudentsOptions(
-		classId || undefined,
+		effectiveStudentClassId,
 	);
 
 	// 8. Mutations
@@ -329,12 +401,19 @@ export const AssignmentsPage: React.FC = () => {
 	// 11. Handlers
 	const handleAcademicYearChange = (newAyId: string) => {
 		setAcademicYearId(newAyId);
-		const matchingClasses = newAyId
-			? rawClasses.filter((c) => {
-					const ay = c.academic_year_id || c.academicYearId;
-					return !ay || ay === newAyId;
-				})
-			: rawClasses;
+		setModuleId("");
+		setSelectedSubjectKey(null);
+		setSelectedAssignmentId("");
+		const hasAyInfo = rawClasses.some((c) =>
+			Boolean(c.academic_year_id || c.academicYearId),
+		);
+		const matchingClasses =
+			newAyId && hasAyInfo
+				? rawClasses.filter((c) => {
+						const ay = c.academic_year_id || c.academicYearId;
+						return ay === newAyId;
+					})
+				: rawClasses;
 		if (matchingClasses.length > 0) {
 			const exists = matchingClasses.some((c) => c.id === classId);
 			if (!exists) {
@@ -351,14 +430,20 @@ export const AssignmentsPage: React.FC = () => {
 		const defaultAy = active ? active.id : (academicYears[0]?.id ?? "");
 		setAcademicYearId(defaultAy);
 
-		const matchingClasses = defaultAy
-			? rawClasses.filter((c) => {
-					const ay = c.academic_year_id || c.academicYearId;
-					return !ay || ay === defaultAy;
-				})
-			: rawClasses;
-		setClassId(matchingClasses[0]?.id ?? rawClasses[0]?.id ?? "");
+		const hasAyInfo = rawClasses.some((c) =>
+			Boolean(c.academic_year_id || c.academicYearId),
+		);
+		const matchingClasses =
+			defaultAy && hasAyInfo
+				? rawClasses.filter((c) => {
+						const ay = c.academic_year_id || c.academicYearId;
+						return ay === defaultAy;
+					})
+				: rawClasses;
+		setClassId(matchingClasses[0]?.id ?? "");
 		setModuleId("");
+		setSelectedSubjectKey(null);
+		setSelectedAssignmentId("");
 	};
 
 	const handleOpenAddAssignment = () => {
@@ -505,51 +590,99 @@ export const AssignmentsPage: React.FC = () => {
 					activeAcademicYearLabel={selectedAcademicYear?.label}
 					onExportClick={handleExportClassRekap}
 					onAddAssignmentClick={handleOpenAddAssignment}
-					isExportDisabled={studentSubmissionRows.length === 0}
+					isExportDisabled={
+						!selectedSubjectKey || studentSubmissionRows.length === 0
+					}
 				/>
 
-				{/* 2. 4 Kartu Ringkasan Eksekutif */}
-				<AssignmentStats
-					stats={stats}
-					className={selectedClass?.name || "Kelas Informatika A"}
-					isLoading={isAssignmentsLoading}
-				/>
+				{!selectedSubjectKey ? (
+					/* HALAMAN 1: Daftar Mata Pelajaran yang Memiliki Tugas */
+					<>
+						<AssignmentFilter
+							search={search}
+							onSearchChange={setSearch}
+							academicYearId={academicYearId}
+							onAcademicYearChange={handleAcademicYearChange}
+							academicYears={academicYears}
+							classId={classId}
+							onClassChange={setClassId}
+							classes={filteredClasses}
+							moduleId={moduleId}
+							onModuleChange={setModuleId}
+							modules={filteredModules}
+							onReset={handleResetFilters}
+						/>
 
-				{/* 3. Bar Filter Terpadu */}
-				<AssignmentFilter
-					search={search}
-					onSearchChange={setSearch}
-					academicYearId={academicYearId}
-					onAcademicYearChange={handleAcademicYearChange}
-					academicYears={academicYears}
-					classId={classId}
-					onClassChange={setClassId}
-					classes={filteredClasses}
-					moduleId={moduleId}
-					onModuleChange={setModuleId}
-					modules={filteredModules}
-					onReset={handleResetFilters}
-				/>
+						<AssignmentSubjectCardsGrid
+							subjects={groupAssignmentsBySubject(
+								displayedAssignments,
+								submissionsCountMap,
+								selectedClass?.name || "Kelas Terpilih",
+							)}
+							onSelectSubject={(subjectKey) => {
+								setSelectedSubjectKey(subjectKey);
+								setSelectedAssignmentId("");
+							}}
+							classNameText={selectedClass?.name || "Kelas Terpilih"}
+							isLoading={isAssignmentsLoading}
+						/>
+					</>
+				) : (
+					/* HALAMAN 2: Data Santri & Informasi Pengumpulan Tugas per Mata Pelajaran */
+					<>
+						<div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-[#111927]">
+							<div className="flex items-center gap-3">
+								<button
+									type="button"
+									onClick={() => {
+										setSelectedSubjectKey(null);
+										setSelectedAssignmentId("");
+									}}
+									className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700"
+								>
+									<ArrowLeft className="size-3.5" />
+									<span>Kembali ke Daftar Mata Pelajaran</span>
+								</button>
 
-				{/* 4. Daftar Kartu Penugasan */}
-				<AssignmentCardsGrid
-					assignments={displayedAssignments}
-					selectedAssignmentId={selectedAssignmentId}
-					onSelectAssignment={(asg) => setSelectedAssignmentId(asg.id)}
-					onEditAssignment={handleOpenEditAssignment}
-					onDeleteAssignment={handleOpenDeleteAssignment}
-					classNameText={selectedClass?.name || "Kelas Informatika A"}
-					isLoading={isAssignmentsLoading}
-					submissionsCountMap={submissionsCountMap}
-				/>
+								<div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+									<BookOpen className="size-4 text-blue-600 dark:text-blue-400" />
+									<span>
+										{selectedAssignment?.module?.class_subject?.subject?.name ||
+											selectedAssignment?.module?.title ||
+											"Mata Pelajaran"}
+									</span>
+								</div>
+							</div>
+						</div>
 
-				{/* 5. Bagian Rincian Submisi Siswa */}
-				<AssignmentSubmissions
-					selectedAssignment={selectedAssignment}
-					submissions={studentSubmissionRows}
-					onViewDetail={(row) => setViewingSubmission(row)}
-					isLoading={isAssignmentsLoading}
-				/>
+						{/* 2. 4 Kartu Ringkasan Eksekutif */}
+						<AssignmentStats
+							stats={stats}
+							className={selectedClass?.name || "Kelas Informatika A"}
+							isLoading={isAssignmentsLoading}
+						/>
+
+						{/* 3. Daftar Kartu Penugasan pada Mata Pelajaran Terpilih */}
+						<AssignmentCardsGrid
+							assignments={subjectAssignments}
+							selectedAssignmentId={selectedAssignmentId}
+							onSelectAssignment={(asg) => setSelectedAssignmentId(asg.id)}
+							onEditAssignment={handleOpenEditAssignment}
+							onDeleteAssignment={handleOpenDeleteAssignment}
+							classNameText={selectedClass?.name || "Kelas Informatika A"}
+							isLoading={isAssignmentsLoading}
+							submissionsCountMap={submissionsCountMap}
+						/>
+
+						{/* 4. Bagian Rincian Submisi Santri/Siswa */}
+						<AssignmentSubmissions
+							selectedAssignment={selectedAssignment}
+							submissions={studentSubmissionRows}
+							onViewDetail={(row) => setViewingSubmission(row)}
+							isLoading={isAssignmentsLoading}
+						/>
+					</>
+				)}
 
 				{/* 6. Modal Tambah / Ubah Penugasan */}
 				<AssignmentDialog

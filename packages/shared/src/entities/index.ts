@@ -6,6 +6,7 @@ export * from "#entities/announcement.entity";
 export * from "#entities/assignment.entity";
 export * from "#entities/assignment-submission.entity";
 export * from "#entities/attendance.entity";
+export * from "#entities/attendance-schedule.entity";
 export * from "#entities/attendance-status.entity";
 export * from "#entities/class.entity";
 export * from "#entities/class-announcement.entity";

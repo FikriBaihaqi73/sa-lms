@@ -7,6 +7,7 @@ import { announcementsRoute } from "./routes/_settings/announcements/index";
 import { assignmentSubmissionsRoute } from "./routes/_settings/assignment-submissions/index";
 import { assignmentTypesRoute } from "./routes/_settings/assignment-types/index";
 import { assignmentsRoute } from "./routes/_settings/assignments/index";
+import { attendanceSchedulesRoute } from "./routes/_settings/attendance-schedules/index";
 import { attendanceStatusesRoute } from "./routes/_settings/attendance-statuses/index";
 import { attendancesRoute } from "./routes/_settings/attendances/index";
 import { classStudentsRoute } from "./routes/_settings/class-students/index";
@@ -70,6 +71,7 @@ const settingsTree = settingsRoute.addChildren([
 	specializationStatusesRoute,
 	specializationsRoute,
 	attendanceStatusesRoute,
+	attendanceSchedulesRoute,
 	assignmentTypesRoute,
 	profileRoute,
 	teachersRoute,

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { AttendanceOverviewTab } from "./attendance-overview-tab";
 
@@ -94,9 +94,7 @@ describe("AttendanceOverviewTab", () => {
 	it("renders title, KPI stats, and student summary table properly", () => {
 		renderComponent();
 
-		expect(
-			screen.getByText("Overview & Rekapitulasi Presensi"),
-		).not.toBeNull();
+		expect(screen.getByText("Overview & Rekapitulasi Presensi")).not.toBeNull();
 		expect(
 			screen.getByText("Rangkuman Kehadiran Seluruh Siswa"),
 		).not.toBeNull();

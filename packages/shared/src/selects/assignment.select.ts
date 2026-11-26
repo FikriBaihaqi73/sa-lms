@@ -26,6 +26,39 @@ export const assignmentSelect = {
           subject_id: true,
           teacher_id: true,
           academic_year_id: true,
+          class: {
+            select: {
+              id: true,
+              name: true,
+              grade_level: true,
+            },
+          },
+          subject: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+          academic_year: {
+            select: {
+              id: true,
+              academic_year: true,
+              is_active: true,
+            },
+          },
+          teacher: {
+            select: {
+              id: true,
+              teacher_number: true,
+              profile: {
+                select: {
+                  id: true,
+                  fullName: true,
+                },
+              },
+            },
+          },
         },
       },
     },

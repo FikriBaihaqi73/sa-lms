@@ -205,17 +205,20 @@ export async function getClassStudentsOptionsApi(classId?: string): Promise<
 		className: string;
 	}>
 > {
+	if (!classId) return [];
 	try {
 		const query = new URLSearchParams();
 		query.set("page", "1");
 		query.set("limit", "100");
-		if (classId) query.set("class_id", classId);
+		query.set("classId", classId);
 
 		const response = (await apiFetch(
 			`/class-students?${query.toString()}`,
 		)) as {
 			data?: Array<{
 				id: string;
+				classId?: string;
+				class_id?: string;
 				student_id?: string;
 				studentId?: string;
 				student?: {
@@ -223,12 +226,16 @@ export async function getClassStudentsOptionsApi(classId?: string): Promise<
 					studentNumber?: string;
 					profile?: { fullName?: string; email?: string };
 				};
-				class?: { name?: string };
+				class?: { id?: string; name?: string };
 			}>;
 		};
 
 		const items = Array.isArray(response.data) ? response.data : [];
-		return items.map((cs) => {
+		const matchingItems = items.filter((cs) => {
+			const csClassId = cs.classId ?? cs.class_id ?? cs.class?.id;
+			return !csClassId || csClassId === classId;
+		});
+		return matchingItems.map((cs) => {
 			const stId = cs.student?.id || cs.student_id || cs.studentId || cs.id;
 			return {
 				id: cs.id,

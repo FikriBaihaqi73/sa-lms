@@ -1,80 +1,82 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { SubmissionPageState, SubmissionRow } from "../types";
+import type { SubmissionRow } from "../types";
 import { AssignmentSubmissionsPage } from "./AssignmentSubmissionsPage";
+
+const mockSubmittedRows: SubmissionRow[] = [
+	{
+		id: "sub-1",
+		studentId: "stu-1",
+		fullName: "Ahmad Fauzi",
+		studentNumber: "202610001",
+		className: "X IPA 1",
+		assignmentId: "asg-1",
+		assignmentTitle: "Latihan Persamaan & Pertidaksamaan Linear",
+		subjectName: "Matematika Wajib",
+		fileName: "jawaban-persamaan-linear-ahmad.pdf",
+		fileUrl: null,
+		answerText:
+			"Lampiran penyelesaian soal nomor 1 sampai 10 menggunakan metode eliminasi dan substitusi beserta grafik himpunan penyelesaian.",
+		submittedAt: "2026-11-24T09:15:00.000Z",
+		status: "submitted",
+		score: 92,
+		maxScore: 100,
+		feedback: "Langkah pengerjaan sangat sistematis dan jawaban tepat.",
+		graderName: "Ustadz Hendra, S.Pd.",
+		gradedAt: "2026-11-24T13:30:00.000Z",
+	},
+	{
+		id: "sub-2",
+		studentId: "stu-2",
+		fullName: "Siti Aisyah",
+		studentNumber: "202610002",
+		className: "X IPA 1",
+		assignmentId: "asg-2",
+		assignmentTitle: "Implementasi Endpoint CRUD REST API",
+		subjectName: "Web Developer",
+		fileName: "crud-rest-api-siti.zip",
+		fileUrl: null,
+		answerText:
+			"Project API lengkap dengan validasi skema Zod, controller NestJS, serta dokumentasi pengujian endpoint.",
+		submittedAt: "2026-11-25T10:40:00.000Z",
+		status: "submitted",
+		score: null,
+		maxScore: 100,
+		feedback: null,
+		graderName: null,
+		gradedAt: null,
+	},
+	{
+		id: "sub-3",
+		studentId: "stu-3",
+		fullName: "Budi Santoso",
+		studentNumber: "202610003",
+		className: "X IPS 1",
+		assignmentId: "asg-3",
+		assignmentTitle: "Analisis I'rab & Terjemahan Kitab Dasar",
+		subjectName: "Bahasa Arab",
+		fileName: "tugas-nahwu-sharaf-budi.docx",
+		fileUrl: null,
+		answerText:
+			"Terjemahan dan analisis i'rab 15 kalimat isim dan fi'il mudhari' pada bab mubtada khabar.",
+		submittedAt: "2026-11-25T16:20:00.000Z",
+		status: "late",
+		score: 85,
+		maxScore: 100,
+		feedback:
+			"Analisis sudah baik, mohon perhatikan ketepatan waktu pengumpulan berikutnya.",
+		graderName: "Ustadzah Fatimah, Lc.",
+		gradedAt: "2026-11-26T08:00:00.000Z",
+	},
+];
 
 afterEach(() => {
 	cleanup();
 	vi.unstubAllGlobals();
 });
 
-const mockRow: SubmissionRow = {
-	studentId: "student-1",
-	fullName: "Ahmad Fauzi",
-	studentNumber: "202610001",
-	submittedAt: "2026-11-10T09:14:00Z",
-	status: "submitted",
-	score: "90.00",
-	feedback: "Pekerjaan sangat baik",
-	graderName: "Guru Pengampu",
-	gradedAt: "2026-11-10T12:00:00Z",
-};
-
-const mockReadyState: SubmissionPageState = {
-	kind: "ready",
-	years: [
-		{ id: "year-1", name: "2026/2027 (Aktif)" },
-		{ id: "year-2", name: "2027/2028" },
-	],
-	classes: [{ id: "class-1", yearId: "year-1", name: "X IPA 1" }],
-	assignments: [
-		{
-			id: "task-1",
-			classId: "class-1",
-			title: "Persamaan Linear",
-			rows: [
-				mockRow,
-				{
-					studentId: "student-2",
-					fullName: "Siti Aisyah",
-					studentNumber: "202610002",
-					submittedAt: "2026-11-10T10:27:00Z",
-					status: "late",
-					score: "85.00",
-					feedback: "Terlambat mengumpulkan",
-					graderName: "Guru Pengampu",
-					gradedAt: "2026-11-10T13:00:00Z",
-				},
-				{
-					studentId: "student-3",
-					fullName: "Budi Santoso",
-					studentNumber: "202610003",
-					status: "missing",
-					submittedAt: null,
-					score: null,
-					feedback: null,
-					graderName: null,
-					gradedAt: null,
-				},
-			],
-		},
-	],
-};
-
-function selectAcademicTask() {
-	fireEvent.change(screen.getByLabelText("Tahun Akademik"), {
-		target: { value: "year-1" },
-	});
-	fireEvent.change(screen.getByLabelText("Kelas"), {
-		target: { value: "class-1" },
-	});
-	fireEvent.change(screen.getByLabelText("Tugas"), {
-		target: { value: "task-1" },
-	});
-}
-
 describe("AssignmentSubmissionsPage", () => {
-	it("renders header and cards without making api calls in default state", () => {
+	it("renders empty state by default without sample data or making api calls", () => {
 		const fetchMock = vi.fn();
 		vi.stubGlobal("fetch", fetchMock);
 
@@ -83,68 +85,108 @@ describe("AssignmentSubmissionsPage", () => {
 		expect(
 			screen.getByRole("heading", {
 				level: 1,
-				name: /Pengumpulan Tugas Siswa/i,
+				name: /Hasil Pengumpulan Tugas Siswa/i,
 			}),
 		).toBeTruthy();
-		expect(screen.getAllByRole("article")).toHaveLength(4);
-		expect(screen.getByRole("status").textContent).toContain("belum tersedia");
 		expect(fetchMock).not.toHaveBeenCalled();
-		expect(screen.queryByText("Unduh Laporan")).toBeNull();
-	});
-
-	it.each(["loading", "error"] as const)("shows %s message cleanly", (kind) => {
-		render(<AssignmentSubmissionsPage state={{ kind }} />);
-		expect(screen.getAllByRole("article")).toHaveLength(4);
-		expect(
-			screen.getByRole(kind === "error" ? "alert" : "status"),
-		).toBeTruthy();
-	});
-
-	it("filters by year, class, task, displays rows and opens detail modal", () => {
-		render(<AssignmentSubmissionsPage state={mockReadyState} />);
-
-		selectAcademicTask();
-
-		expect(screen.getByText("Ahmad Fauzi")).toBeTruthy();
-		expect(screen.getByText("Siti Aisyah")).toBeTruthy();
-		expect(screen.getByText("Budi Santoso")).toBeTruthy();
-
-		// Check 4 summary cards
-		const cards = screen.getAllByRole("article");
-		expect(cards[0].textContent).toContain("3");
-		expect(cards[0].textContent).toContain("TOTAL SISWA");
-		expect(cards[1].textContent).toContain("2");
-		expect(cards[1].textContent).toContain("SUDAH MENGUMPULKAN");
-		expect(cards[2].textContent).toContain("1");
-		expect(cards[2].textContent).toContain("TERLAMBAT");
-		expect(cards[3].textContent).toContain("1");
-		expect(cards[3].textContent).toContain("BELUM MENGUMPULKAN");
-
-		// Open Detail
-		fireEvent.click(screen.getByLabelText("Detail Ahmad Fauzi"));
-		expect(screen.getByText("Detail Pengumpulan")).toBeTruthy();
-		expect(screen.getAllByText("Pekerjaan sangat baik").length).toBeGreaterThan(
-			0,
+		expect(screen.queryByRole("note")).toBeNull();
+		expect(screen.getByRole("status").textContent).toContain(
+			"Tidak ada hasil tugas yang cocok dengan filter.",
 		);
 
-		// Close Detail using close button
-		const closeButtons = screen.getAllByRole("button", { name: "Tutup" });
-		fireEvent.click(closeButtons[0]);
-		expect(screen.queryByText("Detail Pengumpulan")).toBeNull();
+		const cards = screen.getAllByRole("article");
+		expect(cards).toHaveLength(4);
+		expect(cards[0].textContent).toContain("0");
+		expect(cards[0].textContent).toContain("TOTAL HASIL MASUK");
 	});
 
-	it("filters students by search input and resets properly", () => {
-		render(<AssignmentSubmissionsPage state={mockReadyState} />);
-		selectAcademicTask();
+	it("shows loading and error states cleanly", () => {
+		const { rerender } = render(
+			<AssignmentSubmissionsPage
+				overrideState={{
+					kind: "loading",
+					rows: [],
+				}}
+			/>,
+		);
+		expect(screen.getByRole("status").textContent).toContain(
+			"Memuat hasil tugas",
+		);
 
-		const searchInput = screen.getByPlaceholderText("Cari nama siswa…");
-		fireEvent.change(searchInput, { target: { value: "Aisyah" } });
+		rerender(
+			<AssignmentSubmissionsPage
+				overrideState={{
+					kind: "error",
+					rows: [],
+				}}
+			/>,
+		);
+		expect(screen.getByRole("alert").textContent).toContain(
+			"Gagal memuat hasil pengumpulan tugas",
+		);
+	});
 
-		expect(screen.queryByText("Ahmad Fauzi")).toBeNull();
+	it("filters by subject, grading status, and search, and resets cleanly", () => {
+		render(
+			<AssignmentSubmissionsPage
+				overrideState={{
+					kind: "ready",
+					rows: mockSubmittedRows,
+				}}
+			/>,
+		);
+
+		// Filter by subject
+		fireEvent.change(screen.getByLabelText("Filter Mata Pelajaran"), {
+			target: { value: "Web Developer" },
+		});
 		expect(screen.getByText("Siti Aisyah")).toBeTruthy();
+		expect(screen.queryByText("Ahmad Fauzi")).toBeNull();
 
 		// Reset
 		fireEvent.click(screen.getByRole("button", { name: /Reset/i }));
-		expect(screen.getByText("Pilih tahun akademik")).toBeTruthy();
+		expect(screen.getByText("Ahmad Fauzi")).toBeTruthy();
+		expect(screen.getByText("Siti Aisyah")).toBeTruthy();
+
+		// Filter by grading status (ungraded)
+		fireEvent.change(screen.getByLabelText("Filter Status Penilaian"), {
+			target: { value: "ungraded" },
+		});
+		expect(screen.getByText("Siti Aisyah")).toBeTruthy();
+		expect(screen.queryByText("Ahmad Fauzi")).toBeNull();
+
+		// Search
+		fireEvent.click(screen.getByRole("button", { name: /Reset/i }));
+		fireEvent.change(screen.getByLabelText("Cari hasil tugas"), {
+			target: { value: "nahwu" },
+		});
+		expect(screen.getByText("Budi Santoso")).toBeTruthy();
+		expect(screen.queryByText("Ahmad Fauzi")).toBeNull();
+	});
+
+	it("opens detail dialog showing submitted file, answer text, score, and feedback", () => {
+		render(
+			<AssignmentSubmissionsPage
+				overrideState={{
+					kind: "ready",
+					rows: mockSubmittedRows,
+				}}
+			/>,
+		);
+
+		fireEvent.click(screen.getByLabelText("Lihat hasil Ahmad Fauzi"));
+		expect(screen.getByText("Detail Hasil Tugas Siswa")).toBeTruthy();
+		expect(
+			screen.getAllByText("jawaban-persamaan-linear-ahmad.pdf").length,
+		).toBeGreaterThan(0);
+		expect(
+			screen.getAllByText(
+				/Langkah pengerjaan sangat sistematis dan jawaban tepat/i,
+			).length,
+		).toBeGreaterThan(0);
+
+		const closeButtons = screen.getAllByRole("button", { name: "Tutup" });
+		fireEvent.click(closeButtons[0]);
+		expect(screen.queryByText("Detail Hasil Tugas Siswa")).toBeNull();
 	});
 });

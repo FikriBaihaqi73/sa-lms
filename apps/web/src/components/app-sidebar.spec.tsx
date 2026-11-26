@@ -91,6 +91,7 @@ describe("AppSidebar Admin Institusi grouping", () => {
 				"Tugas & Submisi",
 				"Jenis Tugas",
 				"Status Kehadiran",
+				"Tambah Absensi",
 				"Presensi & Absensi",
 				"Standar Penilaian",
 				"Ujian",

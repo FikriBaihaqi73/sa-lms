@@ -33,6 +33,9 @@ describe("AttendanceService", () => {
               { studentId: "stud-2" },
             ]),
         },
+        attendanceSchedules: {
+          findFirst: jest.fn().mockResolvedValue(null),
+        },
       },
     } as unknown as PrismaService;
 
@@ -99,7 +102,7 @@ describe("AttendanceService", () => {
         } as CreateAttendanceDto,
         "user-1",
       ),
-    ).rejects.toThrow("Attendance status not found");
+    ).rejects.toThrow("Status kehadiran yang dipilih tidak ditemukan.");
 
     jest
       .spyOn(AttendanceStatusRepository.prototype, "findById")
@@ -118,7 +121,7 @@ describe("AttendanceService", () => {
         } as CreateAttendanceDto,
         "user-1",
       ),
-    ).rejects.toThrow("Schedule not found");
+    ).rejects.toThrow("Jadwal pelajaran tidak ditemukan pada institusi ini.");
   });
 
   it("creates, updates, and soft-deletes an attendance record", async () => {
@@ -155,6 +158,7 @@ describe("AttendanceService", () => {
 
     expect(create).toHaveBeenCalledWith({
       schedule_id: "schedule-id",
+      attendance_schedule_id: null,
       student_id: "student-id",
       attendance_status_id: "status-id",
       attendance_date: undefined,
@@ -182,6 +186,7 @@ describe("AttendanceService", () => {
     expect(result).toEqual({ id: "att-1" });
     expect(upsertSpy).toHaveBeenCalledWith({
       schedule_id: "schedule-id",
+      attendance_schedule_id: null,
       student_id: "student-id",
       attendance_status_id: "status-id",
       attendance_date: new Date("2026-11-10T00:00:00.000Z"),
@@ -207,6 +212,7 @@ describe("AttendanceService", () => {
     expect(bulkSpy).toHaveBeenCalledWith([
       {
         schedule_id: "schedule-id",
+        attendance_schedule_id: null,
         student_id: "stud-1",
         attendance_status_id: "status-id",
         attendance_date: new Date("2026-11-10T00:00:00.000Z"),
@@ -214,9 +220,78 @@ describe("AttendanceService", () => {
       },
       {
         schedule_id: "schedule-id",
+        attendance_schedule_id: null,
         student_id: "stud-2",
         attendance_status_id: "status-id",
         attendance_date: new Date("2026-11-10T00:00:00.000Z"),
+        notes: null,
+      },
+    ]);
+  });
+
+  it("supports STANDALONE AttendanceSchedules in upsert and bulkUpsert", async () => {
+    jest
+      .spyOn(ScheduleRepository.prototype, "findById")
+      .mockResolvedValue(null);
+    (
+      mockPrisma.client.attendanceSchedules.findFirst as jest.Mock
+    ).mockResolvedValue({
+      id: "att-sched-standalone",
+      scheduleId: null,
+      classId: "class-1",
+    });
+
+    const upsertSpy = jest
+      .spyOn(AttendanceRepository.prototype, "upsert")
+      .mockResolvedValue({ id: "att-standalone-1" } as never);
+    const bulkSpy = jest
+      .spyOn(AttendanceRepository.prototype, "bulkUpsert")
+      .mockResolvedValue([{ id: "att-b1" }, { id: "att-b2" }] as never);
+
+    await service.upsert(
+      {
+        schedule_id: "att-sched-standalone",
+        student_id: "student-id",
+        attendance_status_id: "status-id",
+        attendance_date: "2026-11-25",
+        notes: "Olahraga mandiri",
+      } as UpsertAttendanceDto,
+      "user-1",
+    );
+
+    expect(upsertSpy).toHaveBeenCalledWith({
+      schedule_id: null,
+      attendance_schedule_id: "att-sched-standalone",
+      student_id: "student-id",
+      attendance_status_id: "status-id",
+      attendance_date: new Date("2026-11-25T00:00:00.000Z"),
+      notes: "Olahraga mandiri",
+    });
+
+    await service.bulkUpsert(
+      {
+        schedule_id: "att-sched-standalone",
+        attendance_status_id: "status-id",
+        attendance_date: "2026-11-25",
+      } as BulkUpsertAttendanceDto,
+      "user-1",
+    );
+
+    expect(bulkSpy).toHaveBeenCalledWith([
+      {
+        schedule_id: null,
+        attendance_schedule_id: "att-sched-standalone",
+        student_id: "stud-1",
+        attendance_status_id: "status-id",
+        attendance_date: new Date("2026-11-25T00:00:00.000Z"),
+        notes: null,
+      },
+      {
+        schedule_id: null,
+        attendance_schedule_id: "att-sched-standalone",
+        student_id: "stud-2",
+        attendance_status_id: "status-id",
+        attendance_date: new Date("2026-11-25T00:00:00.000Z"),
         notes: null,
       },
     ]);
