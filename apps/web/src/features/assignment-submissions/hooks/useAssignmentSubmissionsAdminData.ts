@@ -92,7 +92,12 @@ export function useAssignmentSubmissionsAdminData(
 					status,
 					score: sub?.score ?? null,
 					feedback: sub?.feedback ?? null,
-					graderName: sub?.grader?.name ?? null,
+					graderName:
+						(Array.isArray(sub?.grader?.profile)
+							? sub.grader.profile[0]?.fullName
+							: sub?.grader?.profile?.fullName) ??
+						sub?.grader?.email ??
+						null,
 					gradedAt: sub?.gradedAt ?? null,
 				};
 			});

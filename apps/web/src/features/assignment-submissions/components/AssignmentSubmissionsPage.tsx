@@ -1,9 +1,8 @@
-import { Info, RotateCcw, Search } from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
 import {
 	type LiveSubmittedResultsState,
-	SAMPLE_SUBMITTED_RESULTS,
 	useLiveSubmittedResults,
 } from "../hooks";
 import type { SubmissionRow } from "../types";
@@ -21,8 +20,7 @@ export const AssignmentSubmissionsPage: React.FC<
 > = ({ overrideState }) => {
 	const state: LiveSubmittedResultsState = overrideState ?? {
 		kind: "ready",
-		rows: SAMPLE_SUBMITTED_RESULTS,
-		isUsingSampleData: true,
+		rows: [],
 	};
 
 	const [search, setSearch] = useState("");
@@ -149,19 +147,6 @@ export const AssignmentSubmissionsPage: React.FC<
 					canExport={filteredRows.length > 0}
 					onExport={handleExportCsv}
 				/>
-
-				{state.isUsingSampleData && (
-					<div
-						role="note"
-						className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2.5 text-xs text-blue-700 dark:border-blue-500/30 dark:bg-blue-950/40 dark:text-blue-200"
-					>
-						<Info className="size-3.5 shrink-0 text-blue-600 dark:text-blue-400" />
-						<span>
-							Menampilkan <strong>3 data contoh hasil tugas sementara</strong>{" "}
-							karena belum ada halaman pengiriman tugas dari sisi siswa.
-						</span>
-					</div>
-				)}
 
 				<AssignmentSubmissionsStats
 					counts={statsCounts}

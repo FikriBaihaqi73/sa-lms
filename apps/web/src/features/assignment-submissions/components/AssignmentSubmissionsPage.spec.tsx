@@ -1,7 +1,74 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { SAMPLE_SUBMITTED_RESULTS } from "../hooks";
+import type { SubmissionRow } from "../types";
 import { AssignmentSubmissionsPage } from "./AssignmentSubmissionsPage";
+
+const mockSubmittedRows: SubmissionRow[] = [
+	{
+		id: "sub-1",
+		studentId: "stu-1",
+		fullName: "Ahmad Fauzi",
+		studentNumber: "202610001",
+		className: "X IPA 1",
+		assignmentId: "asg-1",
+		assignmentTitle: "Latihan Persamaan & Pertidaksamaan Linear",
+		subjectName: "Matematika Wajib",
+		fileName: "jawaban-persamaan-linear-ahmad.pdf",
+		fileUrl: null,
+		answerText:
+			"Lampiran penyelesaian soal nomor 1 sampai 10 menggunakan metode eliminasi dan substitusi beserta grafik himpunan penyelesaian.",
+		submittedAt: "2026-11-24T09:15:00.000Z",
+		status: "submitted",
+		score: 92,
+		maxScore: 100,
+		feedback: "Langkah pengerjaan sangat sistematis dan jawaban tepat.",
+		graderName: "Ustadz Hendra, S.Pd.",
+		gradedAt: "2026-11-24T13:30:00.000Z",
+	},
+	{
+		id: "sub-2",
+		studentId: "stu-2",
+		fullName: "Siti Aisyah",
+		studentNumber: "202610002",
+		className: "X IPA 1",
+		assignmentId: "asg-2",
+		assignmentTitle: "Implementasi Endpoint CRUD REST API",
+		subjectName: "Web Developer",
+		fileName: "crud-rest-api-siti.zip",
+		fileUrl: null,
+		answerText:
+			"Project API lengkap dengan validasi skema Zod, controller NestJS, serta dokumentasi pengujian endpoint.",
+		submittedAt: "2026-11-25T10:40:00.000Z",
+		status: "submitted",
+		score: null,
+		maxScore: 100,
+		feedback: null,
+		graderName: null,
+		gradedAt: null,
+	},
+	{
+		id: "sub-3",
+		studentId: "stu-3",
+		fullName: "Budi Santoso",
+		studentNumber: "202610003",
+		className: "X IPS 1",
+		assignmentId: "asg-3",
+		assignmentTitle: "Analisis I'rab & Terjemahan Kitab Dasar",
+		subjectName: "Bahasa Arab",
+		fileName: "tugas-nahwu-sharaf-budi.docx",
+		fileUrl: null,
+		answerText:
+			"Terjemahan dan analisis i'rab 15 kalimat isim dan fi'il mudhari' pada bab mubtada khabar.",
+		submittedAt: "2026-11-25T16:20:00.000Z",
+		status: "late",
+		score: 85,
+		maxScore: 100,
+		feedback:
+			"Analisis sudah baik, mohon perhatikan ketepatan waktu pengumpulan berikutnya.",
+		graderName: "Ustadzah Fatimah, Lc.",
+		gradedAt: "2026-11-26T08:00:00.000Z",
+	},
+];
 
 afterEach(() => {
 	cleanup();
@@ -9,7 +76,7 @@ afterEach(() => {
 });
 
 describe("AssignmentSubmissionsPage", () => {
-	it("renders 3 temporary sample submitted assignment results by default without making api calls", () => {
+	it("renders empty state by default without sample data or making api calls", () => {
 		const fetchMock = vi.fn();
 		vi.stubGlobal("fetch", fetchMock);
 
@@ -22,31 +89,15 @@ describe("AssignmentSubmissionsPage", () => {
 			}),
 		).toBeTruthy();
 		expect(fetchMock).not.toHaveBeenCalled();
-
-		// Banner for temporary sample data
-		expect(screen.getByRole("note").textContent).toContain(
-			"3 data contoh hasil tugas sementara",
+		expect(screen.queryByRole("note")).toBeNull();
+		expect(screen.getByRole("status").textContent).toContain(
+			"Tidak ada hasil tugas yang cocok dengan filter.",
 		);
 
-		// 3 submitted student works
-		expect(screen.getByText("Ahmad Fauzi")).toBeTruthy();
-		expect(screen.getByText("Siti Aisyah")).toBeTruthy();
-		expect(screen.getByText("Budi Santoso")).toBeTruthy();
-
-		// File names
-		expect(screen.getByText("jawaban-persamaan-linear-ahmad.pdf")).toBeTruthy();
-		expect(screen.getByText("crud-rest-api-siti.zip")).toBeTruthy();
-		expect(screen.getByText("tugas-nahwu-sharaf-budi.docx")).toBeTruthy();
-
-		// 4 Stats cards
 		const cards = screen.getAllByRole("article");
 		expect(cards).toHaveLength(4);
-		expect(cards[0].textContent).toContain("3");
+		expect(cards[0].textContent).toContain("0");
 		expect(cards[0].textContent).toContain("TOTAL HASIL MASUK");
-		expect(cards[1].textContent).toContain("2");
-		expect(cards[1].textContent).toContain("SUDAH DINILAI");
-		expect(cards[2].textContent).toContain("1");
-		expect(cards[2].textContent).toContain("MENUNGGU PENILAIAN");
 	});
 
 	it("shows loading and error states cleanly", () => {
@@ -55,7 +106,6 @@ describe("AssignmentSubmissionsPage", () => {
 				overrideState={{
 					kind: "loading",
 					rows: [],
-					isUsingSampleData: false,
 				}}
 			/>,
 		);
@@ -68,7 +118,6 @@ describe("AssignmentSubmissionsPage", () => {
 				overrideState={{
 					kind: "error",
 					rows: [],
-					isUsingSampleData: false,
 				}}
 			/>,
 		);
@@ -82,8 +131,7 @@ describe("AssignmentSubmissionsPage", () => {
 			<AssignmentSubmissionsPage
 				overrideState={{
 					kind: "ready",
-					rows: SAMPLE_SUBMITTED_RESULTS,
-					isUsingSampleData: true,
+					rows: mockSubmittedRows,
 				}}
 			/>,
 		);
@@ -117,7 +165,14 @@ describe("AssignmentSubmissionsPage", () => {
 	});
 
 	it("opens detail dialog showing submitted file, answer text, score, and feedback", () => {
-		render(<AssignmentSubmissionsPage />);
+		render(
+			<AssignmentSubmissionsPage
+				overrideState={{
+					kind: "ready",
+					rows: mockSubmittedRows,
+				}}
+			/>,
+		);
 
 		fireEvent.click(screen.getByLabelText("Lihat hasil Ahmad Fauzi"));
 		expect(screen.getByText("Detail Hasil Tugas Siswa")).toBeTruthy();
