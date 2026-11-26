@@ -109,6 +109,8 @@ describe("AttendanceController", () => {
         {
           search: "Ahmad",
           schedule_id: "sched-1",
+          attendance_schedule_id: undefined,
+          academic_year_id: undefined,
           student_id: "stud-1",
           attendance_status_id: "stat-1",
           attendance_date: "2026-11-04",
@@ -117,6 +119,7 @@ describe("AttendanceController", () => {
           end_date: "2026-11-30",
           month: 11,
           year: 2026,
+          sort_order: "asc",
         },
         ADMIN_USER_ID,
       );
@@ -155,6 +158,8 @@ describe("AttendanceController", () => {
         {
           search: undefined,
           schedule_id: undefined,
+          attendance_schedule_id: undefined,
+          academic_year_id: undefined,
           student_id: undefined,
           attendance_status_id: undefined,
           attendance_date: undefined,

@@ -46,11 +46,15 @@ export class AttendanceController {
     @Query("end_date") end_date?: string,
     @Query("month") month?: string,
     @Query("year") year?: string,
+    @Query("attendance_schedule_id") attendance_schedule_id?: string,
+    @Query("academic_year_id") academic_year_id?: string,
   ) {
     const summary = await this.attendanceService.getSummary(
       {
         search,
         schedule_id,
+        attendance_schedule_id,
+        academic_year_id,
         student_id,
         attendance_status_id,
         attendance_date,
@@ -86,6 +90,9 @@ export class AttendanceController {
     @Query("end_date") end_date?: string,
     @Query("month") month?: string,
     @Query("year") year?: string,
+    @Query("attendance_schedule_id") attendance_schedule_id?: string,
+    @Query("academic_year_id") academic_year_id?: string,
+    @Query("sort_order") sort_order?: "asc" | "desc",
   ) {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
@@ -96,6 +103,8 @@ export class AttendanceController {
       {
         search,
         schedule_id,
+        attendance_schedule_id,
+        academic_year_id,
         student_id,
         attendance_status_id,
         attendance_date,
@@ -104,6 +113,7 @@ export class AttendanceController {
         end_date,
         month: month ? parseInt(month, 10) : undefined,
         year: year ? parseInt(year, 10) : undefined,
+        sort_order: sort_order === "desc" ? "desc" : "asc",
       },
       req.user.sub,
     );

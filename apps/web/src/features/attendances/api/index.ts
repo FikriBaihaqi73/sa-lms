@@ -34,6 +34,10 @@ export const getAttendances = async (
 	if (params.attendance_status_id)
 		query.set("attendance_status_id", params.attendance_status_id);
 	if (params.schedule_id) query.set("schedule_id", params.schedule_id);
+	if (params.attendance_schedule_id)
+		query.set("attendance_schedule_id", params.attendance_schedule_id);
+	if (params.academic_year_id)
+		query.set("academic_year_id", params.academic_year_id);
 	if (params.class_id) query.set("class_id", params.class_id);
 	if (params.attendance_date)
 		query.set("attendance_date", params.attendance_date);
@@ -41,6 +45,7 @@ export const getAttendances = async (
 	if (params.end_date) query.set("end_date", params.end_date);
 	if (params.month) query.set("month", String(params.month));
 	if (params.year) query.set("year", String(params.year));
+	if (params.sort_order) query.set("sort_order", params.sort_order);
 
 	const queryString = query.toString();
 	const endpoint = queryString ? `/attendances?${queryString}` : "/attendances";

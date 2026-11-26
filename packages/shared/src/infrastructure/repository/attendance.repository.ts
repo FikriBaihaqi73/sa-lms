@@ -34,6 +34,8 @@ export interface UpsertAttendanceInput {
 export interface AttendanceSearchInput {
   search?: string | undefined;
   schedule_id?: string | undefined;
+  attendance_schedule_id?: string | undefined;
+  academic_year_id?: string | undefined;
   student_id?: string | undefined;
   attendance_status_id?: string | undefined;
   attendance_date?: string | undefined;
@@ -42,6 +44,7 @@ export interface AttendanceSearchInput {
   end_date?: string | undefined;
   month?: number | string | undefined;
   year?: number | string | undefined;
+  sort_order?: "asc" | "desc" | undefined;
 }
 
 export interface AttendancePaginationMeta {
@@ -102,6 +105,45 @@ export class AttendanceRepository {
         OR: [
           { schedule_id: filters.schedule_id },
           { attendance_schedule_id: filters.schedule_id },
+        ],
+      });
+    }
+
+    if (filters?.attendance_schedule_id) {
+      andConditions.push({
+        OR: [
+          { attendance_schedule_id: filters.attendance_schedule_id },
+          {
+            schedule: {
+              attendanceSchedules: {
+                some: {
+                  id: filters.attendance_schedule_id,
+                  deletedAt: null,
+                },
+              },
+            },
+          },
+        ],
+      });
+    }
+
+    if (filters?.academic_year_id) {
+      andConditions.push({
+        OR: [
+          {
+            schedule: {
+              classSubject: {
+                academic_year_id: filters.academic_year_id,
+                deleted_at: null,
+              },
+            },
+          },
+          {
+            attendance_schedule: {
+              academicYearId: filters.academic_year_id,
+              deletedAt: null,
+            },
+          },
         ],
       });
     }
@@ -457,7 +499,10 @@ export class AttendanceRepository {
         skip,
         take: limit,
         select: attendanceSelect,
-        orderBy: [{ attendance_date: "asc" }, { created_at: "desc" }],
+        orderBy: [
+          { attendance_date: filters?.sort_order ?? "asc" },
+          { created_at: "desc" },
+        ],
       }),
       this.prisma.attendances.count({
         where,

@@ -1,6 +1,7 @@
 import {
 	Calendar,
 	CheckCircle2,
+	ClipboardList,
 	Download,
 	LayoutDashboard,
 	Users,
@@ -26,6 +27,7 @@ import type {
 	ScheduleOption,
 } from "../types";
 import { AttendanceFilter } from "./attendance-filter";
+import { AttendanceListTab } from "./attendance-list-tab";
 import { AttendanceMatrixTable } from "./attendance-matrix-table";
 import { AttendanceNoteDialog } from "./attendance-note-popover";
 import { AttendanceOverviewTab } from "./attendance-overview-tab";
@@ -72,8 +74,10 @@ function parseErrorMessage(err: unknown): string {
 }
 
 export const AttendancesPage: React.FC = () => {
-	// Active Tab State ("overview" | "matrix")
-	const [activeTab, setActiveTab] = useState<"overview" | "matrix">("matrix");
+	// Active Tab State ("overview" | "matrix" | "list")
+	const [activeTab, setActiveTab] = useState<"overview" | "matrix" | "list">(
+		"matrix",
+	);
 
 	// Date & Period state (Defaults to current month and year)
 	const now = new Date();
@@ -814,11 +818,26 @@ export const AttendancesPage: React.FC = () => {
 							<Calendar className="size-4" />
 							<span>Matriks Presensi Kelas</span>
 						</button>
+						<button
+							type="button"
+							onClick={() => setActiveTab("list")}
+							className={`inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition-all ${
+								activeTab === "list"
+									? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
+									: "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+							}`}
+						>
+							<ClipboardList className="size-4" />
+							<span>Daftar Presensi Siswa</span>
+						</button>
 					</div>
 				</div>
 
 				{/* TAB 1: OVERVIEW & RANGKUMAN MENYELURUH */}
 				{activeTab === "overview" && <AttendanceOverviewTab />}
+
+				{/* TAB 3: DAFTAR PRESENSI SISWA */}
+				{activeTab === "list" && <AttendanceListTab />}
 
 				{/* TAB 2: MATRIKS PRESENSI KELAS */}
 				{activeTab === "matrix" && (
