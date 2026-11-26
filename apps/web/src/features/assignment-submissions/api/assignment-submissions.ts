@@ -61,7 +61,15 @@ export interface RawSubmissionRecord {
 	} | null;
 	grader?: {
 		id: string;
-		name?: string | null;
+		email?: string | null;
+		profile?:
+			| {
+					fullName?: string | null;
+			  }[]
+			| {
+					fullName?: string | null;
+			  }
+			| null;
 	} | null;
 }
 
