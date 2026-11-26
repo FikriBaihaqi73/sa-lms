@@ -50,6 +50,7 @@ import {
 } from "./routes/specialization-statuses/index";
 import { studentGuardiansRoute } from "./routes/student-guardians/index";
 import { studentsRoute } from "./routes/students/index";
+import { studyPlansAliasRoute } from "./routes/study-plans/index";
 import { userRoute } from "./routes/userLayout";
 
 const settingsTree = settingsRoute.addChildren([
@@ -106,6 +107,7 @@ const routeTree = rootRoute.addChildren([
 	guardiansRoute,
 	loginRoute,
 	registerRoute,
+	studyPlansAliasRoute,
 ]);
 
 export const router = createRouter({ routeTree });
