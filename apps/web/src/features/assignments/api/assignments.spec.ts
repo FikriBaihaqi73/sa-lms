@@ -158,6 +158,10 @@ describe("assignments API client", () => {
 		const classes = await getClassesOptionsApi();
 		const ays = await getAcademicYearsOptionsApi();
 		const students = await getClassStudentsOptionsApi("cls-1");
+		expect(apiFetch).toHaveBeenCalledWith(
+			"/class-students?page=1&limit=100&classId=cls-1",
+		);
+		expect(students).toHaveLength(1);
 
 		expect(types).toHaveLength(1);
 		expect(modules).toHaveLength(1);
