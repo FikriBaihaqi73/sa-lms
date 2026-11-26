@@ -83,6 +83,7 @@ export function useClassStudentsOptions(classId?: string) {
 	return useQuery({
 		queryKey: ["class-students", "options", classId],
 		queryFn: () => getClassStudentsOptionsApi(classId),
+		enabled: Boolean(classId),
 	});
 }
 

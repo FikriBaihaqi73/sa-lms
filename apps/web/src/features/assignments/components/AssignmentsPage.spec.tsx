@@ -181,7 +181,14 @@ describe("AssignmentsPage", () => {
 
 	afterEach(cleanup);
 
-	it("renders header, 4 stats cards, filter bar, assignment cards, and submissions audit table", async () => {
+	async function selectSubjectCard() {
+		const subjectCard = await screen.findByRole("button", {
+			name: /Web Developer/i,
+		});
+		fireEvent.click(subjectCard);
+	}
+
+	it("renders Halaman 1 subject list, navigates to Halaman 2 on subject click, and shows stats, assignment cards, and submissions audit table", async () => {
 		renderPage();
 
 		// Header
@@ -194,16 +201,27 @@ describe("AssignmentsPage", () => {
 		expect(screen.getByText("Ekspor Rekap Kelas")).toBeTruthy();
 		expect(screen.getByText("Tambah Tugas")).toBeTruthy();
 
-		// 4 Stat Cards
+		// Filter bar on Halaman 1
+		expect(screen.getByLabelText(/1\. TAHUN AJARAN/i)).toBeTruthy();
+		expect(screen.getByLabelText(/2\. PILIH KELAS/i)).toBeTruthy();
+		expect(screen.getByLabelText(/3\. FILTER MODUL/i)).toBeTruthy();
+
+		// Halaman 1: Subject card with assignments
+		expect(await screen.findByText("Web Developer")).toBeTruthy();
+		expect(screen.getByText("WD-209")).toBeTruthy();
+
+		// Click subject to navigate to Halaman 2
+		await selectSubjectCard();
+
+		expect(
+			screen.getByRole("button", { name: /Kembali ke Daftar Mata Pelajaran/i }),
+		).toBeTruthy();
+
+		// 4 Stat Cards on Halaman 2
 		expect(await screen.findByText("TUGAS TERBIT DI KELAS")).toBeTruthy();
 		expect(screen.getByText("SISWA MENGUMPULKAN")).toBeTruthy();
 		expect(screen.getByText("SUDAH DINILAI GURU")).toBeTruthy();
 		expect(screen.getByText("BELUM MENGUMPULKAN")).toBeTruthy();
-
-		// Filter bar
-		expect(screen.getByLabelText(/1\. TAHUN AJARAN/i)).toBeTruthy();
-		expect(screen.getByLabelText(/2\. PILIH KELAS/i)).toBeTruthy();
-		expect(screen.getByLabelText(/3\. FILTER MODUL/i)).toBeTruthy();
 
 		// Assignment card
 		expect(
@@ -214,7 +232,6 @@ describe("AssignmentsPage", () => {
 			).length,
 		).toBeGreaterThan(0);
 		expect(screen.getByText("Proyek Praktikum")).toBeTruthy();
-		expect(screen.getByText("WD-209")).toBeTruthy();
 
 		// Submissions table
 		expect(await screen.findByText("Alex Pratama")).toBeTruthy();
@@ -223,12 +240,20 @@ describe("AssignmentsPage", () => {
 		expect(screen.getByText("Belum Mengumpulkan")).toBeTruthy();
 		expect(screen.getByText("fastify-krs-alex.zip")).toBeTruthy();
 		expect(screen.getByText("96 / 100")).toBeTruthy();
+
+		// Back to Halaman 1
+		fireEvent.click(
+			screen.getByRole("button", { name: /Kembali ke Daftar Mata Pelajaran/i }),
+		);
+		expect(
+			await screen.findByText(/DAFTAR MATA PELAJARAN YANG MEMILIKI TUGAS/i),
+		).toBeTruthy();
 	});
 
 	it("opens Add Assignment dialog when clicking 'Tambah Tugas' and creates new assignment", async () => {
 		renderPage();
 
-		expect(await screen.findByText("TUGAS TERBIT DI KELAS")).toBeTruthy();
+		expect(await screen.findByText("Web Developer")).toBeTruthy();
 
 		const addBtn = screen.getByRole("button", { name: /Tambah Tugas/i });
 		fireEvent.click(addBtn);
@@ -280,6 +305,7 @@ describe("AssignmentsPage", () => {
 
 	it("opens Edit Assignment dialog when clicking the pencil icon in assignment card", async () => {
 		renderPage();
+		await selectSubjectCard();
 
 		expect(await screen.findByText("TUGAS TERBIT DI KELAS")).toBeTruthy();
 		expect(
@@ -323,10 +349,15 @@ describe("AssignmentsPage", () => {
 
 	it("opens Delete Assignment confirmation dialog when clicking trash icon in assignment card", async () => {
 		renderPage();
+		await selectSubjectCard();
 
 		expect(
-			await screen.findByText("Implementasi Endpoint CRUD Rencana Studi (KRS)"),
-		).toBeTruthy();
+			(
+				await screen.findAllByText(
+					"Implementasi Endpoint CRUD Rencana Studi (KRS)",
+				)
+			).length,
+		).toBeGreaterThan(0);
 
 		const deleteBtn = screen.getByLabelText(
 			/Hapus penugasan Implementasi Endpoint CRUD Rencana Studi \(KRS\)/i,
@@ -353,6 +384,7 @@ describe("AssignmentsPage", () => {
 
 	it("opens student submission audit modal when clicking 'Rincian'", async () => {
 		renderPage();
+		await selectSubjectCard();
 
 		expect(await screen.findByText("Alex Pratama")).toBeTruthy();
 
@@ -369,6 +401,7 @@ describe("AssignmentsPage", () => {
 
 	it("filters student rows when clicking tabs and typing in student search input", async () => {
 		renderPage();
+		await selectSubjectCard();
 
 		expect(await screen.findByText("Alex Pratama")).toBeTruthy();
 		expect(screen.getByText("Surya Wijaya")).toBeTruthy();
@@ -454,11 +487,23 @@ describe("AssignmentsPage", () => {
 			);
 		});
 
-		// Switch academic year to ay-2
+		// Verify search input is positioned on the left (before academic year select)
+		const searchInput = screen.getByLabelText(/PENCARIAN PENUGASAN/i);
 		const aySelect = screen.getByLabelText(/1\. TAHUN AJARAN \/ ANGKATAN/i);
+		expect(
+			Boolean(
+				searchInput.compareDocumentPosition(aySelect) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+
+		// Initially Web Developer (in ay-1 / cls-1) is visible
+		expect(await screen.findByText("Web Developer")).toBeTruthy();
+
+		// Switch academic year to ay-2
 		fireEvent.change(aySelect, { target: { value: "ay-2" } });
 
-		// Now cls-2 should be shown in class dropdown, and cls-1 should not
+		// Now cls-2 should be shown in class dropdown, and cls-1 should not, and ay-1 subject should be hidden
 		await waitFor(() => {
 			const classSelect = screen.getByLabelText(
 				/2\. PILIH KELAS/i,
@@ -472,6 +517,7 @@ describe("AssignmentsPage", () => {
 			expect(
 				updatedOptions.some((t) => t.includes("Kelas Informatika A")),
 			).toBe(false);
+			expect(screen.queryByText("Web Developer")).toBeNull();
 		});
 	});
 });

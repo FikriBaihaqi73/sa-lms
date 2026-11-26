@@ -37,7 +37,28 @@ export const AssignmentFilter: React.FC<AssignmentFilterProps> = ({
 }) => {
 	return (
 		<div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800/90 dark:bg-[#111927]">
-			{/* 1. Tahun Ajaran / Angkatan */}
+			{/* 1. Search Bar (Pojok Kiri) */}
+			<div className="min-w-[390px] flex-1 sm:max-w-[280px]">
+				<label
+					htmlFor="assignment_search"
+					className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+				>
+					PENCARIAN PENUGASAN
+				</label>
+				<div className="relative">
+					<Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+					<input
+						id="assignment_search"
+						type="text"
+						value={search}
+						onChange={(e) => onSearchChange(e.target.value)}
+						placeholder="Cari judul tugas, modul, atau guru pengampu..."
+						className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 text-xs text-slate-800 placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200 dark:placeholder:text-slate-500"
+					/>
+				</div>
+			</div>
+
+			{/* 2. Tahun Ajaran / Angkatan */}
 			<div className="min-w-[180px] flex-1 sm:max-w-[220px]">
 				<label
 					htmlFor="academic_year_filter"
@@ -60,7 +81,7 @@ export const AssignmentFilter: React.FC<AssignmentFilterProps> = ({
 				</select>
 			</div>
 
-			{/* 2. Pilih Kelas */}
+			{/* 3. Pilih Kelas */}
 			<div className="min-w-[200px] flex-1 sm:max-w-[260px]">
 				<label
 					htmlFor="class_filter"
@@ -84,7 +105,7 @@ export const AssignmentFilter: React.FC<AssignmentFilterProps> = ({
 				</select>
 			</div>
 
-			{/* 3. Filter Modul / Mapel */}
+			{/* 4. Filter Modul / Mapel */}
 			<div className="min-w-[200px] flex-1 sm:max-w-[260px]">
 				<label
 					htmlFor="module_filter"
@@ -105,27 +126,6 @@ export const AssignmentFilter: React.FC<AssignmentFilterProps> = ({
 						</option>
 					))}
 				</select>
-			</div>
-
-			{/* 4. Search Bar */}
-			<div className="min-w-[200px] flex-1">
-				<label
-					htmlFor="assignment_search"
-					className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
-				>
-					PENCARIAN PENUGASAN
-				</label>
-				<div className="relative">
-					<Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-					<input
-						id="assignment_search"
-						type="text"
-						value={search}
-						onChange={(e) => onSearchChange(e.target.value)}
-						placeholder="Cari judul tugas, modul, atau guru pengampu..."
-						className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 text-xs text-slate-800 placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200 dark:placeholder:text-slate-500"
-					/>
-				</div>
 			</div>
 
 			{/* 5. Reset Filter Button */}
