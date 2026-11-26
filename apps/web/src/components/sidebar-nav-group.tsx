@@ -41,13 +41,13 @@ export function SidebarNavGroup({
 				aria-expanded={isOpen}
 				aria-controls={contentId}
 				onClick={() => setIsOpen((open) => !open)}
-				className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-500 dark:hover:bg-slate-800"
+				className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400 transition-colors hover:bg-slate-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-500 dark:hover:bg-slate-800/40 dark:hover:text-slate-300"
 			>
 				<span>{title}</span>
 				{isOpen ? (
-					<ChevronDown className="h-3.5 w-3.5 transition-transform duration-200" />
+					<ChevronDown className="h-3.5 w-3.5 opacity-60 transition-transform duration-200" />
 				) : (
-					<ChevronRight className="h-3.5 w-3.5 transition-transform duration-200" />
+					<ChevronRight className="h-3.5 w-3.5 opacity-60 transition-transform duration-200" />
 				)}
 			</button>
 			<div id={contentId} hidden={!isOpen} className="mt-1 space-y-0.5">

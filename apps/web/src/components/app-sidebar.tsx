@@ -49,17 +49,17 @@ export function AppSidebar() {
 		role === "student" || role === "teacher" || role === "guardian";
 
 	return (
-		<aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
+		<aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white dark:border-slate-800/80 dark:bg-[#0c1322] lg:flex">
 			{/* Brand Header */}
-			<div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-5 dark:border-slate-800">
-				<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-tr from-blue-700 to-indigo-600 text-white shadow-md">
-					<BookOpenCheck className="h-5 w-5" />
+			<div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200/80 px-5 dark:border-slate-800/80">
+				<span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
+					<BookOpenCheck className="h-4.5 w-4.5" />
 				</span>
 				<div>
-					<p className="text-xs font-bold leading-none text-slate-900 dark:text-white">
+					<p className="text-xs font-bold leading-none tracking-tight text-slate-900 dark:text-white">
 						Sistem Academic
 					</p>
-					<p className="mt-1 text-[10px] font-medium text-slate-500">
+					<p className="mt-1 text-[10px] font-medium text-slate-400 dark:text-slate-500">
 						{isSuperadmin
 							? "Portal Superadmin"
 							: isAdmin
@@ -383,21 +383,21 @@ export function AppSidebar() {
 			</nav>
 
 			{/* User Profile Footer */}
-			<div className="mt-auto shrink-0 border-t border-slate-200 p-3 dark:border-slate-800">
+			<div className="mt-auto shrink-0 border-t border-slate-200/80 p-3 dark:border-slate-800/80">
 				<div className="flex items-center gap-2">
 					<Link
 						to="/profile"
-						className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-80 transition"
+						className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-85 transition-opacity"
 					>
-						<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
+						<span className="flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-xs">
 							{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 						</span>
 						<div className="min-w-0 flex-1">
-							<p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-100">
+							<p className="truncate text-xs font-medium text-slate-800 dark:text-slate-200">
 								{user?.name ||
 									(isSuperadmin ? "Superadmin" : "Admin Institusi")}
 							</p>
-							<p className="truncate text-[10px] text-slate-500 dark:text-slate-400">
+							<p className="truncate text-[10px] text-slate-400 dark:text-slate-500">
 								{user?.email || "admin@nexora.com"}
 							</p>
 						</div>
@@ -406,7 +406,7 @@ export function AppSidebar() {
 						type="button"
 						onClick={handleLogout}
 						title="Keluar dari sistem"
-						className="rounded-lg p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition"
+						className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:text-slate-500 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 transition"
 					>
 						<LogOut className="h-4 w-4" />
 					</button>
@@ -430,13 +430,13 @@ function NavItem({
 			to={to}
 			activeProps={{
 				className:
-					"bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300 font-semibold shadow-sm",
+					"bg-blue-50 text-blue-600 dark:bg-blue-600/15 dark:text-blue-400 font-medium",
 			}}
-			className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+			className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100/80 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200 transition-colors"
 		>
-			<Icon className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
+			<Icon className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
 			<span className="truncate">{label}</span>
-			<ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 opacity-40" />
+			<ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 opacity-30" />
 		</Link>
 	);
 }
@@ -444,24 +444,24 @@ function NavItem({
 export function AppTopbar() {
 	const { user } = useAuth();
 	return (
-		<header className="flex h-16 shrink-0 items-center justify-end gap-3 border-b border-slate-200 bg-white px-5 dark:border-slate-800 dark:bg-slate-900">
+		<header className="flex h-16 shrink-0 items-center justify-end gap-3 border-b border-slate-200/80 bg-white px-5 dark:border-slate-800/80 dark:bg-[#0c1322]">
 			<SkyToggle />
 			<button
 				type="button"
 				aria-label="Notifikasi"
-				className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition"
+				className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100/80 dark:text-slate-400 dark:hover:bg-slate-800/60 transition-colors"
 			>
-				<span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900" />
+				<span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white dark:ring-[#0c1322]" />
 				<UserRound className="h-4 w-4" />
 			</button>
 			<Link
 				to="/profile"
-				className="flex items-center gap-2.5 hover:opacity-80 transition"
+				className="flex items-center gap-2.5 hover:opacity-85 transition-opacity"
 			>
-				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
+				<span className="flex h-7.5 w-7.5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-xs">
 					{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 				</span>
-				<span className="text-xs font-semibold text-slate-700 dark:text-slate-200 hidden sm:inline-block">
+				<span className="text-xs font-medium text-slate-700 dark:text-slate-200 hidden sm:inline-block">
 					{user?.name || "Admin Institusi"}
 				</span>
 			</Link>
