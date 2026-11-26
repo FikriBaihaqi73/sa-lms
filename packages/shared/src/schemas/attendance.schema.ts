@@ -94,11 +94,25 @@ export const AttendanceQuerySchema = z.object({
     .uuid("Invalid schedule ID format")
     .optional()
     .describe("Filter by schedule ID"),
+  attendance_schedule_id: z
+    .string()
+    .uuid("Invalid attendance schedule ID format")
+    .optional()
+    .describe("Filter by attendance schedule ID"),
+  academic_year_id: z
+    .string()
+    .uuid("Invalid academic year ID format")
+    .optional()
+    .describe("Filter by academic year ID"),
   class_id: z
     .string()
     .uuid("Invalid class ID format")
     .optional()
     .describe("Filter by class ID"),
+  sort_order: z
+    .enum(["asc", "desc"])
+    .optional()
+    .describe("Sort order by attendance date (asc or desc)"),
   student_id: z
     .string()
     .uuid("Invalid student ID format")

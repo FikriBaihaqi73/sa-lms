@@ -83,6 +83,15 @@ export interface Attendance {
 	attendance_status?: AttendanceStatusItem | null;
 	student?: AttendanceStudentItem | null;
 	schedule?: AttendanceScheduleItem | null;
+	attendance_schedule?: {
+		id: string;
+		title: string;
+		scheduleType: string;
+		classId: string;
+		startTime?: string | null;
+		endTime?: string | null;
+		class?: AttendanceClassItem | null;
+	} | null;
 }
 
 export interface AttendanceSummary {
@@ -101,12 +110,15 @@ export interface AttendanceFilters {
 	student_id?: string;
 	attendance_status_id?: string;
 	schedule_id?: string;
+	attendance_schedule_id?: string;
+	academic_year_id?: string;
 	class_id?: string;
 	attendance_date?: string;
 	start_date?: string;
 	end_date?: string;
 	month?: number;
 	year?: number;
+	sort_order?: "asc" | "desc";
 }
 
 export interface AttendancePaginationMeta {

@@ -16,6 +16,8 @@ export const attendanceSelect = {
       title: true,
       scheduleType: true,
       classId: true,
+      startTime: true,
+      endTime: true,
       class: {
         select: {
           id: true,

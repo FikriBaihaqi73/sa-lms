@@ -9,11 +9,13 @@ import {
 	getClassesOptions,
 	getClassStudentsOptions,
 	getSchedulesOptions,
+	updateAttendance,
 	upsertAttendance,
 } from "../api";
 import type {
 	AttendanceFilters,
 	BulkUpsertAttendanceInput,
+	UpdateAttendanceInput,
 	UpsertAttendanceInput,
 } from "../types";
 
@@ -61,6 +63,18 @@ export function useDeleteAttendance() {
 
 	return useMutation({
 		mutationFn: (id: string) => deleteAttendance(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ATTENDANCES_QUERY_KEY });
+		},
+	});
+}
+
+export function useUpdateAttendance() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdateAttendanceInput }) =>
+			updateAttendance(id, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ATTENDANCES_QUERY_KEY });
 		},

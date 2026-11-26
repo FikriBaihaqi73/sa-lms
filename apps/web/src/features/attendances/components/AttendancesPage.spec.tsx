@@ -520,4 +520,37 @@ describe("AttendancesPage", () => {
 			expect(screen.queryByRole("option", { name: /^X-IPA-1/i })).toBeNull();
 		});
 	});
+
+	it("renders tabs in exact order and switches to Daftar Presensi Siswa tab", async () => {
+		renderPage();
+
+		const overviewTab = screen.getByRole("button", {
+			name: /Overview & Rangkuman/i,
+		});
+		const matrixTab = screen.getByRole("button", {
+			name: /Matriks Presensi Kelas/i,
+		});
+		const listTab = screen.getByRole("button", {
+			name: /Daftar Presensi Siswa/i,
+		});
+
+		expect(
+			Boolean(
+				overviewTab.compareDocumentPosition(matrixTab) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+		expect(
+			Boolean(
+				matrixTab.compareDocumentPosition(listTab) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+
+		fireEvent.click(listTab);
+		expect(
+			await screen.findByText(/Log riwayat kehadiran siswa secara kronologis/i),
+		).toBeTruthy();
+		expect(screen.getByText("Ekspor Daftar")).toBeTruthy();
+	});
 });
