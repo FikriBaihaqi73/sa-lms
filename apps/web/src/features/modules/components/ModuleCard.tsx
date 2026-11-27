@@ -98,7 +98,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300">
-                Urutan #{module.display_order ?? "-"}
+                Bab {module.display_order ?? "-"}
               </span>
 
               <span className="rounded-md border border-blue-100 bg-blue-50/80 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300">
@@ -160,7 +160,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
             title="Tambah Konten Materi"
           >
             <Plus className="size-3.5" />
-            <span>Konten</span>
+            <span>Materi</span>
           </Button>
 
           <Button

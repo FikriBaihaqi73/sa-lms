@@ -66,6 +66,13 @@ export const ModulesPage: React.FC = () => {
     is_published: isPublished || undefined,
     is_locked: isLocked || undefined,
   });
+  const allModulesQuery = useModules({
+    limit: 1000,
+    search: debouncedSearch.trim() || undefined,
+    class_subject_id: classSubjectId || undefined,
+    is_published: isPublished || undefined,
+    is_locked: isLocked || undefined,
+  });
 
   const classSubjectOptionsQuery = useClassSubjectOptions();
 
@@ -79,9 +86,19 @@ export const ModulesPage: React.FC = () => {
   const deleteContentMutation = useDeleteModuleContent();
 
   const modulesList = modulesQuery.data?.data || [];
+  const allModulesList = allModulesQuery.data?.data || modulesList;
   const meta = modulesQuery.data?.meta;
   const totalPages = Math.max(meta?.totalPages || 1, 1);
   const stats = useModuleStats(modulesList);
+  const groupedModules = allModulesList.reduce<Record<string, { label: string; modules: LearningModule[] }>>((groups, mod) => {
+    const key = mod.class_subject_id;
+    const label = mod.class_subject?.subject?.name
+      ? `${mod.class_subject.subject.name}${mod.class_subject.class?.name ? ` • ${mod.class_subject.class.name}` : ""}`
+      : "Mata Pelajaran Kelas";
+    groups[key] ??= { label, modules: [] };
+    groups[key].modules.push(mod);
+    return groups;
+  }, {});
 
   // Handlers for Module CRUD
   const handleOpenCreateModule = () => {
@@ -329,18 +346,22 @@ export const ModulesPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {modulesList.map((mod) => (
-              <ModuleCard
-                key={mod.id}
-                module={mod}
-                onEditModule={handleOpenEditModule}
-                onDeleteModule={handleOpenDeleteModule}
-                onTogglePublish={handleTogglePublish}
-                onToggleLock={handleToggleLock}
-                onAddContent={handleOpenAddContent}
-                onEditContent={handleOpenEditContent}
-                onDeleteContent={handleOpenDeleteContent}
-              />
+            {Object.entries(groupedModules).map(([groupId, group]) => (
+              <SubjectModulesGroup key={groupId} label={group.label}>
+                {group.modules.map((mod) => (
+                  <ModuleCard
+                    key={mod.id}
+                    module={mod}
+                    onEditModule={handleOpenEditModule}
+                    onDeleteModule={handleOpenDeleteModule}
+                    onTogglePublish={handleTogglePublish}
+                    onToggleLock={handleToggleLock}
+                    onAddContent={handleOpenAddContent}
+                    onEditContent={handleOpenEditContent}
+                    onDeleteContent={handleOpenDeleteContent}
+                  />
+                ))}
+              </SubjectModulesGroup>
             ))}
 
             {/* Pagination Controls */}
@@ -433,6 +454,31 @@ export const ModulesPage: React.FC = () => {
         onConfirm={handleConfirmDelete}
       />
     </main>
+  );
+};
+
+const SubjectModulesGroup: React.FC<{
+  label: string;
+  children: React.ReactNode;
+}> = ({ label, children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <button
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-expanded={isOpen}
+        className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60"
+      >
+        <span className="flex items-center gap-3">
+          <BookOpen className="size-5 text-blue-600" />
+          <span className="font-semibold text-slate-900 dark:text-slate-100">{label}</span>
+        </span>
+        <span className="text-xs font-medium text-slate-500">{isOpen ? "Tutup" : "Lihat bab"}</span>
+      </button>
+      {isOpen && <div className="space-y-3 border-t border-slate-100 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-950/30">{children}</div>}
+    </section>
   );
 };
 
