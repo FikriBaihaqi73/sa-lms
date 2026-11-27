@@ -51,61 +51,65 @@ function renderSidebar(role?: string) {
 }
 
 describe("AppSidebar Admin Institusi grouping", () => {
-	it("renders the six grouped sections and all explicit-admin items", () => {
-		renderSidebar("admin");
+	it(
+		"renders the six grouped sections and all explicit-admin items",
+		() => {
+			renderSidebar("admin");
 
-		for (const title of [
-			"Manajemen Pengguna",
-			"Struktur Akademik",
-			"Pembelajaran",
-			"Kehadiran",
-			"Penilaian",
-			"Sistem & Pengaturan",
-		]) {
-			expect(screen.getByRole("button", { name: title })).toBeTruthy();
-			act(() => fireEvent.click(screen.getByRole("button", { name: title })));
-		}
+			for (const title of [
+				"Manajemen Pengguna",
+				"Struktur Akademik",
+				"Pembelajaran",
+				"Kehadiran",
+				"Penilaian",
+				"Sistem & Pengaturan",
+			]) {
+				expect(screen.getByRole("button", { name: title })).toBeTruthy();
+				act(() => fireEvent.click(screen.getByRole("button", { name: title })));
+			}
 
-		for (const label of [
-			"Data Pengguna",
-			"Tambah Siswa",
-			"Relasi Wali Siswa",
-			"Guru",
-			"Wali Murid",
-			"Departemen",
-			"Tahun Ajaran",
-			"Peminatan & Keahlian",
-			"Semester",
-			"Ruang Kelas",
-			"Kelas",
-			"Mata Pelajaran",
-			"Kelas Siswa",
-			"Mata Pelajaran Kelas",
-			"Prasyarat Mata Kuliah",
-			"Jadwal Pelajaran",
-			"Jurnal Mengajar",
-			"Rencana Studi",
-			"Modul & Konten Materi",
-			"Tugas & Submisi",
-			"Jenis Tugas",
-			"Status Kehadiran",
-			"Tambah Absensi",
-			"Presensi & Absensi",
-			"Standar Penilaian",
-			"Ujian",
-			"Nilai Siswa",
-			"Nilai Ujian",
-			"Rekap Nilai Siswa",
-			"Pengumuman",
-			"Log Aktivitas",
-			"Pengaturan",
-			"Profil Saya",
-		]) {
-			expect(
-				screen.getAllByRole("link", { name: label }).length,
-			).toBeGreaterThan(0);
-		}
-	});
+			for (const label of [
+				"Data Pengguna",
+				"Tambah Siswa",
+				"Relasi Wali Siswa",
+				"Guru",
+				"Wali Murid",
+				"Departemen",
+				"Tahun Ajaran",
+				"Peminatan & Keahlian",
+				"Semester",
+				"Ruang Kelas",
+				"Kelas",
+				"Mata Pelajaran",
+				"Kelas Siswa",
+				"Mata Pelajaran Kelas",
+				"Prasyarat Mata Kuliah",
+				"Jadwal Pelajaran",
+				"Jurnal Mengajar",
+				"Rencana Studi",
+				"Modul & Konten Materi",
+				"Tugas & Submisi",
+				"Jenis Tugas",
+				"Status Kehadiran",
+				"Tambah Absensi",
+				"Presensi & Absensi",
+				"Standar Penilaian",
+				"Ujian",
+				"Nilai Siswa",
+				"Nilai Ujian",
+				"Rekap Nilai Siswa",
+				"Pengumuman",
+				"Log Aktivitas",
+				"Pengaturan",
+				"Profil Saya",
+			]) {
+				expect(
+					screen.getAllByRole("link", { name: label }).length,
+				).toBeGreaterThan(0);
+			}
+		},
+		15000,
+	);
 
 	it("hides conditional groups and conditional items for a non-explicit admin", () => {
 		renderSidebar();

@@ -917,17 +917,17 @@ export const StudyPlansPage: React.FC = () => {
 
 				{/* Paket KRS Jurusan Alert Banner */}
 				{activeBundleSubjects.length > 0 && activeDepartmentObj && (
-					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-blue-50/90 p-4 shadow-sm dark:border-blue-900/60 dark:from-blue-950/40 dark:via-indigo-950/30 dark:to-blue-950/40">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-blue-500/20 bg-blue-50/50 p-3 sm:p-3.5 shadow-xs dark:border-blue-500/25 dark:bg-[#111927]">
 						<div className="flex items-start gap-3">
-							<div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20 dark:bg-blue-500">
-								<PackageCheck className="size-5" />
+							<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
+								<PackageCheck className="size-4" />
 							</div>
 							<div>
 								<div className="flex items-center gap-2 flex-wrap">
 									<h4 className="text-sm font-bold text-slate-900 dark:text-white">
 										Paket KRS Jurusan: {activeDepartmentObj.name}
 									</h4>
-									<span className="rounded-md border border-blue-200 bg-blue-100/70 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+									<span className="rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
 										{selectedAcademicYear?.academic_year || "Tahun Ajaran Aktif"}
 									</span>
 								</div>
@@ -937,7 +937,7 @@ export const StudyPlansPage: React.FC = () => {
 										{activeBundleSubjects.length} mata pelajaran
 									</strong>{" "}
 									(total{" "}
-									<strong className="text-blue-700 dark:text-blue-300">
+									<strong className="text-blue-600 dark:text-blue-400">
 										{activeBundleCredits} SKS
 									</strong>
 									).
@@ -955,7 +955,7 @@ export const StudyPlansPage: React.FC = () => {
 									true,
 								)
 							}
-							className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 shrink-0 self-start sm:self-center"
+							className="inline-flex h-8.5 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-500 shrink-0 self-start sm:self-center"
 						>
 							<PackageCheck className="size-3.5" />
 							<span>Daftarkan Siswa ke Paket Ini</span>
