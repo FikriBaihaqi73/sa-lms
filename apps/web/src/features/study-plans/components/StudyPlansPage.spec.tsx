@@ -191,6 +191,7 @@ describe("StudyPlansPage", () => {
 			screen.getByText("DATA AKADEMIK • SELF-ENROLLMENT & MONITORING"),
 		).toBeTruthy();
 		expect(screen.getByText("Rencana Studi (KRS)")).toBeTruthy();
+		expect(screen.queryByRole("button", { name: /ekspor krs/i })).toBeNull();
 		expect(screen.getByText(/Tambah \/ Force Enroll KRS/i)).toBeTruthy();
 
 		// 2. 4 Stat Cards

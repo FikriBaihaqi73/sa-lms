@@ -4,8 +4,6 @@ import type React from "react";
 interface StudyPlanHeaderProps {
 	activeAcademicYearName?: string;
 	onAddClick: () => void;
-	onExportClick?: () => void;
-	isExportDisabled?: boolean;
 }
 
 export const StudyPlanHeader: React.FC<StudyPlanHeaderProps> = ({

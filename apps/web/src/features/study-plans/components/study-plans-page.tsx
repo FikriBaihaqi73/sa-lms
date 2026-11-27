@@ -774,81 +774,6 @@ export const StudyPlansPage: React.FC = () => {
 		}
 	};
 
-	const handleExportCsv = () => {
-		if (rawStudyPlans.length === 0) {
-			setNotice({
-				kind: "error",
-				message: "Tidak ada data rencana studi untuk diekspor.",
-			});
-			return;
-		}
-
-		const headers = [
-			"No",
-			"Nama Siswa",
-			"NIS",
-			"Kode Mapel",
-			"Mata Pelajaran",
-			"Kelas",
-			"Bidang/Departemen",
-			"Kredit (SKS)",
-			"Pengajar",
-			"Tahun Ajaran",
-			"Tanggal Dibuat",
-		];
-
-		const rows = rawStudyPlans.map((sp, idx) => {
-			const sName =
-				sp.student?.profile?.fullName || `Siswa #${sp.student?.studentNumber}`;
-			const sNis = sp.student?.studentNumber || "-";
-			const code = sp.classSubject?.subject?.code || "-";
-			const subName = sp.classSubject?.subject?.name || "Mata Pelajaran";
-			const clsName = sp.classSubject?.class?.name || "Kelas";
-			const deptName = sp.classSubject?.subject?.department?.name || "-";
-			const credits = sp.classSubject?.subject?.credits ?? 0;
-			const tchName = sp.classSubject?.teacher?.profile?.fullName || "-";
-			const ayName =
-				sp.academicYear?.academic_year ||
-				sp.classSubject?.academic_year?.academic_year ||
-				"-";
-			const date = sp.created_at
-				? new Date(sp.created_at).toLocaleDateString("id-ID")
-				: "-";
-
-			return [
-				String(idx + 1),
-				`"${sName.replace(/"/g, '""')}"`,
-				`"${sNis}"`,
-				`"${code}"`,
-				`"${subName.replace(/"/g, '""')}"`,
-				`"${clsName.replace(/"/g, '""')}"`,
-				`"${deptName.replace(/"/g, '""')}"`,
-				String(credits),
-				`"${tchName.replace(/"/g, '""')}"`,
-				`"${ayName}"`,
-				`"${date}"`,
-			].join(",");
-		});
-
-		const csvContent =
-			"data:text/csv;charset=utf-8,\uFEFF" +
-			[headers.join(","), ...rows].join("\n");
-		const encodedUri = encodeURI(csvContent);
-		const link = document.createElement("a");
-		link.setAttribute("href", encodedUri);
-		link.setAttribute(
-			"download",
-			`rekap-krs-${selectedAcademicYear?.academic_year || "tahun"}.csv`,
-		);
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-
-		setNotice({
-			kind: "success",
-			message: "Data rencana studi berhasil diekspor sebagai CSV.",
-		});
-	};
 
 	return (
 		<main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-[#0b1120] dark:text-slate-100 sm:p-6">
@@ -876,8 +801,6 @@ export const StudyPlansPage: React.FC = () => {
 				<StudyPlanHeader
 					activeAcademicYearName={selectedAcademicYear?.label}
 					onAddClick={() => handleOpenAddModal()}
-					onExportClick={handleExportCsv}
-					isExportDisabled={rawStudyPlans.length === 0}
 				/>
 
 				{/* 2. 4 Kartu Ringkasan Eksekutif */}
