@@ -22,4 +22,35 @@ describe("AssignmentSubmissionRepository", () => {
   it("should be defined", () => {
     expect(repository).toBeDefined();
   });
+
+  it("restricts grader fields when listing submissions", async () => {
+    const client = mockPrisma.assignmentSubmission;
+    jest.mocked(client.findMany).mockResolvedValue([]);
+    jest.mocked(client.count).mockResolvedValue(0);
+
+    await repository.findAll({ page: 1, limit: 10 });
+
+    expect(client.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          grader: { select: { id: true, email: true } },
+        }),
+      }),
+    );
+  });
+
+  it("uses the same restricted grader selection for details", async () => {
+    const client = mockPrisma.assignmentSubmission;
+    jest.mocked(client.findFirst).mockResolvedValue(null);
+
+    await repository.findById("submission-id");
+
+    expect(client.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          grader: { select: { id: true, email: true } },
+        }),
+      }),
+    );
+  });
 });

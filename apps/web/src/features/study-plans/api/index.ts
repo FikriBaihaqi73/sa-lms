@@ -34,7 +34,7 @@ function extractArray<T>(res: unknown): T[] {
 			if (Array.isArray(nested.data)) return nested.data as T[];
 		}
 	}
-	return [];
+	throw new Error("Format respons daftar data tidak valid.");
 }
 
 export async function getStudyPlansApi(
@@ -71,6 +71,8 @@ export async function getStudyPlansApi(
 		Array.isArray((rawData as { data?: StudyPlan[] }).data)
 	) {
 		items = (rawData as { data: StudyPlan[] }).data;
+	} else {
+		throw new Error("Format respons daftar KRS tidak valid.");
 	}
 
 	const meta =

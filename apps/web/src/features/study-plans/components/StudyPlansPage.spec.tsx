@@ -9,6 +9,7 @@ import {
 	within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ApiError } from "@/lib/api";
 import {
 	getAcademicYearsOptionsApi,
 	getClassSubjectsOptionsApi,
@@ -160,6 +161,24 @@ describe("StudyPlansPage", () => {
 
 	afterEach(cleanup);
 
+	it("shows failed supporting data instead of misleading statistics and retries it", async () => {
+		vi.mocked(getStudentsOptionsApi)
+			.mockRejectedValueOnce(new ApiError("Database error", { status: 400 }))
+			.mockResolvedValueOnce([]);
+		renderPage();
+		expect((await screen.findByRole("alert")).textContent).toContain(
+			"data pendukung gagal dimuat",
+		);
+		expect(screen.getAllByText("—").length).toBeGreaterThanOrEqual(4);
+		fireEvent.click(
+			within(screen.getByRole("alert")).getByRole("button", {
+				name: "Coba lagi",
+			}),
+		);
+		await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+		expect(getStudentsOptionsApi).toHaveBeenCalledTimes(2);
+	});
+
 	it("renders page header, 4 stats cards, view switcher tabs, filter bar, and student table", async () => {
 		renderPage();
 
@@ -168,7 +187,7 @@ describe("StudyPlansPage", () => {
 			screen.getByText("DATA AKADEMIK • SELF-ENROLLMENT & MONITORING"),
 		).toBeTruthy();
 		expect(screen.getByText("Rencana Studi (KRS)")).toBeTruthy();
-		expect(screen.getByText("Ekspor KRS")).toBeTruthy();
+		expect(screen.queryByRole("button", { name: /ekspor krs/i })).toBeNull();
 		expect(screen.getByText("+ Tambah / Force Enroll KRS")).toBeTruthy();
 
 		// 2. 4 Stat Cards

@@ -5,11 +5,13 @@ import type { StudyPlanSummaryStats } from "../types";
 interface StudyPlanStatsProps {
 	stats: StudyPlanSummaryStats;
 	isLoading?: boolean;
+	isError?: boolean;
 }
 
 export const StudyPlanStats: React.FC<StudyPlanStatsProps> = ({
 	stats,
 	isLoading = false,
+	isError = false,
 }) => {
 	return (
 		<div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
@@ -28,7 +30,7 @@ export const StudyPlanStats: React.FC<StudyPlanStatsProps> = ({
 						<div className="h-7 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
 					) : (
 						<span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-							{stats.studentsWithKrsCount}
+							{isError ? "—" : stats.studentsWithKrsCount}
 						</span>
 					)}
 					<p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
@@ -52,11 +54,11 @@ export const StudyPlanStats: React.FC<StudyPlanStatsProps> = ({
 						<div className="h-7 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
 					) : (
 						<span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-							{stats.totalEnrollments}
+							{isError ? "—" : stats.totalEnrollments}
 						</span>
 					)}
 					<p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-						Akumulasi {stats.totalCreditsEnrolled} SKS terambil
+						Akumulasi {isError ? "—" : stats.totalCreditsEnrolled} SKS terambil
 					</p>
 				</div>
 			</div>
@@ -76,11 +78,12 @@ export const StudyPlanStats: React.FC<StudyPlanStatsProps> = ({
 						<div className="h-7 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
 					) : (
 						<span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-							{stats.activeClassSubjectsCount}
+							{isError ? "—" : stats.activeClassSubjectsCount}
 						</span>
 					)}
 					<p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-						Tersedia di {stats.departmentsCount} bidang/departemen
+						Tersedia di {isError ? "—" : stats.departmentsCount}{" "}
+						bidang/departemen
 					</p>
 				</div>
 			</div>
@@ -100,7 +103,7 @@ export const StudyPlanStats: React.FC<StudyPlanStatsProps> = ({
 						<div className="h-7 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
 					) : (
 						<span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-							{stats.studentsWithoutKrsCount}
+							{isError ? "—" : stats.studentsWithoutKrsCount}
 						</span>
 					)}
 					<p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400/80">

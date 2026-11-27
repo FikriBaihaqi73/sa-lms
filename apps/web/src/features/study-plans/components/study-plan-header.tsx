@@ -1,18 +1,14 @@
-import { BookOpen, Download, Plus } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import type React from "react";
 
 interface StudyPlanHeaderProps {
 	activeAcademicYearName?: string;
 	onAddClick: () => void;
-	onExportClick: () => void;
-	isExportDisabled?: boolean;
 }
 
 export const StudyPlanHeader: React.FC<StudyPlanHeaderProps> = ({
 	activeAcademicYearName,
 	onAddClick,
-	onExportClick,
-	isExportDisabled = false,
 }) => {
 	return (
 		<header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -42,16 +38,6 @@ export const StudyPlanHeader: React.FC<StudyPlanHeaderProps> = ({
 			</div>
 
 			<div className="flex flex-wrap items-center gap-2.5">
-				<button
-					type="button"
-					onClick={onExportClick}
-					disabled={isExportDisabled}
-					className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700/80 dark:bg-[#131c2e] dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800"
-				>
-					<Download className="size-3.5" />
-					<span>Ekspor KRS</span>
-				</button>
-
 				<button
 					type="button"
 					onClick={onAddClick}

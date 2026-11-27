@@ -1,4 +1,4 @@
-import { Prisma } from "#generated/client";
+import type { Prisma } from "#generated/client";
 
 export const assignmentSubmissionSelect = {
   id: true,
@@ -17,7 +17,9 @@ export const assignmentSubmissionSelect = {
 
   assignment: true,
   student: true,
-  grader: true,
+  grader: {
+    select: { id: true, email: true },
+  },
 } satisfies Prisma.AssignmentSubmissionSelect;
 
 export type AssignmentSubmissionSelect = Prisma.AssignmentSubmissionGetPayload<{

@@ -106,10 +106,14 @@ export const StudyPlansPage: React.FC = () => {
 	);
 
 	// 5. Data Queries
-	const { data: academicYears = [] } = useAcademicYearsOptions();
-	const { data: departments = [] } = useDepartmentsOptions();
-	const { data: allClassSubjects = [] } = useClassSubjectsOptions();
-	const { data: allStudents = [] } = useStudentsOptions();
+	const academicYearsQuery = useAcademicYearsOptions();
+	const departmentsQuery = useDepartmentsOptions();
+	const classSubjectsQuery = useClassSubjectsOptions();
+	const studentsQuery = useStudentsOptions();
+	const academicYears = academicYearsQuery.data ?? [];
+	const departments = departmentsQuery.data ?? [];
+	const allClassSubjects = classSubjectsQuery.data ?? [];
+	const allStudents = studentsQuery.data ?? [];
 
 	// Auto-select active academic year when options load
 	useEffect(() => {
@@ -155,6 +159,23 @@ export const StudyPlansPage: React.FC = () => {
 			departmentId && departmentId !== "umum" ? departmentId : undefined,
 		class_subject_id: classSubjectId || undefined,
 	});
+
+	const optionQueries = [
+		academicYearsQuery,
+		departmentsQuery,
+		classSubjectsQuery,
+		studentsQuery,
+	];
+	const isDataLoading =
+		isStudyPlansLoading || optionQueries.some((query) => query.isLoading);
+	const isDataError =
+		isStudyPlansError || optionQueries.some((query) => query.isError);
+	const retryData = () => {
+		if (isStudyPlansError) void refetch();
+		for (const query of optionQueries) {
+			if (query.isError) void query.refetch();
+		}
+	};
 
 	const rawStudyPlans = studyPlansResult?.data ?? [];
 	const meta = studyPlansResult?.meta;
@@ -704,82 +725,6 @@ export const StudyPlansPage: React.FC = () => {
 		}
 	};
 
-	const handleExportCsv = () => {
-		if (rawStudyPlans.length === 0) {
-			setNotice({
-				kind: "error",
-				message: "Tidak ada data rencana studi untuk diekspor.",
-			});
-			return;
-		}
-
-		const headers = [
-			"No",
-			"Nama Siswa",
-			"NIS",
-			"Kode Mapel",
-			"Mata Pelajaran",
-			"Kelas",
-			"Bidang/Departemen",
-			"Kredit (SKS)",
-			"Pengajar",
-			"Tahun Ajaran",
-			"Tanggal Dibuat",
-		];
-
-		const rows = rawStudyPlans.map((sp, idx) => {
-			const sName =
-				sp.student?.profile?.fullName || `Siswa #${sp.student?.studentNumber}`;
-			const sNis = sp.student?.studentNumber || "-";
-			const code = sp.classSubject?.subject?.code || "-";
-			const subName = sp.classSubject?.subject?.name || "Mata Pelajaran";
-			const clsName = sp.classSubject?.class?.name || "Kelas";
-			const deptName = sp.classSubject?.subject?.department?.name || "-";
-			const credits = sp.classSubject?.subject?.credits ?? 0;
-			const tchName = sp.classSubject?.teacher?.profile?.fullName || "-";
-			const ayName =
-				sp.academicYear?.academic_year ||
-				sp.classSubject?.academic_year?.academic_year ||
-				"-";
-			const date = sp.created_at
-				? new Date(sp.created_at).toLocaleDateString("id-ID")
-				: "-";
-
-			return [
-				String(idx + 1),
-				`"${sName.replace(/"/g, '""')}"`,
-				`"${sNis}"`,
-				`"${code}"`,
-				`"${subName.replace(/"/g, '""')}"`,
-				`"${clsName.replace(/"/g, '""')}"`,
-				`"${deptName.replace(/"/g, '""')}"`,
-				String(credits),
-				`"${tchName.replace(/"/g, '""')}"`,
-				`"${ayName}"`,
-				`"${date}"`,
-			].join(",");
-		});
-
-		const csvContent =
-			"data:text/csv;charset=utf-8,\uFEFF" +
-			[headers.join(","), ...rows].join("\n");
-		const encodedUri = encodeURI(csvContent);
-		const link = document.createElement("a");
-		link.setAttribute("href", encodedUri);
-		link.setAttribute(
-			"download",
-			`rekap-krs-${selectedAcademicYear?.academic_year || "tahun"}.csv`,
-		);
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-
-		setNotice({
-			kind: "success",
-			message: "Data rencana studi berhasil diekspor sebagai CSV.",
-		});
-	};
-
 	return (
 		<main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-[#0b1120] dark:text-slate-100 sm:p-6">
 			<div className="mx-auto max-w-7xl space-y-4">
@@ -787,7 +732,7 @@ export const StudyPlansPage: React.FC = () => {
 				{notice && (
 					<div
 						role="status"
-						className={`fixed right-6 top-6 z-[70] flex items-center gap-3 rounded-xl border p-4 text-sm font-semibold shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${
+						className={`fixed right-6 top-6 z-70 flex items-center gap-3 rounded-xl border p-4 text-sm font-semibold shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${
 							notice.kind === "success"
 								? "border-emerald-500 bg-emerald-600 text-white shadow-emerald-500/20"
 								: "border-rose-500 bg-rose-600 text-white shadow-rose-500/20"
@@ -806,12 +751,26 @@ export const StudyPlansPage: React.FC = () => {
 				<StudyPlanHeader
 					activeAcademicYearName={selectedAcademicYear?.label}
 					onAddClick={() => handleOpenAddModal()}
-					onExportClick={handleExportCsv}
-					isExportDisabled={rawStudyPlans.length === 0}
 				/>
 
 				{/* 2. 4 Kartu Ringkasan Eksekutif */}
-				<StudyPlanStats stats={stats} isLoading={isStudyPlansLoading} />
+				<StudyPlanStats
+					stats={stats}
+					isLoading={isDataLoading}
+					isError={isDataError}
+				/>
+				{isDataError && (
+					<div
+						role="alert"
+						className="rounded-xl border border-rose-300 p-3 text-sm text-rose-700 dark:border-rose-500/40 dark:text-rose-300"
+					>
+						Data KRS atau data pendukung gagal dimuat. Statistik dan pilihan
+						mungkin tidak tersedia.{" "}
+						<button type="button" className="underline" onClick={retryData}>
+							Coba lagi
+						</button>
+					</div>
+				)}
 
 				{/* 3. Bar Filter & View Switcher Tabs */}
 				<StudyPlanFilter
@@ -835,9 +794,9 @@ export const StudyPlansPage: React.FC = () => {
 				{viewMode === "student_view" && (
 					<StudyPlanStudentTable
 						students={studentKrsList}
-						isLoading={isStudyPlansLoading}
-						isError={isStudyPlansError}
-						onRetry={() => refetch()}
+						isLoading={isDataLoading}
+						isError={isDataError}
+						onRetry={retryData}
 						onAddSubjectClick={(studentId) => handleOpenAddModal(studentId)}
 						onDropSubjectClick={(sp) => handleOpenDeleteModal(sp)}
 					/>
@@ -846,10 +805,10 @@ export const StudyPlansPage: React.FC = () => {
 				{viewMode === "catalog_view" && (
 					<StudyPlanCatalogTable
 						catalogItems={catalogList}
-						isLoading={isStudyPlansLoading}
-						isError={isStudyPlansError}
+						isLoading={isDataLoading}
+						isError={isDataError}
 						deactivatedIds={deactivatedIds}
-						onRetry={() => refetch()}
+						onRetry={retryData}
 						onEnrollClick={(csId) => handleOpenAddModal(undefined, csId)}
 						onToggleStatus={(csId, active) => {
 							const updated = toggleClassSubjectActiveStatus(csId, active);
@@ -868,9 +827,9 @@ export const StudyPlansPage: React.FC = () => {
 					<StudyPlanLogTable
 						studyPlans={displayStudyPlans}
 						meta={meta}
-						isLoading={isStudyPlansLoading}
-						isError={isStudyPlansError}
-						onRetry={() => refetch()}
+						isLoading={isDataLoading}
+						isError={isDataError}
+						onRetry={retryData}
 						onEdit={(sp) => handleOpenEditModal(sp)}
 						onDelete={(sp) => handleOpenDeleteModal(sp)}
 						onPageChange={setPage}
