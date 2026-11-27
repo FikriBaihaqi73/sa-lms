@@ -97,17 +97,6 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						<span>Log Transaksi KRS</span>
 					</button>
 				</div>
-
-				<span className="text-[11px] text-slate-400 dark:text-slate-500">
-					Mode:{" "}
-					<strong className="text-slate-700 dark:text-slate-300">
-						{viewMode === "student_view"
-							? "Rekapitulasi Siswa & Beban SKS"
-							: viewMode === "catalog_view"
-								? "Katalog Penawaran Kelas"
-								: "Log Individual KRS"}
-					</strong>
-				</span>
 			</div>
 
 			{/* 2. Integrated Filter Bar */}
@@ -119,7 +108,7 @@ export const StudyPlanFilter: React.FC<StudyPlanFilterProps> = ({
 						type="text"
 						value={search}
 						onChange={(e) => onSearchChange(e.target.value)}
-						placeholder="Cari nama siswa, NIS/NIM, kode atau nama mata pelajaran..."
+						placeholder="Cari siswa, NIS, atau mapel..."
 						className="h-8.5 w-full rounded-lg border border-slate-200/80 bg-slate-50/70 pl-8 pr-3 text-xs text-slate-800 placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-800 dark:bg-[#0c1322] dark:text-slate-200 dark:placeholder:text-slate-500"
 					/>
 				</div>

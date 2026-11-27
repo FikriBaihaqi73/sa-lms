@@ -1,21 +1,19 @@
-import { BookOpen, Download, Plus } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import type React from "react";
 
 interface StudyPlanHeaderProps {
 	activeAcademicYearName?: string;
 	onAddClick: () => void;
-	onExportClick: () => void;
+	onExportClick?: () => void;
 	isExportDisabled?: boolean;
 }
 
 export const StudyPlanHeader: React.FC<StudyPlanHeaderProps> = ({
 	activeAcademicYearName,
 	onAddClick,
-	onExportClick,
-	isExportDisabled = false,
 }) => {
 	return (
-		<header className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between">
+		<header className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between w-full">
 			<div className="flex items-start gap-3">
 				<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:border-blue-500/25 dark:bg-blue-500/15 dark:text-blue-400">
 					<BookOpen className="size-4.5" />
@@ -41,24 +39,14 @@ export const StudyPlanHeader: React.FC<StudyPlanHeaderProps> = ({
 				</div>
 			</div>
 
-			<div className="flex flex-wrap items-center gap-2">
-				<button
-					type="button"
-					onClick={onExportClick}
-					disabled={isExportDisabled}
-					className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200/80 bg-white px-3.5 text-xs font-medium text-slate-700 shadow-xs transition-colors hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-[#111927] dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
-				>
-					<Download className="size-3.5" />
-					<span>Ekspor KRS</span>
-				</button>
-
+			<div className="flex items-center justify-end sm:shrink-0 sm:ml-auto">
 				<button
 					type="button"
 					onClick={onAddClick}
-					className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-600 px-3.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-500"
+					className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-500"
 				>
 					<Plus className="size-3.5" />
-					<span>+ Tambah / Force Enroll KRS</span>
+					<span>Tambah / Force Enroll KRS</span>
 				</button>
 			</div>
 		</header>

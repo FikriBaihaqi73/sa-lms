@@ -191,8 +191,7 @@ describe("StudyPlansPage", () => {
 			screen.getByText("DATA AKADEMIK • SELF-ENROLLMENT & MONITORING"),
 		).toBeTruthy();
 		expect(screen.getByText("Rencana Studi (KRS)")).toBeTruthy();
-		expect(screen.getByText("Ekspor KRS")).toBeTruthy();
-		expect(screen.getByText("+ Tambah / Force Enroll KRS")).toBeTruthy();
+		expect(screen.getByText(/Tambah \/ Force Enroll KRS/i)).toBeTruthy();
 
 		// 2. 4 Stat Cards
 		expect(screen.getByText("SISWA SUDAH KRS")).toBeTruthy();
@@ -241,13 +240,13 @@ describe("StudyPlansPage", () => {
 		expect(screen.getByText("Baris per halaman:")).toBeTruthy();
 	});
 
-	it("opens modal dialog when clicking '+ Tambah / Force Enroll KRS'", async () => {
+	it("opens modal dialog when clicking 'Tambah / Force Enroll KRS'", async () => {
 		renderPage();
 
 		expect(await screen.findByText("Fajar Nugraha")).toBeTruthy();
 
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -297,7 +296,7 @@ describe("StudyPlansPage", () => {
 		expect(screen.getByText("Galih Pratama")).toBeTruthy();
 
 		const searchInput = screen.getByPlaceholderText(
-			/Cari nama siswa, NIS\/NIM, kode atau nama mata pelajaran.../i,
+			/Cari siswa, NIS, atau mapel.../i,
 		);
 		fireEvent.change(searchInput, { target: { value: "Galih" } });
 
@@ -359,7 +358,7 @@ describe("StudyPlansPage", () => {
 
 		// Open Add Modal
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -411,7 +410,7 @@ describe("StudyPlansPage", () => {
 		).toBeGreaterThan(0);
 
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -480,7 +479,7 @@ describe("StudyPlansPage", () => {
 
 		// Open Add Modal
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -627,7 +626,7 @@ describe("StudyPlansPage", () => {
 
 		// Now open Add Modal to verify dynamic pills per academic year
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -700,7 +699,7 @@ describe("StudyPlansPage", () => {
 
 		// Click Add / Force Enroll KRS button
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -758,9 +757,7 @@ describe("StudyPlansPage", () => {
 		const semesterFilter = screen.getByLabelText("Pilih Semester");
 		expect(semesterFilter).toBeTruthy();
 		expect(within(semesterFilter).getByText(/Semua Semester/i)).toBeTruthy();
-		expect(
-			within(semesterFilter).getByText(/Semester Ganjil/i),
-		).toBeTruthy();
+		expect(within(semesterFilter).getByText(/Semester Ganjil/i)).toBeTruthy();
 
 		fireEvent.change(semesterFilter, { target: { value: "sem-1" } });
 		expect((semesterFilter as HTMLSelectElement).value).toBe("sem-1");
