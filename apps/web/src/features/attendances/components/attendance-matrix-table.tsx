@@ -244,7 +244,10 @@ export const AttendanceMatrixTable: React.FC<AttendanceMatrixTableProps> = ({
 										<span className="font-semibold text-blue-600 dark:text-blue-400">
 											{row.className || "Kelas"}
 										</span>
-										<span className="text-slate-400 dark:text-slate-500"> • </span>
+										<span className="text-slate-400 dark:text-slate-500">
+											{" "}
+											•{" "}
+										</span>
 										<span>{row.studentNumber || "-"}</span>
 									</p>
 								</td>

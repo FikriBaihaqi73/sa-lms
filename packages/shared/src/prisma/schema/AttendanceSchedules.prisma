@@ -1,0 +1,31 @@
+model AttendanceSchedules {
+  // base
+  id        String    @id @default(uuid()) @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamp
+  deletedAt DateTime? @map("deleted_at") @db.Timestamp
+
+  // attributes
+  academicYearId String    @map("academic_year_id") @db.Uuid
+  classId        String    @map("class_id") @db.Uuid
+  scheduleId     String?   @map("schedule_id") @db.Uuid
+  title          String    @db.VarChar(255)
+  scheduleType   String    @map("schedule_type") @db.VarChar(50)
+  activeDays     String[]  @map("active_days")
+  specificDate   DateTime? @map("specific_date") @db.Date
+  startTime      DateTime? @map("start_time") @db.Time(0)
+  endTime        DateTime? @map("end_time") @db.Time(0)
+  isActive       Boolean   @default(true) @map("is_active")
+  notes          String?   @db.Text
+
+  // relations
+  academicYear AcademicYears @relation(fields: [academicYearId], references: [id])
+  class        Classes       @relation(fields: [classId], references: [id])
+  schedule     Schedule?     @relation(fields: [scheduleId], references: [id])
+  attendances  Attendances[]
+
+  @@index([academicYearId])
+  @@index([classId])
+  @@index([scheduleId])
+  @@map("attendance_schedules")
+}

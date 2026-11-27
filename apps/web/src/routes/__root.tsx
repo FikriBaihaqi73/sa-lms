@@ -48,6 +48,7 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/schedules",
 	"/teaching-journals",
 	"/attendances",
+	"/attendance-schedules",
 	"/examinations",
 	"/student-grades",
 	"/examination-scores",
@@ -56,8 +57,10 @@ const INSTITUTION_ADMIN_ONLY_PREFIXES = [
 	"/settings/classrooms",
 	"/settings/study-plans",
 	"/settings/assignments",
+	"/settings/assignment-submissions",
 	"/assignments",
 	"/modules",
+	"/study-results",
 	"/announcements",
 ];
 

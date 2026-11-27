@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, Users, XCircle } from "lucide-react";
+import { Award, CheckCircle2, Clock, FileCheck2 } from "lucide-react";
 import type React from "react";
 
 interface AssignmentSubmissionsStatsProps {
@@ -8,24 +8,32 @@ interface AssignmentSubmissionsStatsProps {
 
 const cardsConfig = [
 	{
-		title: "TOTAL SISWA",
-		Icon: Users,
-		color: "text-blue-400 bg-blue-500/15 border-blue-500/40",
+		title: "TOTAL HASIL MASUK",
+		subtitle: "Tugas dikirim ke sistem",
+		Icon: FileCheck2,
+		color:
+			"border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-500/30 dark:bg-blue-950/50 dark:text-blue-400",
 	},
 	{
-		title: "SUDAH MENGUMPULKAN",
+		title: "SUDAH DINILAI",
+		subtitle: "Telah diberi nilai guru",
 		Icon: CheckCircle2,
-		color: "text-emerald-400 bg-emerald-500/15 border-emerald-500/40",
+		color:
+			"border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-950/50 dark:text-emerald-400",
 	},
 	{
-		title: "TERLAMBAT",
+		title: "MENUNGGU PENILAIAN",
+		subtitle: "Perlu ditinjau guru",
 		Icon: Clock,
-		color: "text-amber-400 bg-amber-500/15 border-amber-500/40",
+		color:
+			"border-amber-200 bg-amber-50 text-amber-600 dark:border-amber-500/30 dark:bg-amber-950/50 dark:text-amber-400",
 	},
 	{
-		title: "BELUM MENGUMPULKAN",
-		Icon: XCircle,
-		color: "text-rose-400 bg-rose-500/15 border-rose-500/40",
+		title: "RATA-RATA NILAI",
+		subtitle: "Dari hasil yang dinilai",
+		Icon: Award,
+		color:
+			"border-purple-200 bg-purple-50 text-purple-600 dark:border-purple-500/30 dark:bg-purple-950/50 dark:text-purple-400",
 	},
 ];
 
@@ -33,40 +41,31 @@ export const AssignmentSubmissionsStats: React.FC<
 	AssignmentSubmissionsStatsProps
 > = ({ counts, isLoading = false }) => {
 	return (
-		<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-			{cardsConfig.map(({ title, Icon, color }, index) => {
-				const total = counts ? counts[0] : 0;
+		<div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+			{cardsConfig.map(({ title, subtitle, Icon, color }, index) => {
 				const current = counts ? counts[index] : null;
-				const percent =
-					total > 0 && current !== null
-						? ((current / total) * 100).toFixed(1)
-						: "0";
 
 				return (
 					<article
 						key={title}
-						className="flex min-h-32 items-center gap-5 rounded-xl border border-slate-700/70 bg-slate-900/60 p-5 shadow-sm"
+						className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-slate-300 dark:border-slate-800/90 dark:bg-[#111927] dark:hover:border-slate-700/80"
 					>
-						<span className={`rounded-xl border p-4 ${color}`}>
-							<Icon className="size-8" aria-hidden="true" />
-						</span>
-						<div>
-							<h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+						<div className="flex items-center justify-between">
+							<h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
 								{title}
 							</h2>
-							<p className="mt-1 text-3xl font-bold text-white sm:text-4xl">
-								{isLoading ? "…" : current !== null ? current : "—"}
-							</p>
-							<p className="mt-1 text-xs text-slate-400">
-								{isLoading
-									? "Memuat data…"
-									: !counts
-										? "Menunggu data"
-										: index === 0
-											? "Siswa pada tugas ini"
-											: `${percent}% dari total siswa`}
-							</p>
+							<span
+								className={`flex size-7 items-center justify-center rounded-lg border ${color}`}
+							>
+								<Icon className="size-4" aria-hidden="true" />
+							</span>
 						</div>
+						<p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+							{isLoading ? "…" : current !== null ? current : "—"}
+						</p>
+						<p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+							{isLoading ? "Memuat data…" : subtitle}
+						</p>
 					</article>
 				);
 			})}

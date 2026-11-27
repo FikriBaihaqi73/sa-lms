@@ -28,6 +28,7 @@ import {
 	Users,
 	UsersRound,
 } from "lucide-react";
+import { SidebarNavGroup } from "@/components/sidebar-nav-group";
 import { SkyToggle } from "@/components/ui/sky-toggle";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
@@ -48,17 +49,17 @@ export function AppSidebar() {
 		role === "student" || role === "teacher" || role === "guardian";
 
 	return (
-		<aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
+		<aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white dark:border-slate-800/80 dark:bg-[#0c1322] lg:flex">
 			{/* Brand Header */}
-			<div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-5 dark:border-slate-800">
-				<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white shadow-md">
-					<BookOpenCheck className="h-5 w-5" />
+			<div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200/80 px-5 dark:border-slate-800/80">
+				<span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
+					<BookOpenCheck className="h-4.5 w-4.5" />
 				</span>
 				<div>
-					<p className="text-xs font-bold leading-none text-slate-900 dark:text-white">
+					<p className="text-xs font-bold leading-none tracking-tight text-slate-900 dark:text-white">
 						Sistem Academic
 					</p>
-					<p className="mt-1 text-[10px] font-medium text-slate-500">
+					<p className="mt-1 text-[10px] font-medium text-slate-400 dark:text-slate-500">
 						{isSuperadmin
 							? "Portal Superadmin"
 							: isAdmin
@@ -143,166 +144,228 @@ export function AppSidebar() {
 				{/* 🛠️ INSTITUTION ADMIN SECTION */}
 				{isAdmin && !isSuperadmin && (
 					<>
-						<div>
-							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Manajemen Pengguna
-							</p>
-							<div className="space-y-0.5">
-								<NavItem to="/users" icon={Users} label="Data Pengguna" />
-								<NavItem
-									to="/referral-codes"
-									icon={UserPlus}
-									label="Tambah Siswa"
-								/>
-								<NavItem
-									to="/student-guardians"
-									icon={UsersRound}
-									label="Relasi Wali Siswa"
-								/>
-								<NavItem to="/teachers" icon={Briefcase} label="Guru" />
-								<NavItem
-									to="/departments"
-									icon={Building2}
-									label="Departemen"
-								/>
-								<NavItem
-									to="/guardians"
-									icon={HeartHandshake}
-									label="Wali Murid"
-								/>
-								<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
-								<NavItem
-									to="/subjects"
-									icon={BookOpen}
-									label="Mata Pelajaran"
-								/>
-								<NavItem
-									to="/class-students"
-									icon={UsersRound}
-									label="Kelas Siswa"
-								/>
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/class-subjects"
-										icon={BookOpen}
-										label="Mata Pelajaran Kelas"
-									/>
-								)}
-								<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
-							</div>
-						</div>
+						<SidebarNavGroup
+							title="Manajemen Pengguna"
+							paths={[
+								"/users",
+								"/referral-codes",
+								"/student-guardians",
+								"/teachers",
+								"/guardians",
+								"/profile",
+							]}
+						>
+							<NavItem to="/users" icon={Users} label="Data Pengguna" />
+							<NavItem
+								to="/referral-codes"
+								icon={UserPlus}
+								label="Tambah Siswa"
+							/>
+							<NavItem
+								to="/student-guardians"
+								icon={UsersRound}
+								label="Relasi Wali Siswa"
+							/>
+							<NavItem to="/teachers" icon={Briefcase} label="Guru" />
+							<NavItem
+								to="/guardians"
+								icon={HeartHandshake}
+								label="Wali Murid"
+							/>
+						</SidebarNavGroup>
 
-						<div>
-							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Konfigurasi Akademik
-							</p>
-							<div className="space-y-0.5">
-								<NavItem to="/grades" icon={Award} label="Standar Penilaian" />
+						<SidebarNavGroup
+							title="Struktur Akademik"
+							paths={[
+								"/departments",
+								"/academic-years",
+								"/specializations",
+								"/semesters",
+								"/settings/classrooms",
+								"/classes",
+								"/subjects",
+								"/class-students",
+								"/class-subjects",
+								"/subject-prerequisites",
+							]}
+						>
+							<NavItem to="/departments" icon={Building2} label="Departemen" />
+							<NavItem
+								to="/academic-years"
+								icon={BookOpen}
+								label="Tahun Ajaran"
+							/>
+							<NavItem
+								to="/specializations"
+								icon={Award}
+								label="Peminatan & Keahlian"
+							/>
+							<NavItem to="/semesters" icon={CalendarRange} label="Semester" />
+							<NavItem
+								to="/settings/classrooms"
+								icon={Building2}
+								label="Ruang Kelas"
+							/>
+							<NavItem to="/classes" icon={BookOpenCheck} label="Kelas" />
+							<NavItem to="/subjects" icon={BookOpen} label="Mata Pelajaran" />
+							<NavItem
+								to="/class-students"
+								icon={UsersRound}
+								label="Kelas Siswa"
+							/>
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/academic-years"
+									to="/class-subjects"
 									icon={BookOpen}
-									label="Tahun Ajaran"
+									label="Mata Pelajaran Kelas"
 								/>
+							)}
+							<NavItem
+								to="/subject-prerequisites"
+								icon={GitFork}
+								label="Prasyarat Mata Kuliah"
+							/>
+						</SidebarNavGroup>
+
+						<SidebarNavGroup
+							title="Pembelajaran"
+							paths={[
+								"/schedules",
+								"/teaching-journals",
+								"/settings/study-plans",
+								"/modules",
+								"/settings/assignments",
+								"/settings/assignment-submissions",
+								"/assignment-types",
+							]}
+						>
+							<NavItem
+								to="/schedules"
+								icon={Calendar}
+								label="Jadwal Pelajaran"
+							/>
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/specializations"
-									icon={Award}
-									label="Peminatan & Keahlian"
+									to="/teaching-journals"
+									icon={BookOpenCheck}
+									label="Jurnal Mengajar"
 								/>
+							)}
+							<NavItem
+								to="/settings/study-plans"
+								icon={ClipboardList}
+								label="Rencana Studi"
+							/>
+							<NavItem
+								to="/modules"
+								icon={BookOpen}
+								label="Modul & Konten Materi"
+							/>
+							<NavItem
+								to="/settings/assignments"
+								icon={FileText}
+								label="Tugas & Submisi"
+							/>
+							<NavItem
+								to="/settings/assignment-submissions"
+								icon={ClipboardCheck}
+								label="Pengumpulan Tugas"
+							/>
+							<NavItem
+								to="/assignment-types"
+								icon={BookOpen}
+								label="Jenis Tugas"
+							/>
+						</SidebarNavGroup>
+
+						<SidebarNavGroup
+							title="Kehadiran"
+							paths={[
+								"/attendance-statuses",
+								"/attendance-schedules",
+								"/attendances",
+							]}
+						>
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/semesters"
-									icon={CalendarRange}
-									label="Semester"
+									to="/attendance-statuses"
+									icon={ClipboardCheck}
+									label="Status Kehadiran"
 								/>
+							)}
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/schedules"
+									to="/attendance-schedules"
 									icon={Calendar}
-									label="Jadwal Pelajaran"
+									label="Tambah Absensi"
 								/>
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/attendance-statuses"
-										icon={ClipboardCheck}
-										label="Status Kehadiran"
-									/>
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/teaching-journals"
-										icon={BookOpenCheck}
-										label="Jurnal Mengajar"
-									/>
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/attendances"
-										icon={ClipboardCheck}
-										label="Presensi & Absensi"
-									/>
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem to="/examinations" icon={FileText} label="Ujian" />
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem to="/student-grades" icon={Award} label="Nilai Siswa" />
-								)}
-								{hasExplicitAdminRole && (
-									<NavItem
-										to="/examination-scores"
-										icon={Award}
-										label="Nilai Ujian"
-									/>
-								)}
+							)}
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/subject-prerequisites"
-									icon={GitFork}
-									label="Prasyarat Mata Kuliah"
+									to="/attendances"
+									icon={ClipboardCheck}
+									label="Presensi & Absensi"
 								/>
-								<NavItem
-									to="/settings/classrooms"
-									icon={Building2}
-									label="Ruang Kelas"
-								/>
-								<NavItem
-									to="/settings/study-plans"
-									icon={ClipboardList}
-									label="Rencana Studi"
-								/>
-								<NavItem
-									to="/settings/assignments"
-									icon={FileText}
-									label="Tugas & Submisi"
-								/>
-								<NavItem
-									to="/modules"
-									icon={BookOpen}
-									label="Modul & Konten Materi"
-								/>
-								<NavItem
-									to="/assignment-types"
-									icon={BookOpen}
-									label="Jenis Tugas"
-								/>
-							</div>
-						</div>
+							)}
+						</SidebarNavGroup>
 
-						<div>
-							<p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-								Sistem & Pengaturan
-							</p>
-							<div className="space-y-0.5">
+						<SidebarNavGroup
+							title="Penilaian"
+							paths={[
+								"/grades",
+								"/examinations",
+								"/student-grades",
+								"/examination-scores",
+								"/study-results",
+							]}
+						>
+							<NavItem to="/grades" icon={Award} label="Standar Penilaian" />
+							{hasExplicitAdminRole && (
+								<NavItem to="/examinations" icon={FileText} label="Ujian" />
+							)}
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/announcements"
-									icon={Megaphone}
-									label="Pengumuman"
+									to="/student-grades"
+									icon={Award}
+									label="Nilai Siswa"
 								/>
+							)}
+							{hasExplicitAdminRole && (
 								<NavItem
-									to="/activity-logs"
-									icon={Activity}
-									label="Log Aktivitas"
+									to="/examination-scores"
+									icon={Award}
+									label="Nilai Ujian"
 								/>
-								<NavItem to="/settings" icon={Settings2} label="Pengaturan" />
-							</div>
-						</div>
+							)}
+							<NavItem
+								to="/study-results"
+								icon={GraduationCap}
+								label="Rekap Nilai Siswa"
+							/>
+						</SidebarNavGroup>
+
+						<SidebarNavGroup
+							title="Sistem & Pengaturan"
+							paths={[
+								"/announcements",
+								"/activity-logs",
+								"/settings",
+								"/profile",
+							]}
+						>
+							<NavItem
+								to="/announcements"
+								icon={Megaphone}
+								label="Pengumuman"
+							/>
+							<NavItem
+								to="/activity-logs"
+								icon={Activity}
+								label="Log Aktivitas"
+							/>
+							<NavItem to="/settings" icon={Settings2} label="Pengaturan" />
+							<NavItem to="/profile" icon={UserRound} label="Profil Saya" />
+						</SidebarNavGroup>
 					</>
 				)}
 
@@ -331,21 +394,21 @@ export function AppSidebar() {
 			</nav>
 
 			{/* User Profile Footer */}
-			<div className="mt-auto shrink-0 border-t border-slate-200 p-3 dark:border-slate-800">
+			<div className="mt-auto shrink-0 border-t border-slate-200/80 p-3 dark:border-slate-800/80">
 				<div className="flex items-center gap-2">
 					<Link
 						to="/profile"
-						className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-80 transition"
+						className="flex flex-1 items-center gap-2.5 min-w-0 hover:opacity-85 transition-opacity"
 					>
-						<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
+						<span className="flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-xs">
 							{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 						</span>
 						<div className="min-w-0 flex-1">
-							<p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-100">
+							<p className="truncate text-xs font-medium text-slate-800 dark:text-slate-200">
 								{user?.name ||
 									(isSuperadmin ? "Superadmin" : "Admin Institusi")}
 							</p>
-							<p className="truncate text-[10px] text-slate-500 dark:text-slate-400">
+							<p className="truncate text-[10px] text-slate-400 dark:text-slate-500">
 								{user?.email || "admin@nexora.com"}
 							</p>
 						</div>
@@ -354,7 +417,7 @@ export function AppSidebar() {
 						type="button"
 						onClick={handleLogout}
 						title="Keluar dari sistem"
-						className="rounded-lg p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition"
+						className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:text-slate-500 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 transition"
 					>
 						<LogOut className="h-4 w-4" />
 					</button>
@@ -378,13 +441,13 @@ function NavItem({
 			to={to}
 			activeProps={{
 				className:
-					"bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-300 font-semibold shadow-sm",
+					"bg-blue-50 text-blue-600 dark:bg-blue-600/15 dark:text-blue-400 font-medium",
 			}}
-			className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+			className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100/80 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200 transition-colors"
 		>
-			<Icon className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
+			<Icon className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
 			<span className="truncate">{label}</span>
-			<ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 opacity-40" />
+			<ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 opacity-30" />
 		</Link>
 	);
 }
@@ -392,24 +455,24 @@ function NavItem({
 export function AppTopbar() {
 	const { user } = useAuth();
 	return (
-		<header className="flex h-16 shrink-0 items-center justify-end gap-3 border-b border-slate-200 bg-white px-5 dark:border-slate-800 dark:bg-slate-900">
+		<header className="flex h-16 shrink-0 items-center justify-end gap-3 border-b border-slate-200/80 bg-white px-5 dark:border-slate-800/80 dark:bg-[#0c1322]">
 			<SkyToggle />
 			<button
 				type="button"
 				aria-label="Notifikasi"
-				className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition"
+				className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100/80 dark:text-slate-400 dark:hover:bg-slate-800/60 transition-colors"
 			>
-				<span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900" />
+				<span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white dark:ring-[#0c1322]" />
 				<UserRound className="h-4 w-4" />
 			</button>
 			<Link
 				to="/profile"
-				className="flex items-center gap-2.5 hover:opacity-80 transition"
+				className="flex items-center gap-2.5 hover:opacity-85 transition-opacity"
 			>
-				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-[10px] font-bold text-white shadow-sm">
+				<span className="flex h-7.5 w-7.5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-xs">
 					{user?.name?.slice(0, 2).toUpperCase() || "SA"}
 				</span>
-				<span className="text-xs font-semibold text-slate-700 dark:text-slate-200 hidden sm:inline-block">
+				<span className="text-xs font-medium text-slate-700 dark:text-slate-200 hidden sm:inline-block">
 					{user?.name || "Admin Institusi"}
 				</span>
 			</Link>

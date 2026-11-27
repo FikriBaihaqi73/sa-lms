@@ -174,7 +174,7 @@ export const ModuleDialog: React.FC<ModuleDialogProps> = ({
           {/* Display Order */}
           <div className="space-y-1.5">
             <Label htmlFor="module-order" className="text-xs font-semibold sm:text-sm">
-              Nomor Urut Tampil
+              Nomor Bab
             </Label>
             <Input
               id="module-order"

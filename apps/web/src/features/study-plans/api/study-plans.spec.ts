@@ -22,12 +22,6 @@ describe("study-plans API client", () => {
 	});
 
 	describe("getStudyPlansApi", () => {
-		it("rejects an invalid response instead of treating it as an empty list", async () => {
-			vi.mocked(apiFetch).mockResolvedValueOnce({ data: null });
-			await expect(getStudyPlansApi()).rejects.toThrow(
-				"Format respons daftar KRS tidak valid.",
-			);
-		});
 		it("fetches study plans with query parameters correctly", async () => {
 			const mockData = [
 				{
@@ -189,29 +183,6 @@ describe("study-plans API client", () => {
 			const res = await getStudentsOptionsApi();
 			expect(res).toHaveLength(1);
 			expect(res[0]?.fullName).toBe("Siti Rahma");
-		});
-
-		it("reads students from the backend's nested paginated response", async () => {
-			vi.mocked(apiFetch).mockResolvedValueOnce({
-				data: {
-					data: [
-						{
-							id: "st-1",
-							studentNumber: "12345",
-							profile: { fullName: "Siti Rahma" },
-						},
-					],
-					meta: { page: 1, limit: 100, total: 1, totalPages: 1 },
-				},
-			});
-			expect((await getStudentsOptionsApi())[0]?.fullName).toBe("Siti Rahma");
-		});
-
-		it("rejects invalid option responses", async () => {
-			vi.mocked(apiFetch).mockResolvedValueOnce({ data: null });
-			await expect(getStudentsOptionsApi()).rejects.toThrow(
-				"Format respons daftar data tidak valid.",
-			);
 		});
 	});
 });

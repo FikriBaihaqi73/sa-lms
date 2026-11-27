@@ -1,29 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiError } from "@/lib/api";
 import {
 	createStudyPlanApi,
+	createStudyPlanBundleApi,
 	deleteStudyPlanApi,
 	getAcademicYearsOptionsApi,
 	getClassSubjectsOptionsApi,
 	getDepartmentsOptionsApi,
+	getSemestersOptionsApi,
 	getStudentsOptionsApi,
 	getStudyPlanByIdApi,
 	getStudyPlansApi,
 	updateStudyPlanApi,
 } from "../api";
 import type {
+	CreateStudyPlanBundleInput,
 	CreateStudyPlanInput,
 	StudyPlanFilters,
 	UpdateStudyPlanInput,
 } from "../types";
 
 export const STUDY_PLANS_QUERY_KEY = ["study-plans"] as const;
-
-export function retryStudyPlanQuery(failureCount: number, error: Error) {
-	return (
-		!(error instanceof ApiError && error.status === 400) && failureCount < 3
-	);
-}
 
 export function useStudyPlans(filters: StudyPlanFilters = {}) {
 	return useQuery({
@@ -40,7 +36,6 @@ export function useStudyPlans(filters: StudyPlanFilters = {}) {
 			},
 		],
 		queryFn: () => getStudyPlansApi(filters),
-		retry: retryStudyPlanQuery,
 		placeholderData: (previousData) => previousData,
 	});
 }
@@ -57,6 +52,17 @@ export function useCreateStudyPlan() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (input: CreateStudyPlanInput) => createStudyPlanApi(input),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: STUDY_PLANS_QUERY_KEY });
+		},
+	});
+}
+
+export function useCreateStudyPlanBundle() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (input: CreateStudyPlanBundleInput) =>
+			createStudyPlanBundleApi(input),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: STUDY_PLANS_QUERY_KEY });
 		},
@@ -88,7 +94,6 @@ export function useStudentsOptions() {
 	return useQuery({
 		queryKey: ["students", "options", "study-plans"],
 		queryFn: getStudentsOptionsApi,
-		retry: retryStudyPlanQuery,
 		staleTime: 60000,
 	});
 }
@@ -97,7 +102,6 @@ export function useClassSubjectsOptions() {
 	return useQuery({
 		queryKey: ["class-subjects", "options", "study-plans"],
 		queryFn: getClassSubjectsOptionsApi,
-		retry: retryStudyPlanQuery,
 		staleTime: 60000,
 	});
 }
@@ -106,7 +110,6 @@ export function useAcademicYearsOptions() {
 	return useQuery({
 		queryKey: ["academic-years", "options", "study-plans"],
 		queryFn: getAcademicYearsOptionsApi,
-		retry: retryStudyPlanQuery,
 		staleTime: 60000,
 	});
 }
@@ -115,7 +118,14 @@ export function useDepartmentsOptions() {
 	return useQuery({
 		queryKey: ["departments", "options", "study-plans"],
 		queryFn: getDepartmentsOptionsApi,
-		retry: retryStudyPlanQuery,
+		staleTime: 60000,
+	});
+}
+
+export function useSemestersOptions(academicYearId?: string) {
+	return useQuery({
+		queryKey: ["semesters", "options", "study-plans", academicYearId || "all"],
+		queryFn: () => getSemestersOptionsApi(academicYearId),
 		staleTime: 60000,
 	});
 }

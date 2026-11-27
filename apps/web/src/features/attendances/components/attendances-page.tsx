@@ -1,6 +1,14 @@
-import { CheckCircle2, Download, Users } from "lucide-react";
+import {
+	Calendar,
+	CheckCircle2,
+	ClipboardList,
+	Download,
+	LayoutDashboard,
+	Users,
+} from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+import { useAttendanceSchedules } from "@/features/attendance-schedules/hooks";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ApiError } from "@/lib/api";
 import {
@@ -11,16 +19,31 @@ import {
 	useClassesOptions,
 	useClassStudents,
 	useDeleteAttendance,
-	useSchedulesOptions,
 	useUpsertAttendance,
 } from "../hooks";
-import type { AttendanceMatrixStudentRow, AttendanceMonthDay } from "../types";
+import type {
+	AttendanceMatrixStudentRow,
+	AttendanceMonthDay,
+	ScheduleOption,
+} from "../types";
 import { AttendanceFilter } from "./attendance-filter";
+import { AttendanceListTab } from "./attendance-list-tab";
 import { AttendanceMatrixTable } from "./attendance-matrix-table";
 import { AttendanceNoteDialog } from "./attendance-note-popover";
+import { AttendanceOverviewTab } from "./attendance-overview-tab";
 import { AttendanceStats } from "./attendance-stats";
 
 const DAY_NAMES = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+const ATTENDANCE_DAY_MAP: Record<number, string> = {
+	0: "MINGGU",
+	1: "SENIN",
+	2: "SELASA",
+	3: "RABU",
+	4: "KAMIS",
+	5: "JUMAT",
+	6: "SABTU",
+};
 
 function getDaysInMonth(year: number, month: number): number {
 	return new Date(year, month, 0).getDate();
@@ -29,10 +52,15 @@ function getDaysInMonth(year: number, month: number): number {
 function parseErrorMessage(err: unknown): string {
 	if (err instanceof ApiError) {
 		if (err.status === 403) {
-			return "Akses ditolak: Operasi presensi dibatasi sesuai hak akses institusi.";
+			return (
+				err.message ||
+				"Akses ditolak: Operasi presensi dibatasi sesuai hak akses institusi."
+			);
 		}
 		if (err.status === 404) {
-			return "Jadwal, siswa, atau data presensi tidak ditemukan.";
+			return err.message && err.message !== "Not Found"
+				? err.message
+				: "Data yang diminta tidak ditemukan.";
 		}
 		if (err.fieldErrors.length > 0) {
 			return `${err.message}: ${err.fieldErrors
@@ -46,6 +74,11 @@ function parseErrorMessage(err: unknown): string {
 }
 
 export const AttendancesPage: React.FC = () => {
+	// Active Tab State ("overview" | "matrix" | "list")
+	const [activeTab, setActiveTab] = useState<"overview" | "matrix" | "list">(
+		"matrix",
+	);
+
 	// Date & Period state (Defaults to current month and year)
 	const now = new Date();
 	const [month, setMonth] = useState<number>(now.getMonth() + 1);
@@ -92,9 +125,12 @@ export const AttendancesPage: React.FC = () => {
 
 	// Dropdown Options Queries
 	const { data: classOptions = [] } = useClassesOptions();
-	const { data: scheduleOptions = [] } = useSchedulesOptions(
-		classId || undefined,
-	);
+	const { data: attendanceSchedulesResponse } = useAttendanceSchedules({
+		academicYearId: academicYearId || undefined,
+		classId: classId || undefined,
+		limit: 100,
+	});
+	const rawAttendanceSchedules = attendanceSchedulesResponse?.data ?? [];
 	const { data: statusOptions = [] } = useAttendanceStatusesOptions();
 	const { data: academicYearOptions = [] } = useAcademicYearsOptions();
 	const { data: enrolledStudents = [] } = useClassStudents(
@@ -111,13 +147,10 @@ export const AttendancesPage: React.FC = () => {
 		}
 	}, [academicYearOptions, academicYearId]);
 
-	// Filter classes matching selected academic year
+	// Filter classes strictly matching selected academic year
 	const filteredClassOptions = useMemo(() => {
 		if (!academicYearId) return classOptions;
-		const matches = classOptions.filter(
-			(c) => !c.academic_year_id || c.academic_year_id === academicYearId,
-		);
-		return matches.length > 0 ? matches : classOptions;
+		return classOptions.filter((c) => c.academic_year_id === academicYearId);
 	}, [classOptions, academicYearId]);
 
 	// Auto select first class if none selected or current selection is invalid
@@ -127,30 +160,59 @@ export const AttendancesPage: React.FC = () => {
 			if (!exists) {
 				setClassId(filteredClassOptions[0]?.id ?? "");
 			}
+		} else {
+			setClassId("");
 		}
 	}, [filteredClassOptions, classId]);
 
+	// Build Attendance Schedule Options strictly from AttendanceSchedules
+	const attendanceScheduleOptions = useMemo<ScheduleOption[]>(() => {
+		if (academicYearId && !classId) {
+			return [];
+		}
+
+		return rawAttendanceSchedules.map((sch) => ({
+			id: sch.id,
+			scheduleId: sch.scheduleId || sch.id,
+			title: sch.title,
+			activeDays: sch.activeDays || [],
+			specificDate: sch.specificDate,
+			startTime: sch.startTime,
+			endTime: sch.endTime,
+			isActive: sch.isActive,
+			scheduleType: sch.scheduleType,
+			isTodayActive: true,
+			label: sch.title,
+			subjectName: sch.schedule?.classSubject?.subject?.name || sch.title,
+			classroomName: sch.schedule?.classroom?.roomName,
+			teacherName: sch.schedule?.classSubject?.teacher?.user?.name,
+		}));
+	}, [rawAttendanceSchedules, academicYearId, classId]);
+
 	// Auto select first schedule when schedule options load or change
 	useEffect(() => {
-		if (scheduleOptions.length > 0) {
-			const exists = scheduleOptions.some((s) => s.id === scheduleId);
+		if (attendanceScheduleOptions.length > 0) {
+			const exists = attendanceScheduleOptions.some((s) => s.id === scheduleId);
 			if (!exists) {
-				setScheduleId(scheduleOptions[0]?.id ?? "");
+				setScheduleId(attendanceScheduleOptions[0]?.id ?? "");
 			}
 		} else {
 			setScheduleId("");
 		}
-	}, [scheduleOptions, scheduleId]);
+	}, [attendanceScheduleOptions, scheduleId]);
 
 	// Selected Class Object
 	const selectedClass = useMemo(() => {
 		return classOptions.find((c) => c.id === classId);
 	}, [classOptions, classId]);
 
-	// Selected Schedule Object
-	const selectedSchedule = useMemo(() => {
-		return scheduleOptions.find((s) => s.id === scheduleId);
-	}, [scheduleOptions, scheduleId]);
+	// Selected Attendance Schedule Object
+	const selectedAttendanceSchedule = useMemo(() => {
+		return attendanceScheduleOptions.find((s) => s.id === scheduleId);
+	}, [attendanceScheduleOptions, scheduleId]);
+
+	const effectiveScheduleId =
+		selectedAttendanceSchedule?.scheduleId || scheduleId;
 
 	// Format start and end date for the selected month
 	const { startDateStr, endDateStr } = useMemo(() => {
@@ -171,7 +233,7 @@ export const AttendancesPage: React.FC = () => {
 	} = useAttendances({
 		limit: 1000,
 		class_id: classId || undefined,
-		schedule_id: scheduleId || undefined,
+		schedule_id: effectiveScheduleId || undefined,
 		start_date: startDateStr,
 		end_date: endDateStr,
 	});
@@ -183,11 +245,17 @@ export const AttendancesPage: React.FC = () => {
 
 	const attendances = attendancesResponse?.data ?? [];
 
-	// Generate Month Days (Hanya Minggu [0] yang Libur, Senin-Sabtu [1..6] Aktif)
+	// Generate Month Days (Menyesuaikan Hari Aktif dari Jadwal Absensi yang Dipilih)
 	const monthDays: AttendanceMonthDay[] = useMemo(() => {
 		const count = getDaysInMonth(year, month);
 		const days: AttendanceMonthDay[] = [];
 		const mStr = String(month).padStart(2, "0");
+
+		const activeDaysConfig = selectedAttendanceSchedule?.activeDays;
+		const activeDaysUpper =
+			activeDaysConfig && activeDaysConfig.length > 0
+				? activeDaysConfig.map((d) => d.toUpperCase())
+				: null;
 
 		for (let d = 1; d <= count; d++) {
 			const dStr = String(d).padStart(2, "0");
@@ -195,9 +263,12 @@ export const AttendancesPage: React.FC = () => {
 			const dateObj = new Date(year, month - 1, d);
 			const dayOfWeek = dateObj.getDay();
 			const dayName = DAY_NAMES[dayOfWeek] ?? "";
+			const dayFullUpper = ATTENDANCE_DAY_MAP[dayOfWeek] ?? "";
 
-			// Aturan: Hanya Minggu (0) yang Libur, Senin-Sabtu (1..6) Aktif
-			const isScheduleActive = dayOfWeek !== 0;
+			// Menyesuaikan hari aktif dari jadwal absensi jika dikonfigurasi
+			const isScheduleActive = activeDaysUpper
+				? activeDaysUpper.includes(dayFullUpper)
+				: dayOfWeek !== 0;
 
 			days.push({
 				dateStr,
@@ -209,7 +280,7 @@ export const AttendancesPage: React.FC = () => {
 			});
 		}
 		return days;
-	}, [year, month]);
+	}, [year, month, selectedAttendanceSchedule]);
 
 	// Build Matrix Rows
 	const matrixRows: AttendanceMatrixStudentRow[] = useMemo(() => {
@@ -400,11 +471,9 @@ export const AttendancesPage: React.FC = () => {
 		setAcademicYearId(defaultAy);
 
 		const defaultClassOptions = defaultAy
-			? classOptions.filter(
-					(c) => !c.academic_year_id || c.academic_year_id === defaultAy,
-				)
+			? classOptions.filter((c) => c.academic_year_id === defaultAy)
 			: classOptions;
-		const firstClass = defaultClassOptions[0]?.id ?? classOptions[0]?.id ?? "";
+		const firstClass = defaultClassOptions[0]?.id ?? "";
 		setClassId(firstClass);
 		setScheduleId("");
 		setStatusFilter("");
@@ -417,12 +486,15 @@ export const AttendancesPage: React.FC = () => {
 		dateStr: string,
 		statusId: string,
 	) => {
-		const activeSchedId = scheduleId || scheduleOptions[0]?.id;
+		const activeSchedId =
+			effectiveScheduleId ||
+			attendanceScheduleOptions[0]?.scheduleId ||
+			attendanceScheduleOptions[0]?.id;
 		if (!activeSchedId) {
 			setNotice({
 				kind: "error",
 				message:
-					"Pilih jadwal pelajaran terlebih dahulu sebelum mencatat kehadiran.",
+					"Pilih jadwal absensi terlebih dahulu sebelum mencatat kehadiran.",
 			});
 			return;
 		}
@@ -447,12 +519,15 @@ export const AttendancesPage: React.FC = () => {
 	};
 
 	const handleBulkMarkPresent = async (dateStr: string) => {
-		const activeSchedId = scheduleId || scheduleOptions[0]?.id;
+		const activeSchedId =
+			effectiveScheduleId ||
+			attendanceScheduleOptions[0]?.scheduleId ||
+			attendanceScheduleOptions[0]?.id;
 		if (!activeSchedId) {
 			setNotice({
 				kind: "error",
 				message:
-					"Pilih jadwal pelajaran terlebih dahulu sebelum melakukan presensi massal.",
+					"Pilih jadwal absensi terlebih dahulu sebelum melakukan presensi massal.",
 			});
 			return;
 		}
@@ -494,12 +569,15 @@ export const AttendancesPage: React.FC = () => {
 		const tDay = String(today.getDate()).padStart(2, "0");
 		const todayDateStr = `${tYear}-${tMonth}-${tDay}`;
 
-		const activeSchedId = scheduleId || scheduleOptions[0]?.id;
+		const activeSchedId =
+			effectiveScheduleId ||
+			attendanceScheduleOptions[0]?.scheduleId ||
+			attendanceScheduleOptions[0]?.id;
 		if (!activeSchedId) {
 			setNotice({
 				kind: "error",
 				message:
-					"Pilih jadwal pelajaran terlebih dahulu sebelum mencatat kehadiran hari ini.",
+					"Pilih jadwal absensi terlebih dahulu sebelum mencatat kehadiran hari ini.",
 			});
 			return;
 		}
@@ -635,11 +713,14 @@ export const AttendancesPage: React.FC = () => {
 		statusId: string,
 		notes?: string | null,
 	) => {
-		const activeSchedId = scheduleId || scheduleOptions[0]?.id;
+		const activeSchedId =
+			effectiveScheduleId ||
+			attendanceScheduleOptions[0]?.scheduleId ||
+			attendanceScheduleOptions[0]?.id;
 		if (!activeSchedId) {
 			setNotice({
 				kind: "error",
-				message: "Pilih jadwal pelajaran terlebih dahulu.",
+				message: "Pilih jadwal absensi terlebih dahulu.",
 			});
 			return;
 		}
@@ -680,13 +761,13 @@ export const AttendancesPage: React.FC = () => {
 		}
 	};
 
-	const scheduleTitle = selectedSchedule
-		? `${selectedSchedule.subjectName} • ${selectedSchedule.classroomName || "Ruang Kelas"}`
+	const scheduleTitle = selectedAttendanceSchedule
+		? selectedAttendanceSchedule.title
 		: selectedClass
 			? selectedClass.name
 			: undefined;
 
-	const teacherName = selectedSchedule?.teacherName;
+	const teacherName = selectedAttendanceSchedule?.teacherName;
 
 	return (
 		<main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-[#0b1120] dark:text-slate-100 sm:p-6">
@@ -710,100 +791,153 @@ export const AttendancesPage: React.FC = () => {
 					</div>
 				)}
 
-				{/* Header Halaman (1:1 Sesuai Referensi Gambar 2) */}
-				<header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<div className="flex items-center gap-3">
-						<div className="flex size-11 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-500/30 dark:bg-blue-600/20 dark:text-blue-400">
-							<Users className="size-5" />
-						</div>
-						<div>
-							<h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-								Overview & Report Presensi Siswa
-							</h1>
-							<p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-								Laporan real-time dan matriks kehadiran siswa otomatis
-								berdasarkan kelas, jadwal pelajaran, dan periode bulan.
-							</p>
-						</div>
-					</div>
-
-					{/* Tombol Aksi Kanan Atas: Set Semua Hadir Hari Ini & Ekspor Rekap */}
-					<div className="flex flex-wrap items-center gap-2.5">
+				{/* Navigation Tabs (Overview vs Matrix Presensi) */}
+				<div className="flex border-b border-slate-200 dark:border-slate-800">
+					<div className="flex gap-2">
 						<button
 							type="button"
-							onClick={handleSetAllPresentToday}
-							disabled={bulkUpsertMutation.isPending}
-							className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-medium text-emerald-700 shadow-sm transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/40"
+							onClick={() => setActiveTab("overview")}
+							className={`inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition-all ${
+								activeTab === "overview"
+									? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
+									: "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+							}`}
 						>
-							<CheckCircle2 className="size-3.5" />
-							<span>Set Semua Hadir Hari Ini</span>
+							<LayoutDashboard className="size-4" />
+							<span>Overview & Rangkuman</span>
 						</button>
-
 						<button
 							type="button"
-							onClick={handleExportRekap}
-							className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+							onClick={() => setActiveTab("matrix")}
+							className={`inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition-all ${
+								activeTab === "matrix"
+									? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
+									: "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+							}`}
 						>
-							<Download className="size-3.5" />
-							<span>Ekspor Rekap</span>
+							<Calendar className="size-4" />
+							<span>Matriks Presensi Kelas</span>
+						</button>
+						<button
+							type="button"
+							onClick={() => setActiveTab("list")}
+							className={`inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition-all ${
+								activeTab === "list"
+									? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
+									: "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+							}`}
+						>
+							<ClipboardList className="size-4" />
+							<span>Daftar Presensi Siswa</span>
 						</button>
 					</div>
-				</header>
+				</div>
 
-				{/* 6 Kartu Statistik Ringkasan (1:1 Sesuai Referensi Gambar 2) */}
-				<AttendanceStats
-					summary={summaryData}
-					isLoading={isAttendancesLoading}
-				/>
+				{/* TAB 1: OVERVIEW & RANGKUMAN MENYELURUH */}
+				{activeTab === "overview" && <AttendanceOverviewTab />}
 
-				{/* Bar Filter Matrix Compact */}
-				<AttendanceFilter
-					search={search}
-					onSearchChange={setSearch}
-					classId={classId}
-					onClassChange={(val) => {
-						setClassId(val);
-						setScheduleId("");
-					}}
-					scheduleId={scheduleId}
-					onScheduleChange={setScheduleId}
-					academicYearId={academicYearId}
-					onAcademicYearChange={(val) => {
-						setAcademicYearId(val);
-						const nextClasses = classOptions.filter(
-							(c) => !c.academic_year_id || c.academic_year_id === val,
-						);
-						const firstClass = nextClasses[0]?.id || classOptions[0]?.id || "";
-						setClassId(firstClass);
-						setScheduleId("");
-					}}
-					month={month}
-					onMonthChange={setMonth}
-					year={year}
-					onYearChange={setYear}
-					statusFilter={statusFilter}
-					onStatusFilterChange={setStatusFilter}
-					classOptions={filteredClassOptions}
-					scheduleOptions={scheduleOptions}
-					statusOptions={statusOptions}
-					academicYearOptions={academicYearOptions}
-					onReset={handleResetFilters}
-				/>
+				{/* TAB 3: DAFTAR PRESENSI SISWA */}
+				{activeTab === "list" && <AttendanceListTab />}
 
-				{/* Matriks Kehadiran Bulanan */}
-				<AttendanceMatrixTable
-					monthDays={monthDays}
-					rows={matrixRows}
-					statusOptions={statusOptions}
-					isLoading={isAttendancesLoading}
-					isError={isError}
-					onRetry={() => refetch()}
-					onCellClick={handleOpenCellDialog}
-					onQuickStatusChange={handleQuickStatusChange}
-					onBulkMarkPresent={handleBulkMarkPresent}
-					scheduleTitle={scheduleTitle}
-					teacherName={teacherName}
-				/>
+				{/* TAB 2: MATRIKS PRESENSI KELAS */}
+				{activeTab === "matrix" && (
+					<div className="space-y-4">
+						{/* Header Halaman (1:1 Sesuai Referensi Gambar 2) */}
+						<header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<div className="flex items-center gap-3">
+								<div className="flex size-11 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-500/30 dark:bg-blue-600/20 dark:text-blue-400">
+									<Users className="size-5" />
+								</div>
+								<div>
+									<h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+										Matriks Presensi Per Kelas
+									</h1>
+									<p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+										Kelola kehadiran harian siswa secara rinci dengan matriks
+										interaktif bulanan.
+									</p>
+								</div>
+							</div>
+
+							{/* Tombol Aksi Kanan Atas: Set Semua Hadir Hari Ini & Ekspor Rekap */}
+							<div className="flex flex-wrap items-center gap-2.5">
+								<button
+									type="button"
+									onClick={handleSetAllPresentToday}
+									disabled={bulkUpsertMutation.isPending}
+									className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-medium text-emerald-700 shadow-sm transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/40"
+								>
+									<CheckCircle2 className="size-3.5" />
+									<span>Set Semua Hadir Hari Ini</span>
+								</button>
+
+								<button
+									type="button"
+									onClick={handleExportRekap}
+									className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+								>
+									<Download className="size-3.5" />
+									<span>Ekspor Rekap</span>
+								</button>
+							</div>
+						</header>
+
+						{/* 6 Kartu Statistik Ringkasan (1:1 Sesuai Referensi Gambar 2) */}
+						<AttendanceStats
+							summary={summaryData}
+							isLoading={isAttendancesLoading}
+						/>
+
+						{/* Bar Filter Matrix Compact */}
+						<AttendanceFilter
+							search={search}
+							onSearchChange={setSearch}
+							classId={classId}
+							onClassChange={(val) => {
+								setClassId(val);
+								setScheduleId("");
+							}}
+							scheduleId={scheduleId}
+							onScheduleChange={setScheduleId}
+							academicYearId={academicYearId}
+							onAcademicYearChange={(val) => {
+								setAcademicYearId(val);
+								const nextClasses = classOptions.filter(
+									(c) => c.academic_year_id === val,
+								);
+								const firstClass = nextClasses[0]?.id ?? "";
+								setClassId(firstClass);
+								setScheduleId("");
+							}}
+							month={month}
+							onMonthChange={setMonth}
+							year={year}
+							onYearChange={setYear}
+							statusFilter={statusFilter}
+							onStatusFilterChange={setStatusFilter}
+							classOptions={filteredClassOptions}
+							statusOptions={statusOptions}
+							academicYearOptions={academicYearOptions}
+							onReset={handleResetFilters}
+							scheduleOptions={attendanceScheduleOptions}
+						/>
+
+						{/* Matriks Kehadiran Bulanan */}
+						<AttendanceMatrixTable
+							monthDays={monthDays}
+							rows={matrixRows}
+							statusOptions={statusOptions}
+							isLoading={isAttendancesLoading}
+							isError={isError}
+							onRetry={() => refetch()}
+							onCellClick={handleOpenCellDialog}
+							onQuickStatusChange={handleQuickStatusChange}
+							onBulkMarkPresent={handleBulkMarkPresent}
+							scheduleTitle={scheduleTitle}
+							teacherName={teacherName}
+						/>
+					</div>
+				)}
 
 				{/* Modal / Dialog Detail Catatan Siswa */}
 				<AttendanceNoteDialog

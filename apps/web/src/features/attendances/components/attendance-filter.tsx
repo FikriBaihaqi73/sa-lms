@@ -91,7 +91,34 @@ export const AttendanceFilter: React.FC<AttendanceFilterProps> = ({
 				/>
 			</div>
 
-			{/* 2. Class Selector (Tanpa Opsi 'Semua') */}
+			{/* 2. Academic Year Selector */}
+			<div className="min-w-[140px] sm:max-w-[190px]">
+				<select
+					value={academicYearId}
+					onChange={(e) => onAcademicYearChange?.(e.target.value)}
+					aria-label="Pilih Tahun Ajaran"
+					className="h-9 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
+				>
+					{academicYearOptions.length === 0 ? (
+						<option value="" disabled>
+							Pilih Tahun Ajaran
+						</option>
+					) : (
+						academicYearOptions.map((ay) => {
+							const displayLabel =
+								ay.label ||
+								`${ay.name || ay.academic_year || "Tahun Ajaran"} (${ay.is_active ? "Aktif" : "Tidak Aktif"})`;
+							return (
+								<option key={ay.id} value={ay.id}>
+									{displayLabel}
+								</option>
+							);
+						})
+					)}
+				</select>
+			</div>
+
+			{/* 3. Class Selector */}
 			<div className="min-w-[130px] sm:max-w-[170px]">
 				<select
 					value={classId}
@@ -113,47 +140,23 @@ export const AttendanceFilter: React.FC<AttendanceFilterProps> = ({
 				</select>
 			</div>
 
-			{/* 3. Schedule Selector (Lebar Proporsional, Truncate di Trigger, Tanpa Opsi 'Semua') */}
-			<div className="min-w-[180px] sm:max-w-[230px] flex-1">
+			{/* 4. Schedule Selector: Filter Jadwal Absensi */}
+			<div className="min-w-[180px] sm:max-w-[240px] flex-1">
 				<select
 					value={scheduleId}
 					onChange={(e) => onScheduleChange(e.target.value)}
-					aria-label="Pilih Jadwal"
+					aria-label="Pilih Jadwal Absensi"
 					className="h-9 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
 				>
 					{scheduleOptions.length === 0 ? (
 						<option value="" disabled>
-							Pilih Jadwal Pelajaran
+							Pilih Jadwal Absensi
 						</option>
 					) : (
-						scheduleOptions.map((sch) => (
-							<option key={sch.id} value={sch.id} title={sch.label}>
-								{sch.label}
-							</option>
-						))
-					)}
-				</select>
-			</div>
-
-			{/* 4. Academic Year Selector (Nama & Status Lengkap, Tanpa Opsi 'Semua') */}
-			<div className="min-w-[140px] sm:max-w-[190px]">
-				<select
-					value={academicYearId}
-					onChange={(e) => onAcademicYearChange?.(e.target.value)}
-					aria-label="Pilih Tahun Ajaran"
-					className="h-9 w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-800 transition-colors focus:border-blue-500 focus:outline-none dark:border-slate-700/60 dark:bg-[#0c1322] dark:text-slate-200"
-				>
-					{academicYearOptions.length === 0 ? (
-						<option value="" disabled>
-							Pilih Tahun Ajaran
-						</option>
-					) : (
-						academicYearOptions.map((ay) => {
-							const displayLabel =
-								ay.label ||
-								`${ay.name || ay.academic_year || "Tahun Ajaran"} (${ay.is_active ? "Aktif" : "Tidak Aktif"})`;
+						scheduleOptions.map((sch) => {
+							const displayLabel = sch.title || sch.label || "Jadwal Absensi";
 							return (
-								<option key={ay.id} value={ay.id}>
+								<option key={sch.id} value={sch.id} title={displayLabel}>
 									{displayLabel}
 								</option>
 							);

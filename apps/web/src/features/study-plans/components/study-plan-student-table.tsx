@@ -4,6 +4,7 @@ import {
 	ChevronDown,
 	ChevronUp,
 	GraduationCap,
+	PackageCheck,
 	Plus,
 	RefreshCw,
 	Trash2,
@@ -18,6 +19,7 @@ interface StudyPlanStudentTableProps {
 	isError?: boolean;
 	onRetry?: () => void;
 	onAddSubjectClick: (studentId: string) => void;
+	onAddBundleClick?: (studentId: string) => void;
 	onDropSubjectClick: (studyPlan: StudyPlan) => void;
 }
 
@@ -27,6 +29,7 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 	isError = false,
 	onRetry,
 	onAddSubjectClick,
+	onAddBundleClick,
 	onDropSubjectClick,
 }) => {
 	const [expandedStudentIds, setExpandedStudentIds] = useState<Set<string>>(
@@ -96,33 +99,33 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 	}
 
 	return (
-		<div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800/90 dark:bg-[#111927]">
+		<div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800/80 dark:bg-[#111927]">
 			<div className="overflow-x-auto">
 				<table className="w-full border-collapse text-left text-xs">
 					<thead>
-						<tr className="border-b border-slate-200 bg-slate-100/80 text-slate-600 dark:border-slate-800 dark:bg-[#0d1526] dark:text-slate-400">
-							<th className="px-4 py-3 font-semibold uppercase tracking-wider">
+						<tr className="border-b border-slate-200/80 bg-slate-50/80 text-[11px] font-semibold tracking-wider text-slate-500 dark:border-slate-800/80 dark:bg-[#0d1526]/90 dark:text-slate-400">
+							<th className="px-3.5 py-2.5 uppercase">
 								SISWA / MAHASISWA
 							</th>
-							<th className="px-4 py-3 font-semibold uppercase tracking-wider">
+							<th className="px-3.5 py-2.5 uppercase">
 								KELAS / BIDANG
 							</th>
-							<th className="px-4 py-3 text-center font-semibold uppercase tracking-wider">
+							<th className="px-3.5 py-2.5 text-center uppercase">
 								MAPEL DIAMBIL
 							</th>
-							<th className="px-4 py-3 font-semibold uppercase tracking-wider">
+							<th className="px-3.5 py-2.5 uppercase">
 								BEBAN KREDIT (SKS)
 							</th>
-							<th className="px-4 py-3 text-center font-semibold uppercase tracking-wider">
+							<th className="px-3.5 py-2.5 text-center uppercase">
 								STATUS KRS
 							</th>
-							<th className="px-4 py-3 text-right font-semibold uppercase tracking-wider">
+							<th className="px-3.5 py-2.5 text-right uppercase">
 								AKSI
 							</th>
 						</tr>
 					</thead>
 
-					<tbody className="divide-y divide-slate-200 dark:divide-slate-800/60">
+					<tbody className="divide-y divide-slate-200/80 dark:divide-slate-800/60">
 						{students.map((student) => {
 							const isExpanded = expandedStudentIds.has(student.studentId);
 							const progressPercent = Math.min(
@@ -138,19 +141,19 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 								<Fragment key={student.studentId}>
 									<tr
 										onClick={() => toggleExpand(student.studentId)}
-										className="cursor-pointer transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/30"
+										className="cursor-pointer transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/25"
 									>
 										{/* Siswa / Mahasiswa */}
-										<td className="px-4 py-3">
-											<div className="flex items-center gap-3">
-												<div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700 ring-1 ring-blue-500/20 dark:bg-blue-900/60 dark:text-blue-300 dark:ring-blue-500/30">
+										<td className="px-3.5 py-2.5">
+											<div className="flex items-center gap-2.5">
+												<div className="flex size-7.5 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-xs font-semibold text-blue-600 ring-1 ring-blue-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:ring-blue-500/30">
 													{initial}
 												</div>
 												<div className="min-w-0">
 													<p className="truncate font-semibold text-slate-900 dark:text-white">
 														{student.fullName}
 													</p>
-													<p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
+													<p className="truncate text-[11px] text-slate-400 dark:text-slate-500">
 														NIS: {student.studentNumber}{" "}
 														{student.email ? `• ${student.email}` : ""}
 													</p>
@@ -159,43 +162,43 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 										</td>
 
 										{/* Kelas / Bidang */}
-										<td className="px-4 py-3">
+										<td className="px-3.5 py-2.5">
 											<p className="font-medium text-slate-700 dark:text-slate-200">
 												{student.className || "-"}
 											</p>
 											{student.departmentName && (
-												<span className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 text-[10px] text-purple-700 dark:border-purple-500/30 dark:bg-purple-950/40 dark:text-purple-300">
+												<span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
 													{student.departmentName}
 												</span>
 											)}
 										</td>
 
 										{/* Jumlah Mapel Diambil */}
-										<td className="px-4 py-3 text-center">
-											<span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-800/80 dark:text-white">
+										<td className="px-3.5 py-2.5 text-center">
+											<span className="inline-flex items-center rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-200">
 												{student.totalSubjects} Mapel
 											</span>
 										</td>
 
 										{/* Beban Kredit (SKS) */}
-										<td className="min-w-[170px] px-4 py-3">
-											<div className="space-y-1.5">
+										<td className="min-w-[160px] px-3.5 py-2.5">
+											<div className="space-y-1">
 												<div className="flex items-center justify-between text-[11px]">
 													<span className="font-semibold text-slate-900 dark:text-white">
 														{student.totalCredits} SKS
 													</span>
-													<span className="text-slate-500 dark:text-slate-400">
+													<span className="text-slate-400 dark:text-slate-500">
 														Maks {student.maxCredits} SKS
 													</span>
 												</div>
-												<div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+												<div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800/80">
 													<div
 														className={`h-full transition-all ${
 															isOverLimit
-																? "bg-red-500"
+																? "bg-rose-500"
 																: progressPercent >= 80
 																	? "bg-amber-400"
-																	: "bg-blue-500"
+																	: "bg-blue-600 dark:bg-blue-500"
 														}`}
 														style={{ width: `${progressPercent}%` }}
 													/>
@@ -204,14 +207,14 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 										</td>
 
 										{/* Status KRS */}
-										<td className="px-4 py-3 text-center">
+										<td className="px-3.5 py-2.5 text-center">
 											{student.status === "sudah_krs" ? (
-												<span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-950/60 dark:text-emerald-400">
+												<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
 													<span className="size-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
 													Sudah KRS
 												</span>
 											) : (
-												<span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-[11px] font-semibold text-rose-700 dark:border-rose-500/30 dark:bg-rose-950/60 dark:text-rose-400">
+												<span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/20 bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-medium text-rose-600 dark:text-rose-400">
 													<span className="size-1.5 rounded-full bg-rose-500 dark:bg-rose-400" />
 													Belum KRS
 												</span>
@@ -219,15 +222,15 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 										</td>
 
 										{/* Aksi */}
-										<td className="px-4 py-3 text-right">
-											<div className="flex items-center justify-end gap-2">
+										<td className="px-3.5 py-2.5 text-right">
+											<div className="flex items-center justify-end gap-1.5">
 												<button
 													type="button"
 													onClick={(e) => {
 														e.stopPropagation();
 														toggleExpand(student.studentId);
 													}}
-													className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[11px] font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-100 dark:border-slate-700/80 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-white"
+													className="inline-flex h-7 items-center gap-1 rounded-md border border-slate-200/80 bg-white px-2 text-[11px] font-medium text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-[#111927] dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
 												>
 													<span>Rincian</span>
 													{isExpanded ? (
@@ -244,35 +247,50 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 														onAddSubjectClick(student.studentId);
 													}}
 													title="Tambah / Force Enroll Mapel untuk Siswa Ini"
-													className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-[11px] font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+													className="inline-flex h-7 items-center gap-1 rounded-md bg-blue-600 px-2.5 text-[11px] font-medium text-white shadow-xs transition-colors hover:bg-blue-500"
 												>
 													<Plus className="size-3" />
 													<span>Mapel</span>
 												</button>
+
+												{onAddBundleClick && (
+													<button
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
+															onAddBundleClick(student.studentId);
+														}}
+														title="Ambil Paket KRS Jurusan dalam Semester (Bundle)"
+														className="inline-flex h-7 items-center gap-1 rounded-md border border-blue-500/30 bg-blue-50/60 px-2 text-[11px] font-medium text-blue-700 transition-colors hover:bg-blue-100 dark:border-blue-500/30 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
+													>
+														<PackageCheck className="size-3" />
+														<span>+ Paket</span>
+													</button>
+												)}
 											</div>
 										</td>
 									</tr>
 
 									{/* Expandable Row: Rincian Mapel yang Diambil */}
 									{isExpanded && (
-										<tr className="bg-slate-50/70 dark:bg-[#0e1626]/80">
-											<td colSpan={6} className="px-6 py-4">
-												<div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#0a101d]">
-													<div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2 dark:border-slate-800">
+										<tr className="bg-slate-50/60 dark:bg-[#0c1322]/60">
+											<td colSpan={6} className="px-5 py-3.5">
+												<div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-xs dark:border-slate-800/80 dark:bg-[#0c1322]">
+													<div className="mb-3 flex items-center justify-between border-b border-slate-200/80 pb-2 dark:border-slate-800/80">
 														<div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
 															<BookOpen className="size-3.5 text-blue-500 dark:text-blue-400" />
 															<span>
 																Daftar Mata Pelajaran KRS — {student.fullName}
 															</span>
 														</div>
-														<span className="text-[11px] text-slate-500 dark:text-slate-400">
+														<span className="text-[11px] text-slate-400 dark:text-slate-500">
 															Total: {student.studyPlans.length} mata pelajaran
 															({student.totalCredits} SKS)
 														</span>
 													</div>
 
 													{student.studyPlans.length === 0 ? (
-														<p className="py-4 text-center text-xs text-slate-500">
+														<p className="py-3 text-center text-xs text-slate-400 dark:text-slate-500">
 															Siswa ini belum mengambil mata pelajaran apa pun
 															pada tahun ajaran ini. Klik tombol{" "}
 															<strong className="text-blue-600 dark:text-blue-400">
@@ -291,7 +309,7 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 																return (
 																	<div
 																		key={sp.id}
-																		className="relative flex flex-col justify-between rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-xs shadow-sm transition-all hover:border-slate-300 dark:border-slate-800/90 dark:bg-[#111927] dark:hover:border-slate-700"
+																		className="relative flex flex-col justify-between rounded-lg border border-slate-200/80 bg-slate-50/50 p-2.5 text-xs transition-colors hover:border-slate-300 dark:border-slate-800/80 dark:bg-[#111927] dark:hover:border-slate-700/80"
 																	>
 																		<div>
 																			<div className="flex items-start justify-between gap-2">
@@ -305,7 +323,7 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 																						{sub?.name || "Mata Pelajaran"}
 																					</h4>
 																				</div>
-																				<span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:border-blue-500/30 dark:bg-blue-950/60 dark:text-blue-300">
+																				<span className="shrink-0 rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
 																					{sub?.credits ?? 0} SKS
 																				</span>
 																			</div>
@@ -326,7 +344,7 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 																				{dept?.name && (
 																					<p>
 																						Bidang:{" "}
-																						<span className="font-medium text-purple-600 dark:text-purple-300">
+																						<span className="font-medium text-slate-600 dark:text-slate-300">
 																							{dept.name}
 																						</span>
 																					</p>
@@ -334,11 +352,11 @@ export const StudyPlanStudentTable: React.FC<StudyPlanStudentTableProps> = ({
 																			</div>
 																		</div>
 
-																		<div className="mt-3 flex items-center justify-end border-t border-slate-200 pt-2 dark:border-slate-800/70">
+																		<div className="mt-2.5 flex items-center justify-end border-t border-slate-200/80 pt-2 dark:border-slate-800/80">
 																			<button
 																				type="button"
 																				onClick={() => onDropSubjectClick(sp)}
-																				className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-700 transition-colors hover:bg-rose-100 hover:text-rose-800 dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-900/40 dark:hover:text-rose-300"
+																				className="inline-flex items-center gap-1 rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-1 text-[11px] font-medium text-rose-600 hover:bg-rose-500/20 dark:border-rose-500/20 dark:bg-rose-500/15 dark:text-rose-400 dark:hover:bg-rose-500/25 transition-colors"
 																			>
 																				<Trash2 className="size-3" />
 																				<span>Drop / Hapus</span>

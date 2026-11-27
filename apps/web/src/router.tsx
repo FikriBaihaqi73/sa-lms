@@ -4,20 +4,21 @@ import { academicStatusesRoute } from "./routes/_settings/academic-statuses/inde
 import { academicYearsRoute } from "./routes/_settings/academic-years/index";
 import { activityLogsRoute } from "./routes/_settings/activity-logs";
 import { announcementsRoute } from "./routes/_settings/announcements/index";
+import { assignmentSubmissionsRoute } from "./routes/_settings/assignment-submissions/index";
 import { assignmentTypesRoute } from "./routes/_settings/assignment-types/index";
 import { assignmentsRoute } from "./routes/_settings/assignments/index";
+import { attendanceSchedulesRoute } from "./routes/_settings/attendance-schedules/index";
 import { attendanceStatusesRoute } from "./routes/_settings/attendance-statuses/index";
 import { attendancesRoute } from "./routes/_settings/attendances/index";
-import { examinationScoresRoute } from "./routes/_settings/examination-scores/index";
 import { classStudentsRoute } from "./routes/_settings/class-students/index";
 import { classSubjectsRoute } from "./routes/_settings/class-subjects/index";
 import { classesRoute } from "./routes/_settings/classes/index";
 import { classroomsRoute } from "./routes/_settings/classrooms/index";
 import { departmentsRoute } from "./routes/_settings/departments/index";
 import { employmentStatusesRoute } from "./routes/_settings/employment-statuses/index";
+import { examinationScoresRoute } from "./routes/_settings/examination-scores/index";
 import { examinationsRoute } from "./routes/_settings/examinations/index";
 import { gradesRoute } from "./routes/_settings/grades/index";
-import { studentGradesRoute } from "./routes/_settings/student-grades/index";
 import { institutionLevelsRoute } from "./routes/_settings/jenjang-institusi/index";
 import { modulesRoute } from "./routes/_settings/modules/index";
 import { nationalitiesRoute } from "./routes/_settings/nationalities/index";
@@ -29,7 +30,9 @@ import { rolesRoute } from "./routes/_settings/roles/index";
 import { schedulesRoute } from "./routes/_settings/schedules/index";
 import { semestersRoute } from "./routes/_settings/semesters/index";
 import { settingsRouteDef } from "./routes/_settings/settings/index";
+import { studentGradesRoute } from "./routes/_settings/student-grades/index";
 import { studyPlansRoute } from "./routes/_settings/study-plans/index";
+import { studyResultsRoute } from "./routes/_settings/study-results/index";
 import { subjectPrerequisitesRoute } from "./routes/_settings/subject-prerequisites/index";
 import { subjectsRoute } from "./routes/_settings/subjects/index";
 import { teachersRoute } from "./routes/_settings/teachers/index";
@@ -48,6 +51,7 @@ import {
 } from "./routes/specialization-statuses/index";
 import { studentGuardiansRoute } from "./routes/student-guardians/index";
 import { studentsRoute } from "./routes/students/index";
+import { studyPlansAliasRoute } from "./routes/study-plans/index";
 import { userRoute } from "./routes/userLayout";
 
 const settingsTree = settingsRoute.addChildren([
@@ -67,6 +71,7 @@ const settingsTree = settingsRoute.addChildren([
 	specializationStatusesRoute,
 	specializationsRoute,
 	attendanceStatusesRoute,
+	attendanceSchedulesRoute,
 	assignmentTypesRoute,
 	profileRoute,
 	teachersRoute,
@@ -85,7 +90,9 @@ const settingsTree = settingsRoute.addChildren([
 	subjectsRoute,
 	classroomsRoute,
 	studyPlansRoute,
+	studyResultsRoute,
 	assignmentsRoute,
+	assignmentSubmissionsRoute,
 	modulesRoute,
 	announcementsRoute,
 ]);
@@ -102,6 +109,7 @@ const routeTree = rootRoute.addChildren([
 	guardiansRoute,
 	loginRoute,
 	registerRoute,
+	studyPlansAliasRoute,
 ]);
 
 export const router = createRouter({ routeTree });

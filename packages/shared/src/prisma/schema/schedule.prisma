@@ -13,10 +13,11 @@ model Schedule {
   endTime        DateTime? @map("end_time") @db.Time(0)
 
   // relations
-  classSubject      ClassSubjects      @relation(fields: [classSubjectId], references: [id])
-  classroom         Classroom          @relation(fields: [classroomId], references: [id])
-  attendances       Attendances[] 
-  teaching_journals TeachingJournals[]
+  classSubject        ClassSubjects         @relation(fields: [classSubjectId], references: [id])
+  classroom           Classroom             @relation(fields: [classroomId], references: [id])
+  attendances         Attendances[]
+  teaching_journals   TeachingJournals[]
+  attendanceSchedules AttendanceSchedules[]
 
   @@map("schedules")
 }

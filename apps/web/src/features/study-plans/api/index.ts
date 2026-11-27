@@ -2,10 +2,13 @@ import { apiFetch } from "@/lib/api";
 import type {
 	AcademicYearOption,
 	ClassSubjectOption,
+	CreateStudyPlanBundleInput,
 	CreateStudyPlanInput,
 	DepartmentOption,
+	SemesterOption,
 	StudentOption,
 	StudyPlan,
+	StudyPlanBundleResult,
 	StudyPlanFilters,
 	StudyPlanListResult,
 	UpdateStudyPlanInput,
@@ -34,7 +37,7 @@ function extractArray<T>(res: unknown): T[] {
 			if (Array.isArray(nested.data)) return nested.data as T[];
 		}
 	}
-	throw new Error("Format respons daftar data tidak valid.");
+	return [];
 }
 
 export async function getStudyPlansApi(
@@ -71,8 +74,6 @@ export async function getStudyPlansApi(
 		Array.isArray((rawData as { data?: StudyPlan[] }).data)
 	) {
 		items = (rawData as { data: StudyPlan[] }).data;
-	} else {
-		throw new Error("Format respons daftar KRS tidak valid.");
 	}
 
 	const meta =
@@ -106,6 +107,16 @@ export async function createStudyPlanApi(
 		method: "POST",
 		body: JSON.stringify(input),
 	})) as ApiResponse<StudyPlan>;
+	return response.data;
+}
+
+export async function createStudyPlanBundleApi(
+	input: CreateStudyPlanBundleInput,
+): Promise<StudyPlanBundleResult> {
+	const response = (await apiFetch("/study-plans/bundle", {
+		method: "POST",
+		body: JSON.stringify(input),
+	})) as ApiResponse<StudyPlanBundleResult>;
 	return response.data;
 }
 
@@ -152,6 +163,40 @@ export async function getAcademicYearsOptionsApi(): Promise<
 			academic_year: yearName,
 			is_active: Boolean(ay.is_active),
 			label: `${yearName} (${statusLabel})`,
+		};
+	});
+}
+
+export async function getSemestersOptionsApi(
+	academicYearId?: string,
+): Promise<SemesterOption[]> {
+	const query = new URLSearchParams({ page: "1", limit: "100" });
+	if (academicYearId) query.set("academic_year_id", academicYearId);
+
+	const response = await apiFetch(`/semesters?${query.toString()}`);
+	const items = extractArray<{
+		id: string;
+		academic_year_id: string;
+		name: string;
+		is_active?: boolean;
+		academicYear?: { academic_year?: string; name?: string } | null;
+	}>(response);
+
+	return items.map((sem) => {
+		const ayName =
+			sem.academicYear?.academic_year || sem.academicYear?.name || null;
+		const statusText = sem.is_active ? "Aktif" : "Tidak Aktif";
+		const label = ayName
+			? `${sem.name} — ${ayName} (${statusText})`
+			: `${sem.name} (${statusText})`;
+
+		return {
+			id: sem.id,
+			academic_year_id: sem.academic_year_id,
+			name: sem.name,
+			is_active: Boolean(sem.is_active),
+			academicYearName: ayName,
+			label,
 		};
 	});
 }

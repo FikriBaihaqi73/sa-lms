@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, PackageCheck } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -7,8 +7,10 @@ import {
 	useAcademicYearsOptions,
 	useClassSubjectsOptions,
 	useCreateStudyPlan,
+	useCreateStudyPlanBundle,
 	useDeleteStudyPlan,
 	useDepartmentsOptions,
+	useSemestersOptions,
 	useStudentsOptions,
 	useStudyPlans,
 	useUpdateStudyPlan,
@@ -68,6 +70,7 @@ export const StudyPlansPage: React.FC = () => {
 	const [search, setSearch] = useState("");
 	const debouncedSearch = useDebounce(search, 300);
 	const [academicYearId, setAcademicYearId] = useState("");
+	const [semesterId, setSemesterId] = useState("");
 	const [departmentId, setDepartmentId] = useState("");
 	const [classSubjectId, setClassSubjectId] = useState("");
 
@@ -95,6 +98,12 @@ export const StudyPlansPage: React.FC = () => {
 	const [preselectedStudentId, setPreselectedStudentId] = useState<string>("");
 	const [preselectedClassSubjectId, setPreselectedClassSubjectId] =
 		useState<string>("");
+	const [preselectedSemesterId, setPreselectedSemesterId] =
+		useState<string>("");
+	const [preselectedDepartmentId, setPreselectedDepartmentId] =
+		useState<string>("");
+	const [preselectedBundleMode, setPreselectedBundleMode] =
+		useState<boolean>(true);
 
 	const [deletingStudyPlan, setDeletingStudyPlan] = useState<StudyPlan | null>(
 		null,
@@ -106,14 +115,17 @@ export const StudyPlansPage: React.FC = () => {
 	);
 
 	// 5. Data Queries
-	const academicYearsQuery = useAcademicYearsOptions();
-	const departmentsQuery = useDepartmentsOptions();
-	const classSubjectsQuery = useClassSubjectsOptions();
-	const studentsQuery = useStudentsOptions();
-	const academicYears = academicYearsQuery.data ?? [];
-	const departments = departmentsQuery.data ?? [];
-	const allClassSubjects = classSubjectsQuery.data ?? [];
-	const allStudents = studentsQuery.data ?? [];
+	const { data: academicYears = [] } = useAcademicYearsOptions();
+	const { data: allSemesters = [] } = useSemestersOptions();
+	const { data: departments = [] } = useDepartmentsOptions();
+	const { data: allClassSubjects = [] } = useClassSubjectsOptions();
+	const { data: allStudents = [] } = useStudentsOptions();
+
+	// Semesters available for filter
+	const availableSemestersForFilter = useMemo(() => {
+		if (!academicYearId) return allSemesters;
+		return allSemesters.filter((s) => s.academic_year_id === academicYearId);
+	}, [allSemesters, academicYearId]);
 
 	// Auto-select active academic year when options load
 	useEffect(() => {
@@ -159,23 +171,6 @@ export const StudyPlansPage: React.FC = () => {
 			departmentId && departmentId !== "umum" ? departmentId : undefined,
 		class_subject_id: classSubjectId || undefined,
 	});
-
-	const optionQueries = [
-		academicYearsQuery,
-		departmentsQuery,
-		classSubjectsQuery,
-		studentsQuery,
-	];
-	const isDataLoading =
-		isStudyPlansLoading || optionQueries.some((query) => query.isLoading);
-	const isDataError =
-		isStudyPlansError || optionQueries.some((query) => query.isError);
-	const retryData = () => {
-		if (isStudyPlansError) void refetch();
-		for (const query of optionQueries) {
-			if (query.isError) void query.refetch();
-		}
-	};
 
 	const rawStudyPlans = studyPlansResult?.data ?? [];
 	const meta = studyPlansResult?.meta;
@@ -329,8 +324,35 @@ export const StudyPlansPage: React.FC = () => {
 
 	// 7. Mutations
 	const createMutation = useCreateStudyPlan();
+	const createBundleMutation = useCreateStudyPlanBundle();
 	const updateMutation = useUpdateStudyPlan();
 	const deleteMutation = useDeleteStudyPlan();
+
+	// Active Bundle subjects for currently selected department and academic year
+	const activeBundleSubjects = useMemo(() => {
+		if (!departmentId || departmentId === "umum") return [];
+		return mergedClassSubjects.filter((cs) => {
+			if (
+				academicYearId &&
+				cs.academicYearId &&
+				cs.academicYearId !== academicYearId
+			) {
+				return false;
+			}
+			return cs.departmentId === departmentId;
+		});
+	}, [mergedClassSubjects, academicYearId, departmentId]);
+
+	const activeBundleCredits = useMemo(() => {
+		return activeBundleSubjects.reduce(
+			(sum, cs) => sum + (cs.credits || 0),
+			0,
+		);
+	}, [activeBundleSubjects]);
+
+	const activeDepartmentObj = useMemo(() => {
+		return departments.find((d) => d.id === departmentId);
+	}, [departments, departmentId]);
 
 	// 8. Aggregate Data for 4 Stat Cards
 	const stats: StudyPlanSummaryStats = useMemo(() => {
@@ -628,15 +650,25 @@ export const StudyPlansPage: React.FC = () => {
 		setSearch("");
 		const active = academicYears.find((ay) => ay.is_active);
 		setAcademicYearId(active ? active.id : (academicYears[0]?.id ?? ""));
+		setSemesterId("");
 		setDepartmentId("");
 		setClassSubjectId("");
 		setPage(1);
 	};
 
-	const handleOpenAddModal = (studentId?: string, csId?: string) => {
+	const handleOpenAddModal = (
+		studentId?: string,
+		csId?: string,
+		semId?: string,
+		deptId?: string,
+		bundleMode: boolean = false,
+	) => {
 		setEditingStudyPlan(null);
 		setPreselectedStudentId(studentId || "");
 		setPreselectedClassSubjectId(csId || "");
+		setPreselectedSemesterId(semId || semesterId || "");
+		setPreselectedDepartmentId(deptId || departmentId || "");
+		setPreselectedBundleMode(bundleMode);
 		setIsDialogOpen(true);
 	};
 
@@ -654,6 +686,7 @@ export const StudyPlansPage: React.FC = () => {
 	const handleSaveStudyPlan = async (values: {
 		student_id: string;
 		academic_year_id: string;
+		semester_id?: string;
 		class_subject_id?: string;
 		class_subject_ids?: string[];
 	}) => {
@@ -683,19 +716,35 @@ export const StudyPlansPage: React.FC = () => {
 
 				if (ids.length === 0) return;
 
-				await Promise.all(
-					ids.map((csId) =>
-						createMutation.mutateAsync({
-							student_id: values.student_id,
-							class_subject_id: csId,
-							academic_year_id: values.academic_year_id,
-						}),
-					),
-				);
-				setNotice({
-					kind: "success",
-					message: `${ids.length} mata pelajaran berhasil didaftarkan ke rencana studi siswa (KRS).`,
-				});
+				try {
+					const res = await createBundleMutation.mutateAsync({
+						student_id: values.student_id,
+						academic_year_id: values.academic_year_id,
+						class_subject_ids: ids,
+					});
+					const skippedMsg =
+						res.totalSkipped > 0
+							? ` (${res.totalSkipped} mapel sudah pernah diambil dilewati)`
+							: "";
+					setNotice({
+						kind: "success",
+						message: `${res.totalEnrolled} mata pelajaran berhasil didaftarkan ke paket rencana studi siswa (KRS)${skippedMsg}.`,
+					});
+				} catch {
+					await Promise.all(
+						ids.map((csId) =>
+							createMutation.mutateAsync({
+								student_id: values.student_id,
+								class_subject_id: csId,
+								academic_year_id: values.academic_year_id,
+							}),
+						),
+					);
+					setNotice({
+						kind: "success",
+						message: `${ids.length} mata pelajaran berhasil didaftarkan ke rencana studi siswa (KRS).`,
+					});
+				}
 			}
 			setIsDialogOpen(false);
 		} catch (err) {
@@ -725,6 +774,7 @@ export const StudyPlansPage: React.FC = () => {
 		}
 	};
 
+
 	return (
 		<main className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 text-slate-900 dark:bg-[#0b1120] dark:text-slate-100 sm:p-6">
 			<div className="mx-auto max-w-7xl space-y-4">
@@ -732,7 +782,7 @@ export const StudyPlansPage: React.FC = () => {
 				{notice && (
 					<div
 						role="status"
-						className={`fixed right-6 top-6 z-70 flex items-center gap-3 rounded-xl border p-4 text-sm font-semibold shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${
+						className={`fixed right-6 top-6 z-[70] flex items-center gap-3 rounded-xl border p-4 text-sm font-semibold shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${
 							notice.kind === "success"
 								? "border-emerald-500 bg-emerald-600 text-white shadow-emerald-500/20"
 								: "border-rose-500 bg-rose-600 text-white shadow-rose-500/20"
@@ -754,23 +804,7 @@ export const StudyPlansPage: React.FC = () => {
 				/>
 
 				{/* 2. 4 Kartu Ringkasan Eksekutif */}
-				<StudyPlanStats
-					stats={stats}
-					isLoading={isDataLoading}
-					isError={isDataError}
-				/>
-				{isDataError && (
-					<div
-						role="alert"
-						className="rounded-xl border border-rose-300 p-3 text-sm text-rose-700 dark:border-rose-500/40 dark:text-rose-300"
-					>
-						Data KRS atau data pendukung gagal dimuat. Statistik dan pilihan
-						mungkin tidak tersedia.{" "}
-						<button type="button" className="underline" onClick={retryData}>
-							Coba lagi
-						</button>
-					</div>
-				)}
+				<StudyPlanStats stats={stats} isLoading={isStudyPlansLoading} />
 
 				{/* 3. Bar Filter & View Switcher Tabs */}
 				<StudyPlanFilter
@@ -781,6 +815,20 @@ export const StudyPlansPage: React.FC = () => {
 					academicYearId={academicYearId}
 					onAcademicYearChange={setAcademicYearId}
 					academicYearOptions={academicYears}
+					semesterId={semesterId}
+					onSemesterChange={(newSemId) => {
+						setSemesterId(newSemId);
+						if (newSemId) {
+							const sem = allSemesters.find((s) => s.id === newSemId);
+							if (
+								sem?.academic_year_id &&
+								sem.academic_year_id !== academicYearId
+							) {
+								setAcademicYearId(sem.academic_year_id);
+							}
+						}
+					}}
+					semesterOptions={availableSemestersForFilter}
 					departmentId={departmentId}
 					onDepartmentChange={setDepartmentId}
 					departmentOptions={availableDepartmentsForFilter}
@@ -790,14 +838,65 @@ export const StudyPlansPage: React.FC = () => {
 					onReset={handleResetFilters}
 				/>
 
+				{/* Paket KRS Jurusan Alert Banner */}
+				{activeBundleSubjects.length > 0 && activeDepartmentObj && (
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-blue-500/20 bg-blue-50/50 p-3 sm:p-3.5 shadow-xs dark:border-blue-500/25 dark:bg-[#111927]">
+						<div className="flex items-start gap-3">
+							<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
+								<PackageCheck className="size-4" />
+							</div>
+							<div>
+								<div className="flex items-center gap-2 flex-wrap">
+									<h4 className="text-sm font-bold text-slate-900 dark:text-white">
+										Paket KRS Jurusan: {activeDepartmentObj.name}
+									</h4>
+									<span className="rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
+										{selectedAcademicYear?.academic_year || "Tahun Ajaran Aktif"}
+									</span>
+								</div>
+								<p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400">
+									Tersedia paket bundle kurikulum dengan{" "}
+									<strong className="text-slate-900 dark:text-white">
+										{activeBundleSubjects.length} mata pelajaran
+									</strong>{" "}
+									(total{" "}
+									<strong className="text-blue-600 dark:text-blue-400">
+										{activeBundleCredits} SKS
+									</strong>
+									).
+								</p>
+							</div>
+						</div>
+						<button
+							type="button"
+							onClick={() =>
+								handleOpenAddModal(
+									undefined,
+									undefined,
+									semesterId,
+									departmentId,
+									true,
+								)
+							}
+							className="inline-flex h-8.5 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-500 shrink-0 self-start sm:self-center"
+						>
+							<PackageCheck className="size-3.5" />
+							<span>Daftarkan Siswa ke Paket Ini</span>
+						</button>
+					</div>
+				)}
+
 				{/* 4. Tab Content */}
 				{viewMode === "student_view" && (
 					<StudyPlanStudentTable
 						students={studentKrsList}
-						isLoading={isDataLoading}
-						isError={isDataError}
-						onRetry={retryData}
+						isLoading={isStudyPlansLoading}
+						isError={isStudyPlansError}
+						onRetry={() => refetch()}
 						onAddSubjectClick={(studentId) => handleOpenAddModal(studentId)}
+						onAddBundleClick={(studentId) =>
+							handleOpenAddModal(studentId, undefined, semesterId, undefined, true)
+						}
 						onDropSubjectClick={(sp) => handleOpenDeleteModal(sp)}
 					/>
 				)}
@@ -805,10 +904,10 @@ export const StudyPlansPage: React.FC = () => {
 				{viewMode === "catalog_view" && (
 					<StudyPlanCatalogTable
 						catalogItems={catalogList}
-						isLoading={isDataLoading}
-						isError={isDataError}
+						isLoading={isStudyPlansLoading}
+						isError={isStudyPlansError}
 						deactivatedIds={deactivatedIds}
-						onRetry={retryData}
+						onRetry={() => refetch()}
 						onEnrollClick={(csId) => handleOpenAddModal(undefined, csId)}
 						onToggleStatus={(csId, active) => {
 							const updated = toggleClassSubjectActiveStatus(csId, active);
@@ -827,9 +926,9 @@ export const StudyPlansPage: React.FC = () => {
 					<StudyPlanLogTable
 						studyPlans={displayStudyPlans}
 						meta={meta}
-						isLoading={isDataLoading}
-						isError={isDataError}
-						onRetry={retryData}
+						isLoading={isStudyPlansLoading}
+						isError={isStudyPlansError}
+						onRetry={() => refetch()}
 						onEdit={(sp) => handleOpenEditModal(sp)}
 						onDelete={(sp) => handleOpenDeleteModal(sp)}
 						onPageChange={setPage}
@@ -848,13 +947,21 @@ export const StudyPlansPage: React.FC = () => {
 					studyPlan={editingStudyPlan}
 					initialStudentId={preselectedStudentId}
 					initialClassSubjectId={preselectedClassSubjectId}
+					initialSemesterId={preselectedSemesterId}
+					initialDepartmentId={preselectedDepartmentId}
+					initialBundleMode={preselectedBundleMode}
 					students={enrichedStudentsOptions}
 					classSubjects={mergedClassSubjects}
 					academicYears={academicYears}
+					semesters={allSemesters}
 					departments={departments}
 					existingStudyPlans={rawStudyPlans}
 					deactivatedIds={deactivatedIds}
-					isSubmitting={createMutation.isPending || updateMutation.isPending}
+					isSubmitting={
+						createMutation.isPending ||
+						createBundleMutation.isPending ||
+						updateMutation.isPending
+					}
 					activeAcademicYearId={academicYearId}
 				/>
 

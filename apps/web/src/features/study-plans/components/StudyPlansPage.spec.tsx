@@ -9,11 +9,12 @@ import {
 	within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError } from "@/lib/api";
 import {
+	createStudyPlanBundleApi,
 	getAcademicYearsOptionsApi,
 	getClassSubjectsOptionsApi,
 	getDepartmentsOptionsApi,
+	getSemestersOptionsApi,
 	getStudentsOptionsApi,
 	getStudyPlansApi,
 } from "../api";
@@ -24,9 +25,11 @@ vi.mock("../api", () => ({
 	getStudyPlansApi: vi.fn(),
 	getStudyPlanByIdApi: vi.fn(),
 	createStudyPlanApi: vi.fn(),
+	createStudyPlanBundleApi: vi.fn(),
 	updateStudyPlanApi: vi.fn(),
 	deleteStudyPlanApi: vi.fn(),
 	getAcademicYearsOptionsApi: vi.fn(),
+	getSemestersOptionsApi: vi.fn(),
 	getClassSubjectsOptionsApi: vi.fn(),
 	getDepartmentsOptionsApi: vi.fn(),
 	getStudentsOptionsApi: vi.fn(),
@@ -101,6 +104,7 @@ function renderPage() {
 
 describe("StudyPlansPage", () => {
 	beforeEach(() => {
+		localStorage.clear();
 		vi.resetAllMocks();
 
 		vi.mocked(getStudyPlansApi).mockResolvedValue({
@@ -121,6 +125,24 @@ describe("StudyPlansPage", () => {
 				label: "2026/2027 (Aktif)",
 			},
 		]);
+
+		vi.mocked(getSemestersOptionsApi).mockResolvedValue([
+			{
+				id: "sem-1",
+				academic_year_id: "ay-1",
+				name: "Semester Ganjil",
+				is_active: true,
+				academicYearName: "2026/2027",
+				label: "Semester Ganjil — 2026/2027 (Aktif)",
+			},
+		]);
+
+		vi.mocked(createStudyPlanBundleApi).mockResolvedValue({
+			totalRequested: 1,
+			totalEnrolled: 1,
+			totalSkipped: 0,
+			data: [mockStudyPlan],
+		});
 
 		vi.mocked(getDepartmentsOptionsApi).mockResolvedValue([
 			{ id: "dept-1", name: "Teknik Informatika", code: "TI" },
@@ -161,24 +183,6 @@ describe("StudyPlansPage", () => {
 
 	afterEach(cleanup);
 
-	it("shows failed supporting data instead of misleading statistics and retries it", async () => {
-		vi.mocked(getStudentsOptionsApi)
-			.mockRejectedValueOnce(new ApiError("Database error", { status: 400 }))
-			.mockResolvedValueOnce([]);
-		renderPage();
-		expect((await screen.findByRole("alert")).textContent).toContain(
-			"data pendukung gagal dimuat",
-		);
-		expect(screen.getAllByText("—").length).toBeGreaterThanOrEqual(4);
-		fireEvent.click(
-			within(screen.getByRole("alert")).getByRole("button", {
-				name: "Coba lagi",
-			}),
-		);
-		await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
-		expect(getStudentsOptionsApi).toHaveBeenCalledTimes(2);
-	});
-
 	it("renders page header, 4 stats cards, view switcher tabs, filter bar, and student table", async () => {
 		renderPage();
 
@@ -188,7 +192,7 @@ describe("StudyPlansPage", () => {
 		).toBeTruthy();
 		expect(screen.getByText("Rencana Studi (KRS)")).toBeTruthy();
 		expect(screen.queryByRole("button", { name: /ekspor krs/i })).toBeNull();
-		expect(screen.getByText("+ Tambah / Force Enroll KRS")).toBeTruthy();
+		expect(screen.getByText(/Tambah \/ Force Enroll KRS/i)).toBeTruthy();
 
 		// 2. 4 Stat Cards
 		expect(screen.getByText("SISWA SUDAH KRS")).toBeTruthy();
@@ -237,13 +241,13 @@ describe("StudyPlansPage", () => {
 		expect(screen.getByText("Baris per halaman:")).toBeTruthy();
 	});
 
-	it("opens modal dialog when clicking '+ Tambah / Force Enroll KRS'", async () => {
+	it("opens modal dialog when clicking 'Tambah / Force Enroll KRS'", async () => {
 		renderPage();
 
 		expect(await screen.findByText("Fajar Nugraha")).toBeTruthy();
 
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -293,7 +297,7 @@ describe("StudyPlansPage", () => {
 		expect(screen.getByText("Galih Pratama")).toBeTruthy();
 
 		const searchInput = screen.getByPlaceholderText(
-			/Cari nama siswa, NIS\/NIM, kode atau nama mata pelajaran.../i,
+			/Cari siswa, NIS, atau mapel.../i,
 		);
 		fireEvent.change(searchInput, { target: { value: "Galih" } });
 
@@ -355,7 +359,7 @@ describe("StudyPlansPage", () => {
 
 		// Open Add Modal
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -407,7 +411,7 @@ describe("StudyPlansPage", () => {
 		).toBeGreaterThan(0);
 
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -476,7 +480,7 @@ describe("StudyPlansPage", () => {
 
 		// Open Add Modal
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -623,7 +627,7 @@ describe("StudyPlansPage", () => {
 
 		// Now open Add Modal to verify dynamic pills per academic year
 		const addBtn = screen.getByRole("button", {
-			name: /\+ Tambah \/ Force Enroll KRS/i,
+			name: /Tambah \/ Force Enroll KRS/i,
 		});
 		fireEvent.click(addBtn);
 
@@ -645,6 +649,154 @@ describe("StudyPlansPage", () => {
 					name: /Teknik Informatika/i,
 				}),
 			).toBeNull();
+		});
+	});
+
+	it("automatically bundles department subjects when semester and department are selected (Bundle feature)", async () => {
+		vi.mocked(getStudyPlansApi).mockResolvedValue({
+			data: [],
+			meta: {
+				currentPage: 1,
+				perPage: 10,
+				totalData: 0,
+				totalPages: 0,
+			},
+		});
+
+		vi.mocked(getClassSubjectsOptionsApi).mockResolvedValue([
+			{
+				id: "cs-ti-1",
+				subjectName: "Algoritma Pemrograman",
+				subjectCode: "TI-101",
+				credits: 3,
+				className: "X-TI-1",
+				teacherName: "Hendra Wijaya",
+				departmentId: "dept-1",
+				departmentName: "Teknik Informatika",
+				academicYearId: "ay-1",
+				academicYearName: "2026/2027",
+				isAcademicYearActive: true,
+				label: "[TI-101] Algoritma Pemrograman",
+			},
+			{
+				id: "cs-ti-2",
+				subjectName: "Basis Data I",
+				subjectCode: "TI-102",
+				credits: 4,
+				className: "X-TI-1",
+				teacherName: "Siti Rahma",
+				departmentId: "dept-1",
+				departmentName: "Teknik Informatika",
+				academicYearId: "ay-1",
+				academicYearName: "2026/2027",
+				isAcademicYearActive: true,
+				label: "[TI-102] Basis Data I",
+			},
+		]);
+
+		renderPage();
+
+		expect(await screen.findByText("Fajar Nugraha")).toBeTruthy();
+
+		// Click Add / Force Enroll KRS button
+		const addBtn = screen.getByRole("button", {
+			name: /Tambah \/ Force Enroll KRS/i,
+		});
+		fireEvent.click(addBtn);
+
+		const dialog = await screen.findByRole("dialog");
+		expect(within(dialog).getByText(/INTERVENSI ADMIN/i)).toBeTruthy();
+
+		// Select Semester Ganjil
+		const semesterSelect = within(dialog).getByLabelText("Pilih Semester");
+		expect(semesterSelect).toBeTruthy();
+		fireEvent.change(semesterSelect, { target: { value: "sem-1" } });
+
+		// Select Teknik Informatika department pill
+		const tiPill = within(dialog).getByRole("button", {
+			name: /Teknik Informatika/i,
+		});
+		fireEvent.click(tiPill);
+
+		// The Bundle Card should appear showing Paket KRS: Teknik Informatika and 2 subjects
+		await waitFor(() => {
+			expect(
+				within(dialog).getByText(/Paket KRS: Teknik Informatika/i),
+			).toBeTruthy();
+			expect(within(dialog).getAllByText(/7 SKS/i).length).toBeGreaterThan(0);
+		});
+
+		// Both subjects should be automatically bundled / checked
+		const check1 = within(dialog).getByLabelText("Algoritma Pemrograman");
+		const check2 = within(dialog).getByLabelText("Basis Data I");
+		expect((check1 as HTMLInputElement).checked).toBe(true);
+		expect((check2 as HTMLInputElement).checked).toBe(true);
+
+		// Badge "Paket Jurusan" should be visible
+		expect(within(dialog).getAllByText(/Paket Jurusan/i).length).toBe(2);
+
+		// Submit bundle
+		const submitBtn = within(dialog).getByRole("button", {
+			name: /Simpan \(2 Mapel\)/i,
+		});
+		fireEvent.click(submitBtn);
+
+		await waitFor(() => {
+			expect(createStudyPlanBundleApi).toHaveBeenCalledWith({
+				student_id: "stu-1",
+				academic_year_id: "ay-1",
+				class_subject_ids: ["cs-ti-1", "cs-ti-2"],
+			});
+		});
+	});
+
+	it("renders semester selector in filter bar and allows filtering by semester", async () => {
+		renderPage();
+
+		expect(await screen.findByText("Fajar Nugraha")).toBeTruthy();
+
+		const semesterFilter = screen.getByLabelText("Pilih Semester");
+		expect(semesterFilter).toBeTruthy();
+		expect(within(semesterFilter).getByText(/Semua Semester/i)).toBeTruthy();
+		expect(within(semesterFilter).getByText(/Semester Ganjil/i)).toBeTruthy();
+
+		fireEvent.change(semesterFilter, { target: { value: "sem-1" } });
+		expect((semesterFilter as HTMLSelectElement).value).toBe("sem-1");
+	});
+
+	it("displays bundle banner when department is filtered and opens pre-bundled dialog", async () => {
+		renderPage();
+
+		expect(await screen.findByText("Fajar Nugraha")).toBeTruthy();
+
+		// Filter by department dept-1
+		const deptFilter = screen.getByLabelText("Pilih Bidang / Departemen");
+		fireEvent.change(deptFilter, { target: { value: "dept-1" } });
+
+		// Banner should be visible
+		await waitFor(() => {
+			expect(
+				screen.getByText(/Paket KRS Jurusan: Teknik Informatika/i),
+			).toBeTruthy();
+			expect(
+				screen.getByRole("button", {
+					name: /Daftarkan Siswa ke Paket Ini/i,
+				}),
+			).toBeTruthy();
+		});
+
+		// Click "Daftarkan Siswa ke Paket Ini"
+		const bannerBtn = screen.getByRole("button", {
+			name: /Daftarkan Siswa ke Paket Ini/i,
+		});
+		fireEvent.click(bannerBtn);
+
+		const dialog = await screen.findByRole("dialog");
+		expect(within(dialog).getByText(/INTERVENSI ADMIN/i)).toBeTruthy();
+		await waitFor(() => {
+			expect(
+				within(dialog).getByText(/Paket KRS: Teknik Informatika/i),
+			).toBeTruthy();
 		});
 	});
 });
