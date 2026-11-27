@@ -10,6 +10,7 @@ Dokumentasi ini menjelaskan implementasi fitur manajemen modul pembelajaran dan 
   - **CRUD Modul Pembelajaran**: Tambah, lihat (list & detail), edit, dan hapus modul kurikulum per mata pelajaran kelas (`ClassSubject`).
   - **Pengaturan Publikasi & Kunci**: Admin dapat menerbitkan (*publish/draft*) modul ke siswa serta mengunci/membuka kunci akses modul (*lock/unlock*).
   - **CRUD Konten Materi**: Di dalam setiap modul, Admin dapat menambahkan bahan ajar (teks/artikel, video, PDF slide, link tautan eksternal, atau dokumen panduan), mengubah konten/urutan, dan menghapusnya.
+  - **Pengelompokan Bab per Mata Pelajaran**: Daftar modul dikelompokkan menurut mata pelajaran kelas. Admin membuka mata pelajaran (misalnya IPA) untuk melihat bab-babnya, lalu membuka tiap bab untuk mengelola materi pembelajaran.
   - **Pencarian & Pemfilteran**: Pencarian berbasis judul modul/materi (dengan debounce), filter berdasarkan mata pelajaran kelas, filter status publikasi (Semua / Diterbitkan / Draf), dan filter status kunci (Semua / Terbuka / Terkunci).
   - **Statistik Cepat**: Kartu metrik realtime untuk Total Modul, Modul Diterbitkan, Modul Terkunci, dan Total Konten Materi.
   - **Auto-Fetch & Re-fetch**: Menggunakan TanStack Query dengan query invalidation otomatis setelah mutasi data berhasil tanpa perlu refresh manual browser.
@@ -160,8 +161,9 @@ apps/web/src/
 1. **Auto-Fetch dan Sinkronisasi**:
    - Setelah mutasi (create, update, delete, toggle publish, toggle lock), mutasi TanStack Query secara otomatis memicu `queryClient.invalidateQueries({ queryKey: [MODULES_QUERY_KEY] })` dan `modulesQuery.refetch()`.
    - Data terbaru langsung tersaji di tabel/card tanpa membutuhkan reload browser manual.
-2. **Accordion Konten Interaktif**:
-   - Tiap kartu modul memiliki tombol toggle expand/collapse untuk membuka daftar konten materi yang ada di dalam modul tersebut.
+2. **Accordion Mata Pelajaran dan Bab**:
+   - Tiap mata pelajaran kelas dapat dibuka untuk melihat daftar bab (modul) di dalamnya, misalnya IPA → Bab 1, Bab 2, dan seterusnya.
+   - Tiap kartu bab memiliki tombol toggle expand/collapse untuk membuka daftar konten materi yang ada di dalam bab tersebut.
    - Admin dapat menambah konten baru langsung dari header modul (`+ Konten`) maupun dari tombol di dalam panel daftar konten.
 3. **Aksi Cepat (Quick Actions)**:
    - Satu klik untuk mengubah status publikasi (*Publish / Draft*).
